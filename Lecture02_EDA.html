@@ -1,0 +1,2847 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<script src="Lecture02_EDA_files/libs/clipboard/clipboard.min.js"></script>
+<script src="Lecture02_EDA_files/libs/quarto-html/tabby.min.js"></script>
+<script src="Lecture02_EDA_files/libs/quarto-html/popper.min.js"></script>
+<script src="Lecture02_EDA_files/libs/quarto-html/tippy.umd.min.js"></script>
+<link href="Lecture02_EDA_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="Lecture02_EDA_files/libs/quarto-html/light-border.css" rel="stylesheet">
+<link href="Lecture02_EDA_files/libs/quarto-html/quarto-html.min.css" rel="stylesheet" data-mode="light">
+<link href="Lecture02_EDA_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.5.57">
+
+  <meta name="author" content="Victor Henriques">
+  <title>Exploratory Data Analysis</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="Lecture02_EDA_files/libs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="Lecture02_EDA_files/libs/revealjs/dist/reveal.css">
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+      vertical-align: middle;
+    }
+  </style>
+  <link rel="stylesheet" href="Lecture02_EDA_files/libs/revealjs/dist/theme/quarto.css">
+  <link href="Lecture02_EDA_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
+  <link href="Lecture02_EDA_files/libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
+  <link href="Lecture02_EDA_files/libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="Lecture02_EDA_files/libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
+  <style type="text/css">
+
+  .callout {
+    margin-top: 1em;
+    margin-bottom: 1em;  
+    border-radius: .25rem;
+  }
+
+  .callout.callout-style-simple { 
+    padding: 0em 0.5em;
+    border-left: solid #acacac .3rem;
+    border-right: solid 1px silver;
+    border-top: solid 1px silver;
+    border-bottom: solid 1px silver;
+    display: flex;
+  }
+
+  .callout.callout-style-default {
+    border-left: solid #acacac .3rem;
+    border-right: solid 1px silver;
+    border-top: solid 1px silver;
+    border-bottom: solid 1px silver;
+  }
+
+  .callout .callout-body-container {
+    flex-grow: 1;
+  }
+
+  .callout.callout-style-simple .callout-body {
+    font-size: 1rem;
+    font-weight: 400;
+  }
+
+  .callout.callout-style-default .callout-body {
+    font-size: 0.9rem;
+    font-weight: 400;
+  }
+
+  .callout.callout-titled.callout-style-simple .callout-body {
+    margin-top: 0.2em;
+  }
+
+  .callout:not(.callout-titled) .callout-body {
+      display: flex;
+  }
+
+  .callout:not(.no-icon).callout-titled.callout-style-simple .callout-content {
+    padding-left: 1.6em;
+  }
+
+  .callout.callout-titled .callout-header {
+    padding-top: 0.2em;
+    margin-bottom: -0.2em;
+  }
+
+  .callout.callout-titled .callout-title  p {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+  }
+    
+  .callout.callout-titled.callout-style-simple .callout-content  p {
+    margin-top: 0;
+  }
+
+  .callout.callout-titled.callout-style-default .callout-content  p {
+    margin-top: 0.7em;
+  }
+
+  .callout.callout-style-simple div.callout-title {
+    border-bottom: none;
+    font-size: .9rem;
+    font-weight: 600;
+    opacity: 75%;
+  }
+
+  .callout.callout-style-default  div.callout-title {
+    border-bottom: none;
+    font-weight: 600;
+    opacity: 85%;
+    font-size: 0.9rem;
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+  }
+
+  .callout.callout-style-default div.callout-content {
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+  }
+
+  .callout.callout-style-simple .callout-icon::before {
+    height: 1rem;
+    width: 1rem;
+    display: inline-block;
+    content: "";
+    background-repeat: no-repeat;
+    background-size: 1rem 1rem;
+  }
+
+  .callout.callout-style-default .callout-icon::before {
+    height: 0.9rem;
+    width: 0.9rem;
+    display: inline-block;
+    content: "";
+    background-repeat: no-repeat;
+    background-size: 0.9rem 0.9rem;
+  }
+
+  .callout-title {
+    display: flex
+  }
+    
+  .callout-icon::before {
+    margin-top: 1rem;
+    padding-right: .5rem;
+  }
+
+  .callout.no-icon::before {
+    display: none !important;
+  }
+
+  .callout.callout-titled .callout-body > .callout-content > :last-child {
+    padding-bottom: 0.5rem;
+    margin-bottom: 0;
+  }
+
+  .callout.callout-titled .callout-icon::before {
+    margin-top: .5rem;
+    padding-right: .5rem;
+  }
+
+  .callout:not(.callout-titled) .callout-icon::before {
+    margin-top: 1rem;
+    padding-right: .5rem;
+  }
+
+  /* Callout Types */
+
+  div.callout-note {
+    border-left-color: #4582ec !important;
+  }
+
+  div.callout-note .callout-icon::before {
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAIKADAAQAAAABAAAAIAAAAACshmLzAAAEU0lEQVRYCcVXTWhcVRQ+586kSUMMxkyaElstCto2SIhitS5Ek8xUKV2poatCcVHtUlFQk8mbaaziwpWgglJwVaquitBOfhQXFlqlzSJpFSpIYyXNjBNiTCck7x2/8/LeNDOZxDuEkgOXe++553zfefee+/OYLOXFk3+1LLrRdiO81yNqZ6K9cG0P3MeFaMIQjXssE8Z1JzLO9ls20MBZX7oG8w9GxB0goaPrW5aNMp1yOZIa7Wv6o2ykpLtmAPs/vrG14Z+6d4jpbSKuhdcSyq9wGMPXjonwmESXrriLzFGOdDBLB8Y6MNYBu0dRokSygMA/mrun8MGFN3behm6VVAwg4WR3i6FvYK1T7MHo9BK7ydH+1uurECoouk5MPRyVSBrBHMYwVobG2aOXM07sWrn5qgB60rc6mcwIDJtQrnrEr44kmy+UO9r0u9O5/YbkS9juQckLed3DyW2XV/qWBBB3ptvI8EUY3I9p/67OW+g967TNr3Sotn3IuVlfMLVnsBwH4fsnebJvyGm5GeIUA3jljERmrv49SizPYuq+z7c2H/jlGC+Ghhupn/hcapqmcudB9jwJ/3jvnvu6vu5lVzF1fXyZuZZ7U8nRmVzytvT+H3kilYvH09mLWrQdwFSsFEsxFVs5fK7A0g8gMZjbif4ACpKbjv7gNGaD8bUrlk8x+KRflttr22JEMRUbTUwwDQScyzPgedQHZT0xnx7ujw2jfVfExwYHwOsDTjLdJ2ebmeQIlJ7neo41s/DrsL3kl+W2lWvAga0tR3zueGr6GL78M3ifH0rGXrBC2aAR8uYcIA5gwV8zIE8onoh8u0Fca/ciF7j1uOzEnqcIm59sEXoGc0+z6+H45V1CvAvHcD7THztu669cnp+L0okAeIc6zjbM/24LgGM1gZk7jnRu1aQWoU9sfUOuhrmtaPIO3YY1KLLWZaEO5TKUbMY5zx8W9UJ6elpLwKXbsaZ4EFl7B4bMtDv0iRipKoDQT2sNQI9b1utXFdYisi+wzZ/ri/1m7QfDgEuvgUUEIJPq3DhX/5DWNqIXDOweC2wvIR90Oq3lDpdMIgD2r0dXvGdsEW5H6x6HLRJYU7C69VefO1x8Gde1ZFSJLfWS1jbCnhtOPxmpfv2LXOA2Xk2tvnwKKPFuZ/oRmwBwqRQDcKNeVQkYcOjtWVBuM/JuYw5b6isojIkYxyYAFn5K7ZBF10fea52y8QltAg6jnMqNHFBmGkQ1j+U43HMi2xMar1Nv0zGsf1s8nUsmUtPOOrbFIR8bHFDMB5zL13Gmr/kGlCkUzedTzzmzsaJXhYawnA3UmARpiYj5ooJZiUoxFRtK3X6pgNPv+IZVPcnwbOl6f+aBaO1CNvPW9n9LmCp01nuSaTRF2YxHqZ8DYQT6WsXT+RD6eUztwYLZ8rM+rcPxamv1VQzFUkzFXvkiVrySGQgJNvXHJAxiU3/NwiC03rSf05VBaPtu/Z7/B8Yn/w7eguloAAAAAElFTkSuQmCC');
+  }
+
+  div.callout-note.callout-style-default .callout-title {
+    background-color: #dae6fb
+  }
+
+  div.callout-important {
+    border-left-color: #d9534f !important;
+  }
+
+  div.callout-important .callout-icon::before {
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAIKADAAQAAAABAAAAIAAAAACshmLzAAAEKklEQVRYCcVXTWhcVRS+575MJym48A+hSRFr00ySRQhURRfd2HYjk2SSTokuBCkU2o0LoSKKraKIBTcuFCoidGFD08nkBzdREbpQ1EDNIv8qSGMFUboImMSZd4/f9zJv8ibJMC8xJQfO3HPPPef7zrvvvnvviIkpC9nsw0UttFunbUhpFzFtarSd6WJkStVMw5xyVqYTvkwfzuf/5FgtkVoB0729j1rjXwThS7Vio+Mo6DNnvLfahoZ+i/o32lULuJ3NNiz7q6+pyAUkJaFF6JwaM2lUJlV0MlnQn5aTRbEu0SEqHUa0A4AdiGuB1kFXRfVyg5d87+Dg4DL6m2TLAub60ilj7A1Ec4odSAc8X95sHh7+ZRPCFo6Fnp7HfU/fBng/hi10CjCnWnJjsxvDNxWw0NfV6Rv5GgP3I3jGWXumdTD/3cbEOP2ZbOZp69yniG3FQ9z1jD7bnBu9Fc2tKGC2q+uAJOQHBDRiZX1x36o7fWBs7J9ownbtO+n0/qWkvW7UPIfc37WgT6ZGR++EOJyeQDSb9UB+DZ1G6DdLDzyS+b/kBCYGsYgJbSQHuThGKRcw5xdeQf8YdNHsc6ePXrlSYMBuSIAFTGAtQo+VuALo4BX83N190NWZWbynBjhOHsmNfFWLeL6v+ynsA58zDvvAC8j5PkbOcXCMg2PZFk3q8MjI7WAG/Dp9AwP7jdGBOOQkAvlFUB+irtm16I1Zw9YBcpGTGXYmk3kQIC/Cds55l+iMI3jqhjAuaoe+am2Jw5GT3Nbz3CkE12NavmzN5+erJW7046n/CH1RO/RVa8lBLozXk9uqykkGAyRXLWlLv5jyp4RFsG5vGVzpDLnIjTWgnRy2Rr+tDKvRc7Y8AyZq10jj8DqXdnIRNtFZb+t/ZRtXcDiVnzpqx8mPcDWxgARUqx0W1QB9MeUZiNrV4qP+Ehc+BpNgATsTX8ozYKL2NtFYAHc84fG7ndxUPr+AR/iQSns7uSUufAymwDOb2+NjK27lEFocm/EE2WpyIy/Hi66MWuMKJn8RvxIcj87IM5Vh9663ziW36kR0HNenXuxmfaD8JC7tfKbrhFr7LiZCrMjrzTeGx+PmkosrkNzW94ObzwocJ7A1HokLolY+AvkTiD/q1H0cN48c5EL8Crkttsa/AXQVDmutfyku0E7jShx49XqV3MFK8IryDhYVbj7Sj2P2eBxwcXoe8T8idsKKPRcnZw1b+slFTubwUwhktrfnAt7J++jwQtLZcm3sr9LQrjRzz6cfMv9aLvgmnAGvpoaGLxM4mAEaLV7iAzQ3oU0IvD5x9ix3yF2RAAuYAOO2f7PEFWCXZ4C9Pb2UsgDeVnFSpbFK7/IWu7TPTvBqzbGdCHOJQSxiEjt6IyZmxQyEJHv6xyQsYk//moVFsN2zP6fRImjfq7/n/wFDguUQFNEwugAAAABJRU5ErkJggg==');
+  }
+
+  div.callout-important.callout-style-default .callout-title {
+    background-color: #f7dddc
+  }
+
+  div.callout-warning {
+    border-left-color: #f0ad4e !important;
+  }
+
+  div.callout-warning .callout-icon::before {
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAIKADAAQAAAABAAAAIAAAAACshmLzAAAETklEQVRYCeVWW2gcVRg+58yaTUnizqbipZeX4uWhBEniBaoUX1Ioze52t7sRq6APio9V9MEaoWlVsFasRq0gltaAPuxms8lu0gcviE/FFOstVbSIxgcv6SU7EZqmdc7v9+9mJtNks51NTUH84ed889/PP+cmxP+d5FIbMJmNbpREu4WUkiTtCicKny0l1pIKmBzovF2S+hIJHX8iEu3hZJ5lNZGqyRrGSIQpq15AzF28jgpeY6yk6GVdrfFqdrD6Iw+QlB8g0YS2g7dyQmXM/IDhBhT0UCiRf59lfqmmDvzRt6kByV/m4JjtzuaujMUM2c5Z2d6JdKrRb3K2q6mA+oYVz8JnDdKPmmNthzkAk/lN63sYPgevrguc72aZX/L9C6x09GYyxBgCX4NlvyGUHOKELlm5rXeR1kchuChJt4SSwyddZRXgvwMGvYo4QSlk3/zkHD8UHxwVJA6zjZZqP8v8kK8OWLnIZtLyCAJagYC4rTGW/9Pqj92N/c+LUaAj27movwbi19tk/whRCIE7Q9vyI6yvRpftAKVTdUjOW40X3h5OXsKCdmFcx0xlLJoSuQngnrJe7Kcjm4OMq9FlC7CMmScQANuNvjfP3PjGXDBaUQmbp296S5L4DrpbrHN1T87ZVEZVCzg1FF0Ft+dKrlLukI+/c9ENo+TvlTDbYFvuKPtQ9+l052rXrgKoWkDAFnvh0wTOmYn8R5f4k/jN/fZiCM1tQx9jQQ4ANhqG4hiL0qIFTGViG9DKB7GYzgubnpofgYRwO+DFjh0Zin2m4b/97EDkXkc+f6xYAPX0KK2I/7fUQuwzuwo/L3AkcjugPNixC8cHf0FyPjWlItmLxWw4Ou9YsQCr5fijMGoD/zpdRy95HRysyXA74MWOnscpO4j2y3HAVisw85hX5+AFBRSHt4ShfLFkIMXTqyKFc46xdzQM6XbAi702a7sy04J0+feReMFKp5q9esYLCqAZYw/k14E/xcLLsFElaornTuJB0svMuJINy8xkIYuL+xPAlWRceH6+HX7THJ0djLUom46zREu7tTkxwmf/FdOZ/sh6Q8qvEAiHpm4PJ4a/doJe0gH1t+aHRgCzOvBvJedEK5OFE5jpm4AGP2a8Dxe3gGJ/pAutug9Gp6he92CsSsWBaEcxGx0FHytmIpuqGkOpldqNYQK8cSoXvd+xLxXADw0kf6UkJNFtdo5MOgaLjiQOQHcn+A6h5NuL2s0qsC2LOM75PcF3yr5STuBSAcGG+meA14K/CI21HcS4LBT6tv0QAh8Dr5l93AhZzG5ZJ4VxAqdZUEl9z7WJ4aN+svMvwHHL21UKTd1mqvChH7/Za5xzXBBKrUcB0TQ+Ulgkfbi/H/YT5EptrGzsEK7tR1B7ln9BBwckYfMiuSqklSznIuoIIOM42MQO+QnduCoFCI0bpkzjCjddHPN/F+2Yu+sd9bKNpVwHhbS3LluK/0zgfwD0xYI5dXuzlQAAAABJRU5ErkJggg==');
+  }
+
+  div.callout-warning.callout-style-default .callout-title {
+    background-color: #fcefdc
+  }
+
+  div.callout-tip {
+    border-left-color: #02b875 !important;
+  }
+
+  div.callout-tip .callout-icon::before {
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAIKADAAQAAAABAAAAIAAAAACshmLzAAADr0lEQVRYCe1XTWgTQRj9ZjZV8a9SPIkKgj8I1bMHsUWrqYLVg4Ue6v9BwZOxSYsIerFao7UiUryIqJcqgtpimhbBXoSCVxUFe9CTiogUrUp2Pt+3aUI2u5vdNh4dmMzOzHvvezuz8xNFM0mjnbXaNu1MvFWRXkXEyE6aYOYJpdW4IXuA4r0fo8qqSMDBU0v1HJUgVieAXxzCsdE/YJTdFcVIZQNMyhruOMJKXYFoLfIfIvVIMWdsrd+Rpd86ZmyzzjJmLStqRn0v8lzkb4rVIXvnpScOJuAn2ACC65FkPzEdEy4TPWRLJ2h7z4cArXzzaOdKlbOvKKX25Wl00jSnrwVxAg3o4dRxhO13RBSdNvH0xSARv3adTXbBdTf64IWO2vH0LT+cv4GR1DJt+DUItaQogeBX/chhbTBxEiZ6gftlDNXTrvT7co4ub5A6gp9HIcHvzTa46OS5fBeP87Qm0fQkr4FsYgVQ7Qg+ZayaDg9jhg1GkWj8RG6lkeSacrrHgDaxdoBiZPg+NXV/KifMuB6//JmYH4CntVEHy/keA6x4h4CU5oFy8GzrBS18cLJMXcljAKB6INjWsRcuZBWVaS3GDrqB7rdapVIeA+isQ57Eev9eCqzqOa81CY05VLd6SamW2wA2H3SiTbnbSxmzfp7WtKZkqy4mdyAlGx7ennghYf8voqp9cLSgKdqNfa6RdRsAAkPwRuJZNbpByn+RrJi1RXTwdi8RQF6ymDwGMAtZ6TVE+4uoKh+MYkcLsT0Hk8eAienbiGdjJHZTpmNjlbFJNKDVAp2fJlYju6IreQxQ08UJDNYdoLSl6AadO+fFuCQqVMB1NJwPm69T04Wv5WhfcWyfXQB+wXRs1pt+nCknRa0LVzSA/2B+a9+zQJadb7IyyV24YAxKp2Jqs3emZTuNnKxsah+uabKbMk7CbTgJx/zIgQYErIeTKRQ9yD9wxVof5YolPHqaWo7TD6tJlh7jQnK5z2n3+fGdggIOx2kaa2YI9QWarc5Ce1ipNWMKeSG4DysFF52KBmTNMmn5HqCFkwy34rDg05gDwgH3bBi+sgFhN/e8QvRn8kbamCOhgrZ9GJhFDgfcMHzFb6BAtjKpFhzTjwv1KCVuxHvCbsSiEz4CANnj84cwHdFXAbAOJ4LTSAawGWFn5tDhLMYz6nWeU2wJfIhmIJBefcd/A5FWQWGgrWzyORZ3Q6HuV+Jf0Bj+BTX69fm1zWgK7By1YTXchFDORywnfQ7GpzOo6S+qECrsx2ifVQAAAABJRU5ErkJggg==');
+  }
+
+  div.callout-tip.callout-style-default .callout-title {
+    background-color: #ccf1e3
+  }
+
+  div.callout-caution {
+    border-left-color: #fd7e14 !important;
+  }
+
+  div.callout-caution .callout-icon::before {
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAIKADAAQAAAABAAAAIAAAAACshmLzAAACV0lEQVRYCdVWzWoUQRCuqp2ICBLJXgITZL1EfQDBW/bkzUMUD7klD+ATSHBEfAIfQO+iXsWDxJsHL96EHAwhgzlkg8nBg25XWb0zIb0zs9muYYWkoKeru+vn664fBqElyZNuyh167NXJ8Ut8McjbmEraKHkd7uAnAFku+VWdb3reSmRV8PKSLfZ0Gjn3a6Xlcq9YGb6tADjn+lUfTXtVmaZ1KwBIvFI11rRXlWlatwIAAv2asaa9mlB9wwygiDX26qaw1yYPzFXg2N1GgG0FMF8Oj+VIx7E/03lHx8UhvYyNZLN7BwSPgekXXLribw7w5/c8EF+DBK5idvDVYtEEwMeYefjjLAdEyQ3M9nfOkgnPTEkYU+sxMq0BxNR6jExrAI31H1rzvLEfRIdgcv1XEdj6QTQAS2wtstEALLG1yEZ3QhH6oDX7ExBSFEkFINXH98NTrme5IOaaA7kIfiu2L8A3qhH9zRbukdCqdsA98TdElyeMe5BI8Rs2xHRIsoTSSVFfCFCWGPn9XHb4cdobRIWABNf0add9jakDjQJpJ1bTXOJXnnRXHRf+dNL1ZV1MBRCXhMbaHqGI1JkKIL7+i8uffuP6wVQAzO7+qVEbF6NbS0LJureYcWXUUhH66nLR5rYmva+2tjRFtojkM2aD76HEGAD3tPtKM309FJg5j/K682ywcWJ3PASCcycH/22u+Bh7Aa0ehM2Fu4z0SAE81HF9RkB21c5bEn4Dzw+/qNOyXr3DCTQDMBOdhi4nAgiFDGCinIa2owCEChUwD8qzd03PG+qdW/4fDzjUMcE1ZpIAAAAASUVORK5CYII=');
+  }
+
+  div.callout-caution.callout-style-default .callout-title {
+    background-color: #ffe5d0
+  }
+
+  </style>
+  <style type="text/css">
+    .reveal div.sourceCode {
+      margin: 0;
+      overflow: auto;
+    }
+    .reveal div.hanging-indent {
+      margin-left: 1em;
+      text-indent: -1em;
+    }
+    .reveal .slide:not(.center) {
+      height: 100%;
+    }
+    .reveal .slide.scrollable {
+      overflow-y: auto;
+    }
+    .reveal .footnotes {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide .absolute {
+      position: absolute;
+      display: block;
+    }
+    .reveal .footnotes ol {
+      counter-reset: ol;
+      list-style-type: none; 
+      margin-left: 0;
+    }
+    .reveal .footnotes ol li:before {
+      counter-increment: ol;
+      content: counter(ol) ". "; 
+    }
+    .reveal .footnotes ol li > p:first-child {
+      display: inline-block;
+    }
+    .reveal .slide ul,
+    .reveal .slide ol {
+      margin-bottom: 0.5em;
+    }
+    .reveal .slide ul li,
+    .reveal .slide ol li {
+      margin-top: 0.4em;
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide ul[role="tablist"] li {
+      margin-bottom: 0;
+    }
+    .reveal .slide ul li > *:first-child,
+    .reveal .slide ol li > *:first-child {
+      margin-block-start: 0;
+    }
+    .reveal .slide ul li > *:last-child,
+    .reveal .slide ol li > *:last-child {
+      margin-block-end: 0;
+    }
+    .reveal .slide .columns:nth-child(3) {
+      margin-block-start: 0.8em;
+    }
+    .reveal blockquote {
+      box-shadow: none;
+    }
+    .reveal .tippy-content>* {
+      margin-top: 0.2em;
+      margin-bottom: 0.7em;
+    }
+    .reveal .tippy-content>*:last-child {
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide > img.stretch.quarto-figure-center,
+    .reveal .slide > img.r-stretch.quarto-figure-center {
+      display: block;
+      margin-left: auto;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-left,
+    .reveal .slide > img.r-stretch.quarto-figure-left  {
+      display: block;
+      margin-left: 0;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-right,
+    .reveal .slide > img.r-stretch.quarto-figure-right  {
+      display: block;
+      margin-left: auto;
+      margin-right: 0; 
+    }
+  </style>
+</head>
+<body class="quarto-light">
+  <div class="reveal">
+    <div class="slides">
+
+<section id="title-slide" class="quarto-title-block center">
+  <h1 class="title">Exploratory Data Analysis</h1>
+  <p class="subtitle">Fundação Getulio Vargas - EESP</p>
+
+<div class="quarto-title-authors">
+<div class="quarto-title-author">
+<div class="quarto-title-author-name">
+Victor Henriques 
+</div>
+</div>
+</div>
+
+</section><section id="TOC">
+<nav role="doc-toc"> 
+<h2 id="toc-title">Table of contents</h2>
+<ul>
+<li><a href="#/measures-of-position" id="/toc-measures-of-position">Measures of position</a></li>
+<li><a href="#/arithmetic-mean" id="/toc-arithmetic-mean">Arithmetic mean</a></li>
+<li></li>
+<li><a href="#/arithmetic-mean-1" id="/toc-arithmetic-mean-1">Arithmetic mean</a></li>
+<li><a href="#/weighted-mean" id="/toc-weighted-mean">Weighted mean</a></li>
+<li><a href="#/geometric-mean" id="/toc-geometric-mean">Geometric mean</a></li>
+<li><a href="#/harmonic-mean" id="/toc-harmonic-mean">Harmonic mean</a></li>
+<li><a href="#/median" id="/toc-median">Median</a></li>
+<li><a href="#/mode" id="/toc-mode">Mode</a></li>
+<li></li>
+<li><a href="#/quantiles" id="/toc-quantiles">Quantiles</a></li>
+<li><a href="#/interpretation-of-quantiles" id="/toc-interpretation-of-quantiles">Interpretation of quantiles</a></li>
+<li><a href="#/quartiles" id="/toc-quartiles">Quartiles</a></li>
+<li><a href="#/interpretation-of-quartiles" id="/toc-interpretation-of-quartiles">Interpretation of quartiles</a></li>
+<li><a href="#/deciles" id="/toc-deciles">Deciles</a></li>
+<li><a href="#/interpretation-of-deciles" id="/toc-interpretation-of-deciles">Interpretation of deciles</a></li>
+<li><a href="#/percentiles" id="/toc-percentiles">Percentiles</a></li>
+<li><a href="#/interpretation-of-percentiles" id="/toc-interpretation-of-percentiles">Interpretation of percentiles</a></li>
+<li><a href="#/midrange" id="/toc-midrange">Midrange</a></li>
+<li><a href="#/interpretation-of-the-midrange" id="/toc-interpretation-of-the-midrange">Interpretation of the midrange</a></li>
+<li><a href="#/midhinge" id="/toc-midhinge">Midhinge</a></li>
+<li><a href="#/interpretation-of-the-midhinge" id="/toc-interpretation-of-the-midhinge">Interpretation of the midhinge</a></li>
+<li><a href="#/trimean" id="/toc-trimean">Trimean</a></li>
+<li><a href="#/interpretation-of-the-trimean" id="/toc-interpretation-of-the-trimean">Interpretation of the trimean</a></li>
+<li><a href="#/trimmed-mean" id="/toc-trimmed-mean">Trimmed mean</a></li>
+<li><a href="#/interpretation-of-the-trimmed-mean" id="/toc-interpretation-of-the-trimmed-mean">Interpretation of the trimmed mean</a></li>
+<li><a href="#/winsorized-mean" id="/toc-winsorized-mean">Winsorized mean</a></li>
+<li><a href="#/interpretation-of-the-winsorized-mean" id="/toc-interpretation-of-the-winsorized-mean">Interpretation of the winsorized mean</a></li>
+<li><a href="#/comparing-measures-of-position" id="/toc-comparing-measures-of-position">Comparing measures of position</a></li>
+<li><a href="#/robustness-to-outliers" id="/toc-robustness-to-outliers">Robustness to outliers</a></li>
+<li><a href="#/choosing-the-appropriate-measure" id="/toc-choosing-the-appropriate-measure">Choosing the appropriate measure</a></li>
+<li><a href="#/choosing-the-appropriate-measure-1" id="/toc-choosing-the-appropriate-measure-1">Choosing the appropriate measure</a></li>
+<li><a href="#/measures-of-position-in-time-series" id="/toc-measures-of-position-in-time-series">Measures of position in time series</a></li>
+<li><a href="#/summary" id="/toc-summary">Summary</a></li>
+<li><a href="#/measures-of-dispersion" id="/toc-measures-of-dispersion">Measures of Dispersion</a></li>
+<li><a href="#/range" id="/toc-range">Range</a></li>
+<li><a href="#/interquartile-range" id="/toc-interquartile-range">Interquartile Range</a></li>
+<li><a href="#/semi-interquartile-range" id="/toc-semi-interquartile-range">Semi-Interquartile Range</a></li>
+<li><a href="#/quantile-range" id="/toc-quantile-range">Quantile Range</a></li>
+<li><a href="#/sample-variance" id="/toc-sample-variance">Sample Variance</a></li>
+<li><a href="#/population-variance" id="/toc-population-variance">Population Variance</a></li>
+<li><a href="#/sample-standard-deviation" id="/toc-sample-standard-deviation">Sample Standard Deviation</a></li>
+<li><a href="#/population-standard-deviation" id="/toc-population-standard-deviation">Population Standard Deviation</a></li>
+<li><a href="#/mean-absolute-deviation-around-the-mean" id="/toc-mean-absolute-deviation-around-the-mean">Mean Absolute Deviation Around the Mean</a></li>
+<li><a href="#/mean-absolute-deviation-around-the-median" id="/toc-mean-absolute-deviation-around-the-median">Mean Absolute Deviation Around the Median</a></li>
+<li><a href="#/median-absolute-deviation" id="/toc-median-absolute-deviation">Median Absolute Deviation</a></li>
+<li><a href="#/scaled-median-absolute-deviation" id="/toc-scaled-median-absolute-deviation">Scaled Median Absolute Deviation</a></li>
+<li><a href="#/coefficient-of-variation" id="/toc-coefficient-of-variation">Coefficient of Variation</a></li>
+<li><a href="#/mean-squared-deviation" id="/toc-mean-squared-deviation">Mean Squared Deviation</a></li>
+<li><a href="#/root-mean-squared-deviation" id="/toc-root-mean-squared-deviation">Root Mean Squared Deviation</a></li>
+<li><a href="#/downside-deviation" id="/toc-downside-deviation">Downside Deviation</a></li>
+<li><a href="#/semi-variance" id="/toc-semi-variance">Semi-Variance</a></li>
+<li><a href="#/mean-absolute-percentage-deviation" id="/toc-mean-absolute-percentage-deviation">Mean Absolute Percentage Deviation</a></li>
+<li><a href="#/rolling-mean" id="/toc-rolling-mean">Rolling Mean</a></li>
+<li><a href="#/rolling-standard-deviation" id="/toc-rolling-standard-deviation">Rolling Standard Deviation</a></li>
+<li><a href="#/rolling-iqr" id="/toc-rolling-iqr">Rolling IQR</a></li>
+<li><a href="#/log-return" id="/toc-log-return">Log Return</a></li>
+<li><a href="#/return-volatility" id="/toc-return-volatility">Return Volatility</a></li>
+<li><a href="#/annualized-volatility" id="/toc-annualized-volatility">Annualized Volatility</a></li>
+<li><a href="#/z-score" id="/toc-z-score">Z-Score</a></li>
+<li><a href="#/robust-z-score" id="/toc-robust-z-score">Robust Z-Score</a></li>
+<li><a href="#/measures-of-shape" id="/toc-measures-of-shape">Measures of Shape</a></li>
+<li><a href="#/central-moments" id="/toc-central-moments">Central Moments</a></li>
+<li><a href="#/first-four-moments" id="/toc-first-four-moments">First Four Moments</a></li>
+<li><a href="#/skewness" id="/toc-skewness">Skewness</a></li>
+<li><a href="#/interpretation-of-skewness" id="/toc-interpretation-of-skewness">Interpretation of Skewness</a></li>
+<li><a href="#/right-skewed-distribution" id="/toc-right-skewed-distribution">Right-Skewed Distribution</a></li>
+<li><a href="#/left-skewed-distribution" id="/toc-left-skewed-distribution">Left-Skewed Distribution</a></li>
+<li><a href="#/pearsons-first-skewness-coefficient" id="/toc-pearsons-first-skewness-coefficient">Pearson’s First Skewness Coefficient</a></li>
+<li><a href="#/pearsons-second-skewness-coefficient" id="/toc-pearsons-second-skewness-coefficient">Pearson’s Second Skewness Coefficient</a></li>
+<li><a href="#/bowleys-skewness" id="/toc-bowleys-skewness">Bowley’s Skewness</a></li>
+<li><a href="#/interpretation-of-bowleys-skewness" id="/toc-interpretation-of-bowleys-skewness">Interpretation of Bowley’s Skewness</a></li>
+<li><a href="#/kurtosis" id="/toc-kurtosis">Kurtosis</a></li>
+<li><a href="#/excess-kurtosis" id="/toc-excess-kurtosis">Excess Kurtosis</a></li>
+<li><a href="#/interpretation-of-kurtosis" id="/toc-interpretation-of-kurtosis">Interpretation of Kurtosis</a></li>
+<li><a href="#/moment-based-shape-summary" id="/toc-moment-based-shape-summary">Moment-Based Shape Summary</a></li>
+<li><a href="#/coefficient-of-quartile-dispersion" id="/toc-coefficient-of-quartile-dispersion">Coefficient of Quartile Dispersion</a></li>
+<li><a href="#/tail-ratio" id="/toc-tail-ratio">Tail Ratio</a></li>
+<li><a href="#/interpretation-of-tail-ratio" id="/toc-interpretation-of-tail-ratio">Interpretation of Tail Ratio</a></li>
+<li><a href="#/quantile-based-skewness" id="/toc-quantile-based-skewness">Quantile-Based Skewness</a></li>
+<li><a href="#/quantile-based-tail-weight" id="/toc-quantile-based-tail-weight">Quantile-Based Tail Weight</a></li>
+<li><a href="#/bivariate-measures" id="/toc-bivariate-measures">Bivariate Measures</a></li>
+<li><a href="#/sample-covariance" id="/toc-sample-covariance">Sample Covariance</a></li>
+<li><a href="#/population-covariance" id="/toc-population-covariance">Population Covariance</a></li>
+<li><a href="#/interpretation-of-covariance" id="/toc-interpretation-of-covariance">Interpretation of Covariance</a></li>
+<li><a href="#/pearson-correlation" id="/toc-pearson-correlation">Pearson Correlation</a></li>
+<li><a href="#/interpretation-of-pearson-correlation" id="/toc-interpretation-of-pearson-correlation">Interpretation of Pearson Correlation</a></li>
+<li><a href="#/correlation-and-causality" id="/toc-correlation-and-causality">Correlation and Causality</a></li>
+<li><a href="#/spearman-rank-correlation" id="/toc-spearman-rank-correlation">Spearman Rank Correlation</a></li>
+<li><a href="#/interpretation-of-spearman-correlation" id="/toc-interpretation-of-spearman-correlation">Interpretation of Spearman Correlation</a></li>
+<li><a href="#/kendalls-tau" id="/toc-kendalls-tau">Kendall’s Tau</a></li>
+<li><a href="#/concordant-and-discordant-pairs" id="/toc-concordant-and-discordant-pairs">Concordant and Discordant Pairs</a></li>
+<li><a href="#/simple-linear-regression" id="/toc-simple-linear-regression">Simple Linear Regression</a></li>
+<li><a href="#/ols-slope" id="/toc-ols-slope">OLS Slope</a></li>
+<li><a href="#/ols-intercept" id="/toc-ols-intercept">OLS Intercept</a></li>
+<li><a href="#/residuals" id="/toc-residuals">Residuals</a></li>
+<li><a href="#/residual-sum-of-squares" id="/toc-residual-sum-of-squares">Residual Sum of Squares</a></li>
+<li><a href="#/total-sum-of-squares" id="/toc-total-sum-of-squares">Total Sum of Squares</a></li>
+<li><a href="#/explained-sum-of-squares" id="/toc-explained-sum-of-squares">Explained Sum of Squares</a></li>
+<li><a href="#/coefficient-of-determination" id="/toc-coefficient-of-determination">Coefficient of Determination</a></li>
+<li><a href="#/interpretation-of-r-squared" id="/toc-interpretation-of-r-squared">Interpretation of R-Squared</a></li>
+<li><a href="#/beta-as-market-sensitivity" id="/toc-beta-as-market-sensitivity">Beta as Market Sensitivity</a></li>
+<li><a href="#/spread-between-two-series" id="/toc-spread-between-two-series">Spread Between Two Series</a></li>
+<li><a href="#/ratio-between-two-series" id="/toc-ratio-between-two-series">Ratio Between Two Series</a></li>
+<li><a href="#/log-ratio" id="/toc-log-ratio">Log Ratio</a></li>
+<li><a href="#/rolling-correlation" id="/toc-rolling-correlation">Rolling Correlation</a></li>
+<li><a href="#/rolling-covariance" id="/toc-rolling-covariance">Rolling Covariance</a></li>
+<li><a href="#/lead-lag-correlation" id="/toc-lead-lag-correlation">Lead-Lag Correlation</a></li>
+<li><a href="#/cross-correlation-function" id="/toc-cross-correlation-function">Cross-Correlation Function</a></li>
+<li><a href="#/autocovariance" id="/toc-autocovariance">Autocovariance</a></li>
+<li><a href="#/autocorrelation" id="/toc-autocorrelation">Autocorrelation</a></li>
+<li><a href="#/sample-autocorrelation" id="/toc-sample-autocorrelation">Sample Autocorrelation</a></li>
+<li><a href="#/distance-between-two-series" id="/toc-distance-between-two-series">Distance Between Two Series</a></li>
+<li><a href="#/mean-absolute-difference" id="/toc-mean-absolute-difference">Mean Absolute Difference</a></li>
+<li><a href="#/tracking-error" id="/toc-tracking-error">Tracking Error</a></li>
+<li><a href="#/error-metrics-as-bivariate-measures" id="/toc-error-metrics-as-bivariate-measures">Error Metrics as Bivariate Measures</a></li>
+<li><a href="#/mean-absolute-percentage-error" id="/toc-mean-absolute-percentage-error">Mean Absolute Percentage Error</a></li>
+<li><a href="#/symmetric-mean-absolute-percentage-error" id="/toc-symmetric-mean-absolute-percentage-error">Symmetric Mean Absolute Percentage Error</a></li>
+<li></li>
+<li><a href="#/summary-1" id="/toc-summary-1">Summary</a>
+<ul>
+<li><a href="#/summary-dispersion" id="/toc-summary-dispersion">Summary: Dispersion</a></li>
+<li><a href="#/summary-shape" id="/toc-summary-shape">Summary: Shape</a></li>
+<li><a href="#/summary-bivariate-measures" id="/toc-summary-bivariate-measures">Summary: Bivariate Measures</a></li>
+<li><a href="#/final-message" id="/toc-final-message">Final Message</a></li>
+</ul></li>
+</ul>
+</nav>
+</section>
+<section id="measures-of-position" class="slide level2">
+<h2>Measures of position</h2>
+<p><strong>Measures of position</strong> summarize where the data are located or concentrated.</p>
+<p>They answer questions such as:</p>
+<ul>
+<li>What is the typical value?</li>
+<li>Where is the center of the distribution?</li>
+<li>What value separates the lower and upper parts of the data?</li>
+<li>How high or low is a value relative to the historical distribution?</li>
+</ul>
+<p>The main measures of position are:</p>
+<ul>
+<li>mean</li>
+<li>median</li>
+<li>mode</li>
+<li>quantiles</li>
+</ul>
+<!-- - arithmetic mean -->
+<!-- - weighted mean -->
+<!-- - geometric mean -->
+<!-- - harmonic mean -->
+<!-- - mean -->
+<!-- - median -->
+<!-- - mode -->
+<!-- - quantiles -->
+<!-- - quartiles -->
+<!-- - deciles -->
+<!-- - percentiles -->
+<!-- - midrange -->
+<!-- - midhinge -->
+<!-- - trimean -->
+<!-- - trimmed mean -->
+<p>Each measure captures a different notion of “central” or “typical” behavior.</p>
+<!-- --- -->
+<!-- After describing the **position** of the data, we need to understand: -->
+<!-- - how spread out the data are; -->
+<!-- - whether the distribution is symmetric or skewed; -->
+<!-- - whether the distribution has heavy tails; -->
+<!-- - how two variables move together; -->
+<!-- - whether relationships are linear, monotonic, stable, or noisy. -->
+<!-- --- -->
+<!-- **Measures of shape** describe the form of the distribution. -->
+<!-- They help answer questions such as: -->
+<!-- - Is the distribution symmetric? -->
+<!-- - Is it skewed to the right or left? -->
+<!-- - Are tails heavier than expected? -->
+<!-- - Are extreme values frequent? -->
+<!-- - Does the distribution look normal, fat-tailed, or asymmetric? -->
+<!-- --- -->
+</section>
+<section id="arithmetic-mean" class="slide level2">
+<h2>Arithmetic mean</h2>
+<p>The <strong>arithmetic mean</strong> is the sum of all observations divided by the number of observations.</p>
+<p><span class="math display">\[
+\bar{x} = \frac{1}{n}\sum_{i=1}^{n} x_i
+\]</span></p>
+<p>Where:</p>
+<ul>
+<li><span class="math inline">\(\bar{x}\)</span> is the arithmetic mean;</li>
+<li><span class="math inline">\(x_i\)</span> is observation <span class="math inline">\(i\)</span>;</li>
+<li><span class="math inline">\(n\)</span> is the number of observations.</li>
+</ul>
+</section>
+<section class="slide level2">
+
+<aside class="notes">
+<p>The arithmetic mean represents the average level of the data. In financial and economic data, it may be used to summarize:</p>
+<ul>
+<li>average price;</li>
+<li>average spread;</li>
+<li>average return;</li>
+<li>average level by market;</li>
+<li>average level by period.</li>
+</ul>
+<p>However, it is sensitive to extreme values.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="arithmetic-mean-1" class="slide level2">
+<h2>Arithmetic mean</h2>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>Ticker
+ABEV3.SA    0.000145
+ALOS3.SA    0.000199
+ASAI3.SA   -0.000544
+B3SA3.SA    0.000119
+BBAS3.SA    0.000501
+              ...   
+VALE3.SA    0.000088
+VAMO3.SA   -0.001203
+VBBR3.SA    0.000462
+WEGE3.SA    0.000321
+YDUQ3.SA   -0.000858
+Length: 78, dtype: float64</code></pre>
+</div>
+</div>
+</section>
+<section id="weighted-mean" class="slide level2">
+<h2>Weighted mean</h2>
+<p>The <strong>weighted mean</strong> assigns different importance to each observation.</p>
+<p><span class="math display">\[
+\bar{x}_w = \frac{\sum_{i=1}^{n} w_i x_i}{\sum_{i=1}^{n} w_i}
+\]</span></p>
+<p>Where:</p>
+<ul>
+<li><span class="math inline">\(x_i\)</span> is observation <span class="math inline">\(i\)</span>;</li>
+<li><span class="math inline">\(w_i\)</span> is the weight assigned to observation <span class="math inline">\(i\)</span>;</li>
+<li><span class="math inline">\(\bar{x}_w\)</span> is the weighted mean.</li>
+</ul>
+<aside class="notes">
+<p>The weighted mean is useful when observations do not have the same relevance.</p>
+<p>Examples:</p>
+<ul>
+<li>price weighted by volume;</li>
+<li>average price weighted by liquidity;</li>
+<li>regional average weighted by market size;</li>
+<li>portfolio return weighted by exposure;</li>
+<li>curve average weighted by contract importance.</li>
+</ul>
+<p>The key idea is:</p>
+<blockquote>
+<p>Observations with higher weights have greater influence on the final measure.</p>
+</blockquote>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="geometric-mean" class="slide level2">
+<h2>Geometric mean</h2>
+<p>The <strong>geometric mean</strong> is calculated as the nth root of the product of positive observations.</p>
+<p><span class="math display">\[
+G = \left(\prod_{i=1}^{n} x_i\right)^{1/n}
+\]</span></p>
+<p>Equivalently:</p>
+<p><span class="math display">\[
+G = \exp\left(\frac{1}{n}\sum_{i=1}^{n}\ln(x_i)\right)
+\]</span></p>
+<p>The geometric mean requires positive values.</p>
+<aside class="notes">
+<p>The geometric mean is especially useful for growth rates and compounded returns.</p>
+<p>If <span class="math inline">\(r_i\)</span> represents the return in period <span class="math inline">\(i\)</span>, the geometric average return is:</p>
+<p><span class="math display">\[
+G_r = \left(\prod_{i=1}^{n} (1+r_i)\right)^{1/n} - 1
+\]</span></p>
+<p>This is useful when evaluating:</p>
+<ul>
+<li>compounded returns;</li>
+<li>average growth rates;</li>
+<li>cumulative performance;</li>
+<li>long-term price changes.</li>
+</ul>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="harmonic-mean" class="slide level2">
+<h2>Harmonic mean</h2>
+<p>The <strong>harmonic mean</strong> is the reciprocal of the arithmetic mean of reciprocals.</p>
+<p><span class="math display">\[
+H = \frac{n}{\sum_{i=1}^{n}\frac{1}{x_i}}
+\]</span></p>
+<p>Where all <span class="math inline">\(x_i\)</span> values must be positive.</p>
+<aside class="notes">
+<p>The harmonic mean is useful for averaging ratios or rates.</p>
+<p>Examples:</p>
+<ul>
+<li>average price-to-earnings ratios;</li>
+<li>average speeds;</li>
+<li>average rates;</li>
+<li>unit costs;</li>
+<li>ratios where the denominator matters.</li>
+</ul>
+<p>It gives more weight to smaller values than the arithmetic mean.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="median" class="slide level2">
+<h2>Median</h2>
+<p>The <strong>median</strong> is the value that divides the ordered data into two equal parts.</p>
+<p>If the data are ordered as:</p>
+<p><span class="math display">\[
+x_{(1)} \leq x_{(2)} \leq \cdots \leq x_{(n)}
+\]</span></p>
+<p>Then, if <span class="math inline">\(n\)</span> is odd:</p>
+<p><span class="math display">\[
+\text{Median} = x_{\left(\frac{n+1}{2}\right)}
+\]</span></p>
+<p>If <span class="math inline">\(n\)</span> is even:</p>
+<p><span class="math display">\[
+\text{Median} = \frac{x_{\left(\frac{n}{2}\right)} + x_{\left(\frac{n}{2}+1\right)}}{2}
+\]</span></p>
+<aside class="notes">
+<p>The median is also the 50th percentile.</p>
+<p><span class="math display">\[
+\text{Median} = Q_2 = P_{50}
+\]</span></p>
+<p>It is robust to extreme values.</p>
+<p>The median is useful when data are:</p>
+<ul>
+<li>skewed;</li>
+<li>affected by outliers;</li>
+<li>non-normal;</li>
+<li>subject to occasional market shocks.</li>
+</ul>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="mode" class="slide level2">
+<h2>Mode</h2>
+<p>The <strong>mode</strong> is the most frequent value in the dataset.</p>
+<p>For a variable <span class="math inline">\(X\)</span>, the mode is:</p>
+<p><span class="math display">\[
+\text{Mode}(X) = \arg\max_x f(x)
+\]</span></p>
+<p>Where:</p>
+<ul>
+<li><span class="math inline">\(f(x)\)</span> is the frequency of value <span class="math inline">\(x\)</span>;</li>
+<li><span class="math inline">\(\arg\max_x f(x)\)</span> is the value that maximizes frequency.</li>
+</ul>
+</section>
+<section class="slide level2">
+
+<aside class="notes">
+<p>The mode answers:</p>
+<blockquote>
+<p>Which value occurs most frequently?</p>
+</blockquote>
+<p>It is especially useful for categorical or discrete variables.</p>
+<p>Examples:</p>
+<ul>
+<li>most frequent product;</li>
+<li>most common market;</li>
+<li>most common valuation type;</li>
+<li>most frequently observed maturity.</li>
+</ul>
+<p>For continuous variables, the mode is often interpreted through histograms or density estimates.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="quantiles" class="slide level2">
+<h2>Quantiles</h2>
+<p>A <strong>quantile</strong> divides the ordered data into intervals containing equal proportions of observations.</p>
+<p>The <span class="math inline">\(p\)</span>-quantile, denoted by <span class="math inline">\(q_p\)</span>, is the value below which a proportion <span class="math inline">\(p\)</span> of the data falls.</p>
+<p><span class="math display">\[
+q_p = F^{-1}(p)
+\]</span></p>
+<p>Where:</p>
+<ul>
+<li><span class="math inline">\(F^{-1}\)</span> is the inverse cumulative distribution function;</li>
+<li><span class="math inline">\(p\)</span> is a probability between 0 and 1.</li>
+</ul>
+</section>
+<section id="interpretation-of-quantiles" class="slide level2">
+<h2>Interpretation of quantiles</h2>
+<p>The <span class="math inline">\(p\)</span>-quantile answers:</p>
+<blockquote>
+<p>What value is greater than or equal to approximately <span class="math inline">\(p \times 100\%\)</span> of the observations?</p>
+</blockquote>
+<p>Examples:</p>
+<ul>
+<li><span class="math inline">\(q_{0.25}\)</span>: 25% of observations are below this value;</li>
+<li><span class="math inline">\(q_{0.50}\)</span>: 50% of observations are below this value;</li>
+<li><span class="math inline">\(q_{0.90}\)</span>: 90% of observations are below this value.</li>
+</ul>
+<p>Quantiles provide a distributional view of the data.</p>
+</section>
+<section id="quartiles" class="slide level2">
+<h2>Quartiles</h2>
+<p><strong>Quartiles</strong> divide the ordered data into four parts.</p>
+<p>The main quartiles are:</p>
+<p><span class="math display">\[
+Q_1 = q_{0.25}
+\]</span></p>
+<p><span class="math display">\[
+Q_2 = q_{0.50}
+\]</span></p>
+<p><span class="math display">\[
+Q_3 = q_{0.75}
+\]</span></p>
+<p>Where:</p>
+<ul>
+<li><span class="math inline">\(Q_1\)</span> is the first quartile;</li>
+<li><span class="math inline">\(Q_2\)</span> is the median;</li>
+<li><span class="math inline">\(Q_3\)</span> is the third quartile.</li>
+</ul>
+</section>
+<section id="interpretation-of-quartiles" class="slide level2">
+<h2>Interpretation of quartiles</h2>
+<p>Quartiles summarize the central structure of the distribution.</p>
+<ul>
+<li><span class="math inline">\(Q_1\)</span>: 25% of the data are below this value.</li>
+<li><span class="math inline">\(Q_2\)</span>: 50% of the data are below this value.</li>
+<li><span class="math inline">\(Q_3\)</span>: 75% of the data are below this value.</li>
+</ul>
+<p>The interval between <span class="math inline">\(Q_1\)</span> and <span class="math inline">\(Q_3\)</span> contains the central 50% of the data.</p>
+</section>
+<section id="deciles" class="slide level2">
+<h2>Deciles</h2>
+<p><strong>Deciles</strong> divide the ordered data into ten parts.</p>
+<p>The <span class="math inline">\(k\)</span>-th decile is:</p>
+<p><span class="math display">\[
+D_k = q_{k/10}
+\]</span></p>
+<p>For:</p>
+<p><span class="math display">\[
+k = 1, 2, \ldots, 9
+\]</span></p>
+<p>Examples:</p>
+<p><span class="math display">\[
+D_1 = q_{0.10}
+\]</span></p>
+<p><span class="math display">\[
+D_5 = q_{0.50}
+\]</span></p>
+<p><span class="math display">\[
+D_9 = q_{0.90}
+\]</span></p>
+</section>
+<section id="interpretation-of-deciles" class="slide level2">
+<h2>Interpretation of deciles</h2>
+<p>Deciles are useful when we want a more detailed breakdown than quartiles.</p>
+<p>Examples:</p>
+<ul>
+<li>identifying the bottom 10% of historical prices;</li>
+<li>identifying the top 10% of spreads;</li>
+<li>comparing current values to historical decile ranges;</li>
+<li>classifying market conditions into low, normal, and high regimes.</li>
+</ul>
+</section>
+<section id="percentiles" class="slide level2">
+<h2>Percentiles</h2>
+<p><strong>Percentiles</strong> divide the ordered data into 100 parts.</p>
+<p>The <span class="math inline">\(k\)</span>-th percentile is:</p>
+<p><span class="math display">\[
+P_k = q_{k/100}
+\]</span></p>
+<p>For:</p>
+<p><span class="math display">\[
+k = 1, 2, \ldots, 99
+\]</span></p>
+<p>Examples:</p>
+<p><span class="math display">\[
+P_{10} = q_{0.10}
+\]</span></p>
+<p><span class="math display">\[
+P_{50} = q_{0.50}
+\]</span></p>
+<p><span class="math display">\[
+P_{95} = q_{0.95}
+\]</span></p>
+</section>
+<section id="interpretation-of-percentiles" class="slide level2">
+<h2>Interpretation of percentiles</h2>
+<p>Percentiles show the relative position of a value within a distribution.</p>
+<p>They answer questions such as:</p>
+<ul>
+<li>Is the current price historically high?</li>
+<li>Is the current spread unusually low?</li>
+<li>Is today’s move among the largest historical changes?</li>
+<li>Is the curve level in an extreme region?</li>
+</ul>
+<p>Example:</p>
+<blockquote>
+<p>If the current price is above <span class="math inline">\(P_{90}\)</span>, it is higher than at least 90% of historical observations.</p>
+</blockquote>
+</section>
+<section id="midrange" class="slide level2">
+<h2>Midrange</h2>
+<p>The <strong>midrange</strong> is the average of the minimum and maximum values.</p>
+<p><span class="math display">\[
+M_R = \frac{x_{\min} + x_{\max}}{2}
+\]</span></p>
+<p>Where:</p>
+<ul>
+<li><span class="math inline">\(x_{\min}\)</span> is the minimum value;</li>
+<li><span class="math inline">\(x_{\max}\)</span> is the maximum value.</li>
+</ul>
+</section>
+<section id="interpretation-of-the-midrange" class="slide level2">
+<h2>Interpretation of the midrange</h2>
+<p>The midrange represents the midpoint between the lowest and highest observations.</p>
+<p>It is simple, but highly sensitive to outliers.</p>
+<p>In financial data, it should be used with caution because one extreme price can strongly distort the measure.</p>
+<p>It is usually less robust than the mean or median.</p>
+</section>
+<section id="midhinge" class="slide level2">
+<h2>Midhinge</h2>
+<p>The <strong>midhinge</strong> is the average of the first and third quartiles.</p>
+<p><span class="math display">\[
+M_H = \frac{Q_1 + Q_3}{2}
+\]</span></p>
+<p>Where:</p>
+<ul>
+<li><span class="math inline">\(Q_1\)</span> is the first quartile;</li>
+<li><span class="math inline">\(Q_3\)</span> is the third quartile.</li>
+</ul>
+</section>
+<section id="interpretation-of-the-midhinge" class="slide level2">
+<h2>Interpretation of the midhinge</h2>
+<p>The midhinge summarizes the center of the middle half of the data.</p>
+<p>It is more robust than the midrange because it ignores the most extreme values.</p>
+<p>It is useful when the focus is on the central part of the distribution rather than the full range.</p>
+</section>
+<section id="trimean" class="slide level2">
+<h2>Trimean</h2>
+<p>The <strong>trimean</strong> combines the median and the midhinge.</p>
+<p><span class="math display">\[
+T_M = \frac{Q_1 + 2Q_2 + Q_3}{4}
+\]</span></p>
+<p>Since <span class="math inline">\(Q_2\)</span> is the median:</p>
+<p><span class="math display">\[
+T_M = \frac{Q_1 + 2\text{Median} + Q_3}{4}
+\]</span></p>
+</section>
+<section id="interpretation-of-the-trimean" class="slide level2">
+<h2>Interpretation of the trimean</h2>
+<p>The trimean gives more weight to the median while still considering the first and third quartiles.</p>
+<p>It is more robust than the arithmetic mean.</p>
+<p>It is useful when we want a measure of central tendency that reflects the central distribution but reduces the influence of outliers.</p>
+</section>
+<section id="trimmed-mean" class="slide level2">
+<h2>Trimmed mean</h2>
+<p>The <strong>trimmed mean</strong> removes a proportion of the smallest and largest observations before calculating the mean.</p>
+<p>For a trimming proportion <span class="math inline">\(\alpha\)</span>, the trimmed mean is:</p>
+<p><span class="math display">\[
+\bar{x}_{\alpha} =
+\frac{1}{n-2k}
+\sum_{i=k+1}^{n-k} x_{(i)}
+\]</span></p>
+<p>Where:</p>
+<p><span class="math display">\[
+k = \lfloor \alpha n \rfloor
+\]</span></p>
+<p>And:</p>
+<ul>
+<li><span class="math inline">\(x_{(i)}\)</span> are the ordered observations;</li>
+<li><span class="math inline">\(\alpha\)</span> is the trimming proportion;</li>
+<li><span class="math inline">\(k\)</span> is the number of observations removed from each tail.</li>
+</ul>
+</section>
+<section id="interpretation-of-the-trimmed-mean" class="slide level2">
+<h2>Interpretation of the trimmed mean</h2>
+<p>The trimmed mean reduces the impact of extreme values.</p>
+<p>Example:</p>
+<p>A 10% trimmed mean removes:</p>
+<ul>
+<li>the lowest 10% of observations;</li>
+<li>the highest 10% of observations.</li>
+</ul>
+<p>Then it calculates the mean of the remaining data.</p>
+<p>This is useful when the dataset contains outliers but we do not want to rely only on the median.</p>
+</section>
+<section id="winsorized-mean" class="slide level2">
+<h2>Winsorized mean</h2>
+<p>The <strong>winsorized mean</strong> limits extreme values instead of removing them.</p>
+<p>Extreme observations are replaced by selected lower and upper quantiles.</p>
+<p>For example, using lower quantile <span class="math inline">\(q_\alpha\)</span> and upper quantile <span class="math inline">\(q_{1-\alpha}\)</span>:</p>
+<p><span class="math display">\[
+x_i^* =
+\begin{cases}
+q_\alpha, &amp; \text{if } x_i &lt; q_\alpha \\
+x_i, &amp; \text{if } q_\alpha \leq x_i \leq q_{1-\alpha} \\
+q_{1-\alpha}, &amp; \text{if } x_i &gt; q_{1-\alpha}
+\end{cases}
+\]</span></p>
+<p>The winsorized mean is:</p>
+<p><span class="math display">\[
+\bar{x}_W = \frac{1}{n}\sum_{i=1}^{n} x_i^*
+\]</span></p>
+</section>
+<section id="interpretation-of-the-winsorized-mean" class="slide level2">
+<h2>Interpretation of the winsorized mean</h2>
+<p>The winsorized mean keeps all observations but caps extreme values.</p>
+<p>It is useful when:</p>
+<ul>
+<li>extreme values may distort the mean;</li>
+<li>deleting observations is not desirable;</li>
+<li>we want a more robust average;</li>
+<li>we need to reduce the influence of abnormal observations.</li>
+</ul>
+<p>In financial data, it can be useful for exploratory summaries but should be documented carefully.</p>
+</section>
+<section id="comparing-measures-of-position" class="slide level2">
+<h2>Comparing measures of position</h2>
+<p>Different measures may lead to different interpretations.</p>
+<p>For a symmetric distribution:</p>
+<p><span class="math display">\[
+\text{Mean} \approx \text{Median}
+\]</span></p>
+<p>For a right-skewed distribution:</p>
+<p><span class="math display">\[
+\text{Mean} &gt; \text{Median}
+\]</span></p>
+<p>For a left-skewed distribution:</p>
+<p><span class="math display">\[
+\text{Mean} &lt; \text{Median}
+\]</span></p>
+<p>The relationship between mean and median provides an initial signal about skewness.</p>
+</section>
+<section id="robustness-to-outliers" class="slide level2">
+<h2>Robustness to outliers</h2>
+<p>Measures differ in their sensitivity to extreme values.</p>
+<p>Highly sensitive:</p>
+<ul>
+<li>arithmetic mean;</li>
+<li>midrange.</li>
+</ul>
+<p>More robust:</p>
+<ul>
+<li>median;</li>
+<li>quartiles;</li>
+<li>percentiles;</li>
+<li>trimmed mean;</li>
+<li>winsorized mean;</li>
+<li>trimean.</li>
+</ul>
+<p>This matters because economic and financial data often contain jumps, shocks, and unusual observations.</p>
+</section>
+<section id="choosing-the-appropriate-measure" class="slide level2">
+<h2>Choosing the appropriate measure</h2>
+<p>Use the <strong>mean</strong> when:</p>
+<ul>
+<li>the distribution is reasonably symmetric;</li>
+<li>outliers are not material;</li>
+<li>the objective is to estimate an average level.</li>
+</ul>
+<p>Use the <strong>median</strong> when:</p>
+<ul>
+<li>the distribution is skewed;</li>
+<li>outliers are present;</li>
+<li>the objective is to describe typical behavior.</li>
+</ul>
+<p>Use <strong>percentiles or quantiles</strong> when:</p>
+<ul>
+<li>historical positioning matters;</li>
+<li>tail behavior matters;</li>
+<li>the objective is to classify values as low, normal, or high.</li>
+</ul>
+</section>
+<section id="choosing-the-appropriate-measure-1" class="slide level2">
+<h2>Choosing the appropriate measure</h2>
+<p>Use the <strong>weighted mean</strong> when:</p>
+<ul>
+<li>observations have different importance;</li>
+<li>prices should reflect volumes, liquidity, or exposure.</li>
+</ul>
+<p>Use the <strong>geometric mean</strong> when:</p>
+<ul>
+<li>growth is compounded;</li>
+<li>returns accumulate multiplicatively.</li>
+</ul>
+<p>Use the <strong>harmonic mean</strong> when:</p>
+<ul>
+<li>averaging ratios or rates;</li>
+<li>smaller values should receive greater influence.</li>
+</ul>
+<p>Use the <strong>trimmed or winsorized mean</strong> when:</p>
+<ul>
+<li>outliers exist;</li>
+<li>but a mean-like measure is still needed.</li>
+</ul>
+</section>
+<section id="measures-of-position-in-time-series" class="slide level2">
+<h2>Measures of position in time series</h2>
+<p>For time series, measures of position can be calculated:</p>
+<ul>
+<li>over the full sample;</li>
+<li>by year;</li>
+<li>by month;</li>
+<li>before and after a structural break;</li>
+<li>over rolling windows;</li>
+<li>by market regime.</li>
+</ul>
+<p>Example rolling mean:</p>
+<p><span class="math display">\[
+\bar{x}_{t,w} = \frac{1}{w}\sum_{j=0}^{w-1} x_{t-j}
+\]</span></p>
+<p>Where:</p>
+<ul>
+<li><span class="math inline">\(w\)</span> is the rolling window size;</li>
+<li><span class="math inline">\(x_{t-j}\)</span> is the observation <span class="math inline">\(j\)</span> periods before time <span class="math inline">\(t\)</span>.</li>
+</ul>
+</section>
+<section id="summary" class="slide level2">
+<h2>Summary</h2>
+<p>Measures of position summarize where the data are located.</p>
+<p>Key measures include:</p>
+<ul>
+<li>mean;</li>
+<li>weighted mean;</li>
+<li>geometric mean;</li>
+<li>harmonic mean;</li>
+<li>median;</li>
+<li>mode;</li>
+<li>quartiles;</li>
+<li>deciles;</li>
+<li>percentiles;</li>
+<li>midrange;</li>
+<li>midhinge;</li>
+<li>trimean;</li>
+<li>trimmed mean;</li>
+<li>winsorized mean.</li>
+</ul>
+<p>The best measure depends on the distribution, the analytical objective, and the economic context.</p>
+</section>
+<section id="measures-of-dispersion" class="slide level2">
+<h2>Measures of Dispersion</h2>
+<p><strong>Measures of dispersion</strong> describe the variability or uncertainty of the data.</p>
+<p>They answer questions such as:</p>
+<ul>
+<li>How far are observations from the center?</li>
+<li>How volatile is the series?</li>
+<li>How stable are prices, spreads, or returns?</li>
+<li>Are values concentrated or widely dispersed?</li>
+</ul>
+</section>
+<section id="range" class="slide level2">
+<h2>Range</h2>
+<p>The <strong>range</strong> measures the distance between the largest and smallest observations.</p>
+<p><span class="math display">\[
+R = x_{\max} - x_{\min}
+\]</span></p>
+<p>Where:</p>
+<ul>
+<li><span class="math inline">\(x_{\max}\)</span> is the maximum value;</li>
+<li><span class="math inline">\(x_{\min}\)</span> is the minimum value.</li>
+</ul>
+<p>The range is simple, but highly sensitive to outliers.</p>
+</section>
+<section id="interquartile-range" class="slide level2">
+<h2>Interquartile Range</h2>
+<p>The <strong>interquartile range</strong>, or <strong>IQR</strong>, measures the spread of the central 50% of the data.</p>
+<p><span class="math display">\[
+IQR = Q_3 - Q_1
+\]</span></p>
+<p>Where:</p>
+<ul>
+<li><span class="math inline">\(Q_1\)</span> is the first quartile;</li>
+<li><span class="math inline">\(Q_3\)</span> is the third quartile.</li>
+</ul>
+<p>The IQR is more robust to outliers than the range.</p>
+</section>
+<section id="semi-interquartile-range" class="slide level2">
+<h2>Semi-Interquartile Range</h2>
+<p>The <strong>semi-interquartile range</strong> is half of the IQR.</p>
+<p><span class="math display">\[
+SIQR = \frac{Q_3 - Q_1}{2}
+\]</span></p>
+<p>Equivalently:</p>
+<p><span class="math display">\[
+SIQR = \frac{IQR}{2}
+\]</span></p>
+<p>It measures the typical distance from the median to the first and third quartiles.</p>
+</section>
+<section id="quantile-range" class="slide level2">
+<h2>Quantile Range</h2>
+<p>A <strong>quantile range</strong> measures the distance between two selected quantiles.</p>
+<p><span class="math display">\[
+QR_{p_1,p_2} = q_{p_2} - q_{p_1}
+\]</span></p>
+<p>Where:</p>
+<ul>
+<li><span class="math inline">\(q_{p_1}\)</span> is the lower quantile;</li>
+<li><span class="math inline">\(q_{p_2}\)</span> is the upper quantile;</li>
+<li><span class="math inline">\(0 &lt; p_1 &lt; p_2 &lt; 1\)</span>.</li>
+</ul>
+<p>Examples:</p>
+<p><span class="math display">\[
+QR_{0.10,0.90} = q_{0.90} - q_{0.10}
+\]</span></p>
+<p><span class="math display">\[
+QR_{0.05,0.95} = q_{0.95} - q_{0.05}
+\]</span></p>
+</section>
+<section id="sample-variance" class="slide level2">
+<h2>Sample Variance</h2>
+<p>The <strong>sample variance</strong> measures the average squared deviation from the sample mean.</p>
+<p><span class="math display">\[
+s^2 = \frac{1}{n-1}\sum_{i=1}^{n}(x_i - \bar{x})^2
+\]</span></p>
+<p>Where:</p>
+<ul>
+<li><span class="math inline">\(s^2\)</span> is the sample variance;</li>
+<li><span class="math inline">\(x_i\)</span> is observation <span class="math inline">\(i\)</span>;</li>
+<li><span class="math inline">\(\bar{x}\)</span> is the sample mean;</li>
+<li><span class="math inline">\(n\)</span> is the sample size.</li>
+</ul>
+</section>
+<section id="population-variance" class="slide level2">
+<h2>Population Variance</h2>
+<p>The <strong>population variance</strong> is defined as:</p>
+<p><span class="math display">\[
+\sigma^2 = \frac{1}{N}\sum_{i=1}^{N}(x_i - \mu)^2
+\]</span></p>
+<p>Where:</p>
+<ul>
+<li><span class="math inline">\(\sigma^2\)</span> is the population variance;</li>
+<li><span class="math inline">\(\mu\)</span> is the population mean;</li>
+<li><span class="math inline">\(N\)</span> is the population size.</li>
+</ul>
+</section>
+<section id="sample-standard-deviation" class="slide level2">
+<h2>Sample Standard Deviation</h2>
+<p>The <strong>sample standard deviation</strong> is the square root of the sample variance.</p>
+<p><span class="math display">\[
+s = \sqrt{\frac{1}{n-1}\sum_{i=1}^{n}(x_i - \bar{x})^2}
+\]</span></p>
+<p>It is expressed in the same unit as the original variable.</p>
+<p>Examples:</p>
+<ul>
+<li>USD/barrel;</li>
+<li>cents/gallon;</li>
+<li>USD/MWh;</li>
+<li>basis points.</li>
+</ul>
+</section>
+<section id="population-standard-deviation" class="slide level2">
+<h2>Population Standard Deviation</h2>
+<p>The <strong>population standard deviation</strong> is:</p>
+<p><span class="math display">\[
+\sigma = \sqrt{\frac{1}{N}\sum_{i=1}^{N}(x_i - \mu)^2}
+\]</span></p>
+<p>It measures the typical distance of observations from the population mean.</p>
+</section>
+<section id="mean-absolute-deviation-around-the-mean" class="slide level2">
+<h2>Mean Absolute Deviation Around the Mean</h2>
+<p>The <strong>mean absolute deviation around the mean</strong> measures the average absolute distance from the mean.</p>
+<p><span class="math display">\[
+MAD_{\bar{x}} = \frac{1}{n}\sum_{i=1}^{n}|x_i - \bar{x}|
+\]</span></p>
+<p>It is less sensitive to extreme values than variance, because deviations are not squared.</p>
+</section>
+<section id="mean-absolute-deviation-around-the-median" class="slide level2">
+<h2>Mean Absolute Deviation Around the Median</h2>
+<p>The <strong>mean absolute deviation around the median</strong> is:</p>
+<p><span class="math display">\[
+MAD_{\tilde{x}} = \frac{1}{n}\sum_{i=1}^{n}|x_i - \tilde{x}|
+\]</span></p>
+<p>Where:</p>
+<ul>
+<li><span class="math inline">\(\tilde{x}\)</span> is the sample median.</li>
+</ul>
+<p>This version uses the median as the reference point.</p>
+</section>
+<section id="median-absolute-deviation" class="slide level2">
+<h2>Median Absolute Deviation</h2>
+<p>The <strong>median absolute deviation</strong>, also called <strong>MAD</strong>, is a robust measure of dispersion.</p>
+<p><span class="math display">\[
+MAD = \text{median}\left(|x_i - \tilde{x}|\right)
+\]</span></p>
+<p>Where:</p>
+<ul>
+<li><span class="math inline">\(\tilde{x}\)</span> is the sample median;</li>
+<li><span class="math inline">\(|x_i - \tilde{x}|\)</span> is the absolute deviation from the median.</li>
+</ul>
+</section>
+<section id="scaled-median-absolute-deviation" class="slide level2">
+<h2>Scaled Median Absolute Deviation</h2>
+<p>For approximately normal data, MAD can be scaled to be comparable to the standard deviation.</p>
+<p><span class="math display">\[
+MAD_{\text{scaled}} = 1.4826 \times \text{median}\left(|x_i - \tilde{x}|\right)
+\]</span></p>
+<p>The constant <span class="math inline">\(1.4826\)</span> makes the estimator consistent with the standard deviation under normality.</p>
+</section>
+<section id="coefficient-of-variation" class="slide level2">
+<h2>Coefficient of Variation</h2>
+<p>The <strong>coefficient of variation</strong>, or <strong>CV</strong>, measures dispersion relative to the mean.</p>
+<p><span class="math display">\[
+CV = \frac{s}{\bar{x}}
+\]</span></p>
+<p>As a percentage:</p>
+<p><span class="math display">\[
+CV_{\%} = \frac{s}{\bar{x}} \times 100
+\]</span></p>
+<p>It is useful for comparing variability across series with different levels.</p>
+</section>
+<section id="mean-squared-deviation" class="slide level2">
+<h2>Mean Squared Deviation</h2>
+<p>The <strong>mean squared deviation</strong> measures average squared deviation from a reference value <span class="math inline">\(a\)</span>.</p>
+<p><span class="math display">\[
+MSD(a) = \frac{1}{n}\sum_{i=1}^{n}(x_i - a)^2
+\]</span></p>
+<p>If <span class="math inline">\(a = \bar{x}\)</span>:</p>
+<p><span class="math display">\[
+MSD(\bar{x}) = \frac{1}{n}\sum_{i=1}^{n}(x_i - \bar{x})^2
+\]</span></p>
+<p>This is closely related to variance.</p>
+</section>
+<section id="root-mean-squared-deviation" class="slide level2">
+<h2>Root Mean Squared Deviation</h2>
+<p>The <strong>root mean squared deviation</strong>, or <strong>RMSD</strong>, is:</p>
+<p><span class="math display">\[
+RMSD(a) = \sqrt{\frac{1}{n}\sum_{i=1}^{n}(x_i - a)^2}
+\]</span></p>
+<p>It is expressed in the same unit as the original variable.</p>
+<p>Common applications:</p>
+<ul>
+<li>forecast error;</li>
+<li>model deviation;</li>
+<li>benchmark deviation;</li>
+<li>pricing error.</li>
+</ul>
+</section>
+<section id="downside-deviation" class="slide level2">
+<h2>Downside Deviation</h2>
+<p>The <strong>downside deviation</strong> measures variability below a target or threshold <span class="math inline">\(\tau\)</span>.</p>
+<p><span class="math display">\[
+DD = \sqrt{\frac{1}{n}\sum_{i=1}^{n}\min(0, x_i - \tau)^2}
+\]</span></p>
+<p>Where:</p>
+<ul>
+<li><span class="math inline">\(\tau\)</span> is the target level;</li>
+<li>only observations below <span class="math inline">\(\tau\)</span> contribute to the measure.</li>
+</ul>
+</section>
+<section id="semi-variance" class="slide level2">
+<h2>Semi-Variance</h2>
+<p>The <strong>semi-variance</strong> measures average squared deviations below a target <span class="math inline">\(\tau\)</span>.</p>
+<p><span class="math display">\[
+SV = \frac{1}{n}\sum_{i=1}^{n}\min(0, x_i - \tau)^2
+\]</span></p>
+<p>The downside deviation is the square root of the semi-variance:</p>
+<p><span class="math display">\[
+DD = \sqrt{SV}
+\]</span></p>
+</section>
+<section id="mean-absolute-percentage-deviation" class="slide level2">
+<h2>Mean Absolute Percentage Deviation</h2>
+<p>The <strong>mean absolute percentage deviation</strong> measures average absolute deviation relative to a reference value.</p>
+<p>Using the mean as reference:</p>
+<p><span class="math display">\[
+MAPD = \frac{1}{n}\sum_{i=1}^{n}\left|\frac{x_i - \bar{x}}{\bar{x}}\right|
+\]</span></p>
+<p>As a percentage:</p>
+<p><span class="math display">\[
+MAPD_{\%} = \frac{1}{n}\sum_{i=1}^{n}\left|\frac{x_i - \bar{x}}{\bar{x}}\right| \times 100
+\]</span></p>
+</section>
+<section id="rolling-mean" class="slide level2">
+<h2>Rolling Mean</h2>
+<p>For time series, the rolling mean over a window of size <span class="math inline">\(w\)</span> is:</p>
+<p><span class="math display">\[
+\bar{x}_{t,w} = \frac{1}{w}\sum_{j=0}^{w-1}x_{t-j}
+\]</span></p>
+<p>Where:</p>
+<ul>
+<li><span class="math inline">\(w\)</span> is the window size;</li>
+<li><span class="math inline">\(x_{t-j}\)</span> is the observation <span class="math inline">\(j\)</span> periods before time <span class="math inline">\(t\)</span>.</li>
+</ul>
+</section>
+<section id="rolling-standard-deviation" class="slide level2">
+<h2>Rolling Standard Deviation</h2>
+<p>The <strong>rolling standard deviation</strong> over a window of size <span class="math inline">\(w\)</span> is:</p>
+<p><span class="math display">\[
+s_{t,w}
+=
+\sqrt{
+\frac{1}{w-1}
+\sum_{j=0}^{w-1}
+(x_{t-j} - \bar{x}_{t,w})^2
+}
+\]</span></p>
+<p>It measures time-varying volatility.</p>
+</section>
+<section id="rolling-iqr" class="slide level2">
+<h2>Rolling IQR</h2>
+<p>The <strong>rolling IQR</strong> is a robust time-varying measure of dispersion.</p>
+<p><span class="math display">\[
+IQR_{t,w} = Q_{3,t,w} - Q_{1,t,w}
+\]</span></p>
+<p>Where:</p>
+<ul>
+<li><span class="math inline">\(Q_{1,t,w}\)</span> is the first quartile inside the rolling window;</li>
+<li><span class="math inline">\(Q_{3,t,w}\)</span> is the third quartile inside the rolling window.</li>
+</ul>
+</section>
+<section id="log-return" class="slide level2">
+<h2>Log Return</h2>
+<p>For price series, log returns are commonly defined as:</p>
+<p><span class="math display">\[
+r_t = \ln\left(\frac{P_t}{P_{t-1}}\right)
+\]</span></p>
+<p>Where:</p>
+<ul>
+<li><span class="math inline">\(P_t\)</span> is the price at time <span class="math inline">\(t\)</span>;</li>
+<li><span class="math inline">\(P_{t-1}\)</span> is the price at the previous time point.</li>
+</ul>
+</section>
+<section id="return-volatility" class="slide level2">
+<h2>Return Volatility</h2>
+<p>The volatility of returns is commonly measured by the standard deviation of returns.</p>
+<p><span class="math display">\[
+\sigma_r =
+\sqrt{
+\frac{1}{n-1}
+\sum_{t=1}^{n}
+(r_t - \bar{r})^2
+}
+\]</span></p>
+<p>Where:</p>
+<p><span class="math display">\[
+\bar{r} = \frac{1}{n}\sum_{t=1}^{n}r_t
+\]</span></p>
+</section>
+<section id="annualized-volatility" class="slide level2">
+<h2>Annualized Volatility</h2>
+<p>For daily returns:</p>
+<p><span class="math display">\[
+\sigma_{\text{annual}} = \sigma_{\text{daily}}\sqrt{252}
+\]</span></p>
+<p>For weekly returns:</p>
+<p><span class="math display">\[
+\sigma_{\text{annual}} = \sigma_{\text{weekly}}\sqrt{52}
+\]</span></p>
+<p>For monthly returns:</p>
+<p><span class="math display">\[
+\sigma_{\text{annual}} = \sigma_{\text{monthly}}\sqrt{12}
+\]</span></p>
+<p>The scaling factor depends on the frequency of the data.</p>
+</section>
+<section id="z-score" class="slide level2">
+<h2>Z-Score</h2>
+<p>The <strong>z-score</strong> measures how many standard deviations an observation is from the mean.</p>
+<p><span class="math display">\[
+z_i = \frac{x_i - \bar{x}}{s}
+\]</span></p>
+<p>Where:</p>
+<ul>
+<li><span class="math inline">\(x_i\)</span> is observation <span class="math inline">\(i\)</span>;</li>
+<li><span class="math inline">\(\bar{x}\)</span> is the sample mean;</li>
+<li><span class="math inline">\(s\)</span> is the sample standard deviation.</li>
+</ul>
+</section>
+<section id="robust-z-score" class="slide level2">
+<h2>Robust Z-Score</h2>
+<p>A robust z-score uses the median and MAD.</p>
+<p><span class="math display">\[
+z_i^{robust}
+=
+\frac{x_i - \tilde{x}}
+{1.4826 \times MAD}
+\]</span></p>
+<p>Where:</p>
+<p><span class="math display">\[
+MAD = \text{median}\left(|x_i - \tilde{x}|\right)
+\]</span></p>
+<p>This version is less sensitive to outliers.</p>
+</section>
+<section id="measures-of-shape" class="slide level2">
+<h2>Measures of Shape</h2>
+</section>
+<section id="central-moments" class="slide level2">
+<h2>Central Moments</h2>
+<p>Many measures of shape are based on moments.</p>
+<p>The <span class="math inline">\(k\)</span>-th central moment is:</p>
+<p><span class="math display">\[
+\mu_k = E[(X - \mu)^k]
+\]</span></p>
+<p>For a sample, the <span class="math inline">\(k\)</span>-th sample central moment is:</p>
+<p><span class="math display">\[
+m_k = \frac{1}{n}\sum_{i=1}^{n}(x_i - \bar{x})^k
+\]</span></p>
+<p>Where:</p>
+<ul>
+<li><span class="math inline">\(k\)</span> is the order of the moment;</li>
+<li><span class="math inline">\(\bar{x}\)</span> is the sample mean.</li>
+</ul>
+</section>
+<section id="first-four-moments" class="slide level2">
+<h2>First Four Moments</h2>
+<p>The first four moments are commonly associated with:</p>
+<ol type="1">
+<li>Mean;</li>
+<li>Variance;</li>
+<li>Skewness;</li>
+<li>Kurtosis.</li>
+</ol>
+<p>In exploratory data analysis:</p>
+<ul>
+<li>variance describes dispersion;</li>
+<li>skewness describes asymmetry;</li>
+<li>kurtosis describes tail behavior and peakedness.</li>
+</ul>
+</section>
+<section id="skewness" class="slide level2">
+<h2>Skewness</h2>
+<p><strong>Skewness</strong> measures the asymmetry of a distribution.</p>
+<p>Population skewness:</p>
+<p><span class="math display">\[
+\gamma_1 = \frac{E[(X-\mu)^3]}{\sigma^3}
+\]</span></p>
+<p>Sample skewness:</p>
+<p><span class="math display">\[
+g_1 =
+\frac{
+\frac{1}{n}\sum_{i=1}^{n}(x_i-\bar{x})^3
+}
+{
+\left[
+\frac{1}{n}\sum_{i=1}^{n}(x_i-\bar{x})^2
+\right]^{3/2}
+}
+\]</span></p>
+</section>
+<section id="interpretation-of-skewness" class="slide level2">
+<h2>Interpretation of Skewness</h2>
+<p>If:</p>
+<p><span class="math display">\[
+\gamma_1 &gt; 0
+\]</span></p>
+<p>The distribution is <strong>right-skewed</strong>.</p>
+<p>If:</p>
+<p><span class="math display">\[
+\gamma_1 &lt; 0
+\]</span></p>
+<p>The distribution is <strong>left-skewed</strong>.</p>
+<p>If:</p>
+<p><span class="math display">\[
+\gamma_1 \approx 0
+\]</span></p>
+<p>The distribution is approximately symmetric.</p>
+</section>
+<section id="right-skewed-distribution" class="slide level2">
+<h2>Right-Skewed Distribution</h2>
+<p>A right-skewed distribution has a longer right tail.</p>
+<p>Usually:</p>
+<p><span class="math display">\[
+\text{Mean} &gt; \text{Median}
+\]</span></p>
+<p>In financial data, this may occur when there are occasional large positive observations.</p>
+<p>Examples:</p>
+<ul>
+<li>price spikes;</li>
+<li>large positive returns;</li>
+<li>extreme spread widening.</li>
+</ul>
+</section>
+<section id="left-skewed-distribution" class="slide level2">
+<h2>Left-Skewed Distribution</h2>
+<p>A left-skewed distribution has a longer left tail.</p>
+<p>Usually:</p>
+<p><span class="math display">\[
+\text{Mean} &lt; \text{Median}
+\]</span></p>
+<p>In financial data, this may occur when there are occasional large negative observations.</p>
+<p>Examples:</p>
+<ul>
+<li>sharp price collapses;</li>
+<li>negative returns;</li>
+<li>spread compression events.</li>
+</ul>
+</section>
+<section id="pearsons-first-skewness-coefficient" class="slide level2">
+<h2>Pearson’s First Skewness Coefficient</h2>
+<p>Pearson’s first skewness coefficient is based on the mean, mode, and standard deviation.</p>
+<p><span class="math display">\[
+Sk_1 = \frac{\bar{x} - \text{Mode}}{s}
+\]</span></p>
+<p>It measures asymmetry using the distance between the mean and the mode.</p>
+</section>
+<section id="pearsons-second-skewness-coefficient" class="slide level2">
+<h2>Pearson’s Second Skewness Coefficient</h2>
+<p>Pearson’s second skewness coefficient uses the mean, median, and standard deviation.</p>
+<p><span class="math display">\[
+Sk_2 = \frac{3(\bar{x} - \tilde{x})}{s}
+\]</span></p>
+<p>Where:</p>
+<ul>
+<li><span class="math inline">\(\bar{x}\)</span> is the mean;</li>
+<li><span class="math inline">\(\tilde{x}\)</span> is the median;</li>
+<li><span class="math inline">\(s\)</span> is the standard deviation.</li>
+</ul>
+<p>This is useful when the mode is difficult to estimate.</p>
+</section>
+<section id="bowleys-skewness" class="slide level2">
+<h2>Bowley’s Skewness</h2>
+<p>Bowley’s skewness is based on quartiles.</p>
+<p><span class="math display">\[
+Sk_B =
+\frac{Q_3 + Q_1 - 2Q_2}
+{Q_3 - Q_1}
+\]</span></p>
+<p>Since <span class="math inline">\(Q_2\)</span> is the median:</p>
+<p><span class="math display">\[
+Sk_B =
+\frac{Q_3 + Q_1 - 2\tilde{x}}
+{Q_3 - Q_1}
+\]</span></p>
+<p>It is more robust than moment-based skewness.</p>
+</section>
+<section id="interpretation-of-bowleys-skewness" class="slide level2">
+<h2>Interpretation of Bowley’s Skewness</h2>
+<p>If:</p>
+<p><span class="math display">\[
+Sk_B &gt; 0
+\]</span></p>
+<p>The distribution is right-skewed.</p>
+<p>If:</p>
+<p><span class="math display">\[
+Sk_B &lt; 0
+\]</span></p>
+<p>The distribution is left-skewed.</p>
+<p>If:</p>
+<p><span class="math display">\[
+Sk_B \approx 0
+\]</span></p>
+<p>The distribution is approximately symmetric around the median.</p>
+</section>
+<section id="kurtosis" class="slide level2">
+<h2>Kurtosis</h2>
+<p><strong>Kurtosis</strong> describes tail behavior and the concentration of values around the center.</p>
+<p>Population kurtosis:</p>
+<p><span class="math display">\[
+\beta_2 = \frac{E[(X-\mu)^4]}{\sigma^4}
+\]</span></p>
+<p>Sample kurtosis:</p>
+<p><span class="math display">\[
+g_2 =
+\frac{
+\frac{1}{n}\sum_{i=1}^{n}(x_i-\bar{x})^4
+}
+{
+\left[
+\frac{1}{n}\sum_{i=1}^{n}(x_i-\bar{x})^2
+\right]^2
+}
+\]</span></p>
+</section>
+<section id="excess-kurtosis" class="slide level2">
+<h2>Excess Kurtosis</h2>
+<p>Excess kurtosis compares kurtosis to the normal distribution.</p>
+<p><span class="math display">\[
+\text{Excess Kurtosis} = \beta_2 - 3
+\]</span></p>
+<p>For a normal distribution:</p>
+<p><span class="math display">\[
+\beta_2 = 3
+\]</span></p>
+<p>Therefore:</p>
+<p><span class="math display">\[
+\text{Excess Kurtosis} = 0
+\]</span></p>
+</section>
+<section id="interpretation-of-kurtosis" class="slide level2">
+<h2>Interpretation of Kurtosis</h2>
+<p>If excess kurtosis is positive:</p>
+<p><span class="math display">\[
+\text{Excess Kurtosis} &gt; 0
+\]</span></p>
+<p>The distribution has heavier tails than a normal distribution.</p>
+<p>If excess kurtosis is negative:</p>
+<p><span class="math display">\[
+\text{Excess Kurtosis} &lt; 0
+\]</span></p>
+<p>The distribution has lighter tails than a normal distribution.</p>
+<p>Financial returns often exhibit positive excess kurtosis.</p>
+</section>
+<section id="moment-based-shape-summary" class="slide level2">
+<h2>Moment-Based Shape Summary</h2>
+<p>The standard moment-based summary is:</p>
+<p><span class="math display">\[
+\text{Mean} = \bar{x}
+\]</span></p>
+<p><span class="math display">\[
+\text{Variance} = s^2
+\]</span></p>
+<p><span class="math display">\[
+\text{Skewness} = g_1
+\]</span></p>
+<p><span class="math display">\[
+\text{Kurtosis} = g_2
+\]</span></p>
+<p>These summarize location, dispersion, asymmetry, and tail behavior.</p>
+</section>
+<section id="coefficient-of-quartile-dispersion" class="slide level2">
+<h2>Coefficient of Quartile Dispersion</h2>
+<p>The <strong>coefficient of quartile dispersion</strong> measures relative dispersion using quartiles.</p>
+<p><span class="math display">\[
+CQD = \frac{Q_3 - Q_1}{Q_3 + Q_1}
+\]</span></p>
+<p>It is a robust relative dispersion measure.</p>
+<p>It is useful when extreme observations make standard deviation unstable.</p>
+</section>
+<section id="tail-ratio" class="slide level2">
+<h2>Tail Ratio</h2>
+<p>A simple empirical tail ratio can compare upper-tail and lower-tail behavior.</p>
+<p><span class="math display">\[
+TR = \frac{|q_{0.95} - q_{0.50}|}{|q_{0.50} - q_{0.05}|}
+\]</span></p>
+<p>Where:</p>
+<ul>
+<li><span class="math inline">\(q_{0.95}\)</span> is the 95th percentile;</li>
+<li><span class="math inline">\(q_{0.50}\)</span> is the median;</li>
+<li><span class="math inline">\(q_{0.05}\)</span> is the 5th percentile.</li>
+</ul>
+</section>
+<section id="interpretation-of-tail-ratio" class="slide level2">
+<h2>Interpretation of Tail Ratio</h2>
+<p>If:</p>
+<p><span class="math display">\[
+TR &gt; 1
+\]</span></p>
+<p>The upper tail is longer than the lower tail.</p>
+<p>If:</p>
+<p><span class="math display">\[
+TR &lt; 1
+\]</span></p>
+<p>The lower tail is longer than the upper tail.</p>
+<p>If:</p>
+<p><span class="math display">\[
+TR \approx 1
+\]</span></p>
+<p>The tails are roughly balanced around the median.</p>
+</section>
+<section id="quantile-based-skewness" class="slide level2">
+<h2>Quantile-Based Skewness</h2>
+<p>A quantile-based skewness measure can be written as:</p>
+<p><span class="math display">\[
+Sk_Q =
+\frac{
+(q_{0.75} - q_{0.50}) - (q_{0.50} - q_{0.25})
+}
+{
+q_{0.75} - q_{0.25}
+}
+\]</span></p>
+<p>Equivalently:</p>
+<p><span class="math display">\[
+Sk_Q =
+\frac{q_{0.75} + q_{0.25} - 2q_{0.50}}
+{q_{0.75} - q_{0.25}}
+\]</span></p>
+<p>This is equivalent to Bowley’s skewness.</p>
+</section>
+<section id="quantile-based-tail-weight" class="slide level2">
+<h2>Quantile-Based Tail Weight</h2>
+<p>A quantile-based tail weight measure can compare outer and inner ranges.</p>
+<p><span class="math display">\[
+TW =
+\frac{q_{0.95} - q_{0.05}}
+{q_{0.75} - q_{0.25}}
+\]</span></p>
+<p>This compares the central 90% range with the central 50% range.</p>
+<p>Higher values indicate heavier tails.</p>
+</section>
+<section id="bivariate-measures" class="slide level2">
+<h2>Bivariate Measures</h2>
+<p><strong>Bivariate measures</strong> describe the relationship between two variables.</p>
+<p>They help answer questions such as:</p>
+<ul>
+<li>Do two series move together?</li>
+<li>Is the relationship positive or negative?</li>
+<li>Is the relationship linear?</li>
+<li>Is the association monotonic?</li>
+<li>How strong is the relationship?</li>
+<li>How much does one variable change when another changes? ## Two Variables</li>
+</ul>
+<p>Let the two variables be:</p>
+<p><span class="math display">\[
+X = (x_1, x_2, \ldots, x_n)
+\]</span></p>
+<p><span class="math display">\[
+Y = (y_1, y_2, \ldots, y_n)
+\]</span></p>
+<p>Their sample means are:</p>
+<p><span class="math display">\[
+\bar{x} = \frac{1}{n}\sum_{i=1}^{n}x_i
+\]</span></p>
+<p><span class="math display">\[
+\bar{y} = \frac{1}{n}\sum_{i=1}^{n}y_i
+\]</span></p>
+</section>
+<section id="sample-covariance" class="slide level2">
+<h2>Sample Covariance</h2>
+<p>The <strong>sample covariance</strong> measures whether two variables move together.</p>
+<p><span class="math display">\[
+s_{xy}
+=
+\frac{1}{n-1}
+\sum_{i=1}^{n}
+(x_i - \bar{x})(y_i - \bar{y})
+\]</span></p>
+<p>If covariance is positive, the variables tend to move in the same direction.</p>
+<p>If covariance is negative, they tend to move in opposite directions.</p>
+</section>
+<section id="population-covariance" class="slide level2">
+<h2>Population Covariance</h2>
+<p>The <strong>population covariance</strong> is:</p>
+<p><span class="math display">\[
+\sigma_{xy}
+=
+\frac{1}{N}
+\sum_{i=1}^{N}
+(x_i - \mu_x)(y_i - \mu_y)
+\]</span></p>
+<p>Where:</p>
+<ul>
+<li><span class="math inline">\(\mu_x\)</span> is the population mean of <span class="math inline">\(X\)</span>;</li>
+<li><span class="math inline">\(\mu_y\)</span> is the population mean of <span class="math inline">\(Y\)</span>.</li>
+</ul>
+</section>
+<section id="interpretation-of-covariance" class="slide level2">
+<h2>Interpretation of Covariance</h2>
+<p>If:</p>
+<p><span class="math display">\[
+s_{xy} &gt; 0
+\]</span></p>
+<p><span class="math inline">\(X\)</span> and <span class="math inline">\(Y\)</span> tend to move together.</p>
+<p>If:</p>
+<p><span class="math display">\[
+s_{xy} &lt; 0
+\]</span></p>
+<p><span class="math inline">\(X\)</span> and <span class="math inline">\(Y\)</span> tend to move in opposite directions.</p>
+<p>If:</p>
+<p><span class="math display">\[
+s_{xy} \approx 0
+\]</span></p>
+<p>There is little evidence of linear co-movement.</p>
+<p>However, covariance depends on the units of measurement.</p>
+</section>
+<section id="pearson-correlation" class="slide level2">
+<h2>Pearson Correlation</h2>
+<p>The <strong>Pearson correlation coefficient</strong> standardizes covariance.</p>
+<p><span class="math display">\[
+r_{xy}
+=
+\frac{s_{xy}}{s_x s_y}
+\]</span></p>
+<p>Equivalently:</p>
+<p><span class="math display">\[
+r_{xy}
+=
+\frac{
+\sum_{i=1}^{n}(x_i-\bar{x})(y_i-\bar{y})
+}
+{
+\sqrt{\sum_{i=1}^{n}(x_i-\bar{x})^2}
+\sqrt{\sum_{i=1}^{n}(y_i-\bar{y})^2}
+}
+\]</span></p>
+</section>
+<section id="interpretation-of-pearson-correlation" class="slide level2">
+<h2>Interpretation of Pearson Correlation</h2>
+<p>Pearson correlation is bounded between -1 and 1.</p>
+<p><span class="math display">\[
+-1 \leq r_{xy} \leq 1
+\]</span></p>
+<p>Interpretation:</p>
+<ul>
+<li><span class="math inline">\(r_{xy} = 1\)</span>: perfect positive linear relationship;</li>
+<li><span class="math inline">\(r_{xy} = -1\)</span>: perfect negative linear relationship;</li>
+<li><span class="math inline">\(r_{xy} = 0\)</span>: no linear relationship.</li>
+</ul>
+<p>Pearson correlation measures linear association.</p>
+</section>
+<section id="correlation-and-causality" class="slide level2">
+<h2>Correlation and Causality</h2>
+<p>A high correlation does not imply causality.</p>
+<p><span class="math display">\[
+\text{Correlation} \neq \text{Causation}
+\]</span></p>
+<p>Two variables may be correlated because of:</p>
+<ul>
+<li>a common driver;</li>
+<li>trend;</li>
+<li>seasonality;</li>
+<li>market regime;</li>
+<li>structural dependency;</li>
+<li>spurious relationship.</li>
+</ul>
+</section>
+<section id="spearman-rank-correlation" class="slide level2">
+<h2>Spearman Rank Correlation</h2>
+<p>The <strong>Spearman correlation</strong> measures monotonic association using ranks.</p>
+<p>Let <span class="math inline">\(R(x_i)\)</span> and <span class="math inline">\(R(y_i)\)</span> be the ranks of <span class="math inline">\(x_i\)</span> and <span class="math inline">\(y_i\)</span>.</p>
+<p><span class="math display">\[
+\rho_s
+=
+\frac{
+\text{cov}(R(X), R(Y))
+}
+{
+s_{R(X)}s_{R(Y)}
+}
+\]</span></p>
+<p>If there are no ties, it can be written as:</p>
+<p><span class="math display">\[
+\rho_s
+=
+1 -
+\frac{6\sum_{i=1}^{n}d_i^2}
+{n(n^2 - 1)}
+\]</span></p>
+<p>Where:</p>
+<p><span class="math display">\[
+d_i = R(x_i) - R(y_i)
+\]</span></p>
+</section>
+<section id="interpretation-of-spearman-correlation" class="slide level2">
+<h2>Interpretation of Spearman Correlation</h2>
+<p>Spearman correlation captures monotonic relationships.</p>
+<p>It is useful when:</p>
+<ul>
+<li>the relationship is non-linear but monotonic;</li>
+<li>variables contain outliers;</li>
+<li>ranks are more meaningful than levels;</li>
+<li>distributions are skewed.</li>
+</ul>
+<p>It is more robust than Pearson correlation in many exploratory settings.</p>
+</section>
+<section id="kendalls-tau" class="slide level2">
+<h2>Kendall’s Tau</h2>
+<p><strong>Kendall’s tau</strong> measures ordinal association based on concordant and discordant pairs.</p>
+<p><span class="math display">\[
+\tau =
+\frac{C - D}
+{\frac{1}{2}n(n-1)}
+\]</span></p>
+<p>Where:</p>
+<ul>
+<li><span class="math inline">\(C\)</span> is the number of concordant pairs;</li>
+<li><span class="math inline">\(D\)</span> is the number of discordant pairs.</li>
+</ul>
+</section>
+<section id="concordant-and-discordant-pairs" class="slide level2">
+<h2>Concordant and Discordant Pairs</h2>
+<p>For two observations <span class="math inline">\(i\)</span> and <span class="math inline">\(j\)</span>, the pair is concordant if:</p>
+<p><span class="math display">\[
+(x_i - x_j)(y_i - y_j) &gt; 0
+\]</span></p>
+<p>The pair is discordant if:</p>
+<p><span class="math display">\[
+(x_i - x_j)(y_i - y_j) &lt; 0
+\]</span></p>
+<p>Kendall’s tau measures whether the ordering of <span class="math inline">\(X\)</span> agrees with the ordering of <span class="math inline">\(Y\)</span>.</p>
+</section>
+<section id="simple-linear-regression" class="slide level2">
+<h2>Simple Linear Regression</h2>
+<p>A simple linear relationship can be represented as:</p>
+<p><span class="math display">\[
+y_i = \alpha + \beta x_i + \varepsilon_i
+\]</span></p>
+<p>Where:</p>
+<ul>
+<li><span class="math inline">\(\alpha\)</span> is the intercept;</li>
+<li><span class="math inline">\(\beta\)</span> is the slope;</li>
+<li><span class="math inline">\(\varepsilon_i\)</span> is the error term.</li>
+</ul>
+</section>
+<section id="ols-slope" class="slide level2">
+<h2>OLS Slope</h2>
+<p>The ordinary least squares slope is:</p>
+<p><span class="math display">\[
+\hat{\beta}
+=
+\frac{
+\sum_{i=1}^{n}(x_i-\bar{x})(y_i-\bar{y})
+}
+{
+\sum_{i=1}^{n}(x_i-\bar{x})^2
+}
+\]</span></p>
+<p>Equivalently:</p>
+<p><span class="math display">\[
+\hat{\beta} = \frac{s_{xy}}{s_x^2}
+\]</span></p>
+<p>The slope measures the expected change in <span class="math inline">\(Y\)</span> for a one-unit change in <span class="math inline">\(X\)</span>.</p>
+</section>
+<section id="ols-intercept" class="slide level2">
+<h2>OLS Intercept</h2>
+<p>The ordinary least squares intercept is:</p>
+<p><span class="math display">\[
+\hat{\alpha} = \bar{y} - \hat{\beta}\bar{x}
+\]</span></p>
+<p>The fitted regression line is:</p>
+<p><span class="math display">\[
+\hat{y}_i = \hat{\alpha} + \hat{\beta}x_i
+\]</span></p>
+</section>
+<section id="residuals" class="slide level2">
+<h2>Residuals</h2>
+<p>The residual for observation <span class="math inline">\(i\)</span> is:</p>
+<p><span class="math display">\[
+\hat{\varepsilon}_i = y_i - \hat{y}_i
+\]</span></p>
+<p>Equivalently:</p>
+<p><span class="math display">\[
+\hat{\varepsilon}_i = y_i - (\hat{\alpha} + \hat{\beta}x_i)
+\]</span></p>
+<p>Residuals measure the difference between observed and fitted values.</p>
+</section>
+<section id="residual-sum-of-squares" class="slide level2">
+<h2>Residual Sum of Squares</h2>
+<p>The <strong>residual sum of squares</strong>, or <strong>RSS</strong>, is:</p>
+<p><span class="math display">\[
+RSS = \sum_{i=1}^{n}(y_i - \hat{y}_i)^2
+\]</span></p>
+<p>It measures unexplained variation.</p>
+<p>Lower RSS indicates a better in-sample fit.</p>
+</section>
+<section id="total-sum-of-squares" class="slide level2">
+<h2>Total Sum of Squares</h2>
+<p>The <strong>total sum of squares</strong>, or <strong>TSS</strong>, is:</p>
+<p><span class="math display">\[
+TSS = \sum_{i=1}^{n}(y_i - \bar{y})^2
+\]</span></p>
+<p>It measures total variation in <span class="math inline">\(Y\)</span> around its mean.</p>
+</section>
+<section id="explained-sum-of-squares" class="slide level2">
+<h2>Explained Sum of Squares</h2>
+<p>The <strong>explained sum of squares</strong>, or <strong>ESS</strong>, is:</p>
+<p><span class="math display">\[
+ESS = \sum_{i=1}^{n}(\hat{y}_i - \bar{y})^2
+\]</span></p>
+<p>It measures the variation explained by the regression model.</p>
+<p>For OLS with intercept:</p>
+<p><span class="math display">\[
+TSS = ESS + RSS
+\]</span></p>
+</section>
+<section id="coefficient-of-determination" class="slide level2">
+<h2>Coefficient of Determination</h2>
+<p>The <strong>coefficient of determination</strong>, or <span class="math inline">\(R^2\)</span>, measures the share of variation in <span class="math inline">\(Y\)</span> explained by the model.</p>
+<p><span class="math display">\[
+R^2 = \frac{ESS}{TSS}
+\]</span></p>
+<p>Equivalently:</p>
+<p><span class="math display">\[
+R^2 = 1 - \frac{RSS}{TSS}
+\]</span></p>
+<p>For simple linear regression with intercept:</p>
+<p><span class="math display">\[
+R^2 = r_{xy}^2
+\]</span></p>
+</section>
+<section id="interpretation-of-r-squared" class="slide level2">
+<h2>Interpretation of R-Squared</h2>
+<p><span class="math inline">\(R^2\)</span> is bounded between 0 and 1.</p>
+<p><span class="math display">\[
+0 \leq R^2 \leq 1
+\]</span></p>
+<p>Interpretation:</p>
+<ul>
+<li><span class="math inline">\(R^2 = 0\)</span>: the model explains none of the variation in <span class="math inline">\(Y\)</span>;</li>
+<li><span class="math inline">\(R^2 = 1\)</span>: the model explains all variation in <span class="math inline">\(Y\)</span>;</li>
+<li>higher <span class="math inline">\(R^2\)</span> means greater in-sample explanatory power.</li>
+</ul>
+</section>
+<section id="beta-as-market-sensitivity" class="slide level2">
+<h2>Beta as Market Sensitivity</h2>
+<p>In finance, beta often measures sensitivity to a market factor.</p>
+<p><span class="math display">\[
+\beta_i =
+\frac{\text{Cov}(R_i, R_m)}
+{\text{Var}(R_m)}
+\]</span></p>
+<p>Where:</p>
+<ul>
+<li><span class="math inline">\(R_i\)</span> is the return of asset or series <span class="math inline">\(i\)</span>;</li>
+<li><span class="math inline">\(R_m\)</span> is the market return.</li>
+</ul>
+<p>Beta measures how strongly one return series moves with the market.</p>
+</section>
+<section id="spread-between-two-series" class="slide level2">
+<h2>Spread Between Two Series</h2>
+<p>For two related price series, a spread can be defined as:</p>
+<p><span class="math display">\[
+Spread_t = X_t - Y_t
+\]</span></p>
+<p>A relative spread can be defined as:</p>
+<p><span class="math display">\[
+RelativeSpread_t = \frac{X_t - Y_t}{Y_t}
+\]</span></p>
+<p>Or as a percentage:</p>
+<p><span class="math display">\[
+RelativeSpread_{t,\%} = \frac{X_t - Y_t}{Y_t} \times 100
+\]</span></p>
+</section>
+<section id="ratio-between-two-series" class="slide level2">
+<h2>Ratio Between Two Series</h2>
+<p>A ratio between two series is:</p>
+<p><span class="math display">\[
+Ratio_t = \frac{X_t}{Y_t}
+\]</span></p>
+<p>Ratios are useful when comparing relative levels.</p>
+<p>Examples:</p>
+<ul>
+<li>price ratio;</li>
+<li>crack spread ratio;</li>
+<li>regional price ratio;</li>
+<li>benchmark-relative level.</li>
+</ul>
+</section>
+<section id="log-ratio" class="slide level2">
+<h2>Log Ratio</h2>
+<p>The log ratio is:</p>
+<p><span class="math display">\[
+LR_t = \ln\left(\frac{X_t}{Y_t}\right)
+\]</span></p>
+<p>Equivalently:</p>
+<p><span class="math display">\[
+LR_t = \ln(X_t) - \ln(Y_t)
+\]</span></p>
+<p>Log ratios are useful because they are symmetric in percentage terms and easier to aggregate.</p>
+</section>
+<section id="rolling-correlation" class="slide level2">
+<h2>Rolling Correlation</h2>
+<p>For time series, correlation may change over time.</p>
+<p>The rolling correlation over a window of size <span class="math inline">\(w\)</span> is:</p>
+<p><span class="math display">\[
+r_{xy,t,w}
+=
+\frac{
+\sum_{j=0}^{w-1}(x_{t-j}-\bar{x}_{t,w})(y_{t-j}-\bar{y}_{t,w})
+}
+{
+\sqrt{\sum_{j=0}^{w-1}(x_{t-j}-\bar{x}_{t,w})^2}
+\sqrt{\sum_{j=0}^{w-1}(y_{t-j}-\bar{y}_{t,w})^2}
+}
+\]</span></p>
+</section>
+<section id="rolling-covariance" class="slide level2">
+<h2>Rolling Covariance</h2>
+<p>The rolling covariance over a window of size <span class="math inline">\(w\)</span> is:</p>
+<p><span class="math display">\[
+s_{xy,t,w}
+=
+\frac{1}{w-1}
+\sum_{j=0}^{w-1}
+(x_{t-j}-\bar{x}_{t,w})(y_{t-j}-\bar{y}_{t,w})
+\]</span></p>
+<p>Rolling covariance helps identify changing co-movement over time.</p>
+</section>
+<section id="lead-lag-correlation" class="slide level2">
+<h2>Lead-Lag Correlation</h2>
+<p>A lead-lag relationship can be explored using lagged correlation.</p>
+<p><span class="math display">\[
+r_{xy}(k) = Corr(X_t, Y_{t-k})
+\]</span></p>
+<p>Where:</p>
+<ul>
+<li><span class="math inline">\(k &gt; 0\)</span> compares <span class="math inline">\(X_t\)</span> with past values of <span class="math inline">\(Y\)</span>;</li>
+<li><span class="math inline">\(k &lt; 0\)</span> compares <span class="math inline">\(X_t\)</span> with future values of <span class="math inline">\(Y\)</span>.</li>
+</ul>
+<p>This helps identify whether one series leads another.</p>
+</section>
+<section id="cross-correlation-function" class="slide level2">
+<h2>Cross-Correlation Function</h2>
+<p>The cross-correlation at lag <span class="math inline">\(k\)</span> can be written as:</p>
+<p><span class="math display">\[
+\rho_{xy}(k)
+=
+\frac{
+E[(X_t-\mu_x)(Y_{t-k}-\mu_y)]
+}
+{\sigma_x \sigma_y}
+\]</span></p>
+<p>In sample form, this is estimated using lagged observations.</p>
+<p>Cross-correlation is useful for time-series EDA.</p>
+</section>
+<section id="autocovariance" class="slide level2">
+<h2>Autocovariance</h2>
+<p>For a single time series, autocovariance at lag <span class="math inline">\(k\)</span> is:</p>
+<p><span class="math display">\[
+\gamma(k)
+=
+E[(X_t-\mu)(X_{t-k}-\mu)]
+\]</span></p>
+<p>It measures covariance between a series and its own lagged values.</p>
+</section>
+<section id="autocorrelation" class="slide level2">
+<h2>Autocorrelation</h2>
+<p>Autocorrelation at lag <span class="math inline">\(k\)</span> is:</p>
+<p><span class="math display">\[
+\rho(k)
+=
+\frac{\gamma(k)}{\gamma(0)}
+\]</span></p>
+<p>Where:</p>
+<ul>
+<li><span class="math inline">\(\gamma(k)\)</span> is autocovariance at lag <span class="math inline">\(k\)</span>;</li>
+<li><span class="math inline">\(\gamma(0)\)</span> is variance.</li>
+</ul>
+<p>Autocorrelation measures persistence in a time series.</p>
+</section>
+<section id="sample-autocorrelation" class="slide level2">
+<h2>Sample Autocorrelation</h2>
+<p>The sample autocorrelation at lag <span class="math inline">\(k\)</span> is:</p>
+<p><span class="math display">\[
+\hat{\rho}(k)
+=
+\frac{
+\sum_{t=k+1}^{n}(x_t-\bar{x})(x_{t-k}-\bar{x})
+}
+{
+\sum_{t=1}^{n}(x_t-\bar{x})^2
+}
+\]</span></p>
+<p>It is useful for identifying serial dependence, persistence, and seasonality.</p>
+</section>
+<section id="distance-between-two-series" class="slide level2">
+<h2>Distance Between Two Series</h2>
+<p>The Euclidean distance between two aligned series is:</p>
+<p><span class="math display">\[
+d(X,Y)
+=
+\sqrt{
+\sum_{i=1}^{n}(x_i-y_i)^2
+}
+\]</span></p>
+<p>A normalized version is:</p>
+<p><span class="math display">\[
+d_{\text{norm}}(X,Y)
+=
+\sqrt{
+\frac{1}{n}
+\sum_{i=1}^{n}(x_i-y_i)^2
+}
+\]</span></p>
+<p>This is closely related to RMSD.</p>
+</section>
+<section id="mean-absolute-difference" class="slide level2">
+<h2>Mean Absolute Difference</h2>
+<p>The <strong>mean absolute difference</strong> between two series is:</p>
+<p><span class="math display">\[
+MADiff(X,Y)
+=
+\frac{1}{n}\sum_{i=1}^{n}|x_i - y_i|
+\]</span></p>
+<p>It measures the average absolute gap between two variables or time series.</p>
+<p>Examples:</p>
+<ul>
+<li>observed versus forecast;</li>
+<li>benchmark versus internal curve;</li>
+<li>market A versus market B.</li>
+</ul>
+</section>
+<section id="tracking-error" class="slide level2">
+<h2>Tracking Error</h2>
+<p>In finance, tracking error measures the volatility of active returns.</p>
+<p>Let:</p>
+<p><span class="math display">\[
+a_t = R_{p,t} - R_{b,t}
+\]</span></p>
+<p>Where:</p>
+<ul>
+<li><span class="math inline">\(R_{p,t}\)</span> is portfolio return;</li>
+<li><span class="math inline">\(R_{b,t}\)</span> is benchmark return.</li>
+</ul>
+<p>Then:</p>
+<p><span class="math display">\[
+TE =
+\sqrt{
+\frac{1}{n-1}
+\sum_{t=1}^{n}(a_t-\bar{a})^2
+}
+\]</span></p>
+</section>
+<section id="error-metrics-as-bivariate-measures" class="slide level2">
+<h2>Error Metrics as Bivariate Measures</h2>
+<p>When comparing actual values <span class="math inline">\(y_i\)</span> and predicted values <span class="math inline">\(\hat{y}_i\)</span>:</p>
+<p>Mean Error:</p>
+<p><span class="math display">\[
+ME = \frac{1}{n}\sum_{i=1}^{n}(y_i-\hat{y}_i)
+\]</span></p>
+<p>Mean Absolute Error:</p>
+<p><span class="math display">\[
+MAE = \frac{1}{n}\sum_{i=1}^{n}|y_i-\hat{y}_i|
+\]</span></p>
+<p>Root Mean Squared Error:</p>
+<p><span class="math display">\[
+RMSE =
+\sqrt{
+\frac{1}{n}\sum_{i=1}^{n}(y_i-\hat{y}_i)^2
+}
+\]</span></p>
+</section>
+<section id="mean-absolute-percentage-error" class="slide level2">
+<h2>Mean Absolute Percentage Error</h2>
+<p>The <strong>mean absolute percentage error</strong>, or <strong>MAPE</strong>, is:</p>
+<p><span class="math display">\[
+MAPE =
+\frac{100}{n}
+\sum_{i=1}^{n}
+\left|
+\frac{y_i-\hat{y}_i}{y_i}
+\right|
+\]</span></p>
+<p>MAPE expresses forecast error as a percentage.</p>
+<p>It should be used carefully when actual values are close to zero.</p>
+</section>
+<section id="symmetric-mean-absolute-percentage-error" class="slide level2">
+<h2>Symmetric Mean Absolute Percentage Error</h2>
+<p>The <strong>symmetric mean absolute percentage error</strong>, or <strong>sMAPE</strong>, is:</p>
+<p><span class="math display">\[
+sMAPE =
+\frac{100}{n}
+\sum_{i=1}^{n}
+\frac{|y_i-\hat{y}_i|}
+{(|y_i|+|\hat{y}_i|)/2}
+\]</span></p>
+<p>It reduces some limitations of MAPE, but can still be unstable near zero.</p>
+</section>
+<section class="slide level2">
+
+</section>
+<section>
+<section id="summary-1" class="title-slide slide level1 center">
+<h1>Summary</h1>
+
+</section>
+<section id="summary-dispersion" class="slide level2">
+<h2>Summary: Dispersion</h2>
+<p>Key measures of dispersion include:</p>
+<ul>
+<li>range;</li>
+<li>IQR;</li>
+<li>semi-IQR;</li>
+<li>variance;</li>
+<li>standard deviation;</li>
+<li>mean absolute deviation;</li>
+<li>median absolute deviation;</li>
+<li>coefficient of variation;</li>
+<li>downside deviation;</li>
+<li>semi-variance;</li>
+<li>rolling volatility;</li>
+<li>drawdown;</li>
+<li>z-score and robust z-score.</li>
+</ul>
+</section>
+<section id="summary-shape" class="slide level2">
+<h2>Summary: Shape</h2>
+<p>Key measures of shape include:</p>
+<ul>
+<li>skewness;</li>
+<li>Pearson skewness;</li>
+<li>Bowley skewness;</li>
+<li>kurtosis;</li>
+<li>excess kurtosis;</li>
+<li>tail ratio;</li>
+<li>quantile-based tail weight.</li>
+</ul>
+<p>These measures describe asymmetry and tail behavior.</p>
+</section>
+<section id="summary-bivariate-measures" class="slide level2">
+<h2>Summary: Bivariate Measures</h2>
+<p>Key bivariate measures include:</p>
+<ul>
+<li>covariance;</li>
+<li>Pearson correlation;</li>
+<li>Spearman correlation;</li>
+<li>Kendall’s tau;</li>
+<li>regression slope;</li>
+<li>regression intercept;</li>
+<li>residuals;</li>
+<li><span class="math inline">\(R^2\)</span>;</li>
+<li>beta;</li>
+<li>spreads;</li>
+<li>ratios;</li>
+<li>rolling correlation;</li>
+<li>cross-correlation;</li>
+<li>autocorrelation;</li>
+<li>forecast error metrics.</li>
+</ul>
+</section>
+<section id="final-message" class="slide level2">
+<h2>Final Message</h2>
+<p>Exploratory data analysis should not stop at the average.</p>
+<p>A complete EDA asks:</p>
+<ul>
+<li>Where are the data located?</li>
+<li>How dispersed are they?</li>
+<li>What is the shape of the distribution?</li>
+<li>How do variables move together?</li>
+<li>Are relationships stable over time?</li>
+<li>Are anomalies statistical, operational, or economically meaningful?</li>
+</ul>
+<p>These questions form the foundation for robust analytical work in economic and financial data.</p>
+<div class="quarto-auto-generated-content">
+<div class="footer footer-default">
+
+</div>
+</div>
+</section></section>
+    </div>
+  </div>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script>
+  <script src="Lecture02_EDA_files/libs/revealjs/dist/reveal.js"></script>
+  <!-- reveal.js plugins -->
+  <script src="Lecture02_EDA_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
+  <script src="Lecture02_EDA_files/libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
+  <script src="Lecture02_EDA_files/libs/revealjs/plugin/reveal-menu/menu.js"></script>
+  <script src="Lecture02_EDA_files/libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="Lecture02_EDA_files/libs/revealjs/plugin/quarto-support/support.js"></script>
+  
+
+  <script src="Lecture02_EDA_files/libs/revealjs/plugin/notes/notes.js"></script>
+  <script src="Lecture02_EDA_files/libs/revealjs/plugin/search/search.js"></script>
+  <script src="Lecture02_EDA_files/libs/revealjs/plugin/zoom/zoom.js"></script>
+  <script src="Lecture02_EDA_files/libs/revealjs/plugin/math/math.js"></script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://revealjs.com/config/
+      Reveal.initialize({
+'controlsAuto': true,
+'previewLinksAuto': false,
+'pdfSeparateFragments': false,
+'autoAnimateEasing': "ease",
+'autoAnimateDuration': 1,
+'autoAnimateUnmatched': true,
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'smaller': true,
+ 
+        // Display controls in the bottom right corner
+        controls: false,
+
+        // Help the user learn the controls by providing hints, for example by
+        // bouncing the down arrow when they first encounter a vertical slide
+        controlsTutorial: false,
+
+        // Determines where controls appear, "edges" or "bottom-right"
+        controlsLayout: 'edges',
+
+        // Visibility rule for backwards navigation arrows; "faded", "hidden"
+        // or "visible"
+        controlsBackArrows: 'faded',
+
+        // Display a presentation progress bar
+        progress: true,
+
+        // Display the page number of the current slide
+        slideNumber: 'c/t',
+
+        // 'all', 'print', or 'speaker'
+        showSlideNumber: 'all',
+
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+        hash: true,
+
+        // Start with 1 for the hash rather than 0
+        hashOneBasedIndex: false,
+
+        // Flags if we should monitor the hash and change slides accordingly
+        respondToHashChanges: true,
+
+        // Push each slide change to the browser history
+        history: true,
+
+        // Enable keyboard shortcuts for navigation
+        keyboard: true,
+
+        // Enable the slide overview mode
+        overview: true,
+
+        // Disables the default reveal.js slide layout (scaling and centering)
+        // so that you can use custom CSS layout
+        disableLayout: false,
+
+        // Vertical centering of slides
+        center: false,
+
+        // Enables touch navigation on devices with touch input
+        touch: true,
+
+        // Loop the presentation
+        loop: false,
+
+        // Change the presentation direction to be RTL
+        rtl: false,
+
+        // see https://revealjs.com/vertical-slides/#navigation-mode
+        navigationMode: 'linear',
+
+        // Randomizes the order of slides each time the presentation loads
+        shuffle: false,
+
+        // Turns fragments on and off globally
+        fragments: true,
+
+        // Flags whether to include the current fragment in the URL,
+        // so that reloading brings you to the same fragment position
+        fragmentInURL: false,
+
+        // Flags if the presentation is running in an embedded mode,
+        // i.e. contained within a limited portion of the screen
+        embedded: false,
+
+        // Flags if we should show a help overlay when the questionmark
+        // key is pressed
+        help: true,
+
+        // Flags if it should be possible to pause the presentation (blackout)
+        pause: true,
+
+        // Flags if speaker notes should be visible to all viewers
+        showNotes: false,
+
+        // Global override for autoplaying embedded media (null/true/false)
+        autoPlayMedia: null,
+
+        // Global override for preloading lazy-loaded iframes (null/true/false)
+        preloadIframes: null,
+
+        // Number of milliseconds between automatically proceeding to the
+        // next slide, disabled when set to 0, this value can be overwritten
+        // by using a data-autoslide attribute on your slides
+        autoSlide: 0,
+
+        // Stop auto-sliding after user input
+        autoSlideStoppable: true,
+
+        // Use this method for navigation when auto-sliding
+        autoSlideMethod: null,
+
+        // Specify the average time in seconds that you think you will spend
+        // presenting each slide. This is used to show a pacing timer in the
+        // speaker view
+        defaultTiming: null,
+
+        // Enable slide navigation via mouse wheel
+        mouseWheel: false,
+
+        // The display mode that will be used to show slides
+        display: 'block',
+
+        // Hide cursor if inactive
+        hideInactiveCursor: true,
+
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: 5000,
+
+        // Opens links in an iframe preview overlay
+        previewLinks: false,
+
+        // Transition style (none/fade/slide/convex/concave/zoom)
+        transition: 'none',
+
+        // Transition speed (default/fast/slow)
+        transitionSpeed: 'default',
+
+        // Transition style for full page slide backgrounds
+        // (none/fade/slide/convex/concave/zoom)
+        backgroundTransition: 'none',
+
+        // Number of slides away from the current that are visible
+        viewDistance: 3,
+
+        // Number of slides away from the current that are visible on mobile
+        // devices. It is advisable to set this to a lower number than
+        // viewDistance in order to save resources.
+        mobileViewDistance: 2,
+
+        // The "normal" size of the presentation, aspect ratio will be preserved
+        // when the presentation is scaled to fit different resolutions. Can be
+        // specified using percentage units.
+        width: 1050,
+
+        height: 700,
+
+        // Factor of the display size that should remain empty around the content
+        margin: 0.1,
+
+        math: {
+          mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js',
+          config: 'TeX-AMS_HTML-full',
+          tex2jax: {
+            inlineMath: [['\\(','\\)']],
+            displayMath: [['\\[','\\]']],
+            balanceBraces: true,
+            processEscapes: false,
+            processRefs: true,
+            processEnvironments: true,
+            preview: 'TeX',
+            skipTags: ['script','noscript','style','textarea','pre','code'],
+            ignoreClass: 'tex2jax_ignore',
+            processClass: 'tex2jax_process'
+          },
+        },
+
+        // reveal.js plugins
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, QuartoSupport,
+
+          RevealMath,
+          RevealNotes,
+          RevealSearch,
+          RevealZoom
+        ]
+      });
+    </script>
+    
+    <script>
+      // htmlwidgets need to know to resize themselves when slides are shown/hidden.
+      // Fire the "slideenter" event (handled by htmlwidgets.js) when the current
+      // slide changes (different for each slide format).
+      (function () {
+        // dispatch for htmlwidgets
+        function fireSlideEnter() {
+          const event = window.document.createEvent("Event");
+          event.initEvent("slideenter", true, true);
+          window.document.dispatchEvent(event);
+        }
+
+        function fireSlideChanged(previousSlide, currentSlide) {
+          fireSlideEnter();
+
+          // dispatch for shiny
+          if (window.jQuery) {
+            if (previousSlide) {
+              window.jQuery(previousSlide).trigger("hidden");
+            }
+            if (currentSlide) {
+              window.jQuery(currentSlide).trigger("shown");
+            }
+          }
+        }
+
+        // hookup for slidy
+        if (window.w3c_slidy) {
+          window.w3c_slidy.add_observer(function (slide_num) {
+            // slide_num starts at position 1
+            fireSlideChanged(null, w3c_slidy.slides[slide_num - 1]);
+          });
+        }
+
+      })();
+    </script>
+
+    <script id="quarto-html-after-body" type="application/javascript">
+    window.document.addEventListener("DOMContentLoaded", function (event) {
+      const toggleBodyColorMode = (bsSheetEl) => {
+        const mode = bsSheetEl.getAttribute("data-mode");
+        const bodyEl = window.document.querySelector("body");
+        if (mode === "dark") {
+          bodyEl.classList.add("quarto-dark");
+          bodyEl.classList.remove("quarto-light");
+        } else {
+          bodyEl.classList.add("quarto-light");
+          bodyEl.classList.remove("quarto-dark");
+        }
+      }
+      const toggleBodyColorPrimary = () => {
+        const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+        if (bsSheetEl) {
+          toggleBodyColorMode(bsSheetEl);
+        }
+      }
+      toggleBodyColorPrimary();  
+      const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
+      tabsets.forEach(function(tabset) {
+        const tabby = new Tabby('#' + tabset.id);
+      });
+      const isCodeAnnotation = (el) => {
+        for (const clz of el.classList) {
+          if (clz.startsWith('code-annotation-')) {                     
+            return true;
+          }
+        }
+        return false;
+      }
+      const onCopySuccess = function(e) {
+        // button target
+        const button = e.trigger;
+        // don't keep focus
+        button.blur();
+        // flash "checked"
+        button.classList.add('code-copy-button-checked');
+        var currentTitle = button.getAttribute("title");
+        button.setAttribute("title", "Copied!");
+        let tooltip;
+        if (window.bootstrap) {
+          button.setAttribute("data-bs-toggle", "tooltip");
+          button.setAttribute("data-bs-placement", "left");
+          button.setAttribute("data-bs-title", "Copied!");
+          tooltip = new bootstrap.Tooltip(button, 
+            { trigger: "manual", 
+              customClass: "code-copy-button-tooltip",
+              offset: [0, -8]});
+          tooltip.show();    
+        }
+        setTimeout(function() {
+          if (tooltip) {
+            tooltip.hide();
+            button.removeAttribute("data-bs-title");
+            button.removeAttribute("data-bs-toggle");
+            button.removeAttribute("data-bs-placement");
+          }
+          button.setAttribute("title", currentTitle);
+          button.classList.remove('code-copy-button-checked');
+        }, 1000);
+        // clear code selection
+        e.clearSelection();
+      }
+      const getTextToCopy = function(trigger) {
+          const codeEl = trigger.previousElementSibling.cloneNode(true);
+          for (const childEl of codeEl.children) {
+            if (isCodeAnnotation(childEl)) {
+              childEl.remove();
+            }
+          }
+          return codeEl.innerText;
+      }
+      const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+        text: getTextToCopy
+      });
+      clipboard.on('success', onCopySuccess);
+      if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+        // For code content inside modals, clipBoardJS needs to be initialized with a container option
+        // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+        const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+          text: getTextToCopy,
+          container: window.document.getElementById('quarto-embedded-source-code-modal')
+        });
+        clipboardModal.on('success', onCopySuccess);
+      }
+        var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+        var mailtoRegex = new RegExp(/^mailto:/);
+          var filterRegex = new RegExp('/' + window.location.host + '/');
+        var isInternal = (href) => {
+            return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+        }
+        // Inspect non-navigation links and adorn them if external
+     	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+        for (var i=0; i<links.length; i++) {
+          const link = links[i];
+          if (!isInternal(link.href)) {
+            // undo the damage that might have been done by quarto-nav.js in the case of
+            // links that we want to consider external
+            if (link.dataset.originalHref !== undefined) {
+              link.href = link.dataset.originalHref;
+            }
+          }
+        }
+      function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+        const config = {
+          allowHTML: true,
+          maxWidth: 500,
+          delay: 100,
+          arrow: false,
+          appendTo: function(el) {
+              return el.closest('section.slide') || el.parentElement;
+          },
+          interactive: true,
+          interactiveBorder: 10,
+          theme: 'light-border',
+          placement: 'bottom-start',
+        };
+        if (contentFn) {
+          config.content = contentFn;
+        }
+        if (onTriggerFn) {
+          config.onTrigger = onTriggerFn;
+        }
+        if (onUntriggerFn) {
+          config.onUntrigger = onUntriggerFn;
+        }
+          config['offset'] = [0,0];
+          config['maxWidth'] = 700;
+        window.tippy(el, config); 
+      }
+      const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+      for (var i=0; i<noterefs.length; i++) {
+        const ref = noterefs[i];
+        tippyHover(ref, function() {
+          // use id or data attribute instead here
+          let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+          try { href = new URL(href).hash; } catch {}
+          const id = href.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note) {
+            return note.innerHTML;
+          } else {
+            return "";
+          }
+        });
+      }
+      const findCites = (el) => {
+        const parentEl = el.parentElement;
+        if (parentEl) {
+          const cites = parentEl.dataset.cites;
+          if (cites) {
+            return {
+              el,
+              cites: cites.split(' ')
+            };
+          } else {
+            return findCites(el.parentElement)
+          }
+        } else {
+          return undefined;
+        }
+      };
+      var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+      for (var i=0; i<bibliorefs.length; i++) {
+        const ref = bibliorefs[i];
+        const citeInfo = findCites(ref);
+        if (citeInfo) {
+          tippyHover(citeInfo.el, function() {
+            var popup = window.document.createElement('div');
+            citeInfo.cites.forEach(function(cite) {
+              var citeDiv = window.document.createElement('div');
+              citeDiv.classList.add('hanging-indent');
+              citeDiv.classList.add('csl-entry');
+              var biblioDiv = window.document.getElementById('ref-' + cite);
+              if (biblioDiv) {
+                citeDiv.innerHTML = biblioDiv.innerHTML;
+              }
+              popup.appendChild(citeDiv);
+            });
+            return popup.innerHTML;
+          });
+        }
+      }
+    });
+    </script>
+    
+
+</body></html>

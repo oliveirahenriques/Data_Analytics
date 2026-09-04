@@ -1,0 +1,117 @@
+---
+title: "Data Analytics and Visualization"
+subtitle: "Fundação Getulio Vargas - EESP"
+author: "Victor Henriques"
+format: 
+  revealjs:
+    smaller: true
+    toc: true
+    theme: simple
+    slide-number: true
+    incremental: false
+    code-fold: false
+editor: source
+editor_options: 
+  chunk_output_type: console
+---
+
+## Introduction
+
+Estudo dos fundamentos de análise de dados aplicados a dados econômicos e financeiros,
+abrangendo a manipulação de conjuntos de dados e as principais técnicas de tratamento
+de dados, incluindo identificação e correção de outliers, quebras estruturais, dados
+faltantes e imputação estatística. Contempla técnicas de sumarização, limpeza e Análise
+Exploratória de Dados (EDA) para identificação de padrões e anomalias. Inclui noções
+de bancos de dados e aquisição de dados externos via API, e a visualização de dados com
+ferramentas e aplicações práticas para comunicação de resultados analíticos.
+
+## Agenda
+
+ - Fundamentos e manipulação de dados
+    - Aplicação a dados econômicos e financeiros
+    - Manipulação de conjuntos de dados
+
+- Qualidade e tratamento de dados
+    - Outliers
+    - Quebras estruturais
+    - Dados faltantes
+    - Imputação estatística
+
+- Limpeza e sumarização
+  - Análise Exploratória de Dados
+  - Identificação de padrões
+  - Detecção de anomalias
+  - Exploração e interpretação dos dados
+  - Aquisição, armazenamento e comunicação
+
+- Noções de bancos de dados
+  - Aquisição de dados externos por API
+  - Visualização de dados
+  - Comunicação de resultados analíticos
+  - Principais mudanças em relação à ementa anterior
+
+## Valuation
+
+## Why Data Analytics Matter?
+
+## Data
+
+```{r}
+library(yfR)
+
+tickers = c(
+    "ABEV3.SA", "ALOS3.SA", "ASAI3.SA", "B3SA3.SA",
+    "BBAS3.SA", "BBDC3.SA", "BBDC4.SA", "BBSE3.SA", "BEEF3.SA",
+    "BPAC11.SA", "BRAP4.SA", "BRAV3.SA", "BRFS3.SA", "BRKM5.SA",
+    "CCRO3.SA", "CMIG4.SA", "CMIN3.SA", "COGN3.SA", "CPFE3.SA",
+    "CPLE6.SA", "CRFB3.SA", "CSAN3.SA", "CSNA3.SA", "CVCB3.SA",
+    "CXSE3.SA", "CYRE3.SA", "ELET3.SA", "ELET6.SA", "EMBR3.SA",
+    "ENEV3.SA", "ENGI11.SA", "EQTL3.SA", "EZTC3.SA", "FLRY3.SA",
+    "GGBR4.SA", "GOAU4.SA", "HAPV3.SA", "HYPE3.SA", "IGTI11.SA",
+    "IRBR3.SA", "ISAE4.SA", "ITSA4.SA", "ITUB4.SA", "JBSS3.SA",
+    "KLBN11.SA", "LREN3.SA", "MGLU3.SA", "MRFG3.SA", "MRVE3.SA",
+    "MULT3.SA", "NTCO3.SA", "PCAR3.SA", "PETR3.SA", "PETR4.SA",
+    "PETZ3.SA", "PRIO3.SA", "RADL3.SA", "RAIL3.SA", "RAIZ4.SA",
+    "RDOR3.SA", "RECV3.SA", "RENT3.SA", "RRRP3.SA", "SANB11.SA",
+    "SBSP3.SA", "SLCE3.SA", "SMTO3.SA", "SUZB3.SA", "TAEE11.SA",
+    "TIMS3.SA", "TOTS3.SA", "UGPA3.SA", "USIM5.SA", "VALE3.SA",
+    "VAMO3.SA", "VBBR3.SA", "WEGE3.SA", "YDUQ3.SA"
+)
+
+dados = yfR::yf_get(
+  first_date = as.Date("2020-01-01"),
+  last_date = Sys.Date(),
+  tickers = tickers,
+  bench_ticker = "^BVSP"
+)
+
+library(tidyverse)
+```
+
+# vou ter que falar de variavel categorica. e depois esquece variavel categorica aqui.
+
+ja matar aqui a questao do barplot e porque ele seria adequado. questao de contagem etc.
+
+Apresentar scatterplot
+
+apresentar timeplots
+
+Apresentar heatmap
+
+apresentar high level do que e uma variavel aleatoria e o que e uma funcao de 
+
+
+## Fundamentals
+
+Vou ter que falar pelo menos o conceito de variavel aelatoria
+vou ter que falar das medidas mais comuns que vou usar aqui como log retorno tal.
+Vou ter que falar tambºem das principais medidas. o que e um preco, o que e um retorno, o que e um volume
+
+- Let $P_t$ be the price of an assset at time index $t$. Holding the asset for
+
+## 
+
+```{r}
+
+```
+

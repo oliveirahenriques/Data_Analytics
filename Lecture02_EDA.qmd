@@ -1,0 +1,2526 @@
+---
+title: "Exploratory Data Analysis"
+subtitle: "Fundação Getulio Vargas - EESP"
+author: "Victor Henriques"
+format: 
+  revealjs:
+    smaller: true
+    toc: true
+    theme: simple
+    slide-number: true
+    incremental: false
+    code-fold: false
+editor: source
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r, include=F, warning=F,echo=F}
+getwd()
+
+dir.exists(".venv")
+
+library(reticulate)
+
+py_config()
+
+
+py_install(
+  c("pandas", "matplotlib", "yfinance"),
+  pip = TRUE
+)
+
+reticulate::py_require(
+  c("pandas", "matplotlib", "yfinance")
+)
+
+py_module_available("pandas")
+py_module_available("matplotlib")
+py_module_available("yfinance")
+```
+
+```{python, include=F, warning=F,echo=F}
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import yfinance as yf
+
+print("Python OK")
+print("NumPy:", np.__version__)
+print("Pandas:", pd.__version__)
+```
+
+```{python, include=F, warning=F,echo=F}
+PERIODO = "5y"
+INTERVALO = "1d"
+
+# %%
+# ------------------------------------------------------------
+# 2. Lista de tickers
+# ------------------------------------------------------------
+
+tickers = [
+    "ABEV3.SA", "ALOS3.SA", "ASAI3.SA", "B3SA3.SA",
+    "BBAS3.SA", "BBDC3.SA", "BBDC4.SA", "BBSE3.SA", "BEEF3.SA",
+    "BPAC11.SA", "BRAP4.SA", "BRAV3.SA", "BRFS3.SA", "BRKM5.SA",
+    "CCRO3.SA", "CMIG4.SA", "CMIN3.SA", "COGN3.SA", "CPFE3.SA",
+    "CPLE6.SA", "CRFB3.SA", "CSAN3.SA", "CSNA3.SA", "CVCB3.SA",
+    "CXSE3.SA", "CYRE3.SA", "ELET3.SA", "ELET6.SA", "EMBR3.SA",
+    "ENEV3.SA", "ENGI11.SA", "EQTL3.SA", "EZTC3.SA", "FLRY3.SA",
+    "GGBR4.SA", "GOAU4.SA", "HAPV3.SA", "HYPE3.SA", "IGTI11.SA",
+    "IRBR3.SA", "ISAE4.SA", "ITSA4.SA", "ITUB4.SA", "JBSS3.SA",
+    "KLBN11.SA", "LREN3.SA", "MGLU3.SA", "MRFG3.SA", "MRVE3.SA",
+    "MULT3.SA", "NTCO3.SA", "PCAR3.SA", "PETR3.SA", "PETR4.SA",
+    "PETZ3.SA", "PRIO3.SA", "RADL3.SA", "RAIL3.SA", "RAIZ4.SA",
+    "RDOR3.SA", "RECV3.SA", "RENT3.SA", "RRRP3.SA", "SANB11.SA",
+    "SBSP3.SA", "SLCE3.SA", "SMTO3.SA", "SUZB3.SA", "TAEE11.SA",
+    "TIMS3.SA", "TOTS3.SA", "UGPA3.SA", "USIM5.SA", "VALE3.SA",
+    "VAMO3.SA", "VBBR3.SA", "WEGE3.SA", "YDUQ3.SA"
+]
+
+dados = yf.download(
+    tickers=tickers,
+    period=PERIODO,
+    interval=INTERVALO,
+    progress=False
+)
+```
+
+
+```{python, echo = F}
+volume = dados["Volume"]
+price = dados["Close"]
+returns = np.log(price) - np.log(price.shift(1))
+```
+
+## Measures of position
+
+**Measures of position** summarize where the data are located or concentrated.
+
+They answer questions such as:
+
+- What is the typical value?
+- Where is the center of the distribution?
+- What value separates the lower and upper parts of the data?
+- How high or low is a value relative to the historical distribution?
+
+The main measures of position are:
+
+- mean
+- median
+- mode
+- quantiles
+
+
+<!-- - arithmetic mean -->
+<!-- - weighted mean -->
+<!-- - geometric mean -->
+<!-- - harmonic mean -->
+<!-- - mean -->
+<!-- - median -->
+<!-- - mode -->
+<!-- - quantiles -->
+<!-- - quartiles -->
+<!-- - deciles -->
+<!-- - percentiles -->
+<!-- - midrange -->
+<!-- - midhinge -->
+<!-- - trimean -->
+<!-- - trimmed mean -->
+
+Each measure captures a different notion of “central” or “typical” behavior.
+
+<!-- --- -->
+
+<!-- After describing the **position** of the data, we need to understand: -->
+
+<!-- - how spread out the data are; -->
+<!-- - whether the distribution is symmetric or skewed; -->
+<!-- - whether the distribution has heavy tails; -->
+<!-- - how two variables move together; -->
+<!-- - whether relationships are linear, monotonic, stable, or noisy. -->
+
+<!-- --- -->
+
+<!-- **Measures of shape** describe the form of the distribution. -->
+
+<!-- They help answer questions such as: -->
+
+<!-- - Is the distribution symmetric? -->
+<!-- - Is it skewed to the right or left? -->
+<!-- - Are tails heavier than expected? -->
+<!-- - Are extreme values frequent? -->
+<!-- - Does the distribution look normal, fat-tailed, or asymmetric? -->
+<!-- --- -->
+<!-- --- -->
+
+## Mean
+
+The mean or **arithmetic average** is the sum of all observations divided by the number of observations.
+
+$$
+\bar{x} = \frac{x_1 + x_2 + \cdots x_n}{n} = \frac{1}{n}\sum_{i=1}^{n} x_i
+$$
+
+Where:
+
+- $\bar{x}$ is the arithmetic mean;
+- $x_i$ is observation $i$;
+- $n$ is the number of observations.
+
+The **geometric mean** is calculated as the nth root of the product of positive observations.
+
+$$
+G = \left(\prod_{i=1}^{n} x_i\right)^{1/n}
+$$
+
+
+::: {.notes}
+
+The arithmetic mean represents the average level of the data. In financial and economic data, it may be used to summarize:
+
+- average price;
+- average spread;
+- average return;
+- average level by market;
+- average level by period.
+
+However, it is sensitive to extreme values.
+
+:::
+
+## Mean
+
+
+## Weighted mean
+
+The **weighted mean** assigns different importance to each observation.
+
+$$
+\bar{x}_w = \frac{\sum_{i=1}^{n} w_i x_i}{\sum_{i=1}^{n} w_i}
+$$
+
+Where:
+
+- $x_i$ is observation $i$;
+- $w_i$ is the weight assigned to observation $i$;
+- $\bar{x}_w$ is the weighted mean.
+
+::: {.notes}
+
+The weighted mean is useful when observations do not have the same relevance.
+
+Examples:
+
+- price weighted by volume;
+- average price weighted by liquidity;
+- regional average weighted by market size;
+- portfolio return weighted by exposure;
+- curve average weighted by contract importance.
+
+The key idea is:
+
+> Observations with higher weights have greater influence on the final measure.
+
+:::
+
+## Geometric mean
+
+The **geometric mean** is calculated as the nth root of the product of positive observations.
+
+$$
+G = \left(\prod_{i=1}^{n} x_i\right)^{1/n}
+$$
+
+Equivalently:
+
+$$
+G = \exp\left(\frac{1}{n}\sum_{i=1}^{n}\ln(x_i)\right)
+$$
+
+The geometric mean requires positive values.
+
+::: {.notes}
+
+The geometric mean is especially useful for growth rates and compounded returns.
+
+If $r_i$ represents the return in period $i$, the geometric average return is:
+
+$$
+G_r = \left(\prod_{i=1}^{n} (1+r_i)\right)^{1/n} - 1
+$$
+
+This is useful when evaluating:
+
+- compounded returns;
+- average growth rates;
+- cumulative performance;
+- long-term price changes.
+
+:::
+
+## Harmonic mean
+
+The **harmonic mean** is the reciprocal of the arithmetic mean of reciprocals.
+
+$$
+H = \frac{n}{\sum_{i=1}^{n}\frac{1}{x_i}}
+$$
+
+Where all $x_i$ values must be positive.
+
+::: {.notes}
+
+The harmonic mean is useful for averaging ratios or rates.
+
+Examples:
+
+- average price-to-earnings ratios;
+- average speeds;
+- average rates;
+- unit costs;
+- ratios where the denominator matters.
+
+It gives more weight to smaller values than the arithmetic mean.
+
+:::
+
+
+## Median
+
+The **median** is the value that divides the ordered data into two equal parts.
+
+If the data are ordered as:
+
+$$
+x_{(1)} \leq x_{(2)} \leq \cdots \leq x_{(n)}
+$$
+
+Then, if $n$ is odd:
+
+$$
+\text{Median} = x_{\left(\frac{n+1}{2}\right)}
+$$
+
+If $n$ is even:
+
+$$
+\text{Median} = \frac{x_{\left(\frac{n}{2}\right)} + x_{\left(\frac{n}{2}+1\right)}}{2}
+$$
+
+::: {.notes}
+
+The median is also the 50th percentile.
+
+$$
+\text{Median} = Q_2 = P_{50}
+$$
+
+It is robust to extreme values.
+
+The median is useful when data are:
+
+- skewed;
+- affected by outliers;
+- non-normal;
+- subject to occasional market shocks.
+
+:::
+
+## Mode
+
+The **mode** is the most frequent value in the dataset.
+
+For a variable $X$, the mode is:
+
+$$
+\text{Mode}(X) = \arg\max_x f(x)
+$$
+
+Where:
+
+- $f(x)$ is the frequency of value $x$;
+- $\arg\max_x f(x)$ is the value that maximizes frequency.
+
+---
+
+::: {.notes}
+
+The mode answers:
+
+> Which value occurs most frequently?
+
+It is especially useful for categorical or discrete variables.
+
+Examples:
+
+- most frequent product;
+- most common market;
+- most common valuation type;
+- most frequently observed maturity.
+
+For continuous variables, the mode is often interpreted through histograms or density estimates.
+
+:::
+
+## Quantiles
+
+A **quantile** divides the ordered data into intervals containing equal proportions of observations.
+
+The $p$-quantile, denoted by $q_p$, is the value below which a proportion $p$ of the data falls.
+
+$$
+q_p = F^{-1}(p)
+$$
+
+Where:
+
+- $F^{-1}$ is the inverse cumulative distribution function;
+- $p$ is a probability between 0 and 1.
+
+---
+
+## Interpretation of quantiles
+
+The $p$-quantile answers:
+
+> What value is greater than or equal to approximately $p \times 100\%$ of the observations?
+
+Examples:
+
+- $q_{0.25}$: 25% of observations are below this value;
+- $q_{0.50}$: 50% of observations are below this value;
+- $q_{0.90}$: 90% of observations are below this value.
+
+Quantiles provide a distributional view of the data.
+
+---
+
+## Quartiles
+
+**Quartiles** divide the ordered data into four parts.
+
+The main quartiles are:
+
+$$
+Q_1 = q_{0.25}
+$$
+
+$$
+Q_2 = q_{0.50}
+$$
+
+$$
+Q_3 = q_{0.75}
+$$
+
+Where:
+
+- $Q_1$ is the first quartile;
+- $Q_2$ is the median;
+- $Q_3$ is the third quartile.
+
+---
+
+## Interpretation of quartiles
+
+Quartiles summarize the central structure of the distribution.
+
+- $Q_1$: 25% of the data are below this value.
+- $Q_2$: 50% of the data are below this value.
+- $Q_3$: 75% of the data are below this value.
+
+The interval between $Q_1$ and $Q_3$ contains the central 50% of the data.
+
+---
+
+## Deciles
+
+**Deciles** divide the ordered data into ten parts.
+
+The $k$-th decile is:
+
+$$
+D_k = q_{k/10}
+$$
+
+For:
+
+$$
+k = 1, 2, \ldots, 9
+$$
+
+Examples:
+
+$$
+D_1 = q_{0.10}
+$$
+
+$$
+D_5 = q_{0.50}
+$$
+
+$$
+D_9 = q_{0.90}
+$$
+
+---
+
+## Interpretation of deciles
+
+Deciles are useful when we want a more detailed breakdown than quartiles.
+
+Examples:
+
+- identifying the bottom 10% of historical prices;
+- identifying the top 10% of spreads;
+- comparing current values to historical decile ranges;
+- classifying market conditions into low, normal, and high regimes.
+
+---
+
+## Percentiles
+
+**Percentiles** divide the ordered data into 100 parts.
+
+The $k$-th percentile is:
+
+$$
+P_k = q_{k/100}
+$$
+
+For:
+
+$$
+k = 1, 2, \ldots, 99
+$$
+
+Examples:
+
+$$
+P_{10} = q_{0.10}
+$$
+
+$$
+P_{50} = q_{0.50}
+$$
+
+$$
+P_{95} = q_{0.95}
+$$
+
+---
+
+## Interpretation of percentiles
+
+Percentiles show the relative position of a value within a distribution.
+
+They answer questions such as:
+
+- Is the current price historically high?
+- Is the current spread unusually low?
+- Is today’s move among the largest historical changes?
+- Is the curve level in an extreme region?
+
+Example:
+
+> If the current price is above $P_{90}$, it is higher than at least 90% of historical observations.
+
+---
+
+## Midrange
+
+The **midrange** is the average of the minimum and maximum values.
+
+$$
+M_R = \frac{x_{\min} + x_{\max}}{2}
+$$
+
+Where:
+
+- $x_{\min}$ is the minimum value;
+- $x_{\max}$ is the maximum value.
+
+---
+
+## Interpretation of the midrange
+
+The midrange represents the midpoint between the lowest and highest observations.
+
+It is simple, but highly sensitive to outliers.
+
+In financial data, it should be used with caution because one extreme price can strongly distort the measure.
+
+It is usually less robust than the mean or median.
+
+---
+
+## Midhinge
+
+The **midhinge** is the average of the first and third quartiles.
+
+$$
+M_H = \frac{Q_1 + Q_3}{2}
+$$
+
+Where:
+
+- $Q_1$ is the first quartile;
+- $Q_3$ is the third quartile.
+
+---
+
+## Interpretation of the midhinge
+
+The midhinge summarizes the center of the middle half of the data.
+
+It is more robust than the midrange because it ignores the most extreme values.
+
+It is useful when the focus is on the central part of the distribution rather than the full range.
+
+---
+
+## Trimean
+
+The **trimean** combines the median and the midhinge.
+
+$$
+T_M = \frac{Q_1 + 2Q_2 + Q_3}{4}
+$$
+
+Since $Q_2$ is the median:
+
+$$
+T_M = \frac{Q_1 + 2\text{Median} + Q_3}{4}
+$$
+
+---
+
+## Interpretation of the trimean
+
+The trimean gives more weight to the median while still considering the first and third quartiles.
+
+It is more robust than the arithmetic mean.
+
+It is useful when we want a measure of central tendency that reflects the central distribution but reduces the influence of outliers.
+
+---
+
+## Trimmed mean
+
+The **trimmed mean** removes a proportion of the smallest and largest observations before calculating the mean.
+
+For a trimming proportion $\alpha$, the trimmed mean is:
+
+$$
+\bar{x}_{\alpha} =
+\frac{1}{n-2k}
+\sum_{i=k+1}^{n-k} x_{(i)}
+$$
+
+Where:
+
+$$
+k = \lfloor \alpha n \rfloor
+$$
+
+And:
+
+- $x_{(i)}$ are the ordered observations;
+- $\alpha$ is the trimming proportion;
+- $k$ is the number of observations removed from each tail.
+
+---
+
+## Interpretation of the trimmed mean
+
+The trimmed mean reduces the impact of extreme values.
+
+Example:
+
+A 10% trimmed mean removes:
+
+- the lowest 10% of observations;
+- the highest 10% of observations.
+
+Then it calculates the mean of the remaining data.
+
+This is useful when the dataset contains outliers but we do not want to rely only on the median.
+
+---
+
+## Winsorized mean
+
+The **winsorized mean** limits extreme values instead of removing them.
+
+Extreme observations are replaced by selected lower and upper quantiles.
+
+For example, using lower quantile $q_\alpha$ and upper quantile $q_{1-\alpha}$:
+
+$$
+x_i^* =
+\begin{cases}
+q_\alpha, & \text{if } x_i < q_\alpha \\
+x_i, & \text{if } q_\alpha \leq x_i \leq q_{1-\alpha} \\
+q_{1-\alpha}, & \text{if } x_i > q_{1-\alpha}
+\end{cases}
+$$
+
+The winsorized mean is:
+
+$$
+\bar{x}_W = \frac{1}{n}\sum_{i=1}^{n} x_i^*
+$$
+
+---
+
+## Interpretation of the winsorized mean
+
+The winsorized mean keeps all observations but caps extreme values.
+
+It is useful when:
+
+- extreme values may distort the mean;
+- deleting observations is not desirable;
+- we want a more robust average;
+- we need to reduce the influence of abnormal observations.
+
+In financial data, it can be useful for exploratory summaries but should be documented carefully.
+
+---
+
+## Comparing measures of position
+
+Different measures may lead to different interpretations.
+
+For a symmetric distribution:
+
+$$
+\text{Mean} \approx \text{Median}
+$$
+
+For a right-skewed distribution:
+
+$$
+\text{Mean} > \text{Median}
+$$
+
+For a left-skewed distribution:
+
+$$
+\text{Mean} < \text{Median}
+$$
+
+The relationship between mean and median provides an initial signal about skewness.
+
+---
+
+## Robustness to outliers
+
+Measures differ in their sensitivity to extreme values.
+
+Highly sensitive:
+
+- arithmetic mean;
+- midrange.
+
+More robust:
+
+- median;
+- quartiles;
+- percentiles;
+- trimmed mean;
+- winsorized mean;
+- trimean.
+
+This matters because economic and financial data often contain jumps, shocks, and unusual observations.
+
+---
+
+## Choosing the appropriate measure
+
+Use the **mean** when:
+
+- the distribution is reasonably symmetric;
+- outliers are not material;
+- the objective is to estimate an average level.
+
+Use the **median** when:
+
+- the distribution is skewed;
+- outliers are present;
+- the objective is to describe typical behavior.
+
+Use **percentiles or quantiles** when:
+
+- historical positioning matters;
+- tail behavior matters;
+- the objective is to classify values as low, normal, or high.
+
+---
+
+## Choosing the appropriate measure
+
+Use the **weighted mean** when:
+
+- observations have different importance;
+- prices should reflect volumes, liquidity, or exposure.
+
+Use the **geometric mean** when:
+
+- growth is compounded;
+- returns accumulate multiplicatively.
+
+Use the **harmonic mean** when:
+
+- averaging ratios or rates;
+- smaller values should receive greater influence.
+
+Use the **trimmed or winsorized mean** when:
+
+- outliers exist;
+- but a mean-like measure is still needed.
+
+---
+
+## Measures of position in time series
+
+For time series, measures of position can be calculated:
+
+- over the full sample;
+- by year;
+- by month;
+- before and after a structural break;
+- over rolling windows;
+- by market regime.
+
+Example rolling mean:
+
+$$
+\bar{x}_{t,w} = \frac{1}{w}\sum_{j=0}^{w-1} x_{t-j}
+$$
+
+Where:
+
+- $w$ is the rolling window size;
+- $x_{t-j}$ is the observation $j$ periods before time $t$.
+
+---
+
+## Summary
+
+Measures of position summarize where the data are located.
+
+Key measures include:
+
+- mean;
+- weighted mean;
+- geometric mean;
+- harmonic mean;
+- median;
+- mode;
+- quartiles;
+- deciles;
+- percentiles;
+- midrange;
+- midhinge;
+- trimean;
+- trimmed mean;
+- winsorized mean.
+
+The best measure depends on the distribution, the analytical objective, and the economic context.
+
+---
+
+## Measures of Dispersion
+
+**Measures of dispersion** describe the variability or uncertainty of the data.
+
+They answer questions such as:
+
+- How far are observations from the center?
+- How volatile is the series?
+- How stable are prices, spreads, or returns?
+- Are values concentrated or widely dispersed?
+
+---
+
+## Range
+
+The **range** measures the distance between the largest and smallest observations.
+
+$$
+R = x_{\max} - x_{\min}
+$$
+
+Where:
+
+- $x_{\max}$ is the maximum value;
+- $x_{\min}$ is the minimum value.
+
+The range is simple, but highly sensitive to outliers.
+
+---
+
+## Interquartile Range
+
+The **interquartile range**, or **IQR**, measures the spread of the central 50% of the data.
+
+$$
+IQR = Q_3 - Q_1
+$$
+
+Where:
+
+- $Q_1$ is the first quartile;
+- $Q_3$ is the third quartile.
+
+The IQR is more robust to outliers than the range.
+
+---
+
+## Semi-Interquartile Range
+
+The **semi-interquartile range** is half of the IQR.
+
+$$
+SIQR = \frac{Q_3 - Q_1}{2}
+$$
+
+Equivalently:
+
+$$
+SIQR = \frac{IQR}{2}
+$$
+
+It measures the typical distance from the median to the first and third quartiles.
+
+---
+
+## Quantile Range
+
+A **quantile range** measures the distance between two selected quantiles.
+
+$$
+QR_{p_1,p_2} = q_{p_2} - q_{p_1}
+$$
+
+Where:
+
+- $q_{p_1}$ is the lower quantile;
+- $q_{p_2}$ is the upper quantile;
+- $0 < p_1 < p_2 < 1$.
+
+Examples:
+
+$$
+QR_{0.10,0.90} = q_{0.90} - q_{0.10}
+$$
+
+$$
+QR_{0.05,0.95} = q_{0.95} - q_{0.05}
+$$
+
+---
+
+## Sample Variance
+
+The **sample variance** measures the average squared deviation from the sample mean.
+
+$$
+s^2 = \frac{1}{n-1}\sum_{i=1}^{n}(x_i - \bar{x})^2
+$$
+
+Where:
+
+- $s^2$ is the sample variance;
+- $x_i$ is observation $i$;
+- $\bar{x}$ is the sample mean;
+- $n$ is the sample size.
+
+---
+
+## Population Variance
+
+The **population variance** is defined as:
+
+$$
+\sigma^2 = \frac{1}{N}\sum_{i=1}^{N}(x_i - \mu)^2
+$$
+
+Where:
+
+- $\sigma^2$ is the population variance;
+- $\mu$ is the population mean;
+- $N$ is the population size.
+
+## Sample Standard Deviation
+
+The **sample standard deviation** is the square root of the sample variance.
+
+$$
+s = \sqrt{\frac{1}{n-1}\sum_{i=1}^{n}(x_i - \bar{x})^2}
+$$
+
+It is expressed in the same unit as the original variable.
+
+Examples:
+
+- USD/barrel;
+- cents/gallon;
+- USD/MWh;
+- basis points.
+
+---
+
+## Population Standard Deviation
+
+The **population standard deviation** is:
+
+$$
+\sigma = \sqrt{\frac{1}{N}\sum_{i=1}^{N}(x_i - \mu)^2}
+$$
+
+It measures the typical distance of observations from the population mean.
+
+---
+
+## Mean Absolute Deviation Around the Mean
+
+The **mean absolute deviation around the mean** measures the average absolute distance from the mean.
+
+$$
+MAD_{\bar{x}} = \frac{1}{n}\sum_{i=1}^{n}|x_i - \bar{x}|
+$$
+
+It is less sensitive to extreme values than variance, because deviations are not squared.
+
+---
+
+## Mean Absolute Deviation Around the Median
+
+The **mean absolute deviation around the median** is:
+
+$$
+MAD_{\tilde{x}} = \frac{1}{n}\sum_{i=1}^{n}|x_i - \tilde{x}|
+$$
+
+Where:
+
+- $\tilde{x}$ is the sample median.
+
+This version uses the median as the reference point.
+
+---
+
+## Median Absolute Deviation
+
+The **median absolute deviation**, also called **MAD**, is a robust measure of dispersion.
+
+$$
+MAD = \text{median}\left(|x_i - \tilde{x}|\right)
+$$
+
+Where:
+
+- $\tilde{x}$ is the sample median;
+- $|x_i - \tilde{x}|$ is the absolute deviation from the median.
+
+---
+
+## Scaled Median Absolute Deviation
+
+For approximately normal data, MAD can be scaled to be comparable to the standard deviation.
+
+$$
+MAD_{\text{scaled}} = 1.4826 \times \text{median}\left(|x_i - \tilde{x}|\right)
+$$
+
+The constant $1.4826$ makes the estimator consistent with the standard deviation under normality.
+
+---
+
+## Coefficient of Variation
+
+The **coefficient of variation**, or **CV**, measures dispersion relative to the mean.
+
+$$
+CV = \frac{s}{\bar{x}}
+$$
+
+As a percentage:
+
+$$
+CV_{\%} = \frac{s}{\bar{x}} \times 100
+$$
+
+It is useful for comparing variability across series with different levels.
+
+---
+
+## Mean Squared Deviation
+
+The **mean squared deviation** measures average squared deviation from a reference value $a$.
+
+$$
+MSD(a) = \frac{1}{n}\sum_{i=1}^{n}(x_i - a)^2
+$$
+
+If $a = \bar{x}$:
+
+$$
+MSD(\bar{x}) = \frac{1}{n}\sum_{i=1}^{n}(x_i - \bar{x})^2
+$$
+
+This is closely related to variance.
+
+---
+
+## Root Mean Squared Deviation
+
+The **root mean squared deviation**, or **RMSD**, is:
+
+$$
+RMSD(a) = \sqrt{\frac{1}{n}\sum_{i=1}^{n}(x_i - a)^2}
+$$
+
+It is expressed in the same unit as the original variable.
+
+Common applications:
+
+- forecast error;
+- model deviation;
+- benchmark deviation;
+- pricing error.
+
+---
+
+## Downside Deviation
+
+The **downside deviation** measures variability below a target or threshold $\tau$.
+
+$$
+DD = \sqrt{\frac{1}{n}\sum_{i=1}^{n}\min(0, x_i - \tau)^2}
+$$
+
+Where:
+
+- $\tau$ is the target level;
+- only observations below $\tau$ contribute to the measure.
+
+---
+
+## Semi-Variance
+
+The **semi-variance** measures average squared deviations below a target $\tau$.
+
+$$
+SV = \frac{1}{n}\sum_{i=1}^{n}\min(0, x_i - \tau)^2
+$$
+
+The downside deviation is the square root of the semi-variance:
+
+$$
+DD = \sqrt{SV}
+$$
+
+---
+
+## Mean Absolute Percentage Deviation
+
+The **mean absolute percentage deviation** measures average absolute deviation relative to a reference value.
+
+Using the mean as reference:
+
+$$
+MAPD = \frac{1}{n}\sum_{i=1}^{n}\left|\frac{x_i - \bar{x}}{\bar{x}}\right|
+$$
+
+As a percentage:
+
+$$
+MAPD_{\%} = \frac{1}{n}\sum_{i=1}^{n}\left|\frac{x_i - \bar{x}}{\bar{x}}\right| \times 100
+$$
+
+---
+
+## Rolling Mean
+
+For time series, the rolling mean over a window of size $w$ is:
+
+$$
+\bar{x}_{t,w} = \frac{1}{w}\sum_{j=0}^{w-1}x_{t-j}
+$$
+
+Where:
+
+- $w$ is the window size;
+- $x_{t-j}$ is the observation $j$ periods before time $t$.
+
+---
+
+## Rolling Standard Deviation
+
+The **rolling standard deviation** over a window of size $w$ is:
+
+$$
+s_{t,w}
+=
+\sqrt{
+\frac{1}{w-1}
+\sum_{j=0}^{w-1}
+(x_{t-j} - \bar{x}_{t,w})^2
+}
+$$
+
+It measures time-varying volatility.
+
+---
+
+## Rolling IQR
+
+The **rolling IQR** is a robust time-varying measure of dispersion.
+
+$$
+IQR_{t,w} = Q_{3,t,w} - Q_{1,t,w}
+$$
+
+Where:
+
+- $Q_{1,t,w}$ is the first quartile inside the rolling window;
+- $Q_{3,t,w}$ is the third quartile inside the rolling window.
+
+---
+
+## Log Return
+
+For price series, log returns are commonly defined as:
+
+$$
+r_t = \ln\left(\frac{P_t}{P_{t-1}}\right)
+$$
+
+Where:
+
+- $P_t$ is the price at time $t$;
+- $P_{t-1}$ is the price at the previous time point.
+
+---
+
+## Return Volatility
+
+The volatility of returns is commonly measured by the standard deviation of returns.
+
+$$
+\sigma_r =
+\sqrt{
+\frac{1}{n-1}
+\sum_{t=1}^{n}
+(r_t - \bar{r})^2
+}
+$$
+
+Where:
+
+$$
+\bar{r} = \frac{1}{n}\sum_{t=1}^{n}r_t
+$$
+
+---
+
+## Annualized Volatility
+
+For daily returns:
+
+$$
+\sigma_{\text{annual}} = \sigma_{\text{daily}}\sqrt{252}
+$$
+
+For weekly returns:
+
+$$
+\sigma_{\text{annual}} = \sigma_{\text{weekly}}\sqrt{52}
+$$
+
+For monthly returns:
+
+$$
+\sigma_{\text{annual}} = \sigma_{\text{monthly}}\sqrt{12}
+$$
+
+The scaling factor depends on the frequency of the data.
+
+---
+
+## Z-Score
+
+The **z-score** measures how many standard deviations an observation is from the mean.
+
+$$
+z_i = \frac{x_i - \bar{x}}{s}
+$$
+
+Where:
+
+- $x_i$ is observation $i$;
+- $\bar{x}$ is the sample mean;
+- $s$ is the sample standard deviation.
+
+---
+
+## Robust Z-Score
+
+A robust z-score uses the median and MAD.
+
+$$
+z_i^{robust}
+=
+\frac{x_i - \tilde{x}}
+{1.4826 \times MAD}
+$$
+
+Where:
+
+$$
+MAD = \text{median}\left(|x_i - \tilde{x}|\right)
+$$
+
+This version is less sensitive to outliers.
+
+---
+
+## Measures of Shape
+
+
+## Central Moments
+
+Many measures of shape are based on moments.
+
+The $k$-th central moment is:
+
+$$
+\mu_k = E[(X - \mu)^k]
+$$
+
+For a sample, the $k$-th sample central moment is:
+
+$$
+m_k = \frac{1}{n}\sum_{i=1}^{n}(x_i - \bar{x})^k
+$$
+
+Where:
+
+- $k$ is the order of the moment;
+- $\bar{x}$ is the sample mean.
+
+---
+
+## First Four Moments
+
+The first four moments are commonly associated with:
+
+1. Mean;
+2. Variance;
+3. Skewness;
+4. Kurtosis.
+
+In exploratory data analysis:
+
+- variance describes dispersion;
+- skewness describes asymmetry;
+- kurtosis describes tail behavior and peakedness.
+
+---
+
+## Skewness
+
+**Skewness** measures the asymmetry of a distribution.
+
+Population skewness:
+
+$$
+\gamma_1 = \frac{E[(X-\mu)^3]}{\sigma^3}
+$$
+
+Sample skewness:
+
+$$
+g_1 =
+\frac{
+\frac{1}{n}\sum_{i=1}^{n}(x_i-\bar{x})^3
+}
+{
+\left[
+\frac{1}{n}\sum_{i=1}^{n}(x_i-\bar{x})^2
+\right]^{3/2}
+}
+$$
+
+---
+
+## Interpretation of Skewness
+
+If:
+
+$$
+\gamma_1 > 0
+$$
+
+The distribution is **right-skewed**.
+
+If:
+
+$$
+\gamma_1 < 0
+$$
+
+The distribution is **left-skewed**.
+
+If:
+
+$$
+\gamma_1 \approx 0
+$$
+
+The distribution is approximately symmetric.
+
+---
+
+## Right-Skewed Distribution
+
+A right-skewed distribution has a longer right tail.
+
+Usually:
+
+$$
+\text{Mean} > \text{Median}
+$$
+
+In financial data, this may occur when there are occasional large positive observations.
+
+Examples:
+
+- price spikes;
+- large positive returns;
+- extreme spread widening.
+
+---
+
+## Left-Skewed Distribution
+
+A left-skewed distribution has a longer left tail.
+
+Usually:
+
+$$
+\text{Mean} < \text{Median}
+$$
+
+In financial data, this may occur when there are occasional large negative observations.
+
+Examples:
+
+- sharp price collapses;
+- negative returns;
+- spread compression events.
+
+---
+
+## Pearson's First Skewness Coefficient
+
+Pearson's first skewness coefficient is based on the mean, mode, and standard deviation.
+
+$$
+Sk_1 = \frac{\bar{x} - \text{Mode}}{s}
+$$
+
+It measures asymmetry using the distance between the mean and the mode.
+
+---
+
+## Pearson's Second Skewness Coefficient
+
+Pearson's second skewness coefficient uses the mean, median, and standard deviation.
+
+$$
+Sk_2 = \frac{3(\bar{x} - \tilde{x})}{s}
+$$
+
+Where:
+
+- $\bar{x}$ is the mean;
+- $\tilde{x}$ is the median;
+- $s$ is the standard deviation.
+
+This is useful when the mode is difficult to estimate.
+
+---
+
+## Bowley's Skewness
+
+Bowley's skewness is based on quartiles.
+
+$$
+Sk_B =
+\frac{Q_3 + Q_1 - 2Q_2}
+{Q_3 - Q_1}
+$$
+
+Since $Q_2$ is the median:
+
+$$
+Sk_B =
+\frac{Q_3 + Q_1 - 2\tilde{x}}
+{Q_3 - Q_1}
+$$
+
+It is more robust than moment-based skewness.
+
+---
+
+## Interpretation of Bowley's Skewness
+
+If:
+
+$$
+Sk_B > 0
+$$
+
+The distribution is right-skewed.
+
+If:
+
+$$
+Sk_B < 0
+$$
+
+The distribution is left-skewed.
+
+If:
+
+$$
+Sk_B \approx 0
+$$
+
+The distribution is approximately symmetric around the median.
+
+---
+
+## Kurtosis
+
+**Kurtosis** describes tail behavior and the concentration of values around the center.
+
+Population kurtosis:
+
+$$
+\beta_2 = \frac{E[(X-\mu)^4]}{\sigma^4}
+$$
+
+Sample kurtosis:
+
+$$
+g_2 =
+\frac{
+\frac{1}{n}\sum_{i=1}^{n}(x_i-\bar{x})^4
+}
+{
+\left[
+\frac{1}{n}\sum_{i=1}^{n}(x_i-\bar{x})^2
+\right]^2
+}
+$$
+
+---
+
+## Excess Kurtosis
+
+Excess kurtosis compares kurtosis to the normal distribution.
+
+$$
+\text{Excess Kurtosis} = \beta_2 - 3
+$$
+
+For a normal distribution:
+
+$$
+\beta_2 = 3
+$$
+
+Therefore:
+
+$$
+\text{Excess Kurtosis} = 0
+$$
+
+---
+
+## Interpretation of Kurtosis
+
+If excess kurtosis is positive:
+
+$$
+\text{Excess Kurtosis} > 0
+$$
+
+The distribution has heavier tails than a normal distribution.
+
+If excess kurtosis is negative:
+
+$$
+\text{Excess Kurtosis} < 0
+$$
+
+The distribution has lighter tails than a normal distribution.
+
+Financial returns often exhibit positive excess kurtosis.
+
+---
+
+## Moment-Based Shape Summary
+
+The standard moment-based summary is:
+
+$$
+\text{Mean} = \bar{x}
+$$
+
+$$
+\text{Variance} = s^2
+$$
+
+$$
+\text{Skewness} = g_1
+$$
+
+$$
+\text{Kurtosis} = g_2
+$$
+
+These summarize location, dispersion, asymmetry, and tail behavior.
+
+---
+
+## Coefficient of Quartile Dispersion
+
+The **coefficient of quartile dispersion** measures relative dispersion using quartiles.
+
+$$
+CQD = \frac{Q_3 - Q_1}{Q_3 + Q_1}
+$$
+
+It is a robust relative dispersion measure.
+
+It is useful when extreme observations make standard deviation unstable.
+
+---
+
+## Tail Ratio
+
+A simple empirical tail ratio can compare upper-tail and lower-tail behavior.
+
+$$
+TR = \frac{|q_{0.95} - q_{0.50}|}{|q_{0.50} - q_{0.05}|}
+$$
+
+Where:
+
+- $q_{0.95}$ is the 95th percentile;
+- $q_{0.50}$ is the median;
+- $q_{0.05}$ is the 5th percentile.
+
+---
+
+## Interpretation of Tail Ratio
+
+If:
+
+$$
+TR > 1
+$$
+
+The upper tail is longer than the lower tail.
+
+If:
+
+$$
+TR < 1
+$$
+
+The lower tail is longer than the upper tail.
+
+If:
+
+$$
+TR \approx 1
+$$
+
+The tails are roughly balanced around the median.
+
+---
+
+## Quantile-Based Skewness
+
+A quantile-based skewness measure can be written as:
+
+$$
+Sk_Q =
+\frac{
+(q_{0.75} - q_{0.50}) - (q_{0.50} - q_{0.25})
+}
+{
+q_{0.75} - q_{0.25}
+}
+$$
+
+Equivalently:
+
+$$
+Sk_Q =
+\frac{q_{0.75} + q_{0.25} - 2q_{0.50}}
+{q_{0.75} - q_{0.25}}
+$$
+
+This is equivalent to Bowley's skewness.
+
+---
+
+## Quantile-Based Tail Weight
+
+A quantile-based tail weight measure can compare outer and inner ranges.
+
+$$
+TW =
+\frac{q_{0.95} - q_{0.05}}
+{q_{0.75} - q_{0.25}}
+$$
+
+This compares the central 90% range with the central 50% range.
+
+Higher values indicate heavier tails.
+
+---
+
+## Bivariate Measures
+
+**Bivariate measures** describe the relationship between two variables.
+
+They help answer questions such as:
+
+- Do two series move together?
+- Is the relationship positive or negative?
+- Is the relationship linear?
+- Is the association monotonic?
+- How strong is the relationship?
+- How much does one variable change when another changes?
+
+ ## Two Variables
+
+Let the two variables be:
+
+$$
+X = (x_1, x_2, \ldots, x_n)
+$$
+
+$$
+Y = (y_1, y_2, \ldots, y_n)
+$$
+
+Their sample means are:
+
+$$
+\bar{x} = \frac{1}{n}\sum_{i=1}^{n}x_i
+$$
+
+$$
+\bar{y} = \frac{1}{n}\sum_{i=1}^{n}y_i
+$$
+
+---
+
+## Sample Covariance
+
+The **sample covariance** measures whether two variables move together.
+
+$$
+s_{xy}
+=
+\frac{1}{n-1}
+\sum_{i=1}^{n}
+(x_i - \bar{x})(y_i - \bar{y})
+$$
+
+If covariance is positive, the variables tend to move in the same direction.
+
+If covariance is negative, they tend to move in opposite directions.
+
+---
+
+## Population Covariance
+
+The **population covariance** is:
+
+$$
+\sigma_{xy}
+=
+\frac{1}{N}
+\sum_{i=1}^{N}
+(x_i - \mu_x)(y_i - \mu_y)
+$$
+
+Where:
+
+- $\mu_x$ is the population mean of $X$;
+- $\mu_y$ is the population mean of $Y$.
+
+---
+
+## Interpretation of Covariance
+
+If:
+
+$$
+s_{xy} > 0
+$$
+
+$X$ and $Y$ tend to move together.
+
+If:
+
+$$
+s_{xy} < 0
+$$
+
+$X$ and $Y$ tend to move in opposite directions.
+
+If:
+
+$$
+s_{xy} \approx 0
+$$
+
+There is little evidence of linear co-movement.
+
+However, covariance depends on the units of measurement.
+
+---
+
+## Pearson Correlation
+
+The **Pearson correlation coefficient** standardizes covariance.
+
+$$
+r_{xy}
+=
+\frac{s_{xy}}{s_x s_y}
+$$
+
+Equivalently:
+
+$$
+r_{xy}
+=
+\frac{
+\sum_{i=1}^{n}(x_i-\bar{x})(y_i-\bar{y})
+}
+{
+\sqrt{\sum_{i=1}^{n}(x_i-\bar{x})^2}
+\sqrt{\sum_{i=1}^{n}(y_i-\bar{y})^2}
+}
+$$
+
+---
+
+## Interpretation of Pearson Correlation
+
+Pearson correlation is bounded between -1 and 1.
+
+$$
+-1 \leq r_{xy} \leq 1
+$$
+
+Interpretation:
+
+- $r_{xy} = 1$: perfect positive linear relationship;
+- $r_{xy} = -1$: perfect negative linear relationship;
+- $r_{xy} = 0$: no linear relationship.
+
+Pearson correlation measures linear association.
+
+---
+
+## Correlation and Causality
+
+A high correlation does not imply causality.
+
+$$
+\text{Correlation} \neq \text{Causation}
+$$
+
+Two variables may be correlated because of:
+
+- a common driver;
+- trend;
+- seasonality;
+- market regime;
+- structural dependency;
+- spurious relationship.
+
+---
+
+## Spearman Rank Correlation
+
+The **Spearman correlation** measures monotonic association using ranks.
+
+Let $R(x_i)$ and $R(y_i)$ be the ranks of $x_i$ and $y_i$.
+
+$$
+\rho_s
+=
+\frac{
+\text{cov}(R(X), R(Y))
+}
+{
+s_{R(X)}s_{R(Y)}
+}
+$$
+
+If there are no ties, it can be written as:
+
+$$
+\rho_s
+=
+1 -
+\frac{6\sum_{i=1}^{n}d_i^2}
+{n(n^2 - 1)}
+$$
+
+Where:
+
+$$
+d_i = R(x_i) - R(y_i)
+$$
+
+---
+
+## Interpretation of Spearman Correlation
+
+Spearman correlation captures monotonic relationships.
+
+It is useful when:
+
+- the relationship is non-linear but monotonic;
+- variables contain outliers;
+- ranks are more meaningful than levels;
+- distributions are skewed.
+
+It is more robust than Pearson correlation in many exploratory settings.
+
+---
+
+## Kendall's Tau
+
+**Kendall's tau** measures ordinal association based on concordant and discordant pairs.
+
+$$
+\tau =
+\frac{C - D}
+{\frac{1}{2}n(n-1)}
+$$
+
+Where:
+
+- $C$ is the number of concordant pairs;
+- $D$ is the number of discordant pairs.
+
+---
+
+## Concordant and Discordant Pairs
+
+For two observations $i$ and $j$, the pair is concordant if:
+
+$$
+(x_i - x_j)(y_i - y_j) > 0
+$$
+
+The pair is discordant if:
+
+$$
+(x_i - x_j)(y_i - y_j) < 0
+$$
+
+Kendall's tau measures whether the ordering of $X$ agrees with the ordering of $Y$.
+
+---
+
+## Simple Linear Regression
+
+A simple linear relationship can be represented as:
+
+$$
+y_i = \alpha + \beta x_i + \varepsilon_i
+$$
+
+Where:
+
+- $\alpha$ is the intercept;
+- $\beta$ is the slope;
+- $\varepsilon_i$ is the error term.
+
+---
+
+## OLS Slope
+
+The ordinary least squares slope is:
+
+$$
+\hat{\beta}
+=
+\frac{
+\sum_{i=1}^{n}(x_i-\bar{x})(y_i-\bar{y})
+}
+{
+\sum_{i=1}^{n}(x_i-\bar{x})^2
+}
+$$
+
+Equivalently:
+
+$$
+\hat{\beta} = \frac{s_{xy}}{s_x^2}
+$$
+
+The slope measures the expected change in $Y$ for a one-unit change in $X$.
+
+---
+
+## OLS Intercept
+
+The ordinary least squares intercept is:
+
+$$
+\hat{\alpha} = \bar{y} - \hat{\beta}\bar{x}
+$$
+
+The fitted regression line is:
+
+$$
+\hat{y}_i = \hat{\alpha} + \hat{\beta}x_i
+$$
+
+---
+
+## Residuals
+
+The residual for observation $i$ is:
+
+$$
+\hat{\varepsilon}_i = y_i - \hat{y}_i
+$$
+
+Equivalently:
+
+$$
+\hat{\varepsilon}_i = y_i - (\hat{\alpha} + \hat{\beta}x_i)
+$$
+
+Residuals measure the difference between observed and fitted values.
+
+---
+
+## Residual Sum of Squares
+
+The **residual sum of squares**, or **RSS**, is:
+
+$$
+RSS = \sum_{i=1}^{n}(y_i - \hat{y}_i)^2
+$$
+
+It measures unexplained variation.
+
+Lower RSS indicates a better in-sample fit.
+
+---
+
+## Total Sum of Squares
+
+The **total sum of squares**, or **TSS**, is:
+
+$$
+TSS = \sum_{i=1}^{n}(y_i - \bar{y})^2
+$$
+
+It measures total variation in $Y$ around its mean.
+
+---
+
+## Explained Sum of Squares
+
+The **explained sum of squares**, or **ESS**, is:
+
+$$
+ESS = \sum_{i=1}^{n}(\hat{y}_i - \bar{y})^2
+$$
+
+It measures the variation explained by the regression model.
+
+For OLS with intercept:
+
+$$
+TSS = ESS + RSS
+$$
+
+---
+
+## Coefficient of Determination
+
+The **coefficient of determination**, or $R^2$, measures the share of variation in $Y$ explained by the model.
+
+$$
+R^2 = \frac{ESS}{TSS}
+$$
+
+Equivalently:
+
+$$
+R^2 = 1 - \frac{RSS}{TSS}
+$$
+
+For simple linear regression with intercept:
+
+$$
+R^2 = r_{xy}^2
+$$
+
+---
+
+## Interpretation of R-Squared
+
+$R^2$ is bounded between 0 and 1.
+
+$$
+0 \leq R^2 \leq 1
+$$
+
+Interpretation:
+
+- $R^2 = 0$: the model explains none of the variation in $Y$;
+- $R^2 = 1$: the model explains all variation in $Y$;
+- higher $R^2$ means greater in-sample explanatory power.
+
+---
+
+## Beta as Market Sensitivity
+
+In finance, beta often measures sensitivity to a market factor.
+
+$$
+\beta_i =
+\frac{\text{Cov}(R_i, R_m)}
+{\text{Var}(R_m)}
+$$
+
+Where:
+
+- $R_i$ is the return of asset or series $i$;
+- $R_m$ is the market return.
+
+Beta measures how strongly one return series moves with the market.
+
+---
+
+## Spread Between Two Series
+
+For two related price series, a spread can be defined as:
+
+$$
+Spread_t = X_t - Y_t
+$$
+
+A relative spread can be defined as:
+
+$$
+RelativeSpread_t = \frac{X_t - Y_t}{Y_t}
+$$
+
+Or as a percentage:
+
+$$
+RelativeSpread_{t,\%} = \frac{X_t - Y_t}{Y_t} \times 100
+$$
+
+---
+
+## Ratio Between Two Series
+
+A ratio between two series is:
+
+$$
+Ratio_t = \frac{X_t}{Y_t}
+$$
+
+Ratios are useful when comparing relative levels.
+
+Examples:
+
+- price ratio;
+- crack spread ratio;
+- regional price ratio;
+- benchmark-relative level.
+
+---
+
+## Log Ratio
+
+The log ratio is:
+
+$$
+LR_t = \ln\left(\frac{X_t}{Y_t}\right)
+$$
+
+Equivalently:
+
+$$
+LR_t = \ln(X_t) - \ln(Y_t)
+$$
+
+Log ratios are useful because they are symmetric in percentage terms and easier to aggregate.
+
+---
+
+## Rolling Correlation
+
+For time series, correlation may change over time.
+
+The rolling correlation over a window of size $w$ is:
+
+$$
+r_{xy,t,w}
+=
+\frac{
+\sum_{j=0}^{w-1}(x_{t-j}-\bar{x}_{t,w})(y_{t-j}-\bar{y}_{t,w})
+}
+{
+\sqrt{\sum_{j=0}^{w-1}(x_{t-j}-\bar{x}_{t,w})^2}
+\sqrt{\sum_{j=0}^{w-1}(y_{t-j}-\bar{y}_{t,w})^2}
+}
+$$
+
+---
+
+## Rolling Covariance
+
+The rolling covariance over a window of size $w$ is:
+
+$$
+s_{xy,t,w}
+=
+\frac{1}{w-1}
+\sum_{j=0}^{w-1}
+(x_{t-j}-\bar{x}_{t,w})(y_{t-j}-\bar{y}_{t,w})
+$$
+
+Rolling covariance helps identify changing co-movement over time.
+
+---
+
+## Lead-Lag Correlation
+
+A lead-lag relationship can be explored using lagged correlation.
+
+$$
+r_{xy}(k) = Corr(X_t, Y_{t-k})
+$$
+
+Where:
+
+- $k > 0$ compares $X_t$ with past values of $Y$;
+- $k < 0$ compares $X_t$ with future values of $Y$.
+
+This helps identify whether one series leads another.
+
+---
+
+## Cross-Correlation Function
+
+The cross-correlation at lag $k$ can be written as:
+
+$$
+\rho_{xy}(k)
+=
+\frac{
+E[(X_t-\mu_x)(Y_{t-k}-\mu_y)]
+}
+{\sigma_x \sigma_y}
+$$
+
+In sample form, this is estimated using lagged observations.
+
+Cross-correlation is useful for time-series EDA.
+
+---
+
+## Autocovariance
+
+For a single time series, autocovariance at lag $k$ is:
+
+$$
+\gamma(k)
+=
+E[(X_t-\mu)(X_{t-k}-\mu)]
+$$
+
+It measures covariance between a series and its own lagged values.
+
+---
+
+## Autocorrelation
+
+Autocorrelation at lag $k$ is:
+
+$$
+\rho(k)
+=
+\frac{\gamma(k)}{\gamma(0)}
+$$
+
+Where:
+
+- $\gamma(k)$ is autocovariance at lag $k$;
+- $\gamma(0)$ is variance.
+
+Autocorrelation measures persistence in a time series.
+
+---
+
+## Sample Autocorrelation
+
+The sample autocorrelation at lag $k$ is:
+
+$$
+\hat{\rho}(k)
+=
+\frac{
+\sum_{t=k+1}^{n}(x_t-\bar{x})(x_{t-k}-\bar{x})
+}
+{
+\sum_{t=1}^{n}(x_t-\bar{x})^2
+}
+$$
+
+It is useful for identifying serial dependence, persistence, and seasonality.
+
+---
+
+## Distance Between Two Series
+
+The Euclidean distance between two aligned series is:
+
+$$
+d(X,Y)
+=
+\sqrt{
+\sum_{i=1}^{n}(x_i-y_i)^2
+}
+$$
+
+A normalized version is:
+
+$$
+d_{\text{norm}}(X,Y)
+=
+\sqrt{
+\frac{1}{n}
+\sum_{i=1}^{n}(x_i-y_i)^2
+}
+$$
+
+This is closely related to RMSD.
+
+---
+
+## Mean Absolute Difference
+
+The **mean absolute difference** between two series is:
+
+$$
+MADiff(X,Y)
+=
+\frac{1}{n}\sum_{i=1}^{n}|x_i - y_i|
+$$
+
+It measures the average absolute gap between two variables or time series.
+
+Examples:
+
+- observed versus forecast;
+- benchmark versus internal curve;
+- market A versus market B.
+
+---
+
+## Tracking Error
+
+In finance, tracking error measures the volatility of active returns.
+
+Let:
+
+$$
+a_t = R_{p,t} - R_{b,t}
+$$
+
+Where:
+
+- $R_{p,t}$ is portfolio return;
+- $R_{b,t}$ is benchmark return.
+
+Then:
+
+$$
+TE =
+\sqrt{
+\frac{1}{n-1}
+\sum_{t=1}^{n}(a_t-\bar{a})^2
+}
+$$
+
+---
+
+## Error Metrics as Bivariate Measures
+
+When comparing actual values $y_i$ and predicted values $\hat{y}_i$:
+
+Mean Error:
+
+$$
+ME = \frac{1}{n}\sum_{i=1}^{n}(y_i-\hat{y}_i)
+$$
+
+Mean Absolute Error:
+
+$$
+MAE = \frac{1}{n}\sum_{i=1}^{n}|y_i-\hat{y}_i|
+$$
+
+Root Mean Squared Error:
+
+$$
+RMSE =
+\sqrt{
+\frac{1}{n}\sum_{i=1}^{n}(y_i-\hat{y}_i)^2
+}
+$$
+
+---
+
+## Mean Absolute Percentage Error
+
+The **mean absolute percentage error**, or **MAPE**, is:
+
+$$
+MAPE =
+\frac{100}{n}
+\sum_{i=1}^{n}
+\left|
+\frac{y_i-\hat{y}_i}{y_i}
+\right|
+$$
+
+MAPE expresses forecast error as a percentage.
+
+It should be used carefully when actual values are close to zero.
+
+---
+
+## Symmetric Mean Absolute Percentage Error
+
+The **symmetric mean absolute percentage error**, or **sMAPE**, is:
+
+$$
+sMAPE =
+\frac{100}{n}
+\sum_{i=1}^{n}
+\frac{|y_i-\hat{y}_i|}
+{(|y_i|+|\hat{y}_i|)/2}
+$$
+
+It reduces some limitations of MAPE, but can still be unstable near zero.
+
+---
+
+# Summary
+
+---
+
+## Summary: Dispersion
+
+Key measures of dispersion include:
+
+- range;
+- IQR;
+- semi-IQR;
+- variance;
+- standard deviation;
+- mean absolute deviation;
+- median absolute deviation;
+- coefficient of variation;
+- downside deviation;
+- semi-variance;
+- rolling volatility;
+- drawdown;
+- z-score and robust z-score.
+
+---
+
+## Summary: Shape
+
+Key measures of shape include:
+
+- skewness;
+- Pearson skewness;
+- Bowley skewness;
+- kurtosis;
+- excess kurtosis;
+- tail ratio;
+- quantile-based tail weight.
+
+These measures describe asymmetry and tail behavior.
+
+---
+
+## Summary: Bivariate Measures
+
+Key bivariate measures include:
+
+- covariance;
+- Pearson correlation;
+- Spearman correlation;
+- Kendall's tau;
+- regression slope;
+- regression intercept;
+- residuals;
+- $R^2$;
+- beta;
+- spreads;
+- ratios;
+- rolling correlation;
+- cross-correlation;
+- autocorrelation;
+- forecast error metrics.
+
+---
+
+## Final Message
+
+Exploratory data analysis should not stop at the average.
+
+A complete EDA asks:
+
+- Where are the data located?
+- How dispersed are they?
+- What is the shape of the distribution?
+- How do variables move together?
+- Are relationships stable over time?
+- Are anomalies statistical, operational, or economically meaningful?
+
+These questions form the foundation for robust analytical work in economic and financial data.
+

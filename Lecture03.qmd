@@ -1,0 +1,161 @@
+---
+title: "Data Treatment"
+subtitle: "Missing data, outliers, seasonality and structural breaks"
+author: "Victor Henriques  Fundação Getulio Vargas - EESP"
+format: 
+  revealjs:
+    smaller: true
+    toc: true
+    theme: simple
+    slide-number: true
+    incremental: false
+    code-fold: false
+editor: source
+editor_options: 
+  chunk_output_type: console
+---
+
+## Técnicas de Quebra Estrutural 
+
+> Da família de **Flutuação** até a estatística **CUSUM-SQ**.
+
+---
+
+## 1. Família de Flutuação (Generalized Fluctuation Tests)
+
+**Definição.** Ajusta-se um modelo de regressão linear aos dados e deriva-se um
+**processo empírico de flutuação** que captura a instabilidade dos coeficientes,
+seja a partir dos **resíduos**, seja a partir das **estimativas** dos parâmetros.
+Como o processo-limite sob a hipótese nula é conhecido, computam-se **fronteiras
+(boundaries)** cuja probabilidade de cruzamento é `α`; rejeita-se `H₀` de "ausência
+de quebra" quando o caminho do processo cruza a fronteira.
+
+**Hipótese testada:**
+
+$$H_0: \beta_i = \beta_0 \quad (i = 1, \dots, n)$$
+
+contra a alternativa de que o vetor de coeficientes **varia ao longo do tempo**.
+
+**Sub-tipos principais:**
+
+- **Rec-CUSUM** (Brown, Durbin & Evans, 1975) — somas cumulativas dos resíduos
+  recursivos; processo-limite: **Movimento Browniano padrão** `W(t)`.
+
+$$W_n(t) = \frac{1}{\tilde{\sigma}\sqrt{\eta}} \sum_{i=k+1}^{k+\lfloor t\eta \rfloor} \tilde{u}_i$$
+
+- **OLS-CUSUM** (Ploberger & Krämer, 1992) — somas cumulativas dos resíduos OLS;
+  processo-limite: **Ponte Browniana** `W⁰(t) = W(t) − tW(1)`.
+- **MOSUM** (Rec/OLS) — somas **móveis** de resíduos numa janela de largura de
+  banda `h`; processo-limite: **incrementos** de um Movimento Browniano / Ponte.
+- **Estimativas recursivas (fluctuation)** e **Moving Estimates (ME)** — baseados
+  na flutuação das próprias estimativas `β̂`, informando *qual* coeficiente mudou.
+
+**Detecta:** instabilidade genérica de coeficientes (vários padrões de quebra).
+**Nº de quebras:** padrão genérico, sem especificar quantidade.
+
+---
+
+## 2. Família F / Chow (Testes baseados em estatísticas F)
+
+**Definição.** Ao contrário da família de flutuação, a **alternativa é
+especificada**: assume-se uma **quebra única** num ponto `i₀`. Ajustam-se duas
+regressões separadas para os dois sub-períodos e compara-se com o modelo restrito.
+
+**Especificação da alternativa (single shift):**
+
+$$\beta_i = \begin{cases} \beta_A & (1 \le i \le i_0) \\ \beta_B & (i_0 < i \le n) \end{cases}$$
+
+**Teste de Chow (1960)** — ponto de quebra `i₀` **conhecido**:
+
+$$F_{i_0} = \frac{\hat{u}^\top\hat{u} - \hat{e}^\top\hat{e}}{\hat{e}^\top\hat{e}/(n-2k)}$$
+
+**Extensão para ponto desconhecido** — calculam-se estatísticas `Fᵢ` para todos
+os pontos candidatos num intervalo (por padrão de 15% a 85% da amostra) e
+agregam-se via:
+
+$$\text{supF} = \sup_{\underline{i} \le i \le \bar{i}} F_i, \qquad
+\text{aveF} = \frac{1}{\bar{i}-\underline{i}+1}\sum F_i, \qquad
+\text{expF} = \log\!\left(\frac{1}{\bar{i}-\underline{i}+1}\sum \exp(0.5\, F_i)\right)$$
+
+**Detecta:** quebra única (data conhecida ou desconhecida).
+**Nº de quebras:** 1.
+
+---
+
+## 3. Família de Regressão Múltipla — Bai & Perron
+
+**Definição.** Estima e testa **múltiplas quebras simultaneamente** em datas
+**desconhecidas**, minimizando a soma global dos quadrados dos resíduos sobre
+todas as partições possíveis da amostra em `m+1` segmentos.
+
+**Função-objetivo:**
+
+$$SSR(T_1, \dots, T_m) = \sum_{i=1}^{m+1} \sum_{t=T_{i-1}+1}^{T_i} (y_t - x_t^\top \beta_i)^2$$
+
+**Características centrais:**
+
+- **Algoritmo de programação dinâmica** — reduz a complexidade de exponencial
+  para `O(T²)`, encontrando o particionamento globalmente ótimo.
+- **Intervalos de confiança** para as datas de quebra (quantifica a incerteza do
+  *timing*).
+- **Testes:** supF(l+1|l) sequencial e duplo máximo (**UDmax/WDmax**) para
+  "0 vs. número desconhecido de quebras".
+- **Seleção do nº de quebras** via critérios de informação (BIC, MSIC).
+
+Nota: o teste **supF(1)** é equivalente ao teste supremo de Wald de Andrews (1993).
+
+**Detecta:** coeficientes distintos por segmento.
+**Nº de quebras:** múltiplas, datadas.
+**Implementações:** R (`mbreaks`), Stata (`xtbreak`), EViews.
+
+---
+
+## 4. Família Estatística — PELT & Binary Segmentation
+
+**Definição.** Vinda mais da estatística que da econometria, foca em mudanças em
+**média, variância ou ambas** (não necessariamente coeficientes de regressão),
+tratando o problema como **changepoint detection** por otimização de um custo.
+
+**Sub-tipos principais:**
+
+- **Binary Segmentation (BinSeg)** — estratégia "dividir para conquistar": testa
+  uma quebra na série inteira, divide no ponto detectado e repete recursivamente
+  em cada sub-série. Rápido, porém **aproximado**.
+- **PELT (Pruned Exact Linear Time)** — encontra o conjunto **exato** e ótimo de
+  changepoints em tempo (aproximadamente) linear, via poda do espaço de busca;
+  mais preciso que o BinSeg.
+
+**Detecta:** mudanças em média e/ou variância.
+**Nº de quebras:** múltiplas.
+**Implementação:** R (`changepoint`: `cpt.mean`, `cpt.var`, `cpt.meanvar`).
+
+---
+
+## 5. Família Estatística — CUSUM-SQ (CUSUM of Squares)
+
+**Definição.** Extensão do CUSUM que se baseia na **soma cumulativa dos quadrados**
+dos resíduos recursivos, detectando especificamente mudanças na **variância**
+(dispersão) da série — e não apenas na média/coeficientes.
+
+**Estatística:**
+
+$$S_t = \frac{\sum_{i=k+1}^{t} \tilde{u}_i^2}{\sum_{i=k+1}^{n} \tilde{u}_i^2}$$
+
+O caminho de `Sₜ` é comparado com bandas de confiança; um desvio significativo
+sinaliza quebra na variância. Muito usado em finanças para detectar **regime
+shifts de volatilidade**.
+
+**Detecta:** mudanças na variância.
+**Nº de quebras:** sequencial (monitoramento).
+
+---
+
+## Quadro-resumo
+
+| Família | Técnica | Detecta | Nº de quebras |
+|---|---|---|---|
+| Flutuação | CUSUM/MOSUM, ME | Instabilidade de coeficientes | Padrão genérico |
+| F / Chow | sup/ave/expF | Quebra única | 1 (data desconhecida) |
+| Regressão múltipla | Bai-Perron | Coeficientes por segmento | Múltiplas, datadas |
+| Estatística | PELT, BinSeg | Média / variância | Múltiplas |
+| Estatística | CUSUM-SQ | Variância | Sequencial |

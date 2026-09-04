@@ -1,0 +1,7948 @@
+---
+title: "Data Visualization for Time Series"
+subtitle: "Fundação Getulio Vargas - EESP"
+author: "Victor Henriques"
+format: 
+  revealjs:
+    smaller: true
+    toc: true
+    toc-depth: 1
+    theme: white
+    slide-number: true
+    incremental: false
+    code-fold: false
+    logo: logo.svg
+knitr:
+  opts_chunk:
+    fig.width: 10
+    fig.height: 6
+    out.width: "100%"
+    # out.height: "65vh"
+    fig.align: "center"
+editor: source
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+library(yfR)
+library(tidyverse)
+
+tickers = c(
+    "^BVSP"
+    # , "ABEV3.SA", "ALOS3.SA", "ASAI3.SA", "B3SA3.SA",
+    # "BBAS3.SA", "BBDC3.SA", "BBDC4.SA", "BBSE3.SA", "BEEF3.SA",
+    # "BPAC11.SA", "BRAP4.SA", "BRAV3.SA", "BRFS3.SA", "BRKM5.SA",
+    # "CCRO3.SA", "CMIG4.SA", "CMIN3.SA", "COGN3.SA", "CPFE3.SA",
+    # "CPLE6.SA", "CRFB3.SA", "CSAN3.SA", "CSNA3.SA", "CVCB3.SA",
+    # "CXSE3.SA", "CYRE3.SA", "ELET3.SA", "ELET6.SA", "EMBR3.SA",
+    # "ENEV3.SA", "ENGI11.SA", "EQTL3.SA", "EZTC3.SA", "FLRY3.SA",
+    # "GGBR4.SA", "GOAU4.SA", "HAPV3.SA", "HYPE3.SA", "IGTI11.SA",
+    # "IRBR3.SA", "ISAE4.SA", "ITSA4.SA", "ITUB4.SA", "JBSS3.SA",
+    # "KLBN11.SA", "LREN3.SA", "MGLU3.SA", "MRFG3.SA", "MRVE3.SA",
+    # "MULT3.SA", "NTCO3.SA", "PCAR3.SA", "PETR3.SA",
+    # "PETZ3.SA", "PRIO3.SA", "RADL3.SA", "RAIL3.SA", "RAIZ4.SA",
+    # "RDOR3.SA", "RECV3.SA", "RENT3.SA", "RRRP3.SA", "SANB11.SA",
+    # "SBSP3.SA", "SLCE3.SA", "SMTO3.SA", "SUZB3.SA", "TAEE11.SA",
+    # "TIMS3.SA", "TOTS3.SA", "UGPA3.SA", "USIM5.SA", "VALE3.SA",
+    # "VAMO3.SA", "VBBR3.SA", "WEGE3.SA", "YDUQ3.SA"
+)
+
+dados = yfR::yf_get(
+  first_date = as.Date("2020-01-01"),
+  last_date = Sys.Date(),
+  tickers = tickers,
+  bench_ticker = "^BVSP"
+)
+```
+
+# Introduction
+
+In today’s lecture, we will examine:
+
+- **Outliers**: Where are the data located?
+- **Dispersion**: How spread out are the data?
+- **Shape**: What does the distribution look like?
+- **Bivariate measures**: How do variables relate to each other?
+
+Our goal is not only to calculate statistics, but to use visualization to reveal the stories contained in the data!
+
+## Time Series Features
+
+A time series is a sequence of data points recorded or measured in chronological order, usually at regular, equally spaced intervals.
+
+- Trend: A trend exists when there is a long-term increase or decrease in the data. 
+
+- Seasonality: Regular patterns that repeat over fixed periods like days, months, or years.
+
+- Cyclic: Long-term ups and downs that do not follow a fixed seasonal schedule.
+
+- Irregular: Random, unpredictable short-term changes
+
+## Time plot
+
+::: {.notes}
+
+For time series data, the obvious graph to start with is a time plot. That is, the observations are plotted against the time of observation, with consecutive observations joined by straight lines.
+
+:::
+
+
+## Time Series - Seasonality 
+
+```{r}
+# ================================================================
+# SEASONAL PLOT: AIRPASSENGERS
+# Complete visualization for a Data Visualization class
+# ================================================================
+
+library(dplyr)
+library(ggplot2)
+library(scales)
+
+# ================================================================
+# 1. LOAD THE BUILT-IN AIRPASSENGERS DATA
+# ================================================================
+
+data("AirPassengers")
+
+# ================================================================
+# 2. CONVERT THE TIME SERIES INTO A DATA FRAME
+#
+# Each observation is described by:
+# - calendar year;
+# - seasonal position, represented by month;
+# - number of passengers.
+# ================================================================
+
+air_seasonal_data <- tibble(
+  Year = floor(
+    as.numeric(
+      time(AirPassengers)
+    )
+  ),
+
+  Month_number = as.integer(
+    cycle(AirPassengers)
+  ),
+
+  Passengers = as.numeric(
+    AirPassengers
+  )
+) |>
+  mutate(
+    Month = factor(
+      Month_number,
+
+      levels = 1:12,
+
+      labels = month.abb,
+
+      ordered = TRUE
+    ),
+
+    Year_factor = factor(
+      Year
+    )
+  )
+
+# ================================================================
+# 3. VALIDATE THE DATA STRUCTURE
+# ================================================================
+
+stopifnot(
+  nrow(air_seasonal_data) ==
+    length(AirPassengers),
+
+  n_distinct(
+    air_seasonal_data$Month
+  ) == 12,
+
+  all(
+    air_seasonal_data |>
+      count(Year) |>
+      pull(n) == 12
+  )
+)
+
+# ================================================================
+# 4. CALCULATE TEACHING SUMMARY VALUES
+# ================================================================
+
+first_year <- min(
+  air_seasonal_data$Year
+)
+
+last_year <- max(
+  air_seasonal_data$Year
+)
+
+minimum_passengers <- min(
+  air_seasonal_data$Passengers
+)
+
+maximum_passengers <- max(
+  air_seasonal_data$Passengers
+)
+
+maximum_observation <- air_seasonal_data |>
+  slice_max(
+    order_by = Passengers,
+    n = 1,
+    with_ties = FALSE
+  )
+
+minimum_observation <- air_seasonal_data |>
+  slice_min(
+    order_by = Passengers,
+    n = 1,
+    with_ties = FALSE
+  )
+
+# ================================================================
+# 5. CREATE DATA FOR THE FIRST AND LAST YEARS
+#
+# These lines are redrawn with greater emphasis to make the
+# evolution of the seasonal pattern easier to recognize.
+# ================================================================
+
+first_year_data <- air_seasonal_data |>
+  filter(
+    Year == first_year
+  )
+
+last_year_data <- air_seasonal_data |>
+  filter(
+    Year == last_year
+  )
+
+# ================================================================
+# 6. CREATE LABEL POSITIONS
+# ================================================================
+
+maximum_label <- maximum_observation |>
+  mutate(
+    Label = paste0(
+      "Maximum: ",
+      comma(Passengers),
+      "\n",
+      as.character(Month),
+      " ",
+      Year
+    )
+  )
+
+minimum_label <- minimum_observation |>
+  mutate(
+    Label = paste0(
+      "Minimum: ",
+      comma(Passengers),
+      "\n",
+      as.character(Month),
+      " ",
+      Year
+    )
+  )
+
+# ================================================================
+# 7. BUILD THE SEASONAL PLOT
+# ================================================================
+
+air_seasonal_plot <- ggplot(
+  data = air_seasonal_data,
+
+  aes(
+    x = Month,
+    y = Passengers,
+    group = Year,
+    color = Year
+  )
+) +
+
+  # --------------------------------------------------------------
+  # Connect monthly observations within each year
+  # --------------------------------------------------------------
+
+  geom_line(
+    linewidth = 0.85,
+    alpha = 0.72,
+    lineend = "round"
+  ) +
+
+  # --------------------------------------------------------------
+  # Preserve the individual monthly observations
+  # --------------------------------------------------------------
+
+  geom_point(
+    size = 1.9,
+    alpha = 0.78
+  ) +
+
+  # --------------------------------------------------------------
+  # Emphasize the first year
+  # --------------------------------------------------------------
+
+  geom_line(
+    data = first_year_data,
+
+    aes(
+      x = Month,
+      y = Passengers,
+      group = Year
+    ),
+
+    inherit.aes = FALSE,
+
+    color = "#64748B",
+    linewidth = 1.15,
+    linetype = "dashed",
+    lineend = "round"
+  ) +
+
+  geom_point(
+    data = first_year_data,
+
+    aes(
+      x = Month,
+      y = Passengers
+    ),
+
+    inherit.aes = FALSE,
+
+    color = "#64748B",
+    fill = "white",
+    shape = 21,
+    size = 2.4,
+    stroke = 0.8
+  ) +
+
+  # --------------------------------------------------------------
+  # Emphasize the most recent year
+  # --------------------------------------------------------------
+
+  geom_line(
+    data = last_year_data,
+
+    aes(
+      x = Month,
+      y = Passengers,
+      group = Year
+    ),
+
+    inherit.aes = FALSE,
+
+    color = "#B2182B",
+    linewidth = 1.35,
+    lineend = "round"
+  ) +
+
+  geom_point(
+    data = last_year_data,
+
+    aes(
+      x = Month,
+      y = Passengers
+    ),
+
+    inherit.aes = FALSE,
+
+    color = "#B2182B",
+    fill = "white",
+    shape = 21,
+    size = 2.7,
+    stroke = 0.9
+  ) +
+
+  # --------------------------------------------------------------
+  # Highlight the maximum observed value
+  # --------------------------------------------------------------
+
+  geom_point(
+    data = maximum_observation,
+
+    aes(
+      x = Month,
+      y = Passengers
+    ),
+
+    inherit.aes = FALSE,
+
+    color = "#B2182B",
+    fill = "#FEE2E2",
+    shape = 21,
+    size = 4,
+    stroke = 1.1
+  ) +
+
+  geom_label(
+    data = maximum_label,
+
+    aes(
+      x = Month,
+      y = Passengers,
+      label = Label
+    ),
+
+    inherit.aes = FALSE,
+
+    color = "#991B1B",
+    fill = "white",
+    label.size = 0.25,
+    label.padding = grid::unit(
+      0.18,
+      "lines"
+    ),
+    size = 3,
+    fontface = "bold",
+    nudge_x = -0.55,
+    nudge_y = 28
+  ) +
+
+  # --------------------------------------------------------------
+  # Highlight the minimum observed value
+  # --------------------------------------------------------------
+
+  geom_point(
+    data = minimum_observation,
+
+    aes(
+      x = Month,
+      y = Passengers
+    ),
+
+    inherit.aes = FALSE,
+
+    color = "#1D4ED8",
+    fill = "#DBEAFE",
+    shape = 21,
+    size = 4,
+    stroke = 1.1
+  ) +
+
+  geom_label(
+    data = minimum_label,
+
+    aes(
+      x = Month,
+      y = Passengers,
+      label = Label
+    ),
+
+    inherit.aes = FALSE,
+
+    color = "#1D4ED8",
+    fill = "white",
+    label.size = 0.25,
+    label.padding = grid::unit(
+      0.18,
+      "lines"
+    ),
+    size = 3,
+    fontface = "bold",
+    nudge_x = 0.75,
+    nudge_y = 24
+  ) +
+
+  # --------------------------------------------------------------
+  # Continuous color scale represents chronological progression
+  # --------------------------------------------------------------
+
+  scale_color_gradientn(
+    colors = c(
+      "#CBD5E1",
+      "#93C5FD",
+      "#2F6FA5",
+      "#173F73",
+      "#B2182B"
+    ),
+
+    breaks = pretty(
+      unique(
+        air_seasonal_data$Year
+      ),
+      n = 6
+    ),
+
+    limits = c(
+      first_year,
+      last_year
+    ),
+
+    name = "Year"
+  ) +
+
+  # --------------------------------------------------------------
+  # Vertical scale
+  # --------------------------------------------------------------
+
+  scale_y_continuous(
+    labels = label_number(
+      accuracy = 1,
+      big.mark = ","
+    ),
+
+    expand = expansion(
+      mult = c(
+        0.04,
+        0.14
+      )
+    )
+  ) +
+
+  # --------------------------------------------------------------
+  # Titles and labels
+  # --------------------------------------------------------------
+
+  labs(
+    title =
+      "How Does Air Travel Vary Within Each Year?",
+
+    subtitle = paste0(
+      "Seasonal plot of monthly international airline passengers, ",
+      first_year,
+      "–",
+      last_year
+    ),
+
+    x = "Month",
+
+    y = "Passengers (thousands)",
+
+    caption = paste0(
+      "Each line represents one year. ",
+      "The dashed gray line is ",
+      first_year,
+      "; the solid red line is ",
+      last_year,
+      "."
+    )
+  ) +
+
+  # --------------------------------------------------------------
+  # Presentation theme
+  # --------------------------------------------------------------
+
+  theme_minimal(
+    base_size = 13
+  ) +
+
+  theme(
+    plot.title = element_text(
+      size = 20,
+      face = "bold",
+      color = "#172033",
+      margin = margin(
+        b = 4
+      )
+    ),
+
+    plot.subtitle = element_text(
+      size = 11.5,
+      color = "#475569",
+      margin = margin(
+        b = 14
+      )
+    ),
+
+    plot.caption = element_text(
+      size = 8.5,
+      color = "#64748B",
+      hjust = 0,
+      lineheight = 1.15,
+      margin = margin(
+        t = 10
+      )
+    ),
+
+    axis.title = element_text(
+      size = 11,
+      face = "bold",
+      color = "#334155"
+    ),
+
+    axis.text = element_text(
+      size = 9,
+      color = "#64748B"
+    ),
+
+    panel.grid.major.x = element_line(
+      color = "#E5E7EB",
+      linewidth = 0.4
+    ),
+
+    panel.grid.major.y = element_line(
+      color = "#E5E7EB",
+      linewidth = 0.4
+    ),
+
+    panel.grid.minor = element_blank(),
+
+    legend.position = "right",
+
+    legend.title = element_text(
+      size = 10,
+      face = "bold",
+      color = "#334155"
+    ),
+
+    legend.text = element_text(
+      size = 8.5,
+      color = "#64748B"
+    ),
+
+    legend.key.height = grid::unit(
+      1.2,
+      "cm"
+    ),
+
+    plot.margin = margin(
+      t = 10,
+      r = 18,
+      b = 8,
+      l = 10
+    )
+  )
+
+# ================================================================
+# 8. DISPLAY THE FIGURE
+# ================================================================
+
+air_seasonal_plot
+```
+
+## Time Series - Seasonality 
+
+```{r}
+#| label: air-passengers-seasonal-subseries
+
+
+# ================================================================
+# SEASONAL SUBSERIES PLOT: AIRPASSENGERS
+# Complete figure for a Data Visualization class
+# ================================================================
+
+library(dplyr)
+library(ggplot2)
+library(scales)
+
+# ================================================================
+# 1. LOAD THE BUILT-IN AIRPASSENGERS DATA
+# ================================================================
+
+data("AirPassengers")
+
+# ================================================================
+# 2. CONVERT THE TIME SERIES INTO A DATA FRAME
+#
+# AirPassengers is a monthly time series containing international
+# airline passenger totals, measured in thousands.
+# ================================================================
+
+air_subseries_data <- tibble(
+  Date = seq.Date(
+    from = as.Date("1949-01-01"),
+    by = "month",
+    length.out = length(AirPassengers)
+  ),
+
+  Year = floor(
+    as.numeric(
+      time(AirPassengers)
+    )
+  ),
+
+  Month_number = as.integer(
+    cycle(AirPassengers)
+  ),
+
+  Passengers = as.numeric(
+    AirPassengers
+  )
+) |>
+  mutate(
+    Month = factor(
+      Month_number,
+      levels = 1:12,
+      labels = month.abb,
+      ordered = TRUE
+    )
+  )
+
+# ================================================================
+# 3. VALIDATE THE TIME-SERIES STRUCTURE
+# ================================================================
+
+stopifnot(
+  nrow(air_subseries_data) ==
+    length(AirPassengers),
+
+  n_distinct(
+    air_subseries_data$Month
+  ) == 12,
+
+  all(
+    air_subseries_data |>
+      count(Year) |>
+      pull(n) == 12
+  )
+)
+
+# ================================================================
+# 4. CALCULATE THE MEAN FOR EACH SEASONAL POSITION
+#
+# For monthly data, each seasonal position corresponds to a month.
+# The horizontal reference line in each panel represents the mean
+# passenger volume for that month across all years.
+# ================================================================
+
+monthly_means <- air_subseries_data |>
+  group_by(Month) |>
+  summarise(
+    Monthly_mean = mean(
+      Passengers,
+      na.rm = TRUE
+    ),
+
+    Minimum = min(
+      Passengers,
+      na.rm = TRUE
+    ),
+
+    Maximum = max(
+      Passengers,
+      na.rm = TRUE
+    ),
+
+    Observations = n(),
+
+    .groups = "drop"
+  )
+
+# ================================================================
+# 5. JOIN THE MONTHLY MEANS TO THE OBSERVATIONS
+# ================================================================
+
+air_subseries_data <- air_subseries_data |>
+  left_join(
+    monthly_means |>
+      select(
+        Month,
+        Monthly_mean
+      ),
+    by = "Month"
+  )
+
+# ================================================================
+# 6. IDENTIFY THE FIRST AND LAST OBSERVATIONS IN EACH MONTH
+#
+# These points help demonstrate how each monthly subseries evolves
+# from the beginning to the end of the sample.
+# ================================================================
+
+first_monthly_observations <- air_subseries_data |>
+  group_by(Month) |>
+  slice_min(
+    order_by = Year,
+    n = 1,
+    with_ties = FALSE
+  ) |>
+  ungroup()
+
+last_monthly_observations <- air_subseries_data |>
+  group_by(Month) |>
+  slice_max(
+    order_by = Year,
+    n = 1,
+    with_ties = FALSE
+  ) |>
+  ungroup()
+
+# ================================================================
+# 7. CREATE LABELS FOR THE MONTHLY MEANS
+# ================================================================
+
+monthly_mean_labels <- monthly_means |>
+  mutate(
+    Mean_label = paste0(
+      "Mean: ",
+      comma(
+        Monthly_mean,
+        accuracy = 1
+      )
+    ),
+
+    Label_year = max(
+      air_subseries_data$Year
+    ) + 0.35
+  )
+
+# ================================================================
+# 8. CREATE THE SEASONAL SUBSERIES PLOT
+# ================================================================
+
+air_subseries_plot <- ggplot(
+  data = air_subseries_data,
+  aes(
+    x = Year,
+    y = Passengers
+  )
+) +
+
+  # --------------------------------------------------------------
+  # Monthly mean reference
+  #
+  # Each panel receives a different horizontal mean.
+  # --------------------------------------------------------------
+
+  geom_hline(
+    data = monthly_means,
+    aes(
+      yintercept = Monthly_mean
+    ),
+    color = "#2F6FA5",
+    linewidth = 0.9
+  ) +
+
+  # --------------------------------------------------------------
+  # Time evolution within each seasonal position
+  # --------------------------------------------------------------
+
+  geom_line(
+    color = "#64748B",
+    linewidth = 0.75,
+    alpha = 0.80,
+    lineend = "round"
+  ) +
+
+  # --------------------------------------------------------------
+  # Preserve the individual annual observations
+  # --------------------------------------------------------------
+
+  geom_point(
+    color = "#64748B",
+    fill = "white",
+    shape = 21,
+    size = 2.1,
+    stroke = 0.65,
+    alpha = 0.90
+  ) +
+
+  # --------------------------------------------------------------
+  # Highlight the first observation in each month
+  # --------------------------------------------------------------
+
+  geom_point(
+    data = first_monthly_observations,
+    aes(
+      x = Year,
+      y = Passengers
+    ),
+    inherit.aes = FALSE,
+    color = "#64748B",
+    fill = "#F8FAFC",
+    shape = 21,
+    size = 2.7,
+    stroke = 0.9
+  ) +
+
+  # --------------------------------------------------------------
+  # Highlight the final observation in each month
+  # --------------------------------------------------------------
+
+  geom_point(
+    data = last_monthly_observations,
+    aes(
+      x = Year,
+      y = Passengers
+    ),
+    inherit.aes = FALSE,
+    color = "#B2182B",
+    fill = "#FEE2E2",
+    shape = 21,
+    size = 2.9,
+    stroke = 1
+  ) +
+
+  # --------------------------------------------------------------
+  # Label the monthly mean inside each panel
+  # --------------------------------------------------------------
+
+  geom_text(
+    data = monthly_mean_labels,
+    aes(
+      x = Label_year,
+      y = Monthly_mean,
+      label = Mean_label
+    ),
+    inherit.aes = FALSE,
+    color = "#1D4ED8",
+    size = 2.7,
+    fontface = "bold",
+    hjust = 0,
+    vjust = -0.35
+  ) +
+
+  # --------------------------------------------------------------
+  # Create one mini time plot for each month
+  # --------------------------------------------------------------
+
+  facet_wrap(
+    facets = vars(Month),
+    ncol = 4,
+    scales = "free_y",
+    labeller = label_value
+  ) +
+
+  # --------------------------------------------------------------
+  # Configure the year axis
+  # --------------------------------------------------------------
+
+  scale_x_continuous(
+    breaks = c(
+      1950,
+      1955,
+      1960
+    ),
+
+    limits = c(
+      min(
+        air_subseries_data$Year
+      ),
+      max(
+        air_subseries_data$Year
+      ) + 1.25
+    ),
+
+    expand = expansion(
+      mult = c(
+        0.02,
+        0.01
+      )
+    )
+  ) +
+
+  # --------------------------------------------------------------
+  # Configure the passenger axis
+  # --------------------------------------------------------------
+
+  scale_y_continuous(
+    labels = label_number(
+      accuracy = 1,
+      big.mark = ","
+    ),
+
+    expand = expansion(
+      mult = c(
+        0.12,
+        0.18
+      )
+    )
+  ) +
+
+  # --------------------------------------------------------------
+  # Titles and labels
+  # --------------------------------------------------------------
+
+  labs(
+    title =
+      "How Does Each Month Change Over Time?",
+
+    subtitle = paste0(
+      "Seasonal subseries plot of AirPassengers | ",
+      "Horizontal blue lines show the mean for each month"
+    ),
+
+    x = "Year",
+
+    y = "Passengers (thousands)",
+
+    caption = paste0(
+      "Each panel contains observations from the same month across ",
+      "different years. Gray lines show temporal evolution; ",
+      "blue lines show monthly means; red points identify 1960."
+    )
+  ) +
+
+  # --------------------------------------------------------------
+  # Presentation theme
+  # --------------------------------------------------------------
+
+  theme_minimal(
+    base_size = 12
+  ) +
+
+  theme(
+    plot.title = element_text(
+      size = 20,
+      face = "bold",
+      color = "#172033",
+      margin = margin(
+        b = 4
+      )
+    ),
+
+    plot.subtitle = element_text(
+      size = 11.5,
+      color = "#475569",
+      margin = margin(
+        b = 14
+      )
+    ),
+
+    plot.caption = element_text(
+      size = 8.5,
+      color = "#64748B",
+      hjust = 0,
+      lineheight = 1.15,
+      margin = margin(
+        t = 10
+      )
+    ),
+
+    strip.background = element_rect(
+      fill = "#F3F8FC",
+      color = "#CBD5E1",
+      linewidth = 0.55
+    ),
+
+    strip.text = element_text(
+      size = 10.5,
+      face = "bold",
+      color = "#173F73",
+      margin = margin(
+        t = 5,
+        r = 5,
+        b = 5,
+        l = 5
+      )
+    ),
+
+    axis.title = element_text(
+      size = 10.5,
+      face = "bold",
+      color = "#334155"
+    ),
+
+    axis.text = element_text(
+      size = 8,
+      color = "#64748B"
+    ),
+
+    panel.grid.major.x = element_line(
+      color = "#E5E7EB",
+      linewidth = 0.4
+    ),
+
+    panel.grid.major.y = element_line(
+      color = "#E5E7EB",
+      linewidth = 0.4
+    ),
+
+    panel.grid.minor = element_blank(),
+
+    panel.spacing = grid::unit(
+      0.8,
+      "lines"
+    ),
+
+    plot.margin = margin(
+      t = 10,
+      r = 20,
+      b = 8,
+      l = 10
+    )
+  )
+
+# ================================================================
+# 9. DISPLAY THE FIGURE
+# ================================================================
+
+air_subseries_plot
+```
+
+
+## Box-Cox Transformation
+
+**Box-Cox transformations** includes logarithmic and power
+transformations controlled by $\lambda$
+
+:::: {.columns}
+
+::: {.column width="57%"}
+
+### Definition
+
+$$
+\boxed{
+w_t =
+\begin{cases}
+\log(y_t),
+& \lambda = 0, \\[4pt]
+\dfrac{
+\operatorname{sign}(y_t)\lvert y_t\rvert^\lambda - 1
+}{
+\lambda
+},
+& \lambda \neq 0.
+\end{cases}
+}
+$$
+
+This modified formulation allows negative values of $y_t$, provided that
+
+$$
+\lambda > 0.
+$$
+
+
+:::
+
+::: {.column width="43%"}
+
+### Role of $\lambda$
+
+$$
+\begin{array}{ccl}
+\lambda = 1
+&\Rightarrow&
+w_t = y_t - 1
+\\[3pt]
+\lambda = 0
+&\Rightarrow&
+w_t = \log(y_t)
+\\[3pt]
+\lambda \neq 0
+&\Rightarrow&
+\text{power transformation}
+\end{array}
+$$
+
+- $\lambda = 1$ changes only the **level**
+
+- $\lambda = 0$ applies a **log transformation**
+
+- $\lambda \neq 0$ change the **shape and scale**
+
+:::
+
+::::
+
+::: {.callout-tip appearance="simple" icon="false"}
+Choose $\lambda$ to **stabilize the variance**, reduce scale-dependent
+fluctuations, and make the variation more consistent over time.
+:::
+
+<small>
+Box & Cox (1964); modified transformation from Bickel & Doksum (1981).
+</small>
+
+## Box-Cox Transformation
+
+```{r}
+# ============================================================
+# BOX-COX TRANSFORMATION
+# Illustration of variance stabilization over time
+# ============================================================
+
+# 1. Packages -------------------------------------------------
+
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(slider)
+library(forecast)
+library(patchwork)
+library(scales)
+
+# 2. Reproducibility ------------------------------------------
+
+set.seed(42)
+
+# 3. Generate an illustrative positive time series ------------
+
+n <- 180
+
+data_boxcox <- tibble(
+  Time = 1:n,
+
+  # Exponentially increasing level
+  Level = 18 * exp(0.012 * Time),
+
+  # Multiplicative seasonal component
+  Seasonality = 1 + 0.16 * sin(2 * pi * Time / 12),
+
+  # Multiplicative random variation
+  Noise = exp(rnorm(n, mean = 0, sd = 0.16)),
+
+  # Observed positive series
+  Original = Level * Seasonality * Noise
+)
+
+# 4. Estimate the Box-Cox lambda -------------------------------
+
+lambda <- forecast::BoxCox.lambda(
+  x      = ts(data_boxcox$Original, frequency = 12),
+  method = "guerrero",
+  lower  = -2,
+  upper  = 2
+)
+
+# 5. Apply the Box-Cox transformation --------------------------
+
+data_boxcox <- data_boxcox |>
+  mutate(
+    BoxCox = forecast::BoxCox(
+      Original,
+      lambda = lambda
+    )
+  )
+
+# 6. Calculate rolling standard deviations --------------------
+
+rolling_window <- 18
+
+data_boxcox <- data_boxcox |>
+  mutate(
+    SD_Original = slide_dbl(
+      Original,
+      sd,
+      .before   = floor(rolling_window / 2),
+      .after    = floor(rolling_window / 2) - 1,
+      .complete = TRUE
+    ),
+
+    SD_BoxCox = slide_dbl(
+      BoxCox,
+      sd,
+      .before   = floor(rolling_window / 2),
+      .after    = floor(rolling_window / 2) - 1,
+      .complete = TRUE
+    ),
+
+    Original_Lower = Original - SD_Original,
+    Original_Upper = Original + SD_Original,
+
+    BoxCox_Lower = BoxCox - SD_BoxCox,
+    BoxCox_Upper = BoxCox + SD_BoxCox
+  )
+
+# 7. Compare early and late variability ------------------------
+
+comparison_window <- 45
+
+sd_early_original <- data_boxcox |>
+  slice_head(n = comparison_window) |>
+  summarise(value = sd(Original)) |>
+  pull(value)
+
+sd_late_original <- data_boxcox |>
+  slice_tail(n = comparison_window) |>
+  summarise(value = sd(Original)) |>
+  pull(value)
+
+sd_early_boxcox <- data_boxcox |>
+  slice_head(n = comparison_window) |>
+  summarise(value = sd(BoxCox)) |>
+  pull(value)
+
+sd_late_boxcox <- data_boxcox |>
+  slice_tail(n = comparison_window) |>
+  summarise(value = sd(BoxCox)) |>
+  pull(value)
+
+ratio_original <- sd_late_original / sd_early_original
+ratio_boxcox   <- sd_late_boxcox / sd_early_boxcox
+
+# 8. Color palette ---------------------------------------------
+
+color_navy  <- "#17324D"
+color_teal  <- "#00A6A6"
+color_coral <- "#EF6C5B"
+color_grey  <- "#6B7280"
+color_panel <- "#F4F7FA"
+
+# 9. Common theme ----------------------------------------------
+
+theme_boxcox <- theme_minimal(base_size = 13) +
+  theme(
+    plot.background = element_rect(
+      fill  = "white",
+      color = NA
+    ),
+    panel.background = element_rect(
+      fill  = color_panel,
+      color = NA
+    ),
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor   = element_blank(),
+    panel.grid.major.y = element_line(
+      color     = "white",
+      linewidth = 0.8
+    ),
+    axis.title = element_text(
+      color = color_navy,
+      face  = "bold"
+    ),
+    axis.text = element_text(
+      color = color_grey
+    ),
+    axis.ticks = element_blank(),
+    plot.title = element_text(
+      color  = color_navy,
+      face   = "bold",
+      size   = 16,
+      margin = margin(b = 8)
+    ),
+    plot.subtitle = element_text(
+      color  = color_grey,
+      size   = 11,
+      margin = margin(b = 10)
+    ),
+    plot.caption = element_text(
+      color  = color_grey,
+      size   = 9,
+      hjust  = 0
+    ),
+    plot.margin = margin(
+      t = 15,
+      r = 20,
+      b = 10,
+      l = 15
+    )
+  )
+
+# 10. Original-scale plot --------------------------------------
+
+plot_original <- ggplot(
+  data_boxcox,
+  aes(x = Time, y = Original)
+) +
+  annotate(
+    "rect",
+    xmin  = 1,
+    xmax  = comparison_window,
+    ymin  = -Inf,
+    ymax  = Inf,
+    fill  = color_navy,
+    alpha = 0.035
+  ) +
+  annotate(
+    "rect",
+    xmin  = n - comparison_window + 1,
+    xmax  = n,
+    ymin  = -Inf,
+    ymax  = Inf,
+    fill  = color_navy,
+    alpha = 0.035
+  ) +
+  geom_ribbon(
+    aes(
+      ymin = Original_Lower,
+      ymax = Original_Upper
+    ),
+    fill  = color_coral,
+    alpha = 0.14,
+    na.rm = TRUE
+  ) +
+  geom_line(
+    color     = color_coral,
+    linewidth = 1
+  ) +
+  annotate(
+    "label",
+    x = Inf,
+    y = Inf,
+    label = paste0(
+      "Late / early SD = ",
+      number(ratio_original, accuracy = 0.1),
+      "\u00d7"
+    ),
+    hjust = 1.08,
+    vjust = 1.4,
+    color = color_coral,
+    fill  = "white",
+    fontface = "bold",
+    label.size = 0,
+    size = 4
+  ) +
+  labs(
+    title = "Before: fluctuations grow with the level",
+    subtitle = paste0(
+      "The magnitude of the variation is dependent ",
+      "on the scale of the series"
+    ),
+    x = NULL,
+    y = "Original scale"
+  ) +
+  scale_x_continuous(
+    breaks = seq(0, n, by = 30),
+    expand = expansion(mult = c(0.01, 0.01))
+  ) +
+  scale_y_continuous(
+    labels = label_number(accuracy = 1),
+    expand = expansion(mult = c(0.08, 0.12))
+  ) +
+  theme_boxcox +
+  theme(
+    axis.text.x  = element_blank(),
+    axis.title.x = element_blank()
+  )
+
+# 11. Box-Cox-transformed plot ---------------------------------
+
+plot_transformed <- ggplot(
+  data_boxcox,
+  aes(x = Time, y = BoxCox)
+) +
+  annotate(
+    "rect",
+    xmin  = 1,
+    xmax  = comparison_window,
+    ymin  = -Inf,
+    ymax  = Inf,
+    fill  = color_navy,
+    alpha = 0.035
+  ) +
+  annotate(
+    "rect",
+    xmin  = n - comparison_window + 1,
+    xmax  = n,
+    ymin  = -Inf,
+    ymax  = Inf,
+    fill  = color_navy,
+    alpha = 0.035
+  ) +
+  geom_ribbon(
+    aes(
+      ymin = BoxCox_Lower,
+      ymax = BoxCox_Upper
+    ),
+    fill  = color_teal,
+    alpha = 0.14,
+    na.rm = TRUE
+  ) +
+  geom_line(
+    color     = color_teal,
+    linewidth = 1
+  ) +
+  annotate(
+    "label",
+    x = Inf,
+    y = Inf,
+    label = paste0(
+      "Late / early SD = ",
+      number(ratio_boxcox, accuracy = 0.1),
+      "\u00d7"
+    ),
+    hjust = 1.08,
+    vjust = 1.4,
+    color = color_teal,
+    fill  = "white",
+    fontface = "bold",
+    label.size = 0,
+    size = 4
+  ) +
+  labs(
+    title = paste0(
+      "After Box-Cox: variation is more consistent over time",
+      "  (\u03bb = ",
+      number(lambda, accuracy = 0.01),
+      ")"
+    ),
+    subtitle = paste0(
+      "Large values are compressed more strongly, ",
+      "reducing scale-dependent fluctuations"
+    ),
+    x = "Time",
+    y = "Transformed scale"
+  ) +
+  scale_x_continuous(
+    breaks = seq(0, n, by = 30),
+    expand = expansion(mult = c(0.01, 0.01))
+  ) +
+  scale_y_continuous(
+    labels = label_number(accuracy = 0.01),
+    expand = expansion(mult = c(0.08, 0.12))
+  ) +
+  theme_boxcox
+
+# 12. Combine plots --------------------------------------------
+
+final_plot <- plot_original / plot_transformed +
+  plot_annotation(
+    title = paste0(
+      "Box-Cox transformation stabilizes ",
+      "scale-dependent variance"
+    ),
+    subtitle = paste0(
+      "Shaded ribbons represent an ",
+      rolling_window,
+      "-period rolling standard deviation"
+    ),
+    caption = paste0(
+      "Illustrative synthetic series. ",
+      "Box-Cox requires strictly positive observations."
+    ),
+    theme = theme(
+      plot.title = element_text(
+        color  = color_navy,
+        face   = "bold",
+        size   = 21
+      ),
+      plot.subtitle = element_text(
+        color  = color_grey,
+        size   = 12
+      ),
+      plot.caption = element_text(
+        color = color_grey,
+        size  = 9,
+        hjust = 0
+      ),
+      plot.margin = margin(
+        t = 15,
+        r = 20,
+        b = 15,
+        l = 15
+      )
+    )
+  )
+
+# 13. Display --------------------------------------------------
+
+final_plot
+```
+
+
+## Index
+
+```{r}
+# ================================================================
+# DAILY TO MONTHLY DATA
+# Monthly prices and compounded monthly returns
+# ================================================================
+
+library(dplyr)
+library(lubridate)
+
+# ================================================================
+# 1. IDENTIFY THE PRICE COLUMN
+#
+# The code searches for common price-column names.
+# Place the exact name used in your dataset first if necessary.
+# ================================================================
+
+price_candidates <- c(
+  "adjusted_prices",
+  "adjusted_price",
+  "price_adjusted",
+  "adj_price",
+  "adjusted_close",
+  "price",
+  "Price",
+  "close",
+  "Close"
+)
+
+price_column <- intersect(
+  price_candidates,
+  names(dados)
+)
+
+if (length(price_column) == 0L) {
+  stop(
+    paste0(
+      "No price column was found. Available columns are: ",
+      paste(
+        names(dados),
+        collapse = ", "
+      )
+    )
+  )
+}
+
+price_column <- price_column[1]
+
+# ================================================================
+# 2. VALIDATE THE REQUIRED COLUMNS
+# ================================================================
+
+required_columns <- c(
+  "ticker",
+  "ref_date",
+  "ret_adjusted_prices"
+)
+
+missing_columns <- setdiff(
+  required_columns,
+  names(dados)
+)
+
+if (length(missing_columns) > 0L) {
+  stop(
+    paste0(
+      "The following required columns are missing: ",
+      paste(
+        missing_columns,
+        collapse = ", "
+      )
+    )
+  )
+}
+
+# ================================================================
+# 3. HELPER FUNCTION
+#
+# Returns the last finite observation in a vector.
+# ================================================================
+
+last_finite <- function(x) {
+
+  x <- as.numeric(x)
+
+  valid_positions <- which(
+    is.finite(x)
+  )
+
+  if (length(valid_positions) == 0L) {
+    return(NA_real_)
+  }
+
+  x[
+    valid_positions[
+      length(valid_positions)
+    ]
+  ]
+}
+
+# ================================================================
+# 4. PREPARE THE DAILY DATA
+#
+# The price column is renamed to adjusted_price.
+# The return column is renamed to adjusted_return.
+# ================================================================
+
+daily_data <- dados |>
+  transmute(
+    ticker = as.character(ticker),
+    ref_date = as.Date(ref_date),
+    adjusted_price = suppressWarnings(
+      as.numeric(
+        .data[[price_column]]
+      )
+    ),
+
+    adjusted_return = suppressWarnings(
+      as.numeric(
+        ret_adjusted_prices
+      )
+    )
+  ) |>
+  filter(
+    !is.na(ticker),
+    ticker != "",
+    !is.na(ref_date)
+  ) |>
+  arrange(
+    ticker,
+    ref_date
+  )
+
+if (nrow(daily_data) == 0L) {
+  stop(
+    "No valid ticker and date observations were found."
+  )
+}
+
+# ================================================================
+# 5. AGGREGATE DUPLICATE TICKER-DATE OBSERVATIONS
+#
+# If duplicate observations exist on the same date, the mean of
+# the finite values is used.
+# ================================================================
+
+daily_data <- daily_data |>
+  group_by(
+    ticker,
+    ref_date
+  ) |>
+  summarise(
+    adjusted_price = {
+      valid_values <- adjusted_price[
+        is.finite(adjusted_price)
+      ]
+      if (length(valid_values) == 0L) {
+        NA_real_
+      } else {
+        mean(valid_values)
+      }
+    },
+    adjusted_return = {
+      valid_values <- adjusted_return[
+        is.finite(adjusted_return)
+      ]
+      if (length(valid_values) == 0L) {
+        NA_real_
+      } else {
+        mean(valid_values)
+      }
+    },
+
+    .groups = "drop"
+  ) |>
+  mutate(
+    month = floor_date(
+      ref_date,
+      unit = "month"
+    )
+  ) |>
+  arrange(
+    ticker,
+    ref_date
+  )
+
+# ================================================================
+# 6. CREATE MONTHLY PRICES
+#
+# The monthly price is the last valid price observed in the month.
+# The actual observation date is preserved.
+# ================================================================
+
+monthly_prices <- daily_data |>
+  filter(
+    is.finite(adjusted_price)
+  ) |>
+  group_by(
+    ticker,
+    month
+  ) |>
+  arrange(
+    ref_date,
+    .by_group = TRUE
+  ) |>
+  summarise(
+    monthly_price_date = ref_date[
+      length(ref_date)
+    ],
+
+    monthly_adjusted_price = last_finite(
+      adjusted_price
+    ),
+
+    first_adjusted_price = adjusted_price[1],
+
+    average_adjusted_price = mean(
+      adjusted_price
+    ),
+
+    minimum_adjusted_price = min(
+      adjusted_price
+    ),
+
+    maximum_adjusted_price = max(
+      adjusted_price
+    ),
+
+    price_observations = n(),
+
+    .groups = "drop"
+  ) |>
+  arrange(
+    ticker,
+    month
+  )
+
+if (nrow(monthly_prices) == 0L) {
+  stop(
+    paste0(
+      "No finite prices were found in column '",
+      price_column,
+      "'."
+    )
+  )
+}
+
+# ================================================================
+# 7. CALCULATE MONTHLY RETURNS FROM MONTH-END PRICES
+#
+# R_m = P_m / P_(m-1) - 1
+# ================================================================
+
+monthly_prices <- monthly_prices |>
+  group_by(ticker) |>
+  arrange(
+    month,
+    .by_group = TRUE
+  ) |>
+  mutate(
+    previous_monthly_price = lag(
+      monthly_adjusted_price
+    ),
+
+    monthly_return_from_price = if_else(
+      is.finite(previous_monthly_price) &
+        previous_monthly_price != 0,
+
+      monthly_adjusted_price /
+        previous_monthly_price -
+        1,
+
+      NA_real_
+    ),
+
+    monthly_log_return_from_price = if_else(
+      is.finite(previous_monthly_price) &
+        previous_monthly_price > 0 &
+        monthly_adjusted_price > 0,
+
+      log(
+        monthly_adjusted_price /
+          previous_monthly_price
+      ),
+
+      NA_real_
+    )
+  ) |>
+  ungroup()
+
+# ================================================================
+# 8. COMPOUND DAILY SIMPLE RETURNS WITHIN EACH MONTH
+#
+# R_m = product(1 + r_d) - 1
+#
+# This calculation assumes that ret_adjusted_prices contains
+# decimal simple returns:
+#
+#  0.01  =  1%
+# -0.02  = -2%
+# ================================================================
+
+monthly_returns <- daily_data |>
+  group_by(
+    ticker,
+    month
+  ) |>
+  summarise(
+    valid_daily_returns = sum(
+      is.finite(adjusted_return)
+    ),
+
+    first_return_date = {
+      valid_dates <- ref_date[
+        is.finite(adjusted_return)
+      ]
+
+      if (length(valid_dates) == 0L) {
+        as.Date(NA)
+      } else {
+        min(valid_dates)
+      }
+    },
+
+    last_return_date = {
+      valid_dates <- ref_date[
+        is.finite(adjusted_return)
+      ]
+
+      if (length(valid_dates) == 0L) {
+        as.Date(NA)
+      } else {
+        max(valid_dates)
+      }
+    },
+
+    monthly_adjusted_return = {
+      valid_returns <- adjusted_return[
+        is.finite(adjusted_return)
+      ]
+
+      if (length(valid_returns) == 0L) {
+        NA_real_
+      } else if (any(valid_returns <= -1)) {
+        NA_real_
+      } else {
+        prod(
+          1 + valid_returns
+        ) - 1
+      }
+    },
+
+    monthly_log_return = {
+      valid_returns <- adjusted_return[
+        is.finite(adjusted_return) &
+          adjusted_return > -1
+      ]
+
+      if (length(valid_returns) == 0L) {
+        NA_real_
+      } else {
+        sum(
+          log1p(valid_returns)
+        )
+      }
+    },
+
+    .groups = "drop"
+  ) |>
+  arrange(
+    ticker,
+    month
+  ) |>
+  mutate(
+    monthly_simple_return_from_logs = if_else(
+      is.finite(monthly_log_return),
+
+      expm1(
+        monthly_log_return
+      ),
+
+      NA_real_
+    )
+  )
+
+# ================================================================
+# 9. COMBINE MONTHLY PRICES AND RETURNS
+# ================================================================
+
+monthly_data <- monthly_prices |>
+  full_join(
+    monthly_returns,
+    by = c(
+      "ticker",
+      "month"
+    )
+  ) |>
+  arrange(
+    ticker,
+    month
+  )
+
+# ================================================================
+# 10. COMPARE THE TWO MONTHLY-RETURN CALCULATIONS
+#
+# The two returns should be close when:
+#
+# - daily returns were calculated from the same adjusted prices;
+# - the first daily return captures the movement from the final
+#   price of the previous month;
+# - no relevant daily observations are missing;
+# - both series use the same adjustment methodology.
+# ================================================================
+
+monthly_data <- monthly_data |>
+  mutate(
+    return_difference =
+      monthly_adjusted_return -
+      monthly_return_from_price,
+
+    absolute_return_difference = abs(
+      return_difference
+    ),
+
+    return_calculations_match = case_when(
+      is.na(monthly_adjusted_return) |
+        is.na(monthly_return_from_price) ~
+        NA,
+
+      absolute_return_difference <
+        1e-8 ~
+        TRUE,
+
+      TRUE ~
+        FALSE
+    )
+  )
+
+# ================================================================
+# 11. VALIDATE THE MONTHLY DATASET
+# ================================================================
+
+duplicated_months <- monthly_data |>
+  count(
+    ticker,
+    month
+  ) |>
+  filter(
+    n > 1L
+  )
+
+if (nrow(duplicated_months) > 0L) {
+  stop(
+    "The monthly dataset contains duplicated ticker-month pairs."
+  )
+}
+
+stopifnot(
+  all(
+    monthly_data$monthly_adjusted_price[
+      !is.na(
+        monthly_data$monthly_adjusted_price
+      )
+    ] > 0
+  )
+)
+
+# ================================================================
+# 12. FINAL MONTHLY DATASET
+# ================================================================
+
+monthly_data <- monthly_data |>
+  select(
+    ticker,
+    month,
+
+    monthly_price_date,
+    monthly_adjusted_price,
+
+    first_adjusted_price,
+    average_adjusted_price,
+    minimum_adjusted_price,
+    maximum_adjusted_price,
+    price_observations,
+
+    previous_monthly_price,
+    monthly_return_from_price,
+    monthly_log_return_from_price,
+
+    first_return_date,
+    last_return_date,
+    valid_daily_returns,
+    monthly_adjusted_return,
+    monthly_log_return,
+    monthly_simple_return_from_logs,
+
+    return_difference,
+    absolute_return_difference,
+    return_calculations_match
+  )
+
+# ================================================================
+# 13. DISPLAY THE COMPLETE RESULT
+# ================================================================
+
+monthly_data
+```
+
+
+
+## Technical Indicators
+
+The simple moving average assigns equal weight to the $w$ most recent observations:
+
+$$
+\operatorname{MA}_{t}^{(w)}
+=
+\frac{1}{w}
+\sum_{j=0}^{w-1}Y_{t-j}.
+$$
+
+<!-- Each observation remains in the calculation for exactly $w$ periods and receives weight $1/w$ -->
+
+The exponential moving average assigns greater weight to more recent observations:
+
+$$
+\operatorname{EMA}_{t}
+=
+\alpha Y_t
++
+(1-\alpha)\operatorname{EMA}_{t-1},
+\qquad
+0<\alpha\leq1.
+$$
+
+<!-- A larger $\alpha$ responds more quickly to recent changes, while a smaller $\alpha$ produces a smoother estimate -->
+
+> **The same weighting principles can be applied to other local measures. Moving means track changes in local position, while moving standard deviations track changes in local dispersion.**
+
+
+## Technical Indicators
+
+```{r}
+library(dplyr)
+library(ggplot2)
+library(scales)
+
+# ================================================================
+# 1. PARAMETERS
+# ================================================================
+
+window_size <- 21L
+
+# Conventional equivalence between an EMA span and alpha
+alpha <- 2 / (window_size + 1)
+
+# ================================================================
+# 2. IDENTIFY THE PRICE COLUMN
+#
+# The first matching column is selected.
+# Add the actual name to this vector if necessary.
+# ================================================================
+
+price_candidates <- c(
+  "adjusted_prices",
+  "adjusted_price",
+  "price_adjusted",
+  "adj_price",
+  "adjusted_close",
+  "price",
+  "Price",
+  "close",
+  "Close"
+)
+
+price_column <- price_candidates[
+  price_candidates %in% names(dados)
+][1]
+
+if (
+  length(price_column) == 0 ||
+  is.na(price_column)
+) {
+  stop(
+    paste0(
+      "No price column was found. Available columns are: ",
+      paste(
+        names(dados),
+        collapse = ", "
+      )
+    )
+  )
+}
+
+# ================================================================
+# 3. SELECT THE FIRST VALID TICKER
+# ================================================================
+
+ticker_selected <- dados |>
+  filter(
+    !is.na(ticker)
+  ) |>
+  distinct(ticker) |>
+  slice_head(n = 1) |>
+  pull(ticker) |>
+  as.character()
+
+if (
+  length(ticker_selected) == 0 ||
+  is.na(ticker_selected)
+) {
+  stop(
+    "No valid ticker was found in the dataset."
+  )
+}
+
+# ================================================================
+# 4. PREPARE THE PRICE SERIES
+#
+# If duplicate prices exist for the same date and ticker,
+# their mean is used to create one price per date.
+# ================================================================
+
+technical_data <- dados |>
+  filter(
+    ticker == ticker_selected,
+    !is.na(ref_date),
+    !is.na(.data[[price_column]]),
+    is.finite(
+      as.numeric(
+        .data[[price_column]]
+      )
+    )
+  ) |>
+  transmute(
+    ticker = as.character(ticker),
+    ref_date = as.Date(ref_date),
+    price = as.numeric(
+      .data[[price_column]]
+    )
+  ) |>
+  group_by(
+    ticker,
+    ref_date
+  ) |>
+  summarise(
+    price = mean(
+      price,
+      na.rm = TRUE
+    ),
+    .groups = "drop"
+  ) |>
+  arrange(ref_date) %>% 
+  filter(ref_date > as.Date("2025-01-01"))
+
+n_observations <- nrow(
+  technical_data
+)
+
+if (n_observations < window_size) {
+  stop(
+    paste0(
+      "At least ",
+      window_size,
+      " valid price observations are required for ",
+      ticker_selected,
+      ". Only ",
+      n_observations,
+      " were found."
+    )
+  )
+}
+
+# ================================================================
+# 5. TRAILING SIMPLE MOVING AVERAGE
+#
+# MA_t = mean of the latest w observations, including time t.
+# ================================================================
+
+trailing_mean <- function(x, window) {
+
+  n <- length(x)
+
+  result <- rep(
+    NA_real_,
+    n
+  )
+
+  if (n >= window) {
+
+    for (i in seq.int(window, n)) {
+
+      result[i] <- mean(
+        x[(i - window + 1):i],
+        na.rm = TRUE
+      )
+    }
+  }
+
+  result
+}
+
+# ================================================================
+# 6. TRAILING ROLLING STANDARD DEVIATION
+#
+# The sample standard deviation is calculated over the same
+# trailing window used by the simple moving average.
+# ================================================================
+
+trailing_sd <- function(x, window) {
+
+  n <- length(x)
+
+  result <- rep(
+    NA_real_,
+    n
+  )
+
+  if (n >= window) {
+
+    for (i in seq.int(window, n)) {
+
+      result[i] <- sd(
+        x[(i - window + 1):i],
+        na.rm = TRUE
+      )
+    }
+  }
+
+  result
+}
+
+# ================================================================
+# 7. EXPONENTIAL MOVING AVERAGE
+#
+# EMA_t = alpha * P_t + (1 - alpha) * EMA_(t-1)
+# ================================================================
+
+exponential_mean <- function(x, alpha) {
+
+  n <- length(x)
+
+  result <- rep(
+    NA_real_,
+    n
+  )
+
+  result[1] <- x[1]
+
+  if (n >= 2) {
+
+    for (i in 2:n) {
+
+      result[i] <-
+        alpha * x[i] +
+        (1 - alpha) * result[i - 1]
+    }
+  }
+
+  result
+}
+
+# ================================================================
+# 8. EXPONENTIALLY WEIGHTED STANDARD DEVIATION
+#
+# The recursive exponential variance is:
+#
+# V_t = (1 - alpha) *
+#       [V_(t-1) + alpha * (P_t - EMA_(t-1))^2]
+#
+# EWSD_t = sqrt(V_t)
+# ================================================================
+
+exponential_sd <- function(x, alpha) {
+
+  n <- length(x)
+
+  exponential_average <- rep(
+    NA_real_,
+    n
+  )
+
+  exponential_variance <- rep(
+    NA_real_,
+    n
+  )
+
+  exponential_average[1] <- x[1]
+
+  exponential_variance[1] <- 0
+
+  if (n >= 2) {
+
+    for (i in 2:n) {
+
+      previous_mean <-
+        exponential_average[i - 1]
+
+      previous_variance <-
+        exponential_variance[i - 1]
+
+      exponential_average[i] <-
+        alpha * x[i] +
+        (1 - alpha) * previous_mean
+
+      exponential_variance[i] <-
+        (1 - alpha) * (
+          previous_variance +
+            alpha *
+              (x[i] - previous_mean)^2
+        )
+    }
+  }
+
+  sqrt(
+    pmax(
+      exponential_variance,
+      0
+    )
+  )
+}
+
+# ================================================================
+# 9. CALCULATE ALL PRICE INDICATORS
+# ================================================================
+
+technical_data <- technical_data |>
+  mutate(
+    MA = trailing_mean(
+      price,
+      window = window_size
+    ),
+
+    EMA = exponential_mean(
+      price,
+      alpha = alpha
+    ),
+
+    Rolling_SD = trailing_sd(
+      price,
+      window = window_size
+    ),
+
+    Exponential_SD = exponential_sd(
+      price,
+      alpha = alpha
+    ),
+
+    MA_lower = MA - Rolling_SD,
+
+    MA_upper = MA + Rolling_SD,
+
+    EMA_lower = EMA - Exponential_SD,
+
+    EMA_upper = EMA + Exponential_SD
+  )
+
+# ================================================================
+# 10. VALIDATE THE INDICATORS
+# ================================================================
+
+expected_complete_windows <-
+  n_observations -
+  window_size +
+  1L
+
+stopifnot(
+  nrow(technical_data) ==
+    n_observations,
+
+  sum(
+    !is.na(
+      technical_data$MA
+    )
+  ) ==
+    expected_complete_windows,
+
+  sum(
+    !is.na(
+      technical_data$Rolling_SD
+    )
+  ) ==
+    expected_complete_windows,
+
+  all(
+    technical_data$Rolling_SD[
+      !is.na(
+        technical_data$Rolling_SD
+      )
+    ] >= 0
+  ),
+
+  all(
+    technical_data$Exponential_SD[
+      !is.na(
+        technical_data$Exponential_SD
+      )
+    ] >= 0
+  )
+)
+
+# ================================================================
+# 11. DETERMINE A SUITABLE PRICE FORMAT
+#
+# Large price values are displayed with no decimals.
+# Smaller values retain greater precision.
+# ================================================================
+
+median_price <- median(
+  technical_data$price,
+  na.rm = TRUE
+)
+
+price_accuracy <- case_when(
+  median_price >= 100 ~ 1,
+  median_price >= 10 ~ 0.1,
+  TRUE ~ 0.01
+)
+
+price_label_function <- label_number(
+  accuracy = price_accuracy,
+  big.mark = ","
+)
+
+# ================================================================
+# 12. CREATE THE SINGLE FIGURE
+# ================================================================
+
+technical_indicators_plot <- ggplot(
+  data = technical_data,
+  aes(x = ref_date)
+) +
+
+  # --------------------------------------------------------------
+  # SIMPLE MOVING-AVERAGE DISPERSION BAND
+  #
+  # MA_t plus or minus rolling SD_t
+  # --------------------------------------------------------------
+
+  geom_ribbon(
+    aes(
+      ymin = MA_lower,
+      ymax = MA_upper,
+      fill = "MA ± rolling SD"
+    ),
+    alpha = 0.17,
+    na.rm = TRUE
+  ) +
+
+  # --------------------------------------------------------------
+  # EXPONENTIALLY WEIGHTED DISPERSION BAND
+  #
+  # EMA_t plus or minus exponentially weighted SD_t
+  # --------------------------------------------------------------
+
+  geom_ribbon(
+    aes(
+      ymin = EMA_lower,
+      ymax = EMA_upper,
+      fill = "EMA ± exponentially weighted SD"
+    ),
+    alpha = 0.13,
+    na.rm = TRUE
+  ) +
+
+  # --------------------------------------------------------------
+  # OBSERVED PRICE
+  # --------------------------------------------------------------
+
+  geom_line(
+    aes(
+      y = price,
+      color = "Observed price",
+      linewidth = "Observed price"
+    ),
+    alpha = 0.58,
+    lineend = "round",
+    na.rm = TRUE
+  ) +
+
+  # --------------------------------------------------------------
+  # SIMPLE MOVING AVERAGE
+  # --------------------------------------------------------------
+
+  geom_line(
+    aes(
+      y = MA,
+      color = "Simple moving average",
+      linewidth = "Simple moving average"
+    ),
+    lineend = "round",
+    na.rm = TRUE
+  ) +
+
+  # --------------------------------------------------------------
+  # EXPONENTIAL MOVING AVERAGE
+  # --------------------------------------------------------------
+
+  geom_line(
+    aes(
+      y = EMA,
+      color = "Exponential moving average",
+      linewidth = "Exponential moving average"
+    ),
+    lineend = "round",
+    na.rm = TRUE
+  ) +
+
+  # --------------------------------------------------------------
+  # LINE COLORS
+  # --------------------------------------------------------------
+
+  scale_color_manual(
+    name = NULL,
+
+    values = c(
+      "Observed price" = "#64748B",
+      "Simple moving average" = "#2F6FA5",
+      "Exponential moving average" = "#D97706"
+    ),
+
+    breaks = c(
+      "Observed price",
+      "Simple moving average",
+      "Exponential moving average"
+    )
+  ) +
+
+  # --------------------------------------------------------------
+  # BAND COLORS
+  # --------------------------------------------------------------
+
+  scale_fill_manual(
+    name = NULL,
+
+    values = c(
+      "MA ± rolling SD" = "#2F6FA5",
+      "EMA ± exponentially weighted SD" = "#D97706"
+    ),
+
+    breaks = c(
+      "MA ± rolling SD",
+      "EMA ± exponentially weighted SD"
+    )
+  ) +
+
+  # --------------------------------------------------------------
+  # LINE WIDTHS
+  # --------------------------------------------------------------
+
+  scale_linewidth_manual(
+    name = NULL,
+
+    values = c(
+      "Observed price" = 0.55,
+      "Simple moving average" = 1.10,
+      "Exponential moving average" = 1.10
+    )
+  ) +
+
+  # --------------------------------------------------------------
+  # DATE AXIS
+  # --------------------------------------------------------------
+
+  scale_x_date(
+    date_breaks = "6 months",
+
+    date_minor_breaks = "3 months",
+
+    date_labels = "%b\n%Y",
+
+    expand = expansion(
+      mult = c(
+        0.01,
+        0.02
+      )
+    )
+  ) +
+
+  # --------------------------------------------------------------
+  # PRICE AXIS
+  # --------------------------------------------------------------
+
+  scale_y_continuous(
+    labels = price_label_function,
+
+    expand = expansion(
+      mult = c(
+        0.06,
+        0.10
+      )
+    )
+  ) +
+
+  # --------------------------------------------------------------
+  # TITLES
+  # --------------------------------------------------------------
+
+  labs(
+    title =
+      "How Do Moving Indicators Track Local Price and Dispersion?",
+
+    subtitle = paste0(
+      ticker_selected,
+      " price | ",
+      window_size,
+      "-observation trailing window | ",
+      "EMA alpha = ",
+      number(
+        alpha,
+        accuracy = 0.001
+      )
+    ),
+
+    x = "Date",
+
+    y = "Price",
+
+    caption = paste0(
+      "Solid lines represent observed and smoothed prices. ",
+      "Shaded areas represent one local standard deviation ",
+      "above and below each moving average."
+    )
+  ) +
+
+  # --------------------------------------------------------------
+  # PRESENTATION THEME
+  # --------------------------------------------------------------
+
+  theme_minimal(
+    base_size = 13
+  ) +
+
+  theme(
+    plot.title = element_text(
+      size = 20,
+      face = "bold",
+      color = "#172033",
+      margin = margin(
+        b = 4
+      )
+    ),
+
+    plot.subtitle = element_text(
+      size = 11.5,
+      color = "#475569",
+      margin = margin(
+        b = 13
+      )
+    ),
+
+    plot.caption = element_text(
+      size = 8.5,
+      color = "#64748B",
+      hjust = 0,
+      lineheight = 1.15,
+      margin = margin(
+        t = 10
+      )
+    ),
+
+    axis.title = element_text(
+      size = 11,
+      face = "bold",
+      color = "#334155"
+    ),
+
+    axis.text = element_text(
+      size = 8.5,
+      color = "#64748B"
+    ),
+
+    panel.grid.major = element_line(
+      color = "#E5E7EB",
+      linewidth = 0.4
+    ),
+
+    panel.grid.minor.x = element_line(
+      color = "#F1F5F9",
+      linewidth = 0.25
+    ),
+
+    panel.grid.minor.y = element_blank(),
+
+    legend.position = "bottom",
+
+    legend.box = "vertical",
+
+    legend.text = element_text(
+      size = 9,
+      color = "#475569"
+    ),
+
+    legend.key.width = grid::unit(
+      1.6,
+      "cm"
+    ),
+
+    plot.margin = margin(
+      t = 10,
+      r = 20,
+      b = 8,
+      l = 10
+    )
+  ) +
+
+  guides(
+    color = guide_legend(
+      order = 1,
+      nrow = 1,
+      override.aes = list(
+        alpha = 1
+      )
+    ),
+
+    fill = guide_legend(
+      order = 2,
+      nrow = 1
+    ),
+
+    linewidth = "none"
+  )
+
+# ================================================================
+# 13. DISPLAY THE FIGURE
+# ================================================================
+
+technical_indicators_plot
+```
+
+## Time Series Decomposition
+
+A time series $Y_t$ might be decomposed into three additive components
+
+$$
+Y_t = T_t +S_t + R_t
+$$
+where $T_t$, $S_t$, and $R_t$ are the trend, seasonal and the remainder, respectively.
+
+Let $m$ denote the seasonal period. The components can be estimated as follows:
+
+1. Trend: $\hat{T}_t = \frac{1}{m} \sum_{j=-\lfloor m/2 \rfloor}^{\lfloor m/2 \rfloor} Y_{t+j}$, where a centered moving average smooths short-term and seasonal fluctuations.
+
+2. Detrended series: $D_t = Y_t-\widehat{T}_t.$ For each seasonal position $k=1,\ldots,m$.
+
+3. Seasonal component:$\widetilde{S}_k = \frac{1}{n_k} \sum_{t:\,s(t)=k} D_t$, and centering the resulting seasonal indices: $\widehat{S}_k = \widetilde{S}_k - \frac{1}{m} \sum_{\ell=1}^{m}\widetilde{S}_{\ell}, \qquad \sum_{k=1}^{m}\widehat{S}_k=0.$
+
+4. Remainder: $\widehat{R}_t = Y_t-\widehat{T}_t-\widehat{S}_{s(t)}$  
+
+## Time Series Decomposition
+
+```{r}
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(scales)
+
+# Load the built-in monthly time series
+data("AirPassengers")
+
+# Convert the time-series index to monthly dates
+air_data <- tibble(
+  Date = seq.Date(
+    from = as.Date("1949-01-01"),
+    by = "month",
+    length.out = length(AirPassengers)
+  ),
+  Passengers = as.numeric(AirPassengers),
+  Log_Passengers = log(as.numeric(AirPassengers))
+)
+
+# STL decomposition on the log scale
+# The log transformation stabilizes the increasing seasonal amplitude
+air_stl <- stl(
+  ts(
+    air_data$Log_Passengers,
+    start = c(1949, 1),
+    frequency = 12
+  ),
+  s.window = "periodic",
+  robust = TRUE
+)
+
+# Extract the STL components
+air_components <- air_data |>
+  mutate(
+    Observed = Log_Passengers,
+    Trend = as.numeric(
+      air_stl$time.series[, "trend"]
+    ),
+    Seasonal = as.numeric(
+      air_stl$time.series[, "seasonal"]
+    ),
+    Remainder = as.numeric(
+      air_stl$time.series[, "remainder"]
+    ),
+    Reconstructed = Trend + Seasonal + Remainder
+  )
+
+# Validate the additive identity
+reconstruction_error <- max(
+  abs(
+    air_components$Observed -
+      air_components$Reconstructed
+  ),
+  na.rm = TRUE
+)
+
+stopifnot(
+  reconstruction_error < 1e-10
+)
+
+# Convert the components to long format
+air_components_long <- air_components |>
+  select(
+    Date,
+    Observed,
+    Trend,
+    Seasonal,
+    Remainder
+  ) |>
+  pivot_longer(
+    cols = c(
+      Observed,
+      Trend,
+      Seasonal,
+      Remainder
+    ),
+    names_to = "Component_code",
+    values_to = "Value"
+  ) |>
+  mutate(
+    Component = factor(
+      Component_code,
+      levels = c(
+        "Observed",
+        "Trend",
+        "Seasonal",
+        "Remainder"
+      ),
+      labels = c(
+        "Observed series: Yt",
+        "Trend component: Tt",
+        "Seasonal component: St",
+        "Remainder component: Rt"
+      )
+    ),
+    Component_code = factor(
+      Component_code,
+      levels = c(
+        "Observed",
+        "Trend",
+        "Seasonal",
+        "Remainder"
+      )
+    )
+  )
+
+# Zero-reference lines for seasonal and remainder panels
+zero_lines <- tibble(
+  Component = factor(
+    c(
+      "Seasonal component: St",
+      "Remainder component: Rt"
+    ),
+    levels = levels(
+      air_components_long$Component
+    )
+  ),
+  Reference = 0
+)
+
+# Robustly identify unusual remainder observations
+remainder_center <- median(
+  air_components$Remainder,
+  na.rm = TRUE
+)
+
+remainder_scale <- mad(
+  air_components$Remainder,
+  center = remainder_center,
+  constant = 1.4826,
+  na.rm = TRUE
+)
+
+# Fallback if MAD is zero or invalid
+if (
+  !is.finite(remainder_scale) ||
+  remainder_scale == 0
+) {
+  remainder_scale <- sd(
+    air_components$Remainder,
+    na.rm = TRUE
+  )
+}
+
+air_components <- air_components |>
+  mutate(
+    Remainder_robust_z =
+      (Remainder - remainder_center) /
+      remainder_scale,
+    Unusual_remainder =
+      abs(Remainder_robust_z) > 2.5
+  )
+
+# Data for highlighted remainder observations
+unusual_remainders <- air_components |>
+  filter(Unusual_remainder) |>
+  transmute(
+    Date = Date,
+    Value = Remainder,
+    Component = factor(
+      "Remainder component: Rt",
+      levels = levels(
+        air_components_long$Component
+      )
+    )
+  )
+
+# Select up to two unusual observations for labels
+remainder_labels <- unusual_remainders |>
+  slice_max(
+    order_by = abs(Value),
+    n = min(
+      2L,
+      nrow(unusual_remainders)
+    ),
+    with_ties = FALSE
+  ) |>
+  mutate(
+    Label = format(
+      Date,
+      "%b %Y"
+    ),
+    Label_y = if_else(
+      Value >= 0,
+      Value + 0.025,
+      Value - 0.025
+    ),
+    Vjust = if_else(
+      Value >= 0,
+      0,
+      1
+    )
+  )
+
+# Colors for the four components
+component_colors <- c(
+  "Observed" = "#173F73",
+  "Trend" = "#059669",
+  "Seasonal" = "#7C3AED",
+  "Remainder" = "#64748B"
+)
+
+# Build the decomposition figure
+decomposition_plot <- ggplot(
+  data = air_components_long,
+  aes(
+    x = Date,
+    y = Value,
+    color = Component_code,
+    group = Component
+  )
+) +
+  geom_hline(
+    data = zero_lines,
+    aes(
+      yintercept = Reference
+    ),
+    inherit.aes = FALSE,
+    color = "#CBD5E1",
+    linewidth = 0.55
+  ) +
+  geom_line(
+    linewidth = 0.9,
+    lineend = "round"
+  ) +
+  geom_point(
+    data = unusual_remainders,
+    aes(
+      x = Date,
+      y = Value
+    ),
+    inherit.aes = FALSE,
+    color = "#DC2626",
+    fill = "white",
+    shape = 21,
+    size = 3.2,
+    stroke = 1.2
+  ) +
+  geom_text(
+    data = remainder_labels,
+    aes(
+      x = Date,
+      y = Label_y,
+      label = Label,
+      vjust = Vjust
+    ),
+    inherit.aes = FALSE,
+    color = "#B91C1C",
+    size = 2.7,
+    fontface = "bold",
+    check_overlap = TRUE
+  ) +
+  facet_grid(
+    rows = vars(Component),
+    scales = "free_y",
+    switch = "y",
+    labeller = label_value
+  ) +
+  scale_color_manual(
+    values = component_colors,
+    guide = "none"
+  ) +
+  scale_x_date(
+    date_breaks = "2 years",
+    date_minor_breaks = "1 year",
+    date_labels = "%Y",
+    expand = expansion(
+      mult = c(0.01, 0.025)
+    )
+  ) +
+  scale_y_continuous(
+    labels = label_number(
+      accuracy = 0.01
+    ),
+    expand = expansion(
+      mult = c(0.15, 0.18)
+    )
+  ) +
+  labs(
+    title = "Decomposing the AirPassengers Time Series",
+    subtitle = paste0(
+      "Additive STL decomposition on the log scale: ",
+      "Yt = Tt + St + Rt"
+    ),
+    x = "Year",
+    y = NULL,
+    caption = paste0(
+      "The logarithmic transformation stabilizes the increasing ",
+      "seasonal amplitude. Red circles identify unusually large ",
+      "remainder values using a robust standardized threshold."
+    )
+  ) +
+  theme_minimal(
+    base_size = 13
+  ) +
+  theme(
+    plot.title = element_text(
+      size = 20,
+      face = "bold",
+      color = "#172033",
+      margin = margin(b = 4)
+    ),
+    plot.subtitle = element_text(
+      size = 12.5,
+      color = "#475569",
+      margin = margin(b = 12)
+    ),
+    plot.caption = element_text(
+      size = 8.5,
+      color = "#64748B",
+      hjust = 0,
+      lineheight = 1.15,
+      margin = margin(t = 10)
+    ),
+    strip.placement = "outside",
+    strip.background = element_rect(
+      fill = "#F8FAFC",
+      color = "#CBD5E1",
+      linewidth = 0.5
+    ),
+    strip.text.y.left = element_text(
+      angle = 0,
+      size = 9.5,
+      face = "bold",
+      color = "#334155",
+      hjust = 0.5,
+      margin = margin(
+        t = 6,
+        r = 9,
+        b = 6,
+        l = 9
+      )
+    ),
+    axis.title.x = element_text(
+      size = 11,
+      face = "bold",
+      color = "#334155",
+      margin = margin(t = 8)
+    ),
+    axis.text = element_text(
+      size = 8.5,
+      color = "#64748B"
+    ),
+    axis.ticks = element_line(
+      color = "#CBD5E1",
+      linewidth = 0.4
+    ),
+    panel.grid.major.x = element_line(
+      color = "#E5E7EB",
+      linewidth = 0.4
+    ),
+    panel.grid.major.y = element_line(
+      color = "#F1F5F9",
+      linewidth = 0.35
+    ),
+    panel.grid.minor.x = element_line(
+      color = "#F1F5F9",
+      linewidth = 0.25
+    ),
+    panel.grid.minor.y = element_blank(),
+    panel.spacing.y = grid::unit(
+      0.45,
+      "lines"
+    ),
+    plot.margin = margin(
+      t = 10,
+      r = 24,
+      b = 8,
+      l = 10
+    )
+  )
+
+decomposition_plot
+```
+
+
+::: {.notes}
+
+A trend exists when there is a long-term increase or decrease in the data. It does not have to be linear. Sometimes we will refer to a trend as “changing direction”, when it might go from an increasing trend to a decreasing trend.
+
+A seasonal pattern occurs when a time series is affected by seasonal factors such as the time of the year or the day of the week. Seasonality is always of a fixed and known period.
+
+A cycle occurs when the data exhibit rises and falls that are not of a fixed frequency. These fluctuations are usually due to economic conditions, and are often related to the “business cycle”. The duration of these fluctuations is usually at least 2 years.
+
+:::
+
+## Time Series Decomposition
+
+```{r}
+library(dplyr)
+library(ggplot2)
+library(scales)
+
+# ================================================================
+# 1. VALIDATE THE MONTHLY DATASET
+# ================================================================
+
+required_columns <- c(
+  "ticker",
+  "month",
+  "monthly_adjusted_price"
+)
+
+missing_columns <- setdiff(
+  required_columns,
+  names(monthly_data)
+)
+
+if (length(missing_columns) > 0L) {
+  stop(
+    paste0(
+      "The following columns are missing from monthly_data: ",
+      paste(
+        missing_columns,
+        collapse = ", "
+      )
+    )
+  )
+}
+
+# ================================================================
+# 2. SELECT THE FIRST VALID TICKER
+# ================================================================
+
+ticker_selected <- monthly_data |>
+  filter(
+    !is.na(ticker),
+    as.character(ticker) != ""
+  ) |>
+  distinct(ticker) |>
+  slice_head(n = 1L) |>
+  pull(ticker) |>
+  as.character()
+
+if (
+  length(ticker_selected) == 0L ||
+  is.na(ticker_selected)
+) {
+  stop(
+    "No valid ticker was found in monthly_data."
+  )
+}
+
+# ================================================================
+# 3. PREPARE THE MONTHLY ADJUSTED-PRICE SERIES
+# ================================================================
+
+monthly_trend_data <- monthly_data |>
+  filter(
+    ticker == ticker_selected
+  ) |>
+  transmute(
+    ticker = as.character(ticker),
+
+    month = as.Date(month),
+
+    monthly_adjusted_price =
+      suppressWarnings(
+        as.numeric(
+          monthly_adjusted_price
+        )
+      )
+  ) |>
+  filter(
+    !is.na(month),
+    is.finite(monthly_adjusted_price)
+  ) |>
+  group_by(
+    ticker,
+    month
+  ) |>
+  summarise(
+    monthly_adjusted_price = last(
+      monthly_adjusted_price
+    ),
+
+    .groups = "drop"
+  ) |>
+  arrange(month)
+
+n_months <- nrow(
+  monthly_trend_data
+)
+
+if (n_months < 13L) {
+  stop(
+    paste0(
+      "At least 13 monthly prices are required. ",
+      "Only ",
+      n_months,
+      " were found for ",
+      ticker_selected,
+      "."
+    )
+  )
+}
+
+# ================================================================
+# 4. VERIFY THAT THE SERIES HAS NO MISSING CALENDAR MONTHS
+#
+# Classical decomposition assumes equally spaced observations.
+# ================================================================
+
+expected_months <- seq.Date(
+  from = min(
+    monthly_trend_data$month
+  ),
+
+  to = max(
+    monthly_trend_data$month
+  ),
+
+  by = "month"
+)
+
+observed_months <- monthly_trend_data$month
+
+missing_months <- expected_months[
+  !expected_months %in%
+    observed_months
+]
+
+if (length(missing_months) > 0L) {
+  stop(
+    paste0(
+      "The monthly series contains missing calendar months: ",
+      paste(
+        format(
+          missing_months,
+          "%b %Y"
+        ),
+        collapse = ", "
+      ),
+      ". Treat the missing months before estimating the trend."
+    )
+  )
+}
+
+# ================================================================
+# 5. DEFINE THE CENTERED 2 x 12 MOVING-AVERAGE WEIGHTS
+#
+# For monthly data, m = 12.
+#
+# Because 12 is even, the centered moving average is equivalent
+# to a 13-term weighted moving average:
+#
+# 1/24, 1/12, ..., 1/12, 1/24
+# ================================================================
+
+trend_weights <- c(
+  1 / 24,
+
+  rep(
+    1 / 12,
+    11L
+  ),
+
+  1 / 24
+)
+
+stopifnot(
+  length(trend_weights) == 13L,
+
+  isTRUE(
+    all.equal(
+      sum(trend_weights),
+      1
+    )
+  )
+)
+
+# ================================================================
+# 6. ESTIMATE THE CLASSICAL MONTHLY TREND
+#
+# T_hat(t) =
+# Y_(t-6)/24
+# + sum[Y_(t+j)/12], j = -5,...,5
+# + Y_(t+6)/24
+# ================================================================
+
+monthly_trend_data <- monthly_trend_data |>
+  mutate(
+    classical_trend = as.numeric(
+      stats::filter(
+        x = monthly_adjusted_price,
+
+        filter = trend_weights,
+
+        sides = 2
+      )
+    )
+  )
+
+# ================================================================
+# 7. RETAIN VALID TREND ESTIMATES
+#
+# Six observations are lost at each edge because the estimate
+# requires six months before and six months after time t.
+# ================================================================
+
+valid_trend_data <- monthly_trend_data |>
+  filter(
+    !is.na(classical_trend),
+    is.finite(classical_trend)
+  )
+
+expected_trend_count <-
+  n_months - 12L
+
+if (
+  nrow(valid_trend_data) !=
+    expected_trend_count
+) {
+  stop(
+    paste0(
+      "Unexpected number of trend estimates. Expected ",
+      expected_trend_count,
+      " but obtained ",
+      nrow(valid_trend_data),
+      "."
+    )
+  )
+}
+
+# ================================================================
+# 8. SELECT ONE COMPLETE 13-MONTH WINDOW FOR ILLUSTRATION
+# ================================================================
+
+valid_indices <- which(
+  is.finite(
+    monthly_trend_data$classical_trend
+  )
+)
+
+example_center_index <- valid_indices[
+  ceiling(
+    length(valid_indices) / 2
+  )
+]
+
+example_window_indices <- seq.int(
+  from = example_center_index - 6L,
+
+  to = example_center_index + 6L
+)
+
+example_window <- monthly_trend_data[
+  example_window_indices,
+  ,
+  drop = FALSE
+]
+
+example_center <- monthly_trend_data[
+  example_center_index,
+  ,
+  drop = FALSE
+]
+
+# ================================================================
+# 9. VALIDATE THE EXAMPLE MANUALLY
+# ================================================================
+
+manual_example_trend <- sum(
+  example_window$monthly_adjusted_price *
+    trend_weights
+)
+
+filter_example_trend <-
+  example_center$classical_trend[1]
+
+if (
+  !isTRUE(
+    all.equal(
+      manual_example_trend,
+      filter_example_trend,
+      tolerance = 1e-10
+    )
+  )
+) {
+  stop(
+    "The manual trend estimate does not match the filtered estimate."
+  )
+}
+
+# ================================================================
+# 10. PREPARE THE HIGHLIGHTED WINDOW
+# ================================================================
+
+window_region <- data.frame(
+  xmin = min(
+    example_window$month
+  ),
+
+  xmax = max(
+    example_window$month
+  )
+)
+
+# ================================================================
+# 11. CREATE FORMATTING AND LABELS
+# ================================================================
+
+median_price <- median(
+  monthly_trend_data$monthly_adjusted_price,
+  na.rm = TRUE
+)
+
+price_accuracy <- if (
+  median_price >= 100
+) {
+  1
+} else if (
+  median_price >= 10
+) {
+  0.1
+} else {
+  0.01
+}
+
+format_price <- label_number(
+  accuracy = price_accuracy,
+  big.mark = ","
+)
+
+price_range <- diff(
+  range(
+    monthly_trend_data$monthly_adjusted_price,
+    na.rm = TRUE
+  )
+)
+
+if (
+  !is.finite(price_range) ||
+  price_range <= 0
+) {
+  price_range <- 1
+}
+
+label_y <-
+  filter_example_trend +
+  0.15 * price_range
+
+trend_label <- paste0(
+  "Centered 2 × 12 moving average\n",
+  format(
+    example_center$month[1],
+    "%b %Y"
+  ),
+  "\n",
+  "Estimated trend = ",
+  format_price(
+    filter_example_trend
+  )
+)
+
+# ================================================================
+# 12. CREATE THE FIGURE
+# ================================================================
+
+monthly_trend_plot <- ggplot(
+  data = monthly_trend_data,
+
+  aes(
+    x = month
+  )
+) +
+
+  # Highlight one centered 13-month window
+
+  geom_rect(
+    data = window_region,
+
+    aes(
+      xmin = xmin,
+      xmax = xmax,
+      ymin = -Inf,
+      ymax = Inf
+    ),
+
+    inherit.aes = FALSE,
+
+    fill = "#F59E0B",
+
+    alpha = 0.09
+  ) +
+
+  # Monthly adjusted-price series
+
+  geom_line(
+    aes(
+      y = monthly_adjusted_price,
+      color = "Monthly adjusted price"
+    ),
+
+    linewidth = 0.65,
+
+    alpha = 0.60,
+
+    lineend = "round"
+  ) +
+
+  geom_point(
+    aes(
+      y = monthly_adjusted_price,
+      color = "Monthly adjusted price"
+    ),
+
+    size = 1.5,
+
+    alpha = 0.55
+  ) +
+
+  # Classical trend estimate
+
+  geom_line(
+    data = valid_trend_data,
+
+    aes(
+      x = month,
+      y = classical_trend,
+      color = "Classical trend"
+    ),
+
+    inherit.aes = FALSE,
+
+    linewidth = 1.35,
+
+    lineend = "round"
+  ) +
+
+  # Prices entering the selected centered window
+
+  geom_point(
+    data = example_window,
+
+    aes(
+      x = month,
+      y = monthly_adjusted_price
+    ),
+
+    inherit.aes = FALSE,
+
+    color = "#D97706",
+
+    fill = "white",
+
+    shape = 21,
+
+    size = 3,
+
+    stroke = 0.95
+  ) +
+
+  # Estimated trend at the center of the selected window
+
+  geom_point(
+    data = example_center,
+
+    aes(
+      x = month,
+      y = classical_trend
+    ),
+
+    inherit.aes = FALSE,
+
+    color = "#047857",
+
+    fill = "white",
+
+    shape = 23,
+
+    size = 5,
+
+    stroke = 1.25
+  ) +
+
+  # Label for the example estimate
+
+  annotate(
+    geom = "label",
+
+    x = example_center$month[1],
+
+    y = label_y,
+
+    label = trend_label,
+
+    color = "#047857",
+
+    fill = "white",
+
+    fontface = "bold",
+
+    size = 3.1,
+
+    lineheight = 1,
+
+    label.size = 0.3
+  ) +
+
+  # Boundaries of the region with valid centered estimates
+
+  geom_vline(
+    xintercept = as.numeric(
+      min(
+        valid_trend_data$month
+      )
+    ),
+
+    color = "#94A3B8",
+
+    linewidth = 0.5,
+
+    linetype = "dotted"
+  ) +
+
+  geom_vline(
+    xintercept = as.numeric(
+      max(
+        valid_trend_data$month
+      )
+    ),
+
+    color = "#94A3B8",
+
+    linewidth = 0.5,
+
+    linetype = "dotted"
+  ) +
+
+  # Line colors
+
+  scale_color_manual(
+    name = NULL,
+
+    values = c(
+      "Monthly adjusted price" =
+        "#94A3B8",
+
+      "Classical trend" =
+        "#059669"
+    ),
+
+    breaks = c(
+      "Monthly adjusted price",
+      "Classical trend"
+    )
+  ) +
+
+  # Horizontal axis
+
+  scale_x_date(
+    date_breaks = "1 year",
+
+    date_minor_breaks = "3 months",
+
+    date_labels = "%Y",
+
+    expand = expansion(
+      mult = c(
+        0.01,
+        0.02
+      )
+    )
+  ) +
+
+  # Vertical axis
+
+  scale_y_continuous(
+    labels = format_price,
+
+    expand = expansion(
+      mult = c(
+        0.07,
+        0.22
+      )
+    )
+  ) +
+
+  # Titles
+
+  labs(
+    title =
+      "How Is the Monthly Trend Estimated?",
+
+    subtitle = paste0(
+      ticker_selected,
+      " monthly adjusted prices | ",
+      "Classical centered 2 × 12 moving average"
+    ),
+
+    x = "Month",
+
+    y = "Monthly adjusted price",
+
+    caption = paste0(
+      "The gray series contains the last valid adjusted price ",
+      "observed in each month. The green line is the classical ",
+      "trend estimate. The highlighted region shows the 13 prices ",
+      "used in one centered 2 × 12 moving-average calculation."
+    )
+  ) +
+
+  # Presentation theme
+
+  theme_minimal(
+    base_size = 13
+  ) +
+
+  theme(
+    plot.title = element_text(
+      size = 20,
+      face = "bold",
+      color = "#172033",
+      margin = margin(
+        b = 4
+      )
+    ),
+
+    plot.subtitle = element_text(
+      size = 11.5,
+      color = "#475569",
+      margin = margin(
+        b = 13
+      )
+    ),
+
+    plot.caption = element_text(
+      size = 8.5,
+      color = "#64748B",
+      hjust = 0,
+      lineheight = 1.15,
+      margin = margin(
+        t = 10
+      )
+    ),
+
+    axis.title = element_text(
+      size = 11,
+      face = "bold",
+      color = "#334155"
+    ),
+
+    axis.text = element_text(
+      size = 8.5,
+      color = "#64748B"
+    ),
+
+    panel.grid.major = element_line(
+      color = "#E5E7EB",
+      linewidth = 0.4
+    ),
+
+    panel.grid.minor.x = element_line(
+      color = "#F1F5F9",
+      linewidth = 0.25
+    ),
+
+    panel.grid.minor.y = element_blank(),
+
+    legend.position = "bottom",
+
+    legend.text = element_text(
+      size = 9.5,
+      color = "#475569"
+    ),
+
+    legend.key.width = grid::unit(
+      1.7,
+      "cm"
+    ),
+
+    plot.margin = margin(
+      t = 10,
+      r = 20,
+      b = 8,
+      l = 10
+    )
+  )
+
+# ================================================================
+# 13. DISPLAY THE FIGURE
+# ================================================================
+
+monthly_trend_plot
+```
+
+## Time Series Decomposition
+
+```{r}
+# ================================================================
+# DETRENDED MONTHLY ADJUSTED-PRICE SERIES
+# Classical decomposition with a centered 2 x 12 moving average
+# ================================================================
+
+library(dplyr)
+library(ggplot2)
+library(scales)
+
+# ================================================================
+# 1. VALIDATE THE INPUT DATASET
+#
+# This code assumes that monthly_data was created previously
+# and contains one or more tickers with monthly adjusted prices.
+# ================================================================
+
+if (!exists("monthly_data")) {
+  stop(
+    paste0(
+      "The object 'monthly_data' does not exist. ",
+      "Create the monthly adjusted-price dataset before running ",
+      "this chunk."
+    )
+  )
+}
+
+required_columns <- c(
+  "ticker",
+  "month",
+  "monthly_adjusted_price"
+)
+
+missing_columns <- setdiff(
+  required_columns,
+  names(monthly_data)
+)
+
+if (length(missing_columns) > 0L) {
+  stop(
+    paste0(
+      "The following required columns are missing from monthly_data: ",
+      paste(
+        missing_columns,
+        collapse = ", "
+      )
+    )
+  )
+}
+
+# ================================================================
+# 2. SELECT THE FIRST VALID TICKER
+# ================================================================
+
+available_tickers <- monthly_data |>
+  transmute(
+    ticker = as.character(ticker)
+  ) |>
+  filter(
+    !is.na(ticker),
+    ticker != ""
+  ) |>
+  distinct(ticker) |>
+  pull(ticker)
+
+if (length(available_tickers) == 0L) {
+  stop(
+    "No valid ticker was found in monthly_data."
+  )
+}
+
+ticker_selected <- available_tickers[1]
+
+# ================================================================
+# 3. PREPARE THE MONTHLY ADJUSTED-PRICE SERIES
+#
+# The code guarantees one price for each ticker-month pair.
+# If duplicates exist, the final finite value is retained.
+# ================================================================
+
+monthly_price_series <- monthly_data |>
+  transmute(
+    ticker = as.character(ticker),
+
+    month = as.Date(month),
+
+    monthly_adjusted_price = suppressWarnings(
+      as.numeric(
+        monthly_adjusted_price
+      )
+    )
+  ) |>
+  filter(
+    ticker == ticker_selected,
+    !is.na(month),
+    is.finite(monthly_adjusted_price)
+  ) |>
+  arrange(
+    month
+  ) |>
+  group_by(
+    ticker,
+    month
+  ) |>
+  summarise(
+    monthly_adjusted_price = last(
+      monthly_adjusted_price
+    ),
+
+    .groups = "drop"
+  ) |>
+  arrange(
+    month
+  )
+
+n_months <- nrow(
+  monthly_price_series
+)
+
+if (n_months < 13L) {
+  stop(
+    paste0(
+      "At least 13 monthly observations are required to calculate ",
+      "a centered 2 x 12 moving average. Only ",
+      n_months,
+      " were found for ",
+      ticker_selected,
+      "."
+    )
+  )
+}
+
+# ================================================================
+# 4. CHECK THE MONTHLY FREQUENCY
+#
+# Classical decomposition assumes an equally spaced monthly series.
+# ================================================================
+
+expected_month_sequence <- seq.Date(
+  from = min(
+    monthly_price_series$month
+  ),
+
+  to = max(
+    monthly_price_series$month
+  ),
+
+  by = "month"
+)
+
+missing_months <- expected_month_sequence[
+  !expected_month_sequence %in%
+    monthly_price_series$month
+]
+
+if (length(missing_months) > 0L) {
+  stop(
+    paste0(
+      "The series contains missing calendar months: ",
+      paste(
+        format(
+          missing_months,
+          "%b %Y"
+        ),
+        collapse = ", "
+      ),
+      ". Classical decomposition requires an equally spaced series."
+    )
+  )
+}
+
+# ================================================================
+# 5. DEFINE THE CENTERED 2 x 12 MOVING-AVERAGE WEIGHTS
+#
+# With monthly data, the seasonal period is m = 12.
+#
+# Since m is even, the centered trend is obtained from a
+# 13-observation weighted moving average:
+#
+#            1      5             1
+# T_hat_t = ---Y_t-6 + sum ---Y_t+j + ---Y_t+6
+#           24     j=-5 12        24
+# ================================================================
+
+trend_weights <- c(
+  1 / 24,
+
+  rep(
+    1 / 12,
+    times = 11L
+  ),
+
+  1 / 24
+)
+
+if (length(trend_weights) != 13L) {
+  stop(
+    "The centered moving-average filter must contain 13 weights."
+  )
+}
+
+if (
+  !isTRUE(
+    all.equal(
+      sum(trend_weights),
+      1,
+      tolerance = 1e-12
+    )
+  )
+) {
+  stop(
+    "The centered moving-average weights do not sum to one."
+  )
+}
+
+# ================================================================
+# 6. ESTIMATE THE CLASSICAL TREND
+#
+# stats::filter(..., sides = 2) applies the weights symmetrically.
+# Six months before and six months after t are required.
+# ================================================================
+
+estimated_trend <- as.numeric(
+  stats::filter(
+    x = monthly_price_series$monthly_adjusted_price,
+
+    filter = trend_weights,
+
+    sides = 2
+  )
+)
+
+monthly_price_series <- monthly_price_series |>
+  mutate(
+    estimated_trend = estimated_trend
+  )
+
+# ================================================================
+# 7. CALCULATE THE DETRENDED SERIES
+#
+# D_t = Y_t - T_hat_t
+#
+# For the classical additive decomposition:
+#
+# D_t = S_t + R_t
+# ================================================================
+
+monthly_price_series <- monthly_price_series |>
+  mutate(
+    detrended_price =
+      monthly_adjusted_price -
+      estimated_trend
+  )
+
+# ================================================================
+# 8. RETAIN DATES WITH VALID CENTERED TREND ESTIMATES
+#
+# The first and final six months do not have trend estimates.
+# ================================================================
+
+detrended_data <- monthly_price_series |>
+  filter(
+    is.finite(estimated_trend),
+    is.finite(detrended_price)
+  )
+
+n_detrended_observations <- nrow(
+  detrended_data
+)
+
+expected_detrended_observations <-
+  n_months - 12L
+
+if (
+  n_detrended_observations !=
+    expected_detrended_observations
+) {
+  stop(
+    paste0(
+      "Unexpected number of detrended observations. Expected ",
+      expected_detrended_observations,
+      " but obtained ",
+      n_detrended_observations,
+      "."
+    )
+  )
+}
+
+# ================================================================
+# 9. VALIDATE THE DETRENDING IDENTITY
+#
+# Wherever the trend is available:
+#
+# Y_t = T_hat_t + D_t
+# ================================================================
+
+reconstruction_error <- max(
+  abs(
+    detrended_data$monthly_adjusted_price -
+      (
+        detrended_data$estimated_trend +
+          detrended_data$detrended_price
+      )
+  ),
+  na.rm = TRUE
+)
+
+if (
+  !is.finite(reconstruction_error) ||
+  reconstruction_error > 1e-10
+) {
+  stop(
+    paste0(
+      "The detrending identity failed. Maximum reconstruction error: ",
+      format(
+        reconstruction_error,
+        scientific = TRUE
+      )
+    )
+  )
+}
+
+# ================================================================
+# 10. CLASSIFY VALUES RELATIVE TO THE TREND
+# ================================================================
+
+detrended_data <- detrended_data |>
+  mutate(
+    position_relative_to_trend = case_when(
+      detrended_price > 0 ~
+        "Price above trend",
+
+      detrended_price < 0 ~
+        "Price below trend",
+
+      TRUE ~
+        "Price equal to trend"
+    )
+  )
+
+# ================================================================
+# 11. CALCULATE DESCRIPTIVE STATISTICS
+# ================================================================
+
+mean_detrended <- mean(
+  detrended_data$detrended_price,
+  na.rm = TRUE
+)
+
+sd_detrended <- sd(
+  detrended_data$detrended_price,
+  na.rm = TRUE
+)
+
+maximum_detrended <- max(
+  detrended_data$detrended_price,
+  na.rm = TRUE
+)
+
+minimum_detrended <- min(
+  detrended_data$detrended_price,
+  na.rm = TRUE
+)
+
+# ================================================================
+# 12. IDENTIFY LARGE ABSOLUTE DEVIATIONS
+#
+# The largest 5% are emphasized only as a visualization device.
+# This is not presented as a formal outlier-detection rule.
+# ================================================================
+
+large_deviation_threshold <- quantile(
+  abs(
+    detrended_data$detrended_price
+  ),
+
+  probs = 0.95,
+
+  names = FALSE,
+
+  na.rm = TRUE,
+
+  type = 7
+)
+
+detrended_data <- detrended_data |>
+  mutate(
+    deviation_class = if_else(
+      abs(detrended_price) >=
+        large_deviation_threshold,
+
+      "Large absolute deviation",
+
+      "Regular deviation"
+    )
+  )
+
+regular_deviations <- detrended_data |>
+  filter(
+    deviation_class ==
+      "Regular deviation"
+  )
+
+large_deviations <- detrended_data |>
+  filter(
+    deviation_class ==
+      "Large absolute deviation"
+  )
+
+# ================================================================
+# 13. IDENTIFY THE LARGEST POSITIVE AND NEGATIVE DEVIATIONS
+# ================================================================
+
+largest_positive_deviation <- detrended_data |>
+  slice_max(
+    order_by = detrended_price,
+
+    n = 1L,
+
+    with_ties = FALSE
+  )
+
+largest_negative_deviation <- detrended_data |>
+  slice_min(
+    order_by = detrended_price,
+
+    n = 1L,
+
+    with_ties = FALSE
+  )
+
+extreme_deviations <- bind_rows(
+  largest_positive_deviation,
+  largest_negative_deviation
+) |>
+  distinct(
+    month,
+
+    .keep_all = TRUE
+  )
+
+# ================================================================
+# 14. DEFINE THE NUMBER FORMAT
+#
+# Detrended values retain the price unit.
+# ================================================================
+
+median_price <- median(
+  detrended_data$monthly_adjusted_price,
+
+  na.rm = TRUE
+)
+
+price_accuracy <- if (
+  median_price >= 100
+) {
+  1
+} else if (
+  median_price >= 10
+) {
+  0.1
+} else {
+  0.01
+}
+
+price_formatter <- label_number(
+  accuracy = price_accuracy,
+
+  big.mark = ","
+)
+
+# ================================================================
+# 15. CREATE LABELS FOR EXTREME DEVIATIONS
+# ================================================================
+
+extreme_deviations <- extreme_deviations |>
+  mutate(
+    extreme_label = paste0(
+      format(
+        month,
+        "%b %Y"
+      ),
+      "\n",
+      if_else(
+        detrended_price > 0,
+        "Above trend: ",
+        "Below trend: "
+      ),
+      price_formatter(
+        detrended_price
+      )
+    ),
+
+    vertical_justification = if_else(
+      detrended_price >= 0,
+
+      -0.75,
+
+      1.65
+    )
+  )
+
+# ================================================================
+# 16. CREATE A SYMMETRIC VERTICAL SCALE
+#
+# A symmetric scale makes positive and negative deviations directly
+# comparable.
+# ================================================================
+
+maximum_absolute_deviation <- max(
+  abs(
+    detrended_data$detrended_price
+  ),
+
+  na.rm = TRUE
+)
+
+if (
+  !is.finite(maximum_absolute_deviation) ||
+  maximum_absolute_deviation <= 0
+) {
+  maximum_absolute_deviation <- 1
+}
+
+vertical_limit <-
+  1.22 *
+  maximum_absolute_deviation
+
+# ================================================================
+# 17. CREATE LABEL POSITIONS FOR EXPLANATORY TEXT
+# ================================================================
+
+first_valid_month <- min(
+  detrended_data$month
+)
+
+last_valid_month <- max(
+  detrended_data$month
+)
+
+positive_region_y <-
+  0.78 *
+  vertical_limit
+
+negative_region_y <-
+  -0.78 *
+  vertical_limit
+
+# ================================================================
+# 18. CREATE THE DETRENDED-SERIES FIGURE
+# ================================================================
+
+monthly_detrended_plot <- ggplot(
+  data = detrended_data,
+
+  aes(
+    x = month,
+    y = detrended_price
+  )
+) +
+
+  # --------------------------------------------------------------
+  # Positive-deviation area
+  # --------------------------------------------------------------
+
+  geom_ribbon(
+    aes(
+      ymin = 0,
+
+      ymax = ifelse(
+        detrended_price > 0,
+        detrended_price,
+        0
+      )
+    ),
+
+    fill = "#2F6FA5",
+
+    alpha = 0.15
+  ) +
+
+  # --------------------------------------------------------------
+  # Negative-deviation area
+  # --------------------------------------------------------------
+
+  geom_ribbon(
+    aes(
+      ymin = ifelse(
+        detrended_price < 0,
+        detrended_price,
+        0
+      ),
+
+      ymax = 0
+    ),
+
+    fill = "#DC2626",
+
+    alpha = 0.15
+  ) +
+
+  # --------------------------------------------------------------
+  # Zero-reference line
+  #
+  # At zero:
+  #
+  # observed price = estimated trend
+  # --------------------------------------------------------------
+
+  geom_hline(
+    yintercept = 0,
+
+    color = "#334155",
+
+    linewidth = 0.8
+  ) +
+
+  # --------------------------------------------------------------
+  # Complete detrended series
+  # --------------------------------------------------------------
+
+  geom_line(
+    color = "#64748B",
+
+    linewidth = 0.7,
+
+    alpha = 0.80,
+
+    lineend = "round"
+  ) +
+
+  # --------------------------------------------------------------
+  # Regular observations
+  # --------------------------------------------------------------
+
+  geom_point(
+    data = regular_deviations,
+
+    aes(
+      x = month,
+      y = detrended_price,
+      color = position_relative_to_trend
+    ),
+
+    inherit.aes = FALSE,
+
+    size = 2,
+
+    alpha = 0.62
+  ) +
+
+  # --------------------------------------------------------------
+  # Large absolute deviations
+  # --------------------------------------------------------------
+
+  geom_point(
+    data = large_deviations,
+
+    aes(
+      x = month,
+      y = detrended_price
+    ),
+
+    inherit.aes = FALSE,
+
+    color = "#D97706",
+
+    fill = "white",
+
+    shape = 21,
+
+    size = 3.5,
+
+    stroke = 1.1
+  ) +
+
+  # --------------------------------------------------------------
+  # Label the largest positive and negative deviations
+  # --------------------------------------------------------------
+
+  geom_text(
+    data = extreme_deviations,
+
+    aes(
+      x = month,
+      y = detrended_price,
+      label = extreme_label,
+      vjust = vertical_justification
+    ),
+
+    inherit.aes = FALSE,
+
+    color = "#334155",
+
+    size = 2.9,
+
+    fontface = "bold",
+
+    lineheight = 0.95,
+
+    check_overlap = TRUE
+  ) +
+
+  # --------------------------------------------------------------
+  # Explain the positive region
+  # --------------------------------------------------------------
+
+  annotate(
+    geom = "label",
+
+    x = first_valid_month,
+
+    y = positive_region_y,
+
+    label = paste0(
+      "D(t) > 0\n",
+      "Price above trend"
+    ),
+
+    hjust = 0,
+
+    color = "#1D4ED8",
+
+    fill = "white",
+
+    fontface = "bold",
+
+    size = 3,
+
+    lineheight = 1,
+
+    label.size = 0.25
+  ) +
+
+  # --------------------------------------------------------------
+  # Explain the negative region
+  # --------------------------------------------------------------
+
+  annotate(
+    geom = "label",
+
+    x = first_valid_month,
+
+    y = negative_region_y,
+
+    label = paste0(
+      "D(t) < 0\n",
+      "Price below trend"
+    ),
+
+    hjust = 0,
+
+    color = "#B91C1C",
+
+    fill = "white",
+
+    fontface = "bold",
+
+    size = 3,
+
+    lineheight = 1,
+
+    label.size = 0.25
+  ) +
+
+  # --------------------------------------------------------------
+  # Colors
+  # --------------------------------------------------------------
+
+  scale_color_manual(
+    name = NULL,
+
+    values = c(
+      "Price above trend" =
+        "#2F6FA5",
+
+      "Price below trend" =
+        "#DC2626",
+
+      "Price equal to trend" =
+        "#059669"
+    ),
+
+    breaks = c(
+      "Price above trend",
+      "Price below trend",
+      "Price equal to trend"
+    )
+  ) +
+
+  # --------------------------------------------------------------
+  # Horizontal scale
+  # --------------------------------------------------------------
+
+  scale_x_date(
+    date_breaks = "1 year",
+
+    date_minor_breaks = "3 months",
+
+    date_labels = "%Y",
+
+    expand = expansion(
+      mult = c(
+        0.01,
+        0.02
+      )
+    )
+  ) +
+
+  # --------------------------------------------------------------
+  # Symmetric vertical scale
+  # --------------------------------------------------------------
+
+  scale_y_continuous(
+    limits = c(
+      -vertical_limit,
+      vertical_limit
+    ),
+
+    labels = price_formatter,
+
+    expand = expansion(
+      mult = c(
+        0,
+        0
+      )
+    )
+  ) +
+
+  # --------------------------------------------------------------
+  # Titles
+  # --------------------------------------------------------------
+
+  labs(
+    title =
+      "What Remains After Removing the Monthly Trend?",
+
+    subtitle = paste0(
+      ticker_selected,
+      " monthly adjusted prices | ",
+      "D(t) = Y(t) - T(t)"
+    ),
+
+    x = "Month",
+
+    y = "Detrended price",
+
+    caption = paste0(
+      "The trend is estimated using a centered 2 × 12 moving average. ",
+      "Blue areas represent prices above the estimated trend; ",
+      "red areas represent prices below it. ",
+      "Orange circles identify the 5% largest absolute deviations. ",
+      "The detrended series contains seasonal and remainder variation."
+    )
+  ) +
+
+  # --------------------------------------------------------------
+  # Presentation theme
+  # --------------------------------------------------------------
+
+  theme_minimal(
+    base_size = 13
+  ) +
+
+  theme(
+    plot.title = element_text(
+      size = 20,
+
+      face = "bold",
+
+      color = "#172033",
+
+      margin = margin(
+        b = 4
+      )
+    ),
+
+    plot.subtitle = element_text(
+      size = 11.5,
+
+      color = "#475569",
+
+      margin = margin(
+        b = 13
+      )
+    ),
+
+    plot.caption = element_text(
+      size = 8.5,
+
+      color = "#64748B",
+
+      hjust = 0,
+
+      lineheight = 1.15,
+
+      margin = margin(
+        t = 10
+      )
+    ),
+
+    axis.title = element_text(
+      size = 11,
+
+      face = "bold",
+
+      color = "#334155"
+    ),
+
+    axis.text = element_text(
+      size = 8.5,
+
+      color = "#64748B"
+    ),
+
+    panel.grid.major = element_line(
+      color = "#E5E7EB",
+
+      linewidth = 0.4
+    ),
+
+    panel.grid.minor.x = element_line(
+      color = "#F1F5F9",
+
+      linewidth = 0.25
+    ),
+
+    panel.grid.minor.y = element_blank(),
+
+    legend.position = "bottom",
+
+    legend.text = element_text(
+      size = 9.5,
+
+      color = "#475569"
+    ),
+
+    legend.key.width = grid::unit(
+      0.9,
+      "cm"
+    ),
+
+    plot.margin = margin(
+      t = 10,
+      r = 20,
+      b = 8,
+      l = 10
+    )
+  ) +
+
+  guides(
+    color = guide_legend(
+      override.aes = list(
+        size = 3,
+
+        alpha = 0.85
+      )
+    )
+  )
+
+# ================================================================
+# 19. DISPLAY THE FIGURE
+# ================================================================
+
+monthly_detrended_plot
+```
+
+## Time Series Decomposition
+
+```{r}
+# ================================================================
+# CLASSICAL SEASONAL COMPONENT
+# Monthly adjusted prices
+# ================================================================
+
+library(dplyr)
+library(ggplot2)
+library(scales)
+
+# ================================================================
+# 1. VALIDATE THE MONTHLY DATA
+# ================================================================
+
+if (!exists("monthly_data")) {
+  stop(
+    paste0(
+      "The object 'monthly_data' does not exist. ",
+      "Run the daily-to-monthly aggregation code first."
+    )
+  )
+}
+
+required_columns <- c(
+  "ticker",
+  "month",
+  "monthly_adjusted_price"
+)
+
+missing_columns <- setdiff(
+  required_columns,
+  names(monthly_data)
+)
+
+if (length(missing_columns) > 0L) {
+  stop(
+    paste0(
+      "The following columns are missing from monthly_data: ",
+      paste(
+        missing_columns,
+        collapse = ", "
+      )
+    )
+  )
+}
+
+# ================================================================
+# 2. SELECT THE FIRST VALID TICKER
+# ================================================================
+
+ticker_selected <- monthly_data |>
+  filter(
+    !is.na(ticker),
+    as.character(ticker) != ""
+  ) |>
+  distinct(ticker) |>
+  slice_head(n = 1L) |>
+  pull(ticker) |>
+  as.character()
+
+if (
+  length(ticker_selected) == 0L ||
+  is.na(ticker_selected)
+) {
+  stop(
+    "No valid ticker was found in monthly_data."
+  )
+}
+
+# ================================================================
+# 3. PREPARE ONE PRICE PER CALENDAR MONTH
+# ================================================================
+
+monthly_series <- monthly_data |>
+  transmute(
+    ticker = as.character(ticker),
+
+    month = as.Date(month),
+
+    monthly_adjusted_price = suppressWarnings(
+      as.numeric(
+        monthly_adjusted_price
+      )
+    )
+  ) |>
+  filter(
+    ticker == ticker_selected,
+    !is.na(month),
+    is.finite(monthly_adjusted_price)
+  ) |>
+  arrange(month) |>
+  group_by(
+    ticker,
+    month
+  ) |>
+  summarise(
+    monthly_adjusted_price = last(
+      monthly_adjusted_price
+    ),
+
+    .groups = "drop"
+  ) |>
+  arrange(month)
+
+n_months <- nrow(
+  monthly_series
+)
+
+if (n_months < 24L) {
+  stop(
+    paste0(
+      "At least 24 monthly observations are required. ",
+      "Only ",
+      n_months,
+      " observations were found for ",
+      ticker_selected,
+      "."
+    )
+  )
+}
+
+# ================================================================
+# 4. CHECK FOR DUPLICATED MONTHS
+# ================================================================
+
+duplicated_months <- monthly_series |>
+  count(month) |>
+  filter(n > 1L)
+
+if (nrow(duplicated_months) > 0L) {
+  stop(
+    "The monthly series contains duplicated months."
+  )
+}
+
+# ================================================================
+# 5. CHECK FOR MISSING CALENDAR MONTHS
+#
+# Classical decomposition requires equally spaced observations.
+# ================================================================
+
+expected_months <- seq.Date(
+  from = min(
+    monthly_series$month
+  ),
+
+  to = max(
+    monthly_series$month
+  ),
+
+  by = "month"
+)
+
+missing_months <- expected_months[
+  !expected_months %in%
+    monthly_series$month
+]
+
+if (length(missing_months) > 0L) {
+  stop(
+    paste0(
+      "The series contains missing calendar months: ",
+      paste(
+        format(
+          missing_months,
+          "%b %Y"
+        ),
+        collapse = ", "
+      ),
+      ". Complete or treat the missing months before ",
+      "applying classical decomposition."
+    )
+  )
+}
+
+# ================================================================
+# 6. CREATE THE MONTHLY TIME-SERIES OBJECT
+#
+# frequency = 12 defines an annual seasonal cycle.
+# ================================================================
+
+start_year <- as.integer(
+  format(
+    min(monthly_series$month),
+    "%Y"
+  )
+)
+
+start_month <- as.integer(
+  format(
+    min(monthly_series$month),
+    "%m"
+  )
+)
+
+monthly_price_ts <- ts(
+  data = monthly_series$monthly_adjusted_price,
+
+  start = c(
+    start_year,
+    start_month
+  ),
+
+  frequency = 12
+)
+
+# ================================================================
+# 7. APPLY CLASSICAL ADDITIVE DECOMPOSITION
+#
+# Y_t = T_t + S_t + R_t
+#
+# stats::decompose() estimates:
+# - trend with a centered moving average;
+# - seasonal effects from detrended monthly values;
+# - remainder by subtraction.
+# ================================================================
+
+classical_decomposition <- stats::decompose(
+  x = monthly_price_ts,
+
+  type = "additive"
+)
+
+# ================================================================
+# 8. EXTRACT THE COMPONENTS
+# ================================================================
+
+monthly_series <- monthly_series |>
+  mutate(
+    observed_price = as.numeric(
+      classical_decomposition$x
+    ),
+
+    trend_component = as.numeric(
+      classical_decomposition$trend
+    ),
+
+    seasonal_component = as.numeric(
+      classical_decomposition$seasonal
+    ),
+
+    remainder_component = as.numeric(
+      classical_decomposition$random
+    ),
+
+    calendar_month_number = as.integer(
+      format(
+        month,
+        "%m"
+      )
+    ),
+
+    calendar_month = factor(
+      calendar_month_number,
+
+      levels = 1:12,
+
+      labels = month.abb,
+
+      ordered = TRUE
+    )
+  )
+
+# ================================================================
+# 9. VALIDATE THE SEASONAL COMPONENT
+# ================================================================
+
+if (
+  any(
+    !is.finite(
+      monthly_series$seasonal_component
+    )
+  )
+) {
+  stop(
+    "The classical decomposition produced invalid seasonal values."
+  )
+}
+
+# ================================================================
+# 10. EXTRACT THE 12 UNIQUE SEASONAL INDICES
+#
+# Classical decomposition estimates one effect for each month
+# and repeats the same 12-month pattern every year.
+# ================================================================
+
+seasonal_indices <- monthly_series |>
+  group_by(
+    calendar_month_number,
+    calendar_month
+  ) |>
+  summarise(
+    seasonal_effect = mean(
+      seasonal_component,
+      na.rm = TRUE
+    ),
+
+    .groups = "drop"
+  ) |>
+  arrange(
+    calendar_month_number
+  )
+
+if (nrow(seasonal_indices) != 12L) {
+  stop(
+    paste0(
+      "Expected 12 seasonal indices, but obtained ",
+      nrow(seasonal_indices),
+      "."
+    )
+  )
+}
+
+# ================================================================
+# 11. VALIDATE THE ADDITIVE CENTERING CONSTRAINT
+#
+# The 12 monthly seasonal effects must sum to approximately zero.
+# ================================================================
+
+sum_seasonal_effects <- sum(
+  seasonal_indices$seasonal_effect
+)
+
+if (
+  !isTRUE(
+    all.equal(
+      sum_seasonal_effects,
+      0,
+      tolerance = 1e-8
+    )
+  )
+) {
+  stop(
+    paste0(
+      "The seasonal effects do not sum to zero. ",
+      "Calculated sum: ",
+      format(
+        sum_seasonal_effects,
+        scientific = TRUE
+      )
+    )
+  )
+}
+
+# ================================================================
+# 12. VALIDATE THE ADDITIVE DECOMPOSITION
+#
+# For dates where trend and remainder are available:
+#
+# Y_t = T_t + S_t + R_t
+# ================================================================
+
+complete_components <- monthly_series |>
+  filter(
+    is.finite(trend_component),
+    is.finite(seasonal_component),
+    is.finite(remainder_component)
+  )
+
+reconstruction_error <- max(
+  abs(
+    complete_components$observed_price -
+      (
+        complete_components$trend_component +
+        complete_components$seasonal_component +
+        complete_components$remainder_component
+      )
+  ),
+  na.rm = TRUE
+)
+
+if (
+  !is.finite(reconstruction_error) ||
+  reconstruction_error > 1e-8
+) {
+  stop(
+    paste0(
+      "The additive decomposition identity failed. ",
+      "Maximum reconstruction error: ",
+      format(
+        reconstruction_error,
+        scientific = TRUE
+      )
+    )
+  )
+}
+
+# ================================================================
+# 13. CLASSIFY POSITIVE AND NEGATIVE SEASONAL EFFECTS
+# ================================================================
+
+monthly_series <- monthly_series |>
+  mutate(
+    seasonal_direction = case_when(
+      seasonal_component > 0 ~
+        "Raises price relative to trend",
+
+      seasonal_component < 0 ~
+        "Lowers price relative to trend",
+
+      TRUE ~
+        "No seasonal effect"
+    )
+  )
+
+# ================================================================
+# 14. PREPARE POSITIVE AND NEGATIVE AREA VALUES
+#
+# These columns ensure that geom_ribbon() draws the positive and
+# negative regions correctly.
+# ================================================================
+
+monthly_series <- monthly_series |>
+  mutate(
+    positive_seasonal = if_else(
+      seasonal_component > 0,
+
+      seasonal_component,
+
+      0
+    ),
+
+    negative_seasonal = if_else(
+      seasonal_component < 0,
+
+      seasonal_component,
+
+      0
+    )
+  )
+
+# ================================================================
+# 15. IDENTIFY THE LARGEST POSITIVE AND NEGATIVE EFFECTS
+#
+# The seasonal pattern repeats every year. The final occurrence
+# of the highest and lowest seasonal months is highlighted.
+# ================================================================
+
+highest_month_number <- seasonal_indices |>
+  slice_max(
+    order_by = seasonal_effect,
+
+    n = 1L,
+
+    with_ties = FALSE
+  ) |>
+  pull(
+    calendar_month_number
+  )
+
+lowest_month_number <- seasonal_indices |>
+  slice_min(
+    order_by = seasonal_effect,
+
+    n = 1L,
+
+    with_ties = FALSE
+  ) |>
+  pull(
+    calendar_month_number
+  )
+
+highest_effect_point <- monthly_series |>
+  filter(
+    calendar_month_number ==
+      highest_month_number
+  ) |>
+  slice_tail(
+    n = 1L
+  )
+
+lowest_effect_point <- monthly_series |>
+  filter(
+    calendar_month_number ==
+      lowest_month_number
+  ) |>
+  slice_tail(
+    n = 1L
+  )
+
+highlight_points <- bind_rows(
+  highest_effect_point,
+  lowest_effect_point
+)
+
+# ================================================================
+# 16. DEFINE THE PRICE FORMAT
+#
+# Seasonal effects are expressed in the original price unit.
+# ================================================================
+
+median_price <- median(
+  monthly_series$monthly_adjusted_price,
+
+  na.rm = TRUE
+)
+
+price_accuracy <- if (
+  median_price >= 100
+) {
+  1
+} else if (
+  median_price >= 10
+) {
+  0.1
+} else {
+  0.01
+}
+
+price_formatter <- label_number(
+  accuracy = price_accuracy,
+
+  big.mark = ","
+)
+
+# ================================================================
+# 17. CREATE HIGHLIGHT LABELS
+# ================================================================
+
+highlight_points <- highlight_points |>
+  mutate(
+    label = paste0(
+      as.character(
+        calendar_month
+      ),
+      " seasonal effect\n",
+      if_else(
+        seasonal_component > 0,
+        "+",
+        ""
+      ),
+      price_formatter(
+        seasonal_component
+      )
+    ),
+
+    vertical_justification = if_else(
+      seasonal_component > 0,
+
+      -0.8,
+
+      1.8
+    )
+  )
+
+# ================================================================
+# 18. DEFINE A SYMMETRIC VERTICAL SCALE
+# ================================================================
+
+maximum_absolute_effect <- max(
+  abs(
+    monthly_series$seasonal_component
+  ),
+
+  na.rm = TRUE
+)
+
+if (
+  !is.finite(maximum_absolute_effect) ||
+  maximum_absolute_effect <= 0
+) {
+  maximum_absolute_effect <- 1
+}
+
+vertical_limit <- 1.30 *
+  maximum_absolute_effect
+
+# ================================================================
+# 19. CREATE THE SEASONAL-COMPONENT TIME-SERIES PLOT
+# ================================================================
+
+seasonal_component_plot <- ggplot(
+  data = monthly_series,
+
+  aes(
+    x = month,
+    y = seasonal_component
+  )
+) +
+
+  # --------------------------------------------------------------
+  # Positive seasonal region
+  # --------------------------------------------------------------
+
+  geom_ribbon(
+    aes(
+      ymin = 0,
+      ymax = positive_seasonal
+    ),
+
+    fill = "#2F6FA5",
+
+    alpha = 0.17
+  ) +
+
+  # --------------------------------------------------------------
+  # Negative seasonal region
+  # --------------------------------------------------------------
+
+  geom_ribbon(
+    aes(
+      ymin = negative_seasonal,
+      ymax = 0
+    ),
+
+    fill = "#DC2626",
+
+    alpha = 0.17
+  ) +
+
+  # --------------------------------------------------------------
+  # Zero reference
+  # --------------------------------------------------------------
+
+  geom_hline(
+    yintercept = 0,
+
+    color = "#334155",
+
+    linewidth = 0.8
+  ) +
+
+  # --------------------------------------------------------------
+  # Seasonal component through time
+  # --------------------------------------------------------------
+
+  geom_line(
+    color = "#64748B",
+
+    linewidth = 0.75,
+
+    alpha = 0.88,
+
+    lineend = "round"
+  ) +
+
+  # --------------------------------------------------------------
+  # Monthly seasonal observations
+  # --------------------------------------------------------------
+
+  geom_point(
+    aes(
+      color = seasonal_direction
+    ),
+
+    size = 2,
+
+    alpha = 0.72
+  ) +
+
+  # --------------------------------------------------------------
+  # Highlight the strongest positive and negative months
+  # --------------------------------------------------------------
+
+  geom_point(
+    data = highlight_points,
+
+    aes(
+      x = month,
+      y = seasonal_component
+    ),
+
+    inherit.aes = FALSE,
+
+    color = "#D97706",
+
+    fill = "white",
+
+    shape = 21,
+
+    size = 4,
+
+    stroke = 1.15
+  ) +
+
+  # --------------------------------------------------------------
+  # Label the highlighted seasonal effects
+  # --------------------------------------------------------------
+
+  geom_text(
+    data = highlight_points,
+
+    aes(
+      x = month,
+      y = seasonal_component,
+      label = label,
+      vjust = vertical_justification
+    ),
+
+    inherit.aes = FALSE,
+
+    color = "#334155",
+
+    size = 3,
+
+    fontface = "bold",
+
+    lineheight = 0.95,
+
+    check_overlap = TRUE
+  ) +
+
+  # --------------------------------------------------------------
+  # Point colors
+  # --------------------------------------------------------------
+
+  scale_color_manual(
+    name = NULL,
+
+    values = c(
+      "Raises price relative to trend" =
+        "#2F6FA5",
+
+      "Lowers price relative to trend" =
+        "#DC2626",
+
+      "No seasonal effect" =
+        "#059669"
+    ),
+
+    breaks = c(
+      "Raises price relative to trend",
+      "Lowers price relative to trend",
+      "No seasonal effect"
+    )
+  ) +
+
+  # --------------------------------------------------------------
+  # Time axis
+  # --------------------------------------------------------------
+
+  scale_x_date(
+    date_breaks = "1 year",
+
+    date_minor_breaks = "3 months",
+
+    date_labels = "%Y",
+
+    expand = expansion(
+      mult = c(
+        0.01,
+        0.02
+      )
+    )
+  ) +
+
+  # --------------------------------------------------------------
+  # Seasonal-effect axis
+  # --------------------------------------------------------------
+
+  scale_y_continuous(
+    limits = c(
+      -vertical_limit,
+      vertical_limit
+    ),
+
+    labels = price_formatter,
+
+    breaks = pretty_breaks(
+      n = 5
+    ),
+
+    expand = expansion(
+      mult = c(
+        0,
+        0
+      )
+    )
+  ) +
+
+  # --------------------------------------------------------------
+  # Titles
+  # --------------------------------------------------------------
+
+  labs(
+    title =
+      "How Does Seasonality Raise or Lower Monthly Price?",
+
+    subtitle = paste0(
+      ticker_selected,
+      " monthly adjusted prices | ",
+      "Classical additive seasonal component"
+    ),
+
+    x = "Month",
+
+    y = expression(
+      hat(S)[t]
+    ),
+
+    caption = paste0(
+      "The seasonal component repeats the same 12 monthly effects ",
+      "in each year. Blue values raise price relative to the trend; ",
+      "red values lower it. The 12 unique seasonal effects sum to zero."
+    )
+  ) +
+
+  # --------------------------------------------------------------
+  # Presentation theme
+  # --------------------------------------------------------------
+
+  theme_minimal(
+    base_size = 13
+  ) +
+
+  theme(
+    plot.title = element_text(
+      size = 20,
+
+      face = "bold",
+
+      color = "#172033",
+
+      margin = margin(
+        b = 4
+      )
+    ),
+
+    plot.subtitle = element_text(
+      size = 11.5,
+
+      color = "#475569",
+
+      margin = margin(
+        b = 13
+      )
+    ),
+
+    plot.caption = element_text(
+      size = 8.5,
+
+      color = "#64748B",
+
+      hjust = 0,
+
+      lineheight = 1.15,
+
+      margin = margin(
+        t = 10
+      )
+    ),
+
+    axis.title = element_text(
+      size = 11,
+
+      face = "bold",
+
+      color = "#334155"
+    ),
+
+    axis.text = element_text(
+      size = 8.5,
+
+      color = "#64748B"
+    ),
+
+    panel.grid.major = element_line(
+      color = "#E5E7EB",
+
+      linewidth = 0.4
+    ),
+
+    panel.grid.minor.x = element_line(
+      color = "#F1F5F9",
+
+      linewidth = 0.25
+    ),
+
+    panel.grid.minor.y = element_blank(),
+
+    legend.position = "bottom",
+
+    legend.text = element_text(
+      size = 9.5,
+
+      color = "#475569"
+    ),
+
+    legend.key.width = grid::unit(
+      0.9,
+      "cm"
+    ),
+
+    plot.margin = margin(
+      t = 10,
+      r = 20,
+      b = 8,
+      l = 10
+    )
+  ) +
+
+  guides(
+    color = guide_legend(
+      override.aes = list(
+        size = 3,
+
+        alpha = 0.9
+      )
+    )
+  )
+
+# ================================================================
+# 20. DISPLAY THE FIGURE
+# ================================================================
+
+seasonal_component_plot
+```
+
+## Time Series Decomposition
+
+```{r}
+#| label: seasonally-adjusted-monthly-price
+#| echo: false
+#| warning: false
+#| message: false
+#| fig-width: 12
+#| fig-height: 6.5
+#| dpi: 300
+
+# ================================================================
+# SEASONALLY ADJUSTED MONTHLY PRICE SERIES
+# Classical additive decomposition
+# ================================================================
+
+library(dplyr)
+library(ggplot2)
+library(scales)
+
+# ================================================================
+# 1. VALIDATE THE INPUT DATASET
+# ================================================================
+
+if (!exists("monthly_data")) {
+
+  stop(
+    paste0(
+      "The object 'monthly_data' does not exist. ",
+      "Create the monthly adjusted-price dataset before ",
+      "running this chunk."
+    )
+  )
+}
+
+required_columns <- c(
+  "ticker",
+  "month",
+  "monthly_adjusted_price"
+)
+
+missing_columns <- setdiff(
+  required_columns,
+  names(monthly_data)
+)
+
+if (length(missing_columns) > 0L) {
+
+  stop(
+    paste0(
+      "The following required columns are missing from monthly_data: ",
+      paste(
+        missing_columns,
+        collapse = ", "
+      )
+    )
+  )
+}
+
+# ================================================================
+# 2. SELECT THE FIRST VALID TICKER
+# ================================================================
+
+available_tickers <- monthly_data |>
+  transmute(
+    ticker = as.character(ticker)
+  ) |>
+  filter(
+    !is.na(ticker),
+    ticker != ""
+  ) |>
+  distinct(ticker) |>
+  pull(ticker)
+
+if (length(available_tickers) == 0L) {
+
+  stop(
+    "No valid ticker was found in monthly_data."
+  )
+}
+
+ticker_selected <- available_tickers[1]
+
+# ================================================================
+# 3. PREPARE ONE ADJUSTED PRICE PER MONTH
+#
+# If duplicate ticker-month observations exist, the final finite
+# price is retained.
+# ================================================================
+
+monthly_series <- monthly_data |>
+  transmute(
+    ticker = as.character(ticker),
+
+    month = as.Date(month),
+
+    monthly_adjusted_price = suppressWarnings(
+      as.numeric(
+        monthly_adjusted_price
+      )
+    )
+  ) |>
+  filter(
+    ticker == ticker_selected,
+    !is.na(month),
+    is.finite(monthly_adjusted_price)
+  ) |>
+  arrange(month) |>
+  group_by(
+    ticker,
+    month
+  ) |>
+  summarise(
+    monthly_adjusted_price = last(
+      monthly_adjusted_price
+    ),
+
+    .groups = "drop"
+  ) |>
+  arrange(month)
+
+n_months <- nrow(
+  monthly_series
+)
+
+if (n_months < 24L) {
+
+  stop(
+    paste0(
+      "At least 24 monthly observations are required for a ",
+      "meaningful annual seasonal decomposition. Only ",
+      n_months,
+      " were found for ",
+      ticker_selected,
+      "."
+    )
+  )
+}
+
+# ================================================================
+# 4. CHECK FOR DUPLICATED MONTHS
+# ================================================================
+
+duplicated_months <- monthly_series |>
+  count(month) |>
+  filter(
+    n > 1L
+  )
+
+if (nrow(duplicated_months) > 0L) {
+
+  stop(
+    "The monthly price series contains duplicated months."
+  )
+}
+
+# ================================================================
+# 5. CHECK FOR MISSING CALENDAR MONTHS
+#
+# Classical decomposition requires regularly spaced observations.
+# ================================================================
+
+expected_month_sequence <- seq.Date(
+  from = min(
+    monthly_series$month
+  ),
+
+  to = max(
+    monthly_series$month
+  ),
+
+  by = "month"
+)
+
+missing_calendar_months <- expected_month_sequence[
+  !expected_month_sequence %in%
+    monthly_series$month
+]
+
+if (length(missing_calendar_months) > 0L) {
+
+  stop(
+    paste0(
+      "The monthly series contains missing calendar months: ",
+      paste(
+        format(
+          missing_calendar_months,
+          "%b %Y"
+        ),
+        collapse = ", "
+      ),
+      ". Treat the missing months before applying classical ",
+      "decomposition."
+    )
+  )
+}
+
+# ================================================================
+# 6. CREATE THE MONTHLY TIME-SERIES OBJECT
+#
+# frequency = 12 defines an annual seasonal cycle.
+# ================================================================
+
+first_year <- as.integer(
+  format(
+    min(monthly_series$month),
+    "%Y"
+  )
+)
+
+first_month <- as.integer(
+  format(
+    min(monthly_series$month),
+    "%m"
+  )
+)
+
+monthly_price_ts <- stats::ts(
+  data = monthly_series$monthly_adjusted_price,
+
+  start = c(
+    first_year,
+    first_month
+  ),
+
+  frequency = 12
+)
+
+# ================================================================
+# 7. APPLY CLASSICAL ADDITIVE DECOMPOSITION
+#
+# Y_t = T_t + S_t + R_t
+#
+# stats::decompose() estimates:
+#
+# - trend using a centered 2 x 12 moving average;
+# - seasonality by averaging detrended values by month;
+# - remainder by subtraction.
+# ================================================================
+
+classical_decomposition <- stats::decompose(
+  x = monthly_price_ts,
+
+  type = "additive"
+)
+
+# ================================================================
+# 8. EXTRACT THE COMPONENTS
+# ================================================================
+
+monthly_series <- monthly_series |>
+  mutate(
+    observed_price = as.numeric(
+      classical_decomposition$x
+    ),
+
+    trend_component = as.numeric(
+      classical_decomposition$trend
+    ),
+
+    seasonal_component = as.numeric(
+      classical_decomposition$seasonal
+    ),
+
+    remainder_component = as.numeric(
+      classical_decomposition$random
+    )
+  )
+
+# ================================================================
+# 9. CALCULATE THE SEASONALLY ADJUSTED SERIES
+#
+# For an additive decomposition:
+#
+# Y_t^(SA) = Y_t - S_t
+#
+# Therefore:
+#
+# Y_t^(SA) = T_t + R_t
+# ================================================================
+
+monthly_series <- monthly_series |>
+  mutate(
+    seasonally_adjusted_price =
+      observed_price -
+      seasonal_component
+  )
+
+# ================================================================
+# 10. VALIDATE THE SEASONAL ADJUSTMENT
+# ================================================================
+
+if (
+  any(
+    !is.finite(
+      monthly_series$seasonal_component
+    )
+  )
+) {
+
+  stop(
+    "The decomposition produced invalid seasonal-component values."
+  )
+}
+
+if (
+  any(
+    !is.finite(
+      monthly_series$seasonally_adjusted_price
+    )
+  )
+) {
+
+  stop(
+    "The seasonally adjusted series contains invalid values."
+  )
+}
+
+# ================================================================
+# 11. EXTRACT THE 12 UNIQUE SEASONAL INDICES
+# ================================================================
+
+monthly_series <- monthly_series |>
+  mutate(
+    calendar_month_number = as.integer(
+      format(
+        month,
+        "%m"
+      )
+    ),
+
+    calendar_month = factor(
+      calendar_month_number,
+
+      levels = 1:12,
+
+      labels = month.abb,
+
+      ordered = TRUE
+    )
+  )
+
+seasonal_indices <- monthly_series |>
+  group_by(
+    calendar_month_number,
+    calendar_month
+  ) |>
+  summarise(
+    seasonal_effect = mean(
+      seasonal_component,
+      na.rm = TRUE
+    ),
+
+    .groups = "drop"
+  ) |>
+  arrange(
+    calendar_month_number
+  )
+
+if (nrow(seasonal_indices) != 12L) {
+
+  stop(
+    paste0(
+      "Expected 12 seasonal effects, but obtained ",
+      nrow(seasonal_indices),
+      "."
+    )
+  )
+}
+
+# ================================================================
+# 12. VALIDATE THAT THE SEASONAL INDICES SUM TO ZERO
+# ================================================================
+
+sum_of_seasonal_effects <- sum(
+  seasonal_indices$seasonal_effect
+)
+
+if (
+  !isTRUE(
+    all.equal(
+      sum_of_seasonal_effects,
+      0,
+      tolerance = 1e-8
+    )
+  )
+) {
+
+  stop(
+    paste0(
+      "The additive seasonal effects do not sum to zero. ",
+      "Calculated sum: ",
+      format(
+        sum_of_seasonal_effects,
+        scientific = TRUE
+      )
+    )
+  )
+}
+
+# ================================================================
+# 13. VALIDATE THE SEASONAL-ADJUSTMENT IDENTITY
+#
+# Observed price =
+# seasonally adjusted price + seasonal component
+# ================================================================
+
+seasonal_adjustment_error <- max(
+  abs(
+    monthly_series$observed_price -
+      (
+        monthly_series$seasonally_adjusted_price +
+          monthly_series$seasonal_component
+      )
+  ),
+
+  na.rm = TRUE
+)
+
+if (
+  !is.finite(seasonal_adjustment_error) ||
+  seasonal_adjustment_error > 1e-10
+) {
+
+  stop(
+    paste0(
+      "The seasonal-adjustment identity failed. ",
+      "Maximum error: ",
+      format(
+        seasonal_adjustment_error,
+        scientific = TRUE
+      )
+    )
+  )
+}
+
+# ================================================================
+# 14. VALIDATE THE FULL ADDITIVE DECOMPOSITION
+#
+# This validation applies only where the centered trend and
+# remainder are available.
+# ================================================================
+
+complete_decomposition <- monthly_series |>
+  filter(
+    is.finite(trend_component),
+    is.finite(remainder_component)
+  )
+
+reconstruction_error <- max(
+  abs(
+    complete_decomposition$observed_price -
+      (
+        complete_decomposition$trend_component +
+          complete_decomposition$seasonal_component +
+          complete_decomposition$remainder_component
+      )
+  ),
+
+  na.rm = TRUE
+)
+
+if (
+  !is.finite(reconstruction_error) ||
+  reconstruction_error > 1e-8
+) {
+
+  stop(
+    paste0(
+      "The full additive decomposition identity failed. ",
+      "Maximum reconstruction error: ",
+      format(
+        reconstruction_error,
+        scientific = TRUE
+      )
+    )
+  )
+}
+
+# ================================================================
+# 15. CALCULATE THE REMOVED SEASONAL ADJUSTMENT
+#
+# This is the vertical distance between observed and adjusted price:
+#
+# Y_t - Y_t^(SA) = S_t
+# ================================================================
+
+monthly_series <- monthly_series |>
+  mutate(
+    adjustment_direction = case_when(
+      seasonal_component > 0 ~
+        "Positive seasonal effect removed",
+
+      seasonal_component < 0 ~
+        "Negative seasonal effect removed",
+
+      TRUE ~
+        "No seasonal adjustment"
+    ),
+
+    absolute_seasonal_adjustment = abs(
+      seasonal_component
+    )
+  )
+
+# ================================================================
+# 16. IDENTIFY THE LARGEST SEASONAL ADJUSTMENTS
+#
+# The five largest adjustments are highlighted for teaching.
+# ================================================================
+
+n_highlight <- min(
+  5L,
+  nrow(monthly_series)
+)
+
+largest_adjustments <- monthly_series |>
+  slice_max(
+    order_by = absolute_seasonal_adjustment,
+
+    n = n_highlight,
+
+    with_ties = FALSE
+  )
+
+# ================================================================
+# 17. SELECT ONE EXAMPLE OBSERVATION
+#
+# The latest occurrence of the month with the largest positive
+# seasonal effect is used to illustrate the adjustment.
+# ================================================================
+
+largest_positive_month <- seasonal_indices |>
+  slice_max(
+    order_by = seasonal_effect,
+
+    n = 1L,
+
+    with_ties = FALSE
+  ) |>
+  pull(
+    calendar_month_number
+  )
+
+example_adjustment <- monthly_series |>
+  filter(
+    calendar_month_number ==
+      largest_positive_month
+  ) |>
+  slice_tail(
+    n = 1L
+  )
+
+if (nrow(example_adjustment) == 0L) {
+
+  stop(
+    "The example seasonal adjustment could not be selected."
+  )
+}
+
+# ================================================================
+# 18. DEFINE PRICE FORMATTING
+# ================================================================
+
+median_price <- median(
+  monthly_series$observed_price,
+
+  na.rm = TRUE
+)
+
+price_accuracy <- if (
+  median_price >= 100
+) {
+  1
+} else if (
+  median_price >= 10
+) {
+  0.1
+} else {
+  0.01
+}
+
+price_formatter <- label_number(
+  accuracy = price_accuracy,
+
+  big.mark = ","
+)
+
+# ================================================================
+# 19. CREATE THE EXAMPLE LABEL
+# ================================================================
+
+price_range <- diff(
+  range(
+    c(
+      monthly_series$observed_price,
+      monthly_series$seasonally_adjusted_price
+    ),
+
+    na.rm = TRUE
+  )
+)
+
+if (
+  !is.finite(price_range) ||
+  price_range <= 0
+) {
+
+  price_range <- 1
+}
+
+example_label_y <- max(
+  example_adjustment$observed_price,
+  example_adjustment$seasonally_adjusted_price
+) +
+  0.12 * price_range
+
+example_label <- paste0(
+  format(
+    example_adjustment$month,
+    "%b %Y"
+  ),
+  "\n",
+  "Observed: ",
+  price_formatter(
+    example_adjustment$observed_price
+  ),
+  "\n",
+  "Seasonal effect: ",
+  ifelse(
+    example_adjustment$seasonal_component >= 0,
+    "+",
+    ""
+  ),
+  price_formatter(
+    example_adjustment$seasonal_component
+  ),
+  "\n",
+  "Adjusted: ",
+  price_formatter(
+    example_adjustment$seasonally_adjusted_price
+  )
+)
+
+# ================================================================
+# 20. CREATE THE SEASONALLY ADJUSTED PRICE FIGURE
+# ================================================================
+
+seasonally_adjusted_plot <- ggplot(
+  data = monthly_series,
+
+  aes(
+    x = month
+  )
+) +
+
+  # --------------------------------------------------------------
+  # Vertical segments show the seasonal adjustment:
+  #
+  # Observed - adjusted = seasonal component
+  # --------------------------------------------------------------
+
+  geom_segment(
+    aes(
+      x = month,
+
+      xend = month,
+
+      y = observed_price,
+
+      yend = seasonally_adjusted_price,
+
+      color = adjustment_direction
+    ),
+
+    linewidth = 0.65,
+
+    alpha = 0.32
+  ) +
+
+  # --------------------------------------------------------------
+  # Observed monthly adjusted price
+  # --------------------------------------------------------------
+
+  geom_line(
+    aes(
+      y = observed_price,
+
+      color = "Observed monthly price"
+    ),
+
+    linewidth = 0.65,
+
+    alpha = 0.62,
+
+    lineend = "round"
+  ) +
+
+  # --------------------------------------------------------------
+  # Seasonally adjusted price
+  # --------------------------------------------------------------
+
+  geom_line(
+    aes(
+      y = seasonally_adjusted_price,
+
+      color = "Seasonally adjusted price"
+    ),
+
+    linewidth = 1.25,
+
+    lineend = "round"
+  ) +
+
+  # --------------------------------------------------------------
+  # Observed monthly points
+  # --------------------------------------------------------------
+
+  geom_point(
+    aes(
+      y = observed_price
+    ),
+
+    color = "#94A3B8",
+
+    size = 1.35,
+
+    alpha = 0.48
+  ) +
+
+  # --------------------------------------------------------------
+  # Highlight selected large seasonal adjustments
+  # --------------------------------------------------------------
+
+  geom_point(
+    data = largest_adjustments,
+
+    aes(
+      x = month,
+
+      y = seasonally_adjusted_price
+    ),
+
+    inherit.aes = FALSE,
+
+    color = "#D97706",
+
+    fill = "white",
+
+    shape = 21,
+
+    size = 3.2,
+
+    stroke = 1
+  ) +
+
+  # --------------------------------------------------------------
+  # Highlight the illustrative adjustment
+  # --------------------------------------------------------------
+
+  geom_segment(
+    data = example_adjustment,
+
+    aes(
+      x = month,
+
+      xend = month,
+
+      y = observed_price,
+
+      yend = seasonally_adjusted_price
+    ),
+
+    inherit.aes = FALSE,
+
+    color = "#D97706",
+
+    linewidth = 1.5,
+
+    arrow = grid::arrow(
+      length = grid::unit(
+        0.13,
+        "cm"
+      ),
+
+      type = "closed"
+    )
+  ) +
+
+  geom_point(
+    data = example_adjustment,
+
+    aes(
+      x = month,
+
+      y = observed_price
+    ),
+
+    inherit.aes = FALSE,
+
+    color = "#64748B",
+
+    fill = "white",
+
+    shape = 21,
+
+    size = 3.8,
+
+    stroke = 1.1
+  ) +
+
+  geom_point(
+    data = example_adjustment,
+
+    aes(
+      x = month,
+
+      y = seasonally_adjusted_price
+    ),
+
+    inherit.aes = FALSE,
+
+    color = "#059669",
+
+    fill = "white",
+
+    shape = 23,
+
+    size = 4.2,
+
+    stroke = 1.1
+  ) +
+
+  # --------------------------------------------------------------
+  # Label the illustrative seasonal adjustment
+  # --------------------------------------------------------------
+
+  annotate(
+    geom = "label",
+
+    x = example_adjustment$month,
+
+    y = example_label_y,
+
+    label = example_label,
+
+    color = "#334155",
+
+    fill = "white",
+
+    fontface = "bold",
+
+    size = 3,
+
+    lineheight = 1,
+
+    label.size = 0.3,
+
+    label.padding = grid::unit(
+      0.22,
+      "lines"
+    )
+  ) +
+
+  # --------------------------------------------------------------
+  # Controlled colors
+  # --------------------------------------------------------------
+
+  scale_color_manual(
+    name = NULL,
+
+    values = c(
+      "Observed monthly price" =
+        "#94A3B8",
+
+      "Seasonally adjusted price" =
+        "#059669",
+
+      "Positive seasonal effect removed" =
+        "#2F6FA5",
+
+      "Negative seasonal effect removed" =
+        "#DC2626",
+
+      "No seasonal adjustment" =
+        "#64748B"
+    ),
+
+    breaks = c(
+      "Observed monthly price",
+      "Seasonally adjusted price",
+      "Positive seasonal effect removed",
+      "Negative seasonal effect removed"
+    )
+  ) +
+
+  # --------------------------------------------------------------
+  # Date axis
+  # --------------------------------------------------------------
+
+  scale_x_date(
+    date_breaks = "1 year",
+
+    date_minor_breaks = "3 months",
+
+    date_labels = "%Y",
+
+    expand = expansion(
+      mult = c(
+        0.01,
+        0.02
+      )
+    )
+  ) +
+
+  # --------------------------------------------------------------
+  # Price axis
+  # --------------------------------------------------------------
+
+  scale_y_continuous(
+    labels = price_formatter,
+
+    expand = expansion(
+      mult = c(
+        0.07,
+        0.19
+      )
+    )
+  ) +
+
+  # --------------------------------------------------------------
+  # Titles
+  # --------------------------------------------------------------
+
+  labs(
+    title =
+      "What Changes After Removing Seasonality?",
+
+    subtitle = paste0(
+      ticker_selected,
+      " monthly adjusted prices | ",
+      "Seasonally adjusted series: Y(t) − S(t)"
+    ),
+
+    x = "Month",
+
+    y = "Monthly adjusted price",
+
+    caption = paste0(
+      "The gray line is the observed monthly price. ",
+      "The green line removes the estimated classical seasonal component. ",
+      "Vertical segments show the adjustment applied in each month. ",
+      "The seasonally adjusted series retains trend and remainder variation."
+    )
+  ) +
+
+  # --------------------------------------------------------------
+  # Presentation theme
+  # --------------------------------------------------------------
+
+  theme_minimal(
+    base_size = 13
+  ) +
+
+  theme(
+    plot.title = element_text(
+      size = 20,
+
+      face = "bold",
+
+      color = "#172033",
+
+      margin = margin(
+        b = 4
+      )
+    ),
+
+    plot.subtitle = element_text(
+      size = 11.5,
+
+      color = "#475569",
+
+      margin = margin(
+        b = 13
+      )
+    ),
+
+    plot.caption = element_text(
+      size = 8.5,
+
+      color = "#64748B",
+
+      hjust = 0,
+
+      lineheight = 1.15,
+
+      margin = margin(
+        t = 10
+      )
+    ),
+
+    axis.title = element_text(
+      size = 11,
+
+      face = "bold",
+
+      color = "#334155"
+    ),
+
+    axis.text = element_text(
+      size = 8.5,
+
+      color = "#64748B"
+    ),
+
+    panel.grid.major = element_line(
+      color = "#E5E7EB",
+
+      linewidth = 0.4
+    ),
+
+    panel.grid.minor.x = element_line(
+      color = "#F1F5F9",
+
+      linewidth = 0.25
+    ),
+
+    panel.grid.minor.y = element_blank(),
+
+    legend.position = "bottom",
+
+    legend.box = "vertical",
+
+    legend.text = element_text(
+      size = 9,
+
+      color = "#475569"
+    ),
+
+    legend.key.width = grid::unit(
+      1.5,
+      "cm"
+    ),
+
+    plot.margin = margin(
+      t = 10,
+
+      r = 20,
+
+      b = 8,
+
+      l = 10
+    )
+  ) +
+
+  guides(
+    color = guide_legend(
+      nrow = 2,
+
+      byrow = TRUE,
+
+      override.aes = list(
+        alpha = 1,
+
+        linewidth = c(
+          1.1,
+          1.4,
+          1.2,
+          1.2
+        )
+      )
+    )
+  )
+
+# ================================================================
+# 21. DISPLAY THE FIGURE
+# ================================================================
+
+seasonally_adjusted_plot
+```
+
+## Time Series Decomposition
+
+
+```{r}
+# ================================================================
+# REMAINDER COMPONENT OF MONTHLY ADJUSTED PRICES
+# Classical additive decomposition
+# ================================================================
+
+library(dplyr)
+library(ggplot2)
+library(scales)
+
+# ================================================================
+# 1. VALIDATE THE INPUT DATASET
+# ================================================================
+
+if (!exists("monthly_data")) {
+
+  stop(
+    paste0(
+      "The object 'monthly_data' does not exist. ",
+      "Create the monthly adjusted-price dataset before ",
+      "running this chunk."
+    )
+  )
+}
+
+required_columns <- c(
+  "ticker",
+  "month",
+  "monthly_adjusted_price"
+)
+
+missing_columns <- setdiff(
+  required_columns,
+  names(monthly_data)
+)
+
+if (length(missing_columns) > 0L) {
+
+  stop(
+    paste0(
+      "The following required columns are missing from monthly_data: ",
+      paste(
+        missing_columns,
+        collapse = ", "
+      )
+    )
+  )
+}
+
+# ================================================================
+# 2. SELECT THE FIRST VALID TICKER
+# ================================================================
+
+available_tickers <- monthly_data |>
+  transmute(
+    ticker = as.character(ticker)
+  ) |>
+  filter(
+    !is.na(ticker),
+    ticker != ""
+  ) |>
+  distinct(ticker) |>
+  pull(ticker)
+
+if (length(available_tickers) == 0L) {
+
+  stop(
+    "No valid ticker was found in monthly_data."
+  )
+}
+
+ticker_selected <- available_tickers[1]
+
+# ================================================================
+# 3. PREPARE ONE ADJUSTED PRICE PER MONTH
+#
+# If duplicate ticker-month observations exist, the final finite
+# price is retained.
+# ================================================================
+
+monthly_series <- monthly_data |>
+  transmute(
+    ticker = as.character(ticker),
+
+    month = as.Date(month),
+
+    monthly_adjusted_price = suppressWarnings(
+      as.numeric(
+        monthly_adjusted_price
+      )
+    )
+  ) |>
+  filter(
+    ticker == ticker_selected,
+    !is.na(month),
+    is.finite(monthly_adjusted_price)
+  ) |>
+  arrange(month) |>
+  group_by(
+    ticker,
+    month
+  ) |>
+  summarise(
+    monthly_adjusted_price = last(
+      monthly_adjusted_price
+    ),
+
+    .groups = "drop"
+  ) |>
+  arrange(month)
+
+n_months <- nrow(
+  monthly_series
+)
+
+if (n_months < 24L) {
+
+  stop(
+    paste0(
+      "At least 24 monthly observations are required for an ",
+      "annual classical decomposition. Only ",
+      n_months,
+      " were found for ",
+      ticker_selected,
+      "."
+    )
+  )
+}
+
+# ================================================================
+# 4. CHECK FOR DUPLICATED MONTHS
+# ================================================================
+
+duplicated_months <- monthly_series |>
+  count(month) |>
+  filter(
+    n > 1L
+  )
+
+if (nrow(duplicated_months) > 0L) {
+
+  stop(
+    "The monthly price series contains duplicated months."
+  )
+}
+
+# ================================================================
+# 5. CHECK FOR MISSING CALENDAR MONTHS
+#
+# Classical decomposition requires a regularly spaced monthly
+# series.
+# ================================================================
+
+expected_month_sequence <- seq.Date(
+  from = min(
+    monthly_series$month
+  ),
+
+  to = max(
+    monthly_series$month
+  ),
+
+  by = "month"
+)
+
+missing_calendar_months <- expected_month_sequence[
+  !expected_month_sequence %in%
+    monthly_series$month
+]
+
+if (length(missing_calendar_months) > 0L) {
+
+  stop(
+    paste0(
+      "The monthly series contains missing calendar months: ",
+      paste(
+        format(
+          missing_calendar_months,
+          "%b %Y"
+        ),
+        collapse = ", "
+      ),
+      ". Treat the missing months before applying classical ",
+      "decomposition."
+    )
+  )
+}
+
+# ================================================================
+# 6. CREATE THE MONTHLY TIME-SERIES OBJECT
+#
+# frequency = 12 defines the annual seasonal cycle.
+# ================================================================
+
+initial_year <- as.integer(
+  format(
+    min(monthly_series$month),
+    "%Y"
+  )
+)
+
+initial_month <- as.integer(
+  format(
+    min(monthly_series$month),
+    "%m"
+  )
+)
+
+monthly_price_ts <- stats::ts(
+  data = monthly_series$monthly_adjusted_price,
+
+  start = c(
+    initial_year,
+    initial_month
+  ),
+
+  frequency = 12
+)
+
+# ================================================================
+# 7. APPLY CLASSICAL ADDITIVE DECOMPOSITION
+#
+# Y_t = T_t + S_t + R_t
+#
+# stats::decompose() estimates:
+#
+# - trend using a centered 2 x 12 moving average;
+# - seasonality by averaging detrended prices by calendar month;
+# - remainder by subtracting trend and seasonality.
+# ================================================================
+
+classical_decomposition <- stats::decompose(
+  x = monthly_price_ts,
+
+  type = "additive"
+)
+
+# ================================================================
+# 8. EXTRACT THE COMPONENTS
+# ================================================================
+
+monthly_series <- monthly_series |>
+  mutate(
+    observed_price = as.numeric(
+      classical_decomposition$x
+    ),
+
+    trend_component = as.numeric(
+      classical_decomposition$trend
+    ),
+
+    seasonal_component = as.numeric(
+      classical_decomposition$seasonal
+    ),
+
+    remainder_component = as.numeric(
+      classical_decomposition$random
+    ),
+
+    seasonally_adjusted_price =
+      observed_price -
+      seasonal_component,
+
+    detrended_price =
+      observed_price -
+      trend_component
+  )
+
+# ================================================================
+# 9. RETAIN VALID REMAINDER OBSERVATIONS
+#
+# The first and final six months have no remainder because the
+# centered 2 x 12 trend cannot be estimated at the sample edges.
+# ================================================================
+
+remainder_data <- monthly_series |>
+  filter(
+    is.finite(trend_component),
+    is.finite(seasonal_component),
+    is.finite(remainder_component)
+  )
+
+n_remainder_observations <- nrow(
+  remainder_data
+)
+
+expected_remainder_observations <-
+  n_months - 12L
+
+if (
+  n_remainder_observations !=
+    expected_remainder_observations
+) {
+
+  stop(
+    paste0(
+      "Unexpected number of remainder observations. Expected ",
+      expected_remainder_observations,
+      " but obtained ",
+      n_remainder_observations,
+      "."
+    )
+  )
+}
+
+# ================================================================
+# 10. VALIDATE THE ADDITIVE DECOMPOSITION
+#
+# Y_t = T_t + S_t + R_t
+# ================================================================
+
+reconstruction_error <- max(
+  abs(
+    remainder_data$observed_price -
+      (
+        remainder_data$trend_component +
+          remainder_data$seasonal_component +
+          remainder_data$remainder_component
+      )
+  ),
+
+  na.rm = TRUE
+)
+
+if (
+  !is.finite(reconstruction_error) ||
+  reconstruction_error > 1e-8
+) {
+
+  stop(
+    paste0(
+      "The additive decomposition identity failed. ",
+      "Maximum reconstruction error: ",
+      format(
+        reconstruction_error,
+        scientific = TRUE
+      )
+    )
+  )
+}
+
+# ================================================================
+# 11. VALIDATE THE REMAINDER CALCULATION DIRECTLY
+#
+# R_t = Y_t - T_t - S_t
+# ================================================================
+
+manual_remainder <- with(
+  remainder_data,
+
+  observed_price -
+    trend_component -
+    seasonal_component
+)
+
+remainder_calculation_error <- max(
+  abs(
+    manual_remainder -
+      remainder_data$remainder_component
+  ),
+
+  na.rm = TRUE
+)
+
+if (
+  !is.finite(remainder_calculation_error) ||
+  remainder_calculation_error > 1e-8
+) {
+
+  stop(
+    paste0(
+      "The manual remainder calculation does not match the ",
+      "decomposition output. Maximum error: ",
+      format(
+        remainder_calculation_error,
+        scientific = TRUE
+      )
+    )
+  )
+}
+
+# ================================================================
+# 12. CALCULATE ROBUST STANDARDIZED REMAINDERS
+#
+# Median and MAD are used to reduce the influence of large
+# remainder observations when defining the reference scale.
+# ================================================================
+
+remainder_center <- median(
+  remainder_data$remainder_component,
+
+  na.rm = TRUE
+)
+
+remainder_scale <- mad(
+  remainder_data$remainder_component,
+
+  center = remainder_center,
+
+  constant = 1.4826,
+
+  na.rm = TRUE
+)
+
+# Fallback if MAD is zero or invalid
+
+if (
+  !is.finite(remainder_scale) ||
+  remainder_scale <= 0
+) {
+
+  remainder_scale <- sd(
+    remainder_data$remainder_component,
+
+    na.rm = TRUE
+  )
+}
+
+if (
+  !is.finite(remainder_scale) ||
+  remainder_scale <= 0
+) {
+
+  stop(
+    "The remainder has no valid dispersion measure."
+  )
+}
+
+remainder_data <- remainder_data |>
+  mutate(
+    robust_z_score =
+      (
+        remainder_component -
+          remainder_center
+      ) /
+      remainder_scale,
+
+    remainder_direction = case_when(
+      remainder_component > 0 ~
+        "Positive unexplained deviation",
+
+      remainder_component < 0 ~
+        "Negative unexplained deviation",
+
+      TRUE ~
+        "No unexplained deviation"
+    ),
+
+    remainder_class = case_when(
+      abs(robust_z_score) > 3 ~
+        "Highly unusual remainder",
+
+      abs(robust_z_score) > 2 ~
+        "Potentially unusual remainder",
+
+      TRUE ~
+        "Regular remainder"
+    ),
+
+    positive_remainder = if_else(
+      remainder_component > 0,
+
+      remainder_component,
+
+      0
+    ),
+
+    negative_remainder = if_else(
+      remainder_component < 0,
+
+      remainder_component,
+
+      0
+    )
+  )
+
+# ================================================================
+# 13. SEPARATE REGULAR AND UNUSUAL REMAINDERS
+#
+# The threshold |robust z| > 2 is used for teaching emphasis.
+# It is not presented as an automatic correction rule.
+# ================================================================
+
+regular_remainders <- remainder_data |>
+  filter(
+    abs(robust_z_score) <= 2
+  )
+
+unusual_remainders <- remainder_data |>
+  filter(
+    abs(robust_z_score) > 2
+  )
+
+highly_unusual_remainders <- remainder_data |>
+  filter(
+    abs(robust_z_score) > 3
+  )
+
+# ================================================================
+# 14. SELECT THE LARGEST POSITIVE AND NEGATIVE REMAINDERS
+# ================================================================
+
+largest_positive_remainder <- remainder_data |>
+  slice_max(
+    order_by = remainder_component,
+
+    n = 1L,
+
+    with_ties = FALSE
+  )
+
+largest_negative_remainder <- remainder_data |>
+  slice_min(
+    order_by = remainder_component,
+
+    n = 1L,
+
+    with_ties = FALSE
+  )
+
+extreme_remainders <- bind_rows(
+  largest_positive_remainder,
+  largest_negative_remainder
+) |>
+  distinct(
+    month,
+
+    .keep_all = TRUE
+  )
+
+# ================================================================
+# 15. DEFINE PRICE FORMATTING
+#
+# Remainders retain the original price unit.
+# ================================================================
+
+median_price <- median(
+  remainder_data$observed_price,
+
+  na.rm = TRUE
+)
+
+price_accuracy <- if (
+  median_price >= 100
+) {
+  1
+} else if (
+  median_price >= 10
+) {
+  0.1
+} else {
+  0.01
+}
+
+price_formatter <- label_number(
+  accuracy = price_accuracy,
+
+  big.mark = ","
+)
+
+# ================================================================
+# 16. CREATE LABELS FOR THE EXTREME REMAINDERS
+# ================================================================
+
+extreme_remainders <- extreme_remainders |>
+  mutate(
+    extreme_label = paste0(
+      format(
+        month,
+        "%b %Y"
+      ),
+      "\n",
+      "Remainder: ",
+      if_else(
+        remainder_component >= 0,
+        "+",
+        ""
+      ),
+      price_formatter(
+        remainder_component
+      ),
+      "\n",
+      "Robust z: ",
+      number(
+        robust_z_score,
+        accuracy = 0.01
+      )
+    ),
+
+    vertical_justification = if_else(
+      remainder_component >= 0,
+
+      -0.65,
+
+      1.55
+    )
+  )
+
+# ================================================================
+# 17. DEFINE A SYMMETRIC VERTICAL SCALE
+#
+# Symmetric limits around zero make positive and negative
+# unexplained deviations directly comparable.
+# ================================================================
+
+maximum_absolute_remainder <- max(
+  abs(
+    remainder_data$remainder_component
+  ),
+
+  na.rm = TRUE
+)
+
+if (
+  !is.finite(maximum_absolute_remainder) ||
+  maximum_absolute_remainder <= 0
+) {
+
+  maximum_absolute_remainder <- 1
+}
+
+vertical_limit <-
+  1.28 *
+  maximum_absolute_remainder
+
+# ================================================================
+# 18. DEFINE ROBUST REFERENCE THRESHOLDS
+#
+# These horizontal lines correspond to:
+#
+# median remainder ± 2 × robust scale
+# ================================================================
+
+upper_reference <- remainder_center +
+  2 * remainder_scale
+
+lower_reference <- remainder_center -
+  2 * remainder_scale
+
+# ================================================================
+# 19. CREATE THE REMAINDER FIGURE
+# ================================================================
+
+remainder_component_plot <- ggplot(
+  data = remainder_data,
+
+  aes(
+    x = month,
+    y = remainder_component
+  )
+) +
+
+  # --------------------------------------------------------------
+  # Positive remainder area
+  # --------------------------------------------------------------
+
+  geom_ribbon(
+    aes(
+      ymin = 0,
+
+      ymax = positive_remainder
+    ),
+
+    fill = "#2F6FA5",
+
+    alpha = 0.15
+  ) +
+
+  # --------------------------------------------------------------
+  # Negative remainder area
+  # --------------------------------------------------------------
+
+  geom_ribbon(
+    aes(
+      ymin = negative_remainder,
+
+      ymax = 0
+    ),
+
+    fill = "#DC2626",
+
+    alpha = 0.15
+  ) +
+
+  # --------------------------------------------------------------
+  # Robust reference band
+  #
+  # This band shows the interval:
+  #
+  # median remainder ± 2 × MAD-based scale
+  # --------------------------------------------------------------
+
+  geom_rect(
+    aes(
+      xmin = -Inf,
+
+      xmax = Inf,
+
+      ymin = lower_reference,
+
+      ymax = upper_reference
+    ),
+
+    inherit.aes = FALSE,
+
+    fill = "#64748B",
+
+    alpha = 0.06
+  ) +
+
+  # --------------------------------------------------------------
+  # Robust threshold lines
+  # --------------------------------------------------------------
+
+  geom_hline(
+    yintercept = upper_reference,
+
+    color = "#D97706",
+
+    linewidth = 0.55,
+
+    linetype = "dashed"
+  ) +
+
+  geom_hline(
+    yintercept = lower_reference,
+
+    color = "#D97706",
+
+    linewidth = 0.55,
+
+    linetype = "dashed"
+  ) +
+
+  # --------------------------------------------------------------
+  # Zero reference
+  #
+  # R_t = 0 means that the observed price is completely explained
+  # by the estimated trend and seasonal components.
+  # --------------------------------------------------------------
+
+  geom_hline(
+    yintercept = 0,
+
+    color = "#334155",
+
+    linewidth = 0.8
+  ) +
+
+  # --------------------------------------------------------------
+  # Complete remainder series
+  # --------------------------------------------------------------
+
+  geom_line(
+    color = "#64748B",
+
+    linewidth = 0.72,
+
+    alpha = 0.82,
+
+    lineend = "round"
+  ) +
+
+  # --------------------------------------------------------------
+  # Regular remainder observations
+  # --------------------------------------------------------------
+
+  geom_point(
+    data = regular_remainders,
+
+    aes(
+      x = month,
+      y = remainder_component,
+      color = remainder_direction
+    ),
+
+    inherit.aes = FALSE,
+
+    size = 2,
+
+    alpha = 0.65
+  ) +
+
+  # --------------------------------------------------------------
+  # Potentially unusual remainder observations
+  # --------------------------------------------------------------
+
+  geom_point(
+    data = unusual_remainders,
+
+    aes(
+      x = month,
+      y = remainder_component
+    ),
+
+    inherit.aes = FALSE,
+
+    color = "#D97706",
+
+    fill = "white",
+
+    shape = 21,
+
+    size = 3.5,
+
+    stroke = 1.05
+  ) +
+
+  # --------------------------------------------------------------
+  # Highly unusual remainder observations
+  # --------------------------------------------------------------
+
+  geom_point(
+    data = highly_unusual_remainders,
+
+    aes(
+      x = month,
+      y = remainder_component
+    ),
+
+    inherit.aes = FALSE,
+
+    color = "#991B1B",
+
+    fill = "#FEE2E2",
+
+    shape = 21,
+
+    size = 4.2,
+
+    stroke = 1.25
+  ) +
+
+  # --------------------------------------------------------------
+  # Label the largest positive and negative remainders
+  # --------------------------------------------------------------
+
+  geom_text(
+    data = extreme_remainders,
+
+    aes(
+      x = month,
+
+      y = remainder_component,
+
+      label = extreme_label,
+
+      vjust = vertical_justification
+    ),
+
+    inherit.aes = FALSE,
+
+    color = "#334155",
+
+    size = 2.9,
+
+    fontface = "bold",
+
+    lineheight = 0.95,
+
+    check_overlap = TRUE
+  ) +
+
+  # --------------------------------------------------------------
+  # Point colors
+  # --------------------------------------------------------------
+
+  scale_color_manual(
+    name = NULL,
+
+    values = c(
+      "Positive unexplained deviation" =
+        "#2F6FA5",
+
+      "Negative unexplained deviation" =
+        "#DC2626",
+
+      "No unexplained deviation" =
+        "#059669"
+    ),
+
+    breaks = c(
+      "Positive unexplained deviation",
+      "Negative unexplained deviation",
+      "No unexplained deviation"
+    )
+  ) +
+
+  # --------------------------------------------------------------
+  # Date axis
+  # --------------------------------------------------------------
+
+  scale_x_date(
+    date_breaks = "1 year",
+
+    date_minor_breaks = "3 months",
+
+    date_labels = "%Y",
+
+    expand = expansion(
+      mult = c(
+        0.01,
+        0.02
+      )
+    )
+  ) +
+
+  # --------------------------------------------------------------
+  # Symmetric remainder scale
+  # --------------------------------------------------------------
+
+  scale_y_continuous(
+    limits = c(
+      -vertical_limit,
+      vertical_limit
+    ),
+
+    labels = price_formatter,
+
+    breaks = pretty_breaks(
+      n = 5
+    ),
+
+    expand = expansion(
+      mult = c(
+        0,
+        0
+      )
+    )
+  ) +
+
+  # --------------------------------------------------------------
+  # Titles and labels
+  # --------------------------------------------------------------
+
+  labs(
+    title =
+      "What Remains After Removing Trend and Seasonality?",
+
+    subtitle = paste0(
+      ticker_selected,
+      " monthly adjusted prices | ",
+      "R(t) = Y(t) − T(t) − S(t)"
+    ),
+
+    x = "Month",
+
+    y = expression(
+      hat(R)[t]
+    ),
+
+    caption = paste0(
+      "Blue values represent positive unexplained deviations; ",
+      "red values represent negative unexplained deviations. ",
+      "Orange circles have |robust z-score| > 2, and dark-red ",
+      "circles have |robust z-score| > 3. ",
+      "The dashed lines show the median remainder ± 2 robust scales."
+    )
+  ) +
+
+  # --------------------------------------------------------------
+  # Presentation theme
+  # --------------------------------------------------------------
+
+  theme_minimal(
+    base_size = 13
+  ) +
+
+  theme(
+    plot.title = element_text(
+      size = 20,
+
+      face = "bold",
+
+      color = "#172033",
+
+      margin = margin(
+        b = 4
+      )
+    ),
+
+    plot.subtitle = element_text(
+      size = 11.5,
+
+      color = "#475569",
+
+      margin = margin(
+        b = 13
+      )
+    ),
+
+    plot.caption = element_text(
+      size = 8.5,
+
+      color = "#64748B",
+
+      hjust = 0,
+
+      lineheight = 1.15,
+
+      margin = margin(
+        t = 10
+      )
+    ),
+
+    axis.title = element_text(
+      size = 11,
+
+      face = "bold",
+
+      color = "#334155"
+    ),
+
+    axis.text = element_text(
+      size = 8.5,
+
+      color = "#64748B"
+    ),
+
+    panel.grid.major = element_line(
+      color = "#E5E7EB",
+
+      linewidth = 0.4
+    ),
+
+    panel.grid.minor.x = element_line(
+      color = "#F1F5F9",
+
+      linewidth = 0.25
+    ),
+
+    panel.grid.minor.y = element_blank(),
+
+    legend.position = "bottom",
+
+    legend.text = element_text(
+      size = 9.5,
+
+      color = "#475569"
+    ),
+
+    legend.key.width = grid::unit(
+      0.9,
+      "cm"
+    ),
+
+    plot.margin = margin(
+      t = 10,
+
+      r = 20,
+
+      b = 8,
+
+      l = 10
+    )
+  ) +
+
+  guides(
+    color = guide_legend(
+      override.aes = list(
+        size = 3,
+
+        alpha = 0.9
+      )
+    )
+  )
+
+# ================================================================
+# 20. DISPLAY THE FIGURE
+# ================================================================
+
+remainder_component_plot
+```
+
+
+## Time Series Features
+
+:::: {.columns}
+
+::: {.column width="50%"}
+
+### Trend strength
+
+Trend strength compares the remainder with the
+**trend component**:
+
+$$
+F_T =
+\max\left(
+0,\,
+1 -
+\frac{\operatorname{Var}(R_t)}
+     {\operatorname{Var}(T_t + R_t)}
+\right).
+$$
+
+- $F_T \approx 0$: little or no trend
+- $F_T \approx 1$: strong trend
+
+:::
+
+::: {.column width="50%"}
+
+### Seasonal strength
+
+Seasonal strength compares the remainder with the
+**detrended series**:
+
+$$
+F_S =
+\max\left(
+0,\,
+1 -
+\frac{\operatorname{Var}(R_t)}
+     {\operatorname{Var}(S_t + R_t)}
+\right)
+$$
+
+- $F_S \approx 0$: little or no seasonality
+- $F_S \approx 1$: strong seasonality
+
+:::
+
+::::
+
+::: {.callout-note appearance="simple" icon="false"}
+Both measures range from **0 to 1**. Values closer to 1 indicate that
+the corresponding systematic component explains substantially more
+variation than the remainder.
+:::
