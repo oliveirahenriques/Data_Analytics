@@ -1,19 +1,94 @@
 ---
 title: "Data Analytics and Visualization"
 subtitle: "Fundação Getulio Vargas - EESP"
-author: "Victor Henriques"
+author: "Victor Henriques, Ph.D."
 format: 
   revealjs:
     smaller: true
     toc: true
-    theme: simple
+    toc-depth: 1
+    theme: white
     slide-number: true
     incremental: false
     code-fold: false
+    logo: logo.svg
+knitr:
+  opts_chunk:
+    fig.width: 10
+    fig.height: 6
+    out.width: "100%"
+    # out.height: "65vh"
+    fig.align: "center"
 editor: source
 editor_options: 
   chunk_output_type: console
 ---
+
+```{r, include=F, warning=F,echo=F}
+getwd()
+
+dir.exists(".venv")
+
+library(reticulate)
+
+py_config()
+
+
+py_install(
+  c("pandas", "matplotlib", "yfinance"),
+  pip = TRUE
+)
+
+reticulate::py_require(
+  c("pandas", "matplotlib", "yfinance")
+)
+
+py_module_available("pandas")
+py_module_available("matplotlib")
+py_module_available("yfinance")
+```
+
+```{python, include=F, warning=F,echo=F}
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import yfinance as yf
+
+print("Python OK")
+print("NumPy:", np.__version__)
+print("Pandas:", pd.__version__)
+```
+
+```{python, include=F, warning=F,echo=F}
+PERIODO = "5y"
+INTERVALO = "1d"
+
+tickers = [
+    "ABEV3.SA", "ALOS3.SA", "ASAI3.SA", "B3SA3.SA", "^BVSP",
+    "BBAS3.SA", "BBDC3.SA", "BBDC4.SA", "BBSE3.SA", "BEEF3.SA",
+    "BPAC11.SA", "BRAP4.SA", "BRAV3.SA", "BRFS3.SA", "BRKM5.SA",
+    "CCRO3.SA", "CMIG4.SA", "CMIN3.SA", "COGN3.SA", "CPFE3.SA",
+    "CPLE6.SA", "CRFB3.SA", "CSAN3.SA", "CSNA3.SA", "CVCB3.SA",
+    "CXSE3.SA", "CYRE3.SA", "ELET3.SA", "ELET6.SA", "EMBR3.SA",
+    "ENEV3.SA", "ENGI11.SA", "EQTL3.SA", "EZTC3.SA", "FLRY3.SA",
+    "GGBR4.SA", "GOAU4.SA", "HAPV3.SA", "HYPE3.SA", "IGTI11.SA",
+    "IRBR3.SA", "ISAE4.SA", "ITSA4.SA", "ITUB4.SA", "JBSS3.SA",
+    "KLBN11.SA", "LREN3.SA", "MGLU3.SA", "MRFG3.SA", "MRVE3.SA",
+    "MULT3.SA", "NTCO3.SA", "PCAR3.SA", "PETR3.SA", "PETR4.SA",
+    "PETZ3.SA", "PRIO3.SA", "RADL3.SA", "RAIL3.SA", "RAIZ4.SA",
+    "RDOR3.SA", "RECV3.SA", "RENT3.SA", "RRRP3.SA", "SANB11.SA",
+    "SBSP3.SA", "SLCE3.SA", "SMTO3.SA", "SUZB3.SA", "TAEE11.SA",
+    "TIMS3.SA", "TOTS3.SA", "UGPA3.SA", "USIM5.SA", "VALE3.SA",
+    "VAMO3.SA", "VBBR3.SA", "WEGE3.SA", "YDUQ3.SA"
+]
+
+dados = yf.download(
+    tickers=tickers,
+    period=PERIODO,
+    interval=INTERVALO,
+    progress=False
+)
+```
 
 ## Introduction
 
@@ -24,6 +99,148 @@ faltantes e imputação estatística. Contempla técnicas de sumarização, limp
 Exploratória de Dados (EDA) para identificação de padrões e anomalias. Inclui noções
 de bancos de dados e aquisição de dados externos via API, e a visualização de dados com
 ferramentas e aplicações práticas para comunicação de resultados analíticos.
+
+## Introduction to Numpy
+
+Today we will work with several new packages and the data types they provide: the Numpy ndarray and the Pandas Series and DataFrame. These data types have many of the properties of list but are much more powerful.
+
+The numpy package (module) is used in almost all numerical computation using Python. It is a package that provides high-performance vector, matrix and higher-dimensional data structures for Python. It is implemented in C and Fortran so when calculations are vectorized (formulated with vectors and matrices), performance is very good.
+
+```{.python}
+# to use numpy, you need to import the module:
+import numpy as np
+```
+
+Creating Numpy arrays
+
+There are a number of ways to initialize new Numpy arrays. For example:
+
+converting from Python lists or tuples.
+using functions that are dedicated to generating numpy arrays, such as arange, linspace, etc.
+reading data from files.
+transforming data from another numpy array will often generate a copy.
+From lists
+
+For example, to create new vector and matrix arrays from Python lists we can use the numpy.array function.
+
+For a vector: the argument to the array function is a Python list:
+
+```{.python}
+v = np.array([1, 2, 3, 4])
+v
+```
+
+```{python}
+v = np.array([1, 2, 3, 4])
+v
+```
+
+For a matrix: the argument to the array function is a nested Python list
+
+```{.python}
+M = np.array([[1, 2], [3, 4]])
+M
+```
+
+```{python}
+M = np.array([[1, 2], [3, 4]])
+M
+```
+
+The `v` and `M` objects are both of the type ndarray (n-dimensional array) that the numpy module provides.
+
+```{.python}
+type(v), type(M)
+```
+
+```{python}
+type(v), type(M)
+```
+
+The difference between the v and M arrays is only their shapes. We can get information about the shape of an array by using the ndarray.shape property.
+
+```{.python}
+v.shape, M.shape
+```
+
+::: {.notes}
+
+o far, the numpy.ndarray looks a lot like a Python list (or nested list). Why not simply use Python lists for computations instead of creating a new array type?
+
+There are several reasons:
+
+Python lists are very general. They can contain any kind of object. They are dynamically typed. They do not support mathematical functions such as matrix and dot multiplications, etc. Implementing such functions for Python lists would not be very efficient because of the dynamic typing.
+Numpy arrays are statically typed and homogeneous. The type of the elements is determined when array is created.
+Numpy arrays are memory efficient.
+Because of the static typing, fast implementation of mathematical functions such as multiplication and addition of numpy arrays can be implemented in a compiled language (C and Fortran is used).
+
+:::
+
+
+```{python}
+np.shape(M)
+np.size(M)
+```
+
+The number of elements in the array is available through the ndarray.size property:
+
+```{python}
+np.size(M)
+```
+
+
+Using the dtype (data type) property of an ndarray, we can see what type the data of an array has:
+
+```{python}
+M.dtype
+```
+
+Assigning the right type would work:
+
+```{python}
+M[0, 0] = 5
+M
+```
+
+If we want, we can explicitly define the type of the array data when we create it, using the dtype keyword argument:
+
+```{python}
+N = np.array([[1, 2], [3, 4]], dtype=complex)
+N
+```
+
+Common types that can be used with dtype are: int, float, complex, bool, and object (string).
+
+We can also explicitly define the bit size of the data types, for example: int64, int16, float128, complex128.
+
+## Introduction to Pandas
+
+What is Pandas?
+
+Pandas is a software library written for the Python programming language for data manipulation and analysis. In particular, it offers data structures and operations for manipulating numerical tables and time series.
+
+Library features
+
+DataFrame object for data manipulation with integrated indexing
+Tools for reading and writing data between in-memory data structures and different file formats
+Data alignment and integrated handling of missing data
+Reshaping and pivoting of data sets
+Label-based slicing, fancy indexing, and subsetting of large data sets
+Data structure column insertion and deletion
+Group-by engine allowing split-apply-combine operations on data sets
+Dataset merging and joining
+Hierarchical axis indexing to work with high-dimensional data in a lower-dimensional data structure
+Time series-functionality: date range generation and frequency conversion, moving window statistics, moving window linear regressions, date shifting and lagging
+The library is highly optimized for performance, with critical code paths written in Cython or C.
+
+## 
+
+```{.python}
+import pandas as pd
+```
+
+
+
 
 ## Agenda
 
@@ -50,16 +267,60 @@ ferramentas e aplicações práticas para comunicação de resultados analítico
   - Comunicação de resultados analíticos
   - Principais mudanças em relação à ementa anterior
 
-## Valuation
-
 ## Why Data Analytics Matter?
 
-## Data
+## Dataset Used Throughout the Course
 
-```{r}
-library(yfR)
+- **Market universe**
+  - 78 Brazilian securities listed on the São Paulo stock exchange
+  - Bovespa index, `^BVSP`, used as the market benchmark
 
-tickers = c(
+- **Sample period**
+  - From **January 2020** to the latest available observation
+
+- **Data frequency**
+  - Daily observations for dates on which market data are available
+
+<!-- - **Unit of observation** -->
+<!--   - One financial instrument observed on one trading date -->
+
+<!-- - **Data structure** -->
+<!--   - Longitudinal financial panel in long format -->
+<!--   - Securities may have different starting dates and historical coverage -->
+
+- **Main variables**
+  - Open, high, low and closing prices
+  - Adjusted prices
+  - Trading volume
+  - Daily adjusted returns
+  - Cumulative returns
+
+<!-- - **Data-quality considerations** -->
+<!--   - Missing observations may differ across instruments and dates -->
+<!--   - The effective sample size may vary between analyses -->
+<!--   - Cross-asset comparisons require matched trading dates -->
+<!--   - Adjusted prices should be used when analyzing investor returns -->
+
+<!-- - **Applications throughout the course** -->
+<!--   - Distribution and descriptive-statistics visualization -->
+<!--   - Time-series patterns, trends and seasonality -->
+<!--   - Moving averages and rolling volatility -->
+<!--   - Correlation and cross-asset relationships -->
+<!--   - Lag plots and autocorrelation -->
+<!--   - Outlier and anomaly identification -->
+
+## Dataset Used Throughout the Course
+
+```{.python}
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import yfinance as yf
+
+PERIODO = "5y"
+INTERVALO = "1d"
+
+tickers = [
     "ABEV3.SA", "ALOS3.SA", "ASAI3.SA", "B3SA3.SA",
     "BBAS3.SA", "BBDC3.SA", "BBDC4.SA", "BBSE3.SA", "BEEF3.SA",
     "BPAC11.SA", "BRAP4.SA", "BRAV3.SA", "BRFS3.SA", "BRKM5.SA",
@@ -76,21 +337,166 @@ tickers = c(
     "SBSP3.SA", "SLCE3.SA", "SMTO3.SA", "SUZB3.SA", "TAEE11.SA",
     "TIMS3.SA", "TOTS3.SA", "UGPA3.SA", "USIM5.SA", "VALE3.SA",
     "VAMO3.SA", "VBBR3.SA", "WEGE3.SA", "YDUQ3.SA"
-)
+]
 
-dados = yfR::yf_get(
-  first_date = as.Date("2020-01-01"),
-  last_date = Sys.Date(),
-  tickers = tickers,
-  bench_ticker = "^BVSP"
+dados = yf.download(
+    tickers=tickers,
+    period=PERIODO,
+    interval=INTERVALO,
+    progress=False
 )
-
-library(tidyverse)
 ```
 
-# vou ter que falar de variavel categorica. e depois esquece variavel categorica aqui.
+## Introduction to pandas
+
+```{.python}
+import numpy as np
+```
+
+
+## Introduction to pandas
+
+```{.python}
+ibovespa = pd.DataFrame(dados["Close"]["^BVSP"]).reset_index()
+```
+
+```{python}
+ibovespa = pd.DataFrame(dados["Close"]["^BVSP"]).reset_index()
+```
+
+```{.python}
+ibovespa.info()
+```
+
+```{python}
+ibovespa.info()
+```
+
+<!-- ```{.python} -->
+<!-- ibovespa.dtypes -->
+<!-- ``` -->
+
+<!-- ```{python} -->
+<!-- ibovespa.dtypes -->
+<!-- ``` -->
+
+```{.python}
+# For large DataFrames, the head method selects only the first five rows:
+ibovespa.head()
+```
+
+```{python}
+ibovespa.head()
+```
+
+```{.python}
+# Similarly, tail returns the last five rows:
+ibovespa.tail()
+```
+
+```{python}
+ibovespa.tail()
+```
+
+## Introduction to pandas
+
+```{.python}
+ibovespa = ibovespa.rename(columns={"^BVSP": "Price"})
+ibovespa = pd.DataFrame(ibovespa, columns=["Date", "Price","Volume"])
+ibovespa.head()
+```
+
+```{python}
+ibovespa = ibovespa.rename(columns={"^BVSP": "Price"})
+
+ibovespa = pd.DataFrame(ibovespa, columns=["Date", "Price","Volume"])
+
+ibovespa.head()
+```
+
+```{.python}
+# A column in a DataFrame can be retrieved by using the dot attribute notation
+ibovespa["Volume"]
+```
+
+```{python}
+ibovespa["Volume"].tail()
+```
+
+```{.python}
+# Rows can also be retrieved by position or name with the special iloc and loc attributes 
+ibovespa.loc[1]
+ibovespa.iloc[1]
+```
+
+```{python}
+# Rows can also be retrieved by position or name with the special iloc and loc attributes 
+ibovespa.loc[1]
+ibovespa.iloc[1]
+```
+
+## Introduction to pandas
+
+```{.python}
+# Columns can be modified by assignment
+volume = dados["Volume"]["^BVSP"].reset_index()
+ibovespa["Volume"] = volume["^BVSP"]
+```
+
+```{python}
+# Columns can be modified by assignment
+volume = dados["Volume"]["^BVSP"].reset_index()
+ibovespa["Volume"] = volume["^BVSP"]
+
+ibovespa.head()
+```
+
+```{.python}
+# We could also merge the dataframe
+ibovespa = ibovespa.merge(
+    volume,
+    on="Date",
+    how="left"
+)
+ibovespa.head()
+```
+
+```{python}
+ibovespa = ibovespa.merge(
+    volume,
+    on="Date",
+    how="left"
+)
+ibovespa.head()
+```
+
+```{.python}
+# The del method can then be used to remove this column
+del ibovespa["^BVSP"]
+ibovespa.head()
+```
+
+```{python}
+del ibovespa["^BVSP"]
+ibovespa.head()
+```
+
+## Introduction to pandas
+
+```{python}
+dados.to_numpy()
+```
+
+
+## Categorical Variables
+
+vou ter que falar de variavel categorica. e depois esquece variavel categorica aqui.
+
+Falar dos tipos de graficos mais adequados, etc.
 
 ja matar aqui a questao do barplot e porque ele seria adequado. questao de contagem etc.
+
+## Variavel numerica
 
 Apresentar scatterplot
 
@@ -100,7 +506,6 @@ Apresentar heatmap
 
 apresentar high level do que e uma variavel aleatoria e o que e uma funcao de 
 
-
 ## Fundamentals
 
 Vou ter que falar pelo menos o conceito de variavel aelatoria
@@ -108,10 +513,3 @@ vou ter que falar das medidas mais comuns que vou usar aqui como log retorno tal
 Vou ter que falar tambºem das principais medidas. o que e um preco, o que e um retorno, o que e um volume
 
 - Let $P_t$ be the price of an assset at time index $t$. Holding the asset for
-
-## 
-
-```{r}
-
-```
-
