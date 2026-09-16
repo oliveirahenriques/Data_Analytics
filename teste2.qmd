@@ -1,0 +1,475 @@
+---
+title: "Time Series Foundations in pandas"
+subtitle: "Introductory block for Time Series Graphics for Forecasting"
+author: "Victor Henriques de Oliveira"
+format:
+  revealjs:
+    theme: simple
+    slide-number: c/t
+    transition: fade
+    center: false
+    width: 1600
+    height: 900
+    margin: 0.07
+    code-overflow: wrap
+    chalkboard: true
+    footer: "Data Analytics & Visualization | Time Series Foundations"
+execute:
+  echo: true
+  warning: false
+  error: false
+jupyter: python3
+---
+
+```{python}
+#| label: setup
+#| include: false
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+sns.set_theme(style="whitegrid", context="talk")
+```
+
+# Foundations from pandas Time Series
+
+## Before visual diagnostics, define what time means
+
+**Timestamp → calendar → frequency → alignment → resampling → windows → graphics**
+
+::: {.notes}
+Este bloco deve ser inserido antes da seção Data and Time Structure da aula principal. A ideia é preparar a infraestrutura conceitual necessária para interpretar time plots, seasonal plots, lag plots e ACF.
+
+[Sources]
+- https://wesmckinney.com/book/time-series
+:::
+
+## What can a time coordinate represent?
+
+- **Timestamp:** a specific instant.
+- **Fixed period:** a span such as a month or quarter.
+- **Interval:** a start and an end.
+- **Elapsed time:** distance from an origin.
+
+> The representation must match what the observation actually measures.
+
+::: {.notes}
+Use preço de fechamento como exemplo de timestamp e produção mensal como período. Explique que a escolha altera slicing, agregação e labels.
+
+[Sources]
+- https://wesmckinney.com/book/time-series
+:::
+
+## Fixed-frequency and irregular series
+
+::: {.columns}
+::: {.column width="50%"}
+### Fixed frequency
+
+- every 15 seconds;
+- hourly;
+- business daily;
+- monthly.
+:::
+::: {.column width="50%"}
+### Irregular
+
+- trades;
+- incidents;
+- publications;
+- event records.
+:::
+:::
+
+A line can display either, but **lag 1 has a stable duration only under a regular calendar**.
+
+::: {.notes}
+Em série irregular, shift(1) significa registro anterior, não necessariamente uma hora anterior.
+
+[Sources]
+- https://wesmckinney.com/book/time-series
+:::
+
+## Python date and time objects
+
+```{python}
+from datetime import date, time, datetime, timedelta
+
+stamp = datetime(2026, 1, 15, 14, 30)
+delta = timedelta(days=2, hours=3)
+print(stamp)
+print(stamp + delta)
+```
+
+- `date`: calendar date;
+- `time`: time of day;
+- `datetime`: date and time;
+- `timedelta`: elapsed duration.
+
+::: {.notes}
+Timedelta representa diferença, não uma data.
+
+[Sources]
+- https://wesmckinney.com/book/time-series
+:::
+
+## Parse strings into temporal data
+
+```{python}
+raw_dates = pd.Series([
+    "2026-01-15", "15/02/2026", "March 20, 2026", "invalid"
+])
+parsed = pd.to_datetime(
+    raw_dates, format="mixed", dayfirst=True, errors="coerce"
+)
+pd.DataFrame({"raw": raw_dates, "parsed": parsed})
+```
+
+`errors="coerce"` exposes failures as missing timestamps. It does not repair their meaning.
+
+::: {.notes}
+Discuta ambiguidade entre dia e mês. Prefira formato explícito quando a fonte for estável.
+
+[Sources]
+- https://wesmckinney.com/book/time-series
+:::
+
+## Format timestamps for communication
+
+```{python}
+stamp = pd.Timestamp("2026-01-15 14:30")
+print(stamp.strftime("%Y-%m-%d"))
+print(stamp.strftime("%d %b %Y, %H:%M"))
+```
+
+Formatting changes display, not the underlying temporal value.
+
+::: {.notes}
+Diferencie armazenamento e apresentação. Labels dependentes de locale podem variar entre ambientes.
+
+[Sources]
+- https://wesmckinney.com/book/time-series
+:::
+
+## `DatetimeIndex`: time as an analytical axis
+
+```{python}
+idx = pd.date_range("2026-01-01", periods=6, freq="D")
+series = pd.Series([72, 74, 73, 77, 78, 76], index=idx, name="value")
+print(type(series.index).__name__)
+series
+```
+
+A timestamp-indexed Series supports temporal slicing, frequency logic, shifting, and resampling.
+
+::: {.notes}
+O DatetimeIndex é a estrutura central do pandas para séries indexadas por instantes.
+
+[Sources]
+- https://wesmckinney.com/book/time-series
+:::
+
+## Temporal slicing
+
+```{python}
+series.loc["2026-01-02":"2026-01-05"]
+```
+
+```{python}
+daily = pd.Series(
+    np.arange(90),
+    index=pd.date_range("2026-01-01", periods=90, freq="D")
+)
+daily.loc["2026-02"].head()
+```
+
+Partial strings can select meaningful calendar ranges.
+
+::: {.notes}
+Reforce a necessidade de índice temporal ordenado.
+
+[Sources]
+- https://wesmckinney.com/book/time-series
+:::
+
+## Duplicate timestamps require a rule
+
+```{python}
+duplicate_time = pd.Series(
+    [70, 72, 74, 76],
+    index=pd.to_datetime([
+        "2026-01-01", "2026-01-02", "2026-01-02", "2026-01-03"
+    ])
+)
+print("unique index:", duplicate_time.index.is_unique)
+duplicate_time.groupby(level=0).agg(["mean", "count"])
+```
+
+Aggregation resolves duplicates only when the rule is analytically justified.
+
+::: {.notes}
+Em preços, mean pode não ser a regra correta. Last, VWAP ou preservação por fonte podem ser alternativas.
+
+[Sources]
+- https://wesmckinney.com/book/time-series
+:::
+
+## Generate regular date ranges
+
+```{python}
+print(pd.date_range("2026-01-01", periods=5, freq="D"))
+print(pd.date_range("2026-01-01 00:00", periods=5, freq="15min"))
+print(pd.date_range("2026-01-01", periods=5, freq="B"))
+```
+
+Frequency aliases encode calendar rules, not merely display labels.
+
+::: {.notes}
+D difer de B. Frequências de negócio não incorporam automaticamente todo calendário local de mercado.
+
+[Sources]
+- https://wesmckinney.com/book/time-series
+:::
+
+## Regularization can introduce missing values
+
+```{python}
+irregular = pd.Series(
+    [10, 12, 15],
+    index=pd.to_datetime(["2026-01-01", "2026-01-03", "2026-01-06"])
+)
+irregular.asfreq("D")
+```
+
+`asfreq` establishes a target calendar. It does not aggregate or justify filling gaps.
+
+::: {.notes}
+Compare asfreq com resample. O primeiro expressa frequência; o segundo cria grupos temporais.
+
+[Sources]
+- https://wesmckinney.com/book/time-series
+:::
+
+## Shift values versus shift timestamps
+
+```{python}
+shift_demo = pd.Series(
+    [100, 102, 101, 105],
+    index=pd.date_range("2026-01-01", periods=4, freq="D")
+)
+print(shift_demo.shift(1))
+print(shift_demo.shift(1, freq="D"))
+```
+
+- `shift(1)`: moves values relative to the existing index.
+- `shift(1, freq="D")`: moves the timestamps by a calendar offset.
+
+::: {.notes}
+Essa distinção é central para retornos, lags e alinhamento.
+
+[Sources]
+- https://wesmckinney.com/book/time-series
+:::
+
+## Time zones: localize, then convert
+
+```{python}
+naive = pd.date_range("2026-01-15 09:00", periods=3, freq="h")
+dublin = naive.tz_localize("Europe/Dublin")
+utc = dublin.tz_convert("UTC")
+print(dublin)
+print(utc)
+```
+
+- `tz_localize`: attaches a zone to naive timestamps.
+- `tz_convert`: represents the same instants in another zone.
+
+::: {.notes}
+Não confunda vincular um timezone com converter instantes já timezone-aware.
+
+[Sources]
+- https://wesmckinney.com/book/time-series
+:::
+
+## UTC and local calendar features
+
+UTC supports consistent storage and cross-region alignment. Local time remains important for:
+
+- hour-of-day behavior;
+- market sessions;
+- business operations;
+- daylight-saving transitions;
+- calendar seasonality.
+
+> Derive seasonal coordinates in the calendar relevant to the phenomenon.
+
+::: {.notes}
+A recomendação é separar alinhamento temporal de interpretação sazonal.
+
+[Sources]
+- https://wesmckinney.com/book/time-series
+:::
+
+## Periods represent spans
+
+```{python}
+month = pd.Period("2026-01", freq="M")
+quarter = pd.Period("2026Q1", freq="Q-DEC")
+print(month)
+print(month + 2)
+print(quarter)
+```
+
+Period arithmetic moves across spans according to the declared frequency.
+
+::: {.notes}
+Somar dois a uma Period mensal significa avançar dois meses, não segundos.
+
+[Sources]
+- https://wesmckinney.com/book/time-series
+:::
+
+## Convert between timestamps and periods
+
+```{python}
+month_ends = pd.date_range("2026-01-31", periods=4, freq="ME")
+periods = month_ends.to_period("M")
+print(periods)
+print(periods.to_timestamp(how="end"))
+```
+
+Converting a period to a timestamp requires a boundary convention.
+
+::: {.notes}
+Start ou end afeta labels, joins e comparação temporal.
+
+[Sources]
+- https://wesmckinney.com/book/time-series
+:::
+
+## Resampling changes frequency
+
+```{python}
+hourly = pd.Series(
+    np.arange(24, dtype=float),
+    index=pd.date_range("2026-01-01", periods=24, freq="h")
+)
+hourly.resample("6h").agg(["mean", "max"])
+```
+
+- **Downsampling:** higher to lower frequency, usually with aggregation.
+- **Upsampling:** lower to higher frequency, usually creating gaps before a filling rule.
+
+::: {.notes}
+Mean e max respondem perguntas diferentes. A função de agregação pertence à definição do gráfico.
+
+[Sources]
+- https://wesmckinney.com/book/time-series
+:::
+
+## Interval boundaries matter
+
+```{python}
+boundary = pd.Series(
+    [1, 2, 3, 4],
+    index=pd.to_datetime([
+        "2026-01-01 00:00", "2026-01-01 05:59",
+        "2026-01-01 06:00", "2026-01-01 11:59"
+    ])
+)
+boundary.resample("6h", closed="left", label="left").sum()
+```
+
+`closed` controls interval membership; `label` controls interval naming.
+
+::: {.notes}
+Limites temporais são parte da estatística, não apenas detalhe de sintaxe.
+
+[Sources]
+- https://wesmckinney.com/book/time-series
+:::
+
+## Moving windows summarize local history
+
+```{python}
+observed = pd.Series(
+    [10, 13, 12, 16, 17, 15, 18],
+    index=pd.date_range("2026-01-01", periods=7, freq="D")
+)
+windows = pd.DataFrame({
+    "observed": observed,
+    "rolling_mean_3": observed.rolling(3, min_periods=2).mean(),
+    "expanding_mean": observed.expanding(min_periods=2).mean(),
+    "ewm_mean": observed.ewm(span=3, adjust=False).mean()
+})
+windows
+```
+
+::: {.notes}
+Rolling usa memória fixa; expanding acumula desde o começo; EWM reduz pesos gradualmente.
+
+[Sources]
+- https://wesmckinney.com/book/time-series
+:::
+
+## Smoothers encode different memory
+
+```{python}
+#| fig-width: 10
+#| fig-height: 4.7
+fig, ax = plt.subplots()
+ax.plot(windows.index, windows["observed"], marker="o", label="Observed")
+ax.plot(windows.index, windows["rolling_mean_3"], linewidth=2, label="Rolling mean, 3")
+ax.plot(windows.index, windows["ewm_mean"], linewidth=2, label="EWM, span 3")
+ax.set(title="Different smoothers encode different memory",
+       xlabel="Date", ylabel="Synthetic value")
+ax.legend(frameon=False)
+plt.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+Não apresente linha suavizada como dado observado. Janela e span alteram ruído e atraso.
+
+[Sources]
+- https://wesmckinney.com/book/time-series
+:::
+
+## Foundation checkpoint
+
+Match the task to the concept:
+
+1. attach `Europe/Dublin` to naive local timestamps;
+2. represent the whole month of January;
+3. calculate daily maxima from hourly data;
+4. compare each observation with its predecessor;
+5. expose missing dates on a daily calendar;
+6. compute a three-observation local average.
+
+::: {.notes}
+Respostas: tz_localize, Period, resample max, shift, asfreq/reindex, rolling.
+
+[Sources]
+- https://wesmckinney.com/book/time-series
+:::
+
+## Bridge to forecasting graphics
+
+The pandas toolkit establishes:
+
+- what time means;
+- whether the calendar is regular;
+- how observations align;
+- how frequency changes;
+- which values belong to each interval;
+- how local summaries are constructed.
+
+Only then can time plots, seasonal plots, lag plots, and ACF plots be interpreted reliably.
+
+::: {.notes}
+Use como transição para o conteúdo principal de gráficos de séries temporais.
+
+[Sources]
+- https://wesmckinney.com/book/time-series
+- https://otexts.com/fpppy/02-graphics.html
+:::

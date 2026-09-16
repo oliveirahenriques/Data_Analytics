@@ -1,0 +1,4165 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="teste3_files/libs/clipboard/clipboard.min.js"></script>
+<script src="teste3_files/libs/quarto-html/tabby.min.js"></script>
+<script src="teste3_files/libs/quarto-html/popper.min.js"></script>
+<script src="teste3_files/libs/quarto-html/tippy.umd.min.js"></script>
+<link href="teste3_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="teste3_files/libs/quarto-html/light-border.css" rel="stylesheet">
+<link href="teste3_files/libs/quarto-html/quarto-html.min.css" rel="stylesheet" data-mode="light">
+<link href="teste3_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.5.57">
+
+  <meta name="author" content="Victor Henriques de Oliveira">
+  <title>Cleaning, Combining, and Reshaping Data with pandas</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="teste3_files/libs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="teste3_files/libs/revealjs/dist/reveal.css">
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+      vertical-align: middle;
+    }
+    /* CSS for syntax highlighting */
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      { color: #003b4f; background-color: #f1f3f5; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span { color: #003b4f; } /* Normal */
+    code span.al { color: #ad0000; } /* Alert */
+    code span.an { color: #5e5e5e; } /* Annotation */
+    code span.at { color: #657422; } /* Attribute */
+    code span.bn { color: #ad0000; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #003b4f; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #20794d; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #5e5e5e; } /* Comment */
+    code span.cv { color: #5e5e5e; font-style: italic; } /* CommentVar */
+    code span.do { color: #5e5e5e; font-style: italic; } /* Documentation */
+    code span.dt { color: #ad0000; } /* DataType */
+    code span.dv { color: #ad0000; } /* DecVal */
+    code span.er { color: #ad0000; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #ad0000; } /* Float */
+    code span.fu { color: #4758ab; } /* Function */
+    code span.im { color: #00769e; } /* Import */
+    code span.in { color: #5e5e5e; } /* Information */
+    code span.kw { color: #003b4f; font-weight: bold; } /* Keyword */
+    code span.op { color: #5e5e5e; } /* Operator */
+    code span.ot { color: #003b4f; } /* Other */
+    code span.pp { color: #ad0000; } /* Preprocessor */
+    code span.sc { color: #5e5e5e; } /* SpecialChar */
+    code span.ss { color: #20794d; } /* SpecialString */
+    code span.st { color: #20794d; } /* String */
+    code span.va { color: #111111; } /* Variable */
+    code span.vs { color: #20794d; } /* VerbatimString */
+    code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="teste3_files/libs/revealjs/dist/theme/quarto.css">
+  <link href="teste3_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
+  <link href="teste3_files/libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
+  <link href="teste3_files/libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="teste3_files/libs/revealjs/plugin/reveal-chalkboard/font-awesome/css/all.css" rel="stylesheet">
+  <link href="teste3_files/libs/revealjs/plugin/reveal-chalkboard/style.css" rel="stylesheet">
+  <link href="teste3_files/libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
+  <style type="text/css">
+
+  .callout {
+    margin-top: 1em;
+    margin-bottom: 1em;  
+    border-radius: .25rem;
+  }
+
+  .callout.callout-style-simple { 
+    padding: 0em 0.5em;
+    border-left: solid #acacac .3rem;
+    border-right: solid 1px silver;
+    border-top: solid 1px silver;
+    border-bottom: solid 1px silver;
+    display: flex;
+  }
+
+  .callout.callout-style-default {
+    border-left: solid #acacac .3rem;
+    border-right: solid 1px silver;
+    border-top: solid 1px silver;
+    border-bottom: solid 1px silver;
+  }
+
+  .callout .callout-body-container {
+    flex-grow: 1;
+  }
+
+  .callout.callout-style-simple .callout-body {
+    font-size: 1rem;
+    font-weight: 400;
+  }
+
+  .callout.callout-style-default .callout-body {
+    font-size: 0.9rem;
+    font-weight: 400;
+  }
+
+  .callout.callout-titled.callout-style-simple .callout-body {
+    margin-top: 0.2em;
+  }
+
+  .callout:not(.callout-titled) .callout-body {
+      display: flex;
+  }
+
+  .callout:not(.no-icon).callout-titled.callout-style-simple .callout-content {
+    padding-left: 1.6em;
+  }
+
+  .callout.callout-titled .callout-header {
+    padding-top: 0.2em;
+    margin-bottom: -0.2em;
+  }
+
+  .callout.callout-titled .callout-title  p {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+  }
+    
+  .callout.callout-titled.callout-style-simple .callout-content  p {
+    margin-top: 0;
+  }
+
+  .callout.callout-titled.callout-style-default .callout-content  p {
+    margin-top: 0.7em;
+  }
+
+  .callout.callout-style-simple div.callout-title {
+    border-bottom: none;
+    font-size: .9rem;
+    font-weight: 600;
+    opacity: 75%;
+  }
+
+  .callout.callout-style-default  div.callout-title {
+    border-bottom: none;
+    font-weight: 600;
+    opacity: 85%;
+    font-size: 0.9rem;
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+  }
+
+  .callout.callout-style-default div.callout-content {
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+  }
+
+  .callout.callout-style-simple .callout-icon::before {
+    height: 1rem;
+    width: 1rem;
+    display: inline-block;
+    content: "";
+    background-repeat: no-repeat;
+    background-size: 1rem 1rem;
+  }
+
+  .callout.callout-style-default .callout-icon::before {
+    height: 0.9rem;
+    width: 0.9rem;
+    display: inline-block;
+    content: "";
+    background-repeat: no-repeat;
+    background-size: 0.9rem 0.9rem;
+  }
+
+  .callout-title {
+    display: flex
+  }
+    
+  .callout-icon::before {
+    margin-top: 1rem;
+    padding-right: .5rem;
+  }
+
+  .callout.no-icon::before {
+    display: none !important;
+  }
+
+  .callout.callout-titled .callout-body > .callout-content > :last-child {
+    padding-bottom: 0.5rem;
+    margin-bottom: 0;
+  }
+
+  .callout.callout-titled .callout-icon::before {
+    margin-top: .5rem;
+    padding-right: .5rem;
+  }
+
+  .callout:not(.callout-titled) .callout-icon::before {
+    margin-top: 1rem;
+    padding-right: .5rem;
+  }
+
+  /* Callout Types */
+
+  div.callout-note {
+    border-left-color: #4582ec !important;
+  }
+
+  div.callout-note .callout-icon::before {
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAIKADAAQAAAABAAAAIAAAAACshmLzAAAEU0lEQVRYCcVXTWhcVRQ+586kSUMMxkyaElstCto2SIhitS5Ek8xUKV2poatCcVHtUlFQk8mbaaziwpWgglJwVaquitBOfhQXFlqlzSJpFSpIYyXNjBNiTCck7x2/8/LeNDOZxDuEkgOXe++553zfefee+/OYLOXFk3+1LLrRdiO81yNqZ6K9cG0P3MeFaMIQjXssE8Z1JzLO9ls20MBZX7oG8w9GxB0goaPrW5aNMp1yOZIa7Wv6o2ykpLtmAPs/vrG14Z+6d4jpbSKuhdcSyq9wGMPXjonwmESXrriLzFGOdDBLB8Y6MNYBu0dRokSygMA/mrun8MGFN3behm6VVAwg4WR3i6FvYK1T7MHo9BK7ydH+1uurECoouk5MPRyVSBrBHMYwVobG2aOXM07sWrn5qgB60rc6mcwIDJtQrnrEr44kmy+UO9r0u9O5/YbkS9juQckLed3DyW2XV/qWBBB3ptvI8EUY3I9p/67OW+g967TNr3Sotn3IuVlfMLVnsBwH4fsnebJvyGm5GeIUA3jljERmrv49SizPYuq+z7c2H/jlGC+Ghhupn/hcapqmcudB9jwJ/3jvnvu6vu5lVzF1fXyZuZZ7U8nRmVzytvT+H3kilYvH09mLWrQdwFSsFEsxFVs5fK7A0g8gMZjbif4ACpKbjv7gNGaD8bUrlk8x+KRflttr22JEMRUbTUwwDQScyzPgedQHZT0xnx7ujw2jfVfExwYHwOsDTjLdJ2ebmeQIlJ7neo41s/DrsL3kl+W2lWvAga0tR3zueGr6GL78M3ifH0rGXrBC2aAR8uYcIA5gwV8zIE8onoh8u0Fca/ciF7j1uOzEnqcIm59sEXoGc0+z6+H45V1CvAvHcD7THztu669cnp+L0okAeIc6zjbM/24LgGM1gZk7jnRu1aQWoU9sfUOuhrmtaPIO3YY1KLLWZaEO5TKUbMY5zx8W9UJ6elpLwKXbsaZ4EFl7B4bMtDv0iRipKoDQT2sNQI9b1utXFdYisi+wzZ/ri/1m7QfDgEuvgUUEIJPq3DhX/5DWNqIXDOweC2wvIR90Oq3lDpdMIgD2r0dXvGdsEW5H6x6HLRJYU7C69VefO1x8Gde1ZFSJLfWS1jbCnhtOPxmpfv2LXOA2Xk2tvnwKKPFuZ/oRmwBwqRQDcKNeVQkYcOjtWVBuM/JuYw5b6isojIkYxyYAFn5K7ZBF10fea52y8QltAg6jnMqNHFBmGkQ1j+U43HMi2xMar1Nv0zGsf1s8nUsmUtPOOrbFIR8bHFDMB5zL13Gmr/kGlCkUzedTzzmzsaJXhYawnA3UmARpiYj5ooJZiUoxFRtK3X6pgNPv+IZVPcnwbOl6f+aBaO1CNvPW9n9LmCp01nuSaTRF2YxHqZ8DYQT6WsXT+RD6eUztwYLZ8rM+rcPxamv1VQzFUkzFXvkiVrySGQgJNvXHJAxiU3/NwiC03rSf05VBaPtu/Z7/B8Yn/w7eguloAAAAAElFTkSuQmCC');
+  }
+
+  div.callout-note.callout-style-default .callout-title {
+    background-color: #dae6fb
+  }
+
+  div.callout-important {
+    border-left-color: #d9534f !important;
+  }
+
+  div.callout-important .callout-icon::before {
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAIKADAAQAAAABAAAAIAAAAACshmLzAAAEKklEQVRYCcVXTWhcVRS+575MJym48A+hSRFr00ySRQhURRfd2HYjk2SSTokuBCkU2o0LoSKKraKIBTcuFCoidGFD08nkBzdREbpQ1EDNIv8qSGMFUboImMSZd4/f9zJv8ibJMC8xJQfO3HPPPef7zrvvvnvviIkpC9nsw0UttFunbUhpFzFtarSd6WJkStVMw5xyVqYTvkwfzuf/5FgtkVoB0729j1rjXwThS7Vio+Mo6DNnvLfahoZ+i/o32lULuJ3NNiz7q6+pyAUkJaFF6JwaM2lUJlV0MlnQn5aTRbEu0SEqHUa0A4AdiGuB1kFXRfVyg5d87+Dg4DL6m2TLAub60ilj7A1Ec4odSAc8X95sHh7+ZRPCFo6Fnp7HfU/fBng/hi10CjCnWnJjsxvDNxWw0NfV6Rv5GgP3I3jGWXumdTD/3cbEOP2ZbOZp69yniG3FQ9z1jD7bnBu9Fc2tKGC2q+uAJOQHBDRiZX1x36o7fWBs7J9ownbtO+n0/qWkvW7UPIfc37WgT6ZGR++EOJyeQDSb9UB+DZ1G6DdLDzyS+b/kBCYGsYgJbSQHuThGKRcw5xdeQf8YdNHsc6ePXrlSYMBuSIAFTGAtQo+VuALo4BX83N190NWZWbynBjhOHsmNfFWLeL6v+ynsA58zDvvAC8j5PkbOcXCMg2PZFk3q8MjI7WAG/Dp9AwP7jdGBOOQkAvlFUB+irtm16I1Zw9YBcpGTGXYmk3kQIC/Cds55l+iMI3jqhjAuaoe+am2Jw5GT3Nbz3CkE12NavmzN5+erJW7046n/CH1RO/RVa8lBLozXk9uqykkGAyRXLWlLv5jyp4RFsG5vGVzpDLnIjTWgnRy2Rr+tDKvRc7Y8AyZq10jj8DqXdnIRNtFZb+t/ZRtXcDiVnzpqx8mPcDWxgARUqx0W1QB9MeUZiNrV4qP+Ehc+BpNgATsTX8ozYKL2NtFYAHc84fG7ndxUPr+AR/iQSns7uSUufAymwDOb2+NjK27lEFocm/EE2WpyIy/Hi66MWuMKJn8RvxIcj87IM5Vh9663ziW36kR0HNenXuxmfaD8JC7tfKbrhFr7LiZCrMjrzTeGx+PmkosrkNzW94ObzwocJ7A1HokLolY+AvkTiD/q1H0cN48c5EL8Crkttsa/AXQVDmutfyku0E7jShx49XqV3MFK8IryDhYVbj7Sj2P2eBxwcXoe8T8idsKKPRcnZw1b+slFTubwUwhktrfnAt7J++jwQtLZcm3sr9LQrjRzz6cfMv9aLvgmnAGvpoaGLxM4mAEaLV7iAzQ3oU0IvD5x9ix3yF2RAAuYAOO2f7PEFWCXZ4C9Pb2UsgDeVnFSpbFK7/IWu7TPTvBqzbGdCHOJQSxiEjt6IyZmxQyEJHv6xyQsYk//moVFsN2zP6fRImjfq7/n/wFDguUQFNEwugAAAABJRU5ErkJggg==');
+  }
+
+  div.callout-important.callout-style-default .callout-title {
+    background-color: #f7dddc
+  }
+
+  div.callout-warning {
+    border-left-color: #f0ad4e !important;
+  }
+
+  div.callout-warning .callout-icon::before {
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAIKADAAQAAAABAAAAIAAAAACshmLzAAAETklEQVRYCeVWW2gcVRg+58yaTUnizqbipZeX4uWhBEniBaoUX1Ioze52t7sRq6APio9V9MEaoWlVsFasRq0gltaAPuxms8lu0gcviE/FFOstVbSIxgcv6SU7EZqmdc7v9+9mJtNks51NTUH84ed889/PP+cmxP+d5FIbMJmNbpREu4WUkiTtCicKny0l1pIKmBzovF2S+hIJHX8iEu3hZJ5lNZGqyRrGSIQpq15AzF28jgpeY6yk6GVdrfFqdrD6Iw+QlB8g0YS2g7dyQmXM/IDhBhT0UCiRf59lfqmmDvzRt6kByV/m4JjtzuaujMUM2c5Z2d6JdKrRb3K2q6mA+oYVz8JnDdKPmmNthzkAk/lN63sYPgevrguc72aZX/L9C6x09GYyxBgCX4NlvyGUHOKELlm5rXeR1kchuChJt4SSwyddZRXgvwMGvYo4QSlk3/zkHD8UHxwVJA6zjZZqP8v8kK8OWLnIZtLyCAJagYC4rTGW/9Pqj92N/c+LUaAj27movwbi19tk/whRCIE7Q9vyI6yvRpftAKVTdUjOW40X3h5OXsKCdmFcx0xlLJoSuQngnrJe7Kcjm4OMq9FlC7CMmScQANuNvjfP3PjGXDBaUQmbp296S5L4DrpbrHN1T87ZVEZVCzg1FF0Ft+dKrlLukI+/c9ENo+TvlTDbYFvuKPtQ9+l052rXrgKoWkDAFnvh0wTOmYn8R5f4k/jN/fZiCM1tQx9jQQ4ANhqG4hiL0qIFTGViG9DKB7GYzgubnpofgYRwO+DFjh0Zin2m4b/97EDkXkc+f6xYAPX0KK2I/7fUQuwzuwo/L3AkcjugPNixC8cHf0FyPjWlItmLxWw4Ou9YsQCr5fijMGoD/zpdRy95HRysyXA74MWOnscpO4j2y3HAVisw85hX5+AFBRSHt4ShfLFkIMXTqyKFc46xdzQM6XbAi702a7sy04J0+feReMFKp5q9esYLCqAZYw/k14E/xcLLsFElaornTuJB0svMuJINy8xkIYuL+xPAlWRceH6+HX7THJ0djLUom46zREu7tTkxwmf/FdOZ/sh6Q8qvEAiHpm4PJ4a/doJe0gH1t+aHRgCzOvBvJedEK5OFE5jpm4AGP2a8Dxe3gGJ/pAutug9Gp6he92CsSsWBaEcxGx0FHytmIpuqGkOpldqNYQK8cSoXvd+xLxXADw0kf6UkJNFtdo5MOgaLjiQOQHcn+A6h5NuL2s0qsC2LOM75PcF3yr5STuBSAcGG+meA14K/CI21HcS4LBT6tv0QAh8Dr5l93AhZzG5ZJ4VxAqdZUEl9z7WJ4aN+svMvwHHL21UKTd1mqvChH7/Za5xzXBBKrUcB0TQ+Ulgkfbi/H/YT5EptrGzsEK7tR1B7ln9BBwckYfMiuSqklSznIuoIIOM42MQO+QnduCoFCI0bpkzjCjddHPN/F+2Yu+sd9bKNpVwHhbS3LluK/0zgfwD0xYI5dXuzlQAAAABJRU5ErkJggg==');
+  }
+
+  div.callout-warning.callout-style-default .callout-title {
+    background-color: #fcefdc
+  }
+
+  div.callout-tip {
+    border-left-color: #02b875 !important;
+  }
+
+  div.callout-tip .callout-icon::before {
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAIKADAAQAAAABAAAAIAAAAACshmLzAAADr0lEQVRYCe1XTWgTQRj9ZjZV8a9SPIkKgj8I1bMHsUWrqYLVg4Ue6v9BwZOxSYsIerFao7UiUryIqJcqgtpimhbBXoSCVxUFe9CTiogUrUp2Pt+3aUI2u5vdNh4dmMzOzHvvezuz8xNFM0mjnbXaNu1MvFWRXkXEyE6aYOYJpdW4IXuA4r0fo8qqSMDBU0v1HJUgVieAXxzCsdE/YJTdFcVIZQNMyhruOMJKXYFoLfIfIvVIMWdsrd+Rpd86ZmyzzjJmLStqRn0v8lzkb4rVIXvnpScOJuAn2ACC65FkPzEdEy4TPWRLJ2h7z4cArXzzaOdKlbOvKKX25Wl00jSnrwVxAg3o4dRxhO13RBSdNvH0xSARv3adTXbBdTf64IWO2vH0LT+cv4GR1DJt+DUItaQogeBX/chhbTBxEiZ6gftlDNXTrvT7co4ub5A6gp9HIcHvzTa46OS5fBeP87Qm0fQkr4FsYgVQ7Qg+ZayaDg9jhg1GkWj8RG6lkeSacrrHgDaxdoBiZPg+NXV/KifMuB6//JmYH4CntVEHy/keA6x4h4CU5oFy8GzrBS18cLJMXcljAKB6INjWsRcuZBWVaS3GDrqB7rdapVIeA+isQ57Eev9eCqzqOa81CY05VLd6SamW2wA2H3SiTbnbSxmzfp7WtKZkqy4mdyAlGx7ennghYf8voqp9cLSgKdqNfa6RdRsAAkPwRuJZNbpByn+RrJi1RXTwdi8RQF6ymDwGMAtZ6TVE+4uoKh+MYkcLsT0Hk8eAienbiGdjJHZTpmNjlbFJNKDVAp2fJlYju6IreQxQ08UJDNYdoLSl6AadO+fFuCQqVMB1NJwPm69T04Wv5WhfcWyfXQB+wXRs1pt+nCknRa0LVzSA/2B+a9+zQJadb7IyyV24YAxKp2Jqs3emZTuNnKxsah+uabKbMk7CbTgJx/zIgQYErIeTKRQ9yD9wxVof5YolPHqaWo7TD6tJlh7jQnK5z2n3+fGdggIOx2kaa2YI9QWarc5Ce1ipNWMKeSG4DysFF52KBmTNMmn5HqCFkwy34rDg05gDwgH3bBi+sgFhN/e8QvRn8kbamCOhgrZ9GJhFDgfcMHzFb6BAtjKpFhzTjwv1KCVuxHvCbsSiEz4CANnj84cwHdFXAbAOJ4LTSAawGWFn5tDhLMYz6nWeU2wJfIhmIJBefcd/A5FWQWGgrWzyORZ3Q6HuV+Jf0Bj+BTX69fm1zWgK7By1YTXchFDORywnfQ7GpzOo6S+qECrsx2ifVQAAAABJRU5ErkJggg==');
+  }
+
+  div.callout-tip.callout-style-default .callout-title {
+    background-color: #ccf1e3
+  }
+
+  div.callout-caution {
+    border-left-color: #fd7e14 !important;
+  }
+
+  div.callout-caution .callout-icon::before {
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAIKADAAQAAAABAAAAIAAAAACshmLzAAACV0lEQVRYCdVWzWoUQRCuqp2ICBLJXgITZL1EfQDBW/bkzUMUD7klD+ATSHBEfAIfQO+iXsWDxJsHL96EHAwhgzlkg8nBg25XWb0zIb0zs9muYYWkoKeru+vn664fBqElyZNuyh167NXJ8Ut8McjbmEraKHkd7uAnAFku+VWdb3reSmRV8PKSLfZ0Gjn3a6Xlcq9YGb6tADjn+lUfTXtVmaZ1KwBIvFI11rRXlWlatwIAAv2asaa9mlB9wwygiDX26qaw1yYPzFXg2N1GgG0FMF8Oj+VIx7E/03lHx8UhvYyNZLN7BwSPgekXXLribw7w5/c8EF+DBK5idvDVYtEEwMeYefjjLAdEyQ3M9nfOkgnPTEkYU+sxMq0BxNR6jExrAI31H1rzvLEfRIdgcv1XEdj6QTQAS2wtstEALLG1yEZ3QhH6oDX7ExBSFEkFINXH98NTrme5IOaaA7kIfiu2L8A3qhH9zRbukdCqdsA98TdElyeMe5BI8Rs2xHRIsoTSSVFfCFCWGPn9XHb4cdobRIWABNf0add9jakDjQJpJ1bTXOJXnnRXHRf+dNL1ZV1MBRCXhMbaHqGI1JkKIL7+i8uffuP6wVQAzO7+qVEbF6NbS0LJureYcWXUUhH66nLR5rYmva+2tjRFtojkM2aD76HEGAD3tPtKM309FJg5j/K682ywcWJ3PASCcycH/22u+Bh7Aa0ehM2Fu4z0SAE81HF9RkB21c5bEn4Dzw+/qNOyXr3DCTQDMBOdhi4nAgiFDGCinIa2owCEChUwD8qzd03PG+qdW/4fDzjUMcE1ZpIAAAAASUVORK5CYII=');
+  }
+
+  div.callout-caution.callout-style-default .callout-title {
+    background-color: #ffe5d0
+  }
+
+  </style>
+  <style type="text/css">
+    .reveal div.sourceCode {
+      margin: 0;
+      overflow: auto;
+    }
+    .reveal div.hanging-indent {
+      margin-left: 1em;
+      text-indent: -1em;
+    }
+    .reveal .slide:not(.center) {
+      height: 100%;
+    }
+    .reveal .slide.scrollable {
+      overflow-y: auto;
+    }
+    .reveal .footnotes {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide .absolute {
+      position: absolute;
+      display: block;
+    }
+    .reveal .footnotes ol {
+      counter-reset: ol;
+      list-style-type: none; 
+      margin-left: 0;
+    }
+    .reveal .footnotes ol li:before {
+      counter-increment: ol;
+      content: counter(ol) ". "; 
+    }
+    .reveal .footnotes ol li > p:first-child {
+      display: inline-block;
+    }
+    .reveal .slide ul,
+    .reveal .slide ol {
+      margin-bottom: 0.5em;
+    }
+    .reveal .slide ul li,
+    .reveal .slide ol li {
+      margin-top: 0.4em;
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide ul[role="tablist"] li {
+      margin-bottom: 0;
+    }
+    .reveal .slide ul li > *:first-child,
+    .reveal .slide ol li > *:first-child {
+      margin-block-start: 0;
+    }
+    .reveal .slide ul li > *:last-child,
+    .reveal .slide ol li > *:last-child {
+      margin-block-end: 0;
+    }
+    .reveal .slide .columns:nth-child(3) {
+      margin-block-start: 0.8em;
+    }
+    .reveal blockquote {
+      box-shadow: none;
+    }
+    .reveal .tippy-content>* {
+      margin-top: 0.2em;
+      margin-bottom: 0.7em;
+    }
+    .reveal .tippy-content>*:last-child {
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide > img.stretch.quarto-figure-center,
+    .reveal .slide > img.r-stretch.quarto-figure-center {
+      display: block;
+      margin-left: auto;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-left,
+    .reveal .slide > img.r-stretch.quarto-figure-left  {
+      display: block;
+      margin-left: 0;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-right,
+    .reveal .slide > img.r-stretch.quarto-figure-right  {
+      display: block;
+      margin-left: auto;
+      margin-right: 0; 
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+  
+  <script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+</head>
+<body class="quarto-light">
+  <div class="reveal">
+    <div class="slides">
+
+<section id="title-slide" class="quarto-title-block center">
+  <h1 class="title">Cleaning, Combining, and Reshaping Data with pandas</h1>
+  <p class="subtitle">From Messy Tables to Trustworthy Visualizations</p>
+
+<div class="quarto-title-authors">
+<div class="quarto-title-author">
+<div class="quarto-title-author-name">
+Victor Henriques de Oliveira 
+</div>
+</div>
+</div>
+
+</section>
+<section>
+<section id="cleaning-combining-and-reshaping-data" class="title-slide slide level1 center">
+<h1>Cleaning, Combining, and Reshaping Data</h1>
+
+</section>
+<section id="from-messy-tables-to-trustworthy-visualizations" class="slide level2">
+<h2>From Messy Tables to Trustworthy Visualizations</h2>
+<p><strong>A two-hour lesson based on Chapters 7 and 8</strong></p>
+<aside class="notes">
+<p>Apresente a aula como uma investigação de qualidade e estrutura. Explique que todos os dados são sintéticos e foram criados para fins didáticos. Tempo: 2 min.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section></section>
+<section>
+<section id="motivation" class="title-slide slide level1 center">
+<h1>Motivation</h1>
+
+</section>
+<section id="the-central-question" class="slide level2">
+<h2>The central question</h2>
+<blockquote>
+<p>How can we turn incomplete, inconsistent, duplicated, and distributed tables into data that support a valid visualization?</p>
+</blockquote>
+<p><strong>Diagnose → clean → transform → combine → reshape → validate → visualize → interpret</strong></p>
+<aside class="notes">
+<p>Enfatize que limpeza e wrangling são decisões sobre significado, não apenas sintaxe. Tempo: 2 min.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="learning-objectives" class="slide level2">
+<h2>Learning objectives</h2>
+<p>By the end of the lesson, students will be able to:</p>
+<ul>
+<li>diagnose missing, duplicate, invalid, and inconsistent values;</li>
+<li>make explicit and defensible cleaning decisions;</li>
+<li>transform strings, categories, and numerical variables;</li>
+<li>combine tables with <code>concat</code>, <code>merge</code>, and <code>join</code>;</li>
+<li>validate key cardinality and audit unmatched records;</li>
+<li>use MultiIndex, <code>stack</code>, and <code>unstack</code>;</li>
+<li>reshape data with <code>melt</code>, <code>pivot</code>, and <code>pivot_table</code>;</li>
+<li>explain how wrangling choices affect a visualization.</li>
+</ul>
+<aside class="notes">
+<p>Relacione cada objetivo a uma ação observável. Tempo: 2 min.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="lesson-route" class="slide level2">
+<h2>Lesson route</h2>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Block</th>
+<th>Focus</th>
+<th style="text-align: right;">Minutes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Motivation</td>
+<td>Problem and data</td>
+<td style="text-align: right;">8</td>
+</tr>
+<tr class="even">
+<td>Cleaning</td>
+<td>Missingness, duplicates, transformation</td>
+<td style="text-align: right;">35</td>
+</tr>
+<tr class="odd">
+<td>Combining</td>
+<td>Concat, merge, keys, validation</td>
+<td style="text-align: right;">25</td>
+</tr>
+<tr class="even">
+<td>Reshaping</td>
+<td>MultiIndex, wide and long</td>
+<td style="text-align: right;">22</td>
+</tr>
+<tr class="odd">
+<td>Integrated case</td>
+<td>Raw data to visualization</td>
+<td style="text-align: right;">20</td>
+</tr>
+<tr class="even">
+<td>Practice and synthesis</td>
+<td>Exercise and recap</td>
+<td style="text-align: right;">10</td>
+</tr>
+</tbody>
+</table>
+<aside class="notes">
+<p>Informe que MultiIndex avançado ficará como tópico útil, enquanto limpeza, merge e wide-long são essenciais. Tempo: 2 min.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="the-synthetic-raw-data" class="slide level2">
+<h2>The synthetic raw data</h2>
+<div id="28bc1b19" class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href=""></a>raw <span class="op">=</span> pd.DataFrame({</span>
+<span id="cb1-2"><a href=""></a>    <span class="st">"date"</span>: [<span class="st">"2026-01-02"</span>, <span class="st">"2026/01/02"</span>, <span class="st">"03-01-2026"</span>, <span class="st">"2026-01-03"</span>,</span>
+<span id="cb1-3"><a href=""></a>             <span class="st">"2026-01-04"</span>, <span class="st">"2026-01-04"</span>, <span class="st">"2026-01-05"</span>, <span class="st">"bad-date"</span>,</span>
+<span id="cb1-4"><a href=""></a>             <span class="st">"2026-01-06"</span>, <span class="st">"2026-01-07"</span>, <span class="st">"2026-01-07"</span>, <span class="st">"2026-01-08"</span>],</span>
+<span id="cb1-5"><a href=""></a>    <span class="st">"instrument"</span>: [<span class="st">" brent "</span>, <span class="st">"WTI"</span>, <span class="st">"ttf"</span>, <span class="st">"BRENT"</span>, <span class="st">"wti "</span>, <span class="st">"wti "</span>,</span>
+<span id="cb1-6"><a href=""></a>                   <span class="st">"TTF"</span>, <span class="st">"TTF"</span>, <span class="st">"WTI"</span>, <span class="st">"UNKNOWN"</span>, <span class="st">"BRENT"</span>, <span class="st">"TTF"</span>],</span>
+<span id="cb1-7"><a href=""></a>    <span class="st">"market"</span>: [<span class="st">"Oil"</span>, <span class="st">"Oil"</span>, <span class="st">"gas"</span>, <span class="st">"OIL"</span>, <span class="st">"Oil"</span>, <span class="st">"Oil"</span>,</span>
+<span id="cb1-8"><a href=""></a>               <span class="st">"Gas"</span>, <span class="st">"Gas"</span>, <span class="st">"Oil"</span>, <span class="st">"Other"</span>, <span class="st">"Oil"</span>, <span class="st">"Gas"</span>],</span>
+<span id="cb1-9"><a href=""></a>    <span class="st">"price"</span>: [<span class="st">"76.4"</span>, <span class="st">"72.1"</span>, <span class="st">"48.2"</span>, <span class="st">"77.0"</span>, <span class="va">None</span>, <span class="va">None</span>,</span>
+<span id="cb1-10"><a href=""></a>              <span class="st">"-5"</span>, <span class="st">"49.1"</span>, <span class="st">"73.4"</span>, <span class="st">"80.0"</span>, <span class="st">"1,250.0"</span>, <span class="st">"50.2"</span>],</span>
+<span id="cb1-11"><a href=""></a>    <span class="st">"volume"</span>: [<span class="dv">120</span>, <span class="dv">98</span>, <span class="dv">84</span>, <span class="dv">133</span>, <span class="dv">105</span>, <span class="dv">105</span>, <span class="dv">90</span>, <span class="dv">87</span>, <span class="va">None</span>, <span class="dv">40</span>, <span class="dv">150</span>, <span class="dv">91</span>],</span>
+<span id="cb1-12"><a href=""></a>    <span class="st">"currency"</span>: [<span class="st">"USD"</span>, <span class="st">"USD"</span>, <span class="st">"EUR"</span>, <span class="st">"usd"</span>, <span class="st">"USD"</span>, <span class="st">"USD"</span>,</span>
+<span id="cb1-13"><a href=""></a>                 <span class="st">"EUR"</span>, <span class="st">"EUR"</span>, <span class="st">"USD"</span>, <span class="st">"USD"</span>, <span class="st">"USD"</span>, <span class="st">"EUR"</span>]</span>
+<span id="cb1-14"><a href=""></a>})</span>
+<span id="cb1-15"><a href=""></a>metadata <span class="op">=</span> pd.DataFrame({</span>
+<span id="cb1-16"><a href=""></a>    <span class="st">"instrument"</span>: [<span class="st">"BRENT"</span>, <span class="st">"WTI"</span>, <span class="st">"TTF"</span>],</span>
+<span id="cb1-17"><a href=""></a>    <span class="st">"region"</span>: [<span class="st">"Europe"</span>, <span class="st">"North America"</span>, <span class="st">"Europe"</span>],</span>
+<span id="cb1-18"><a href=""></a>    <span class="st">"category"</span>: [<span class="st">"Crude oil"</span>, <span class="st">"Crude oil"</span>, <span class="st">"Natural gas"</span>],</span>
+<span id="cb1-19"><a href=""></a>    <span class="st">"price_unit"</span>: [<span class="st">"USD/bbl"</span>, <span class="st">"USD/bbl"</span>, <span class="st">"EUR/MWh"</span>]</span>
+<span id="cb1-20"><a href=""></a>})</span>
+<span id="cb1-21"><a href=""></a>raw.head(<span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="2">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+
+<table class="dataframe caption-top" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header" style="text-align: right;">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">date</th>
+<th data-quarto-table-cell-role="th">instrument</th>
+<th data-quarto-table-cell-role="th">market</th>
+<th data-quarto-table-cell-role="th">price</th>
+<th data-quarto-table-cell-role="th">volume</th>
+<th data-quarto-table-cell-role="th">currency</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>2026-01-02</td>
+<td>brent</td>
+<td>Oil</td>
+<td>76.4</td>
+<td>120.0</td>
+<td>USD</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>2026/01/02</td>
+<td>WTI</td>
+<td>Oil</td>
+<td>72.1</td>
+<td>98.0</td>
+<td>USD</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>03-01-2026</td>
+<td>ttf</td>
+<td>gas</td>
+<td>48.2</td>
+<td>84.0</td>
+<td>EUR</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<aside class="notes">
+<p>Peça à turma para observar sem corrigir. Destaque que existe uma tabela de observações e outra de referência. Tempo: 2 min.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="why-the-raw-chart-misleads" class="slide level2">
+<h2>Why the raw chart misleads</h2>
+<div id="5f774be7" class="cell" data-fig-height="4.7" data-fig-width="10" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href=""></a>raw_plot <span class="op">=</span> raw.assign(</span>
+<span id="cb2-2"><a href=""></a>    parsed_date<span class="op">=</span>pd.to_datetime(raw[<span class="st">"date"</span>], errors<span class="op">=</span><span class="st">"coerce"</span>, <span class="bu">format</span><span class="op">=</span><span class="st">"mixed"</span>, dayfirst<span class="op">=</span><span class="va">True</span>),</span>
+<span id="cb2-3"><a href=""></a>    parsed_price<span class="op">=</span>pd.to_numeric(raw[<span class="st">"price"</span>], errors<span class="op">=</span><span class="st">"coerce"</span>)</span>
+<span id="cb2-4"><a href=""></a>)</span>
+<span id="cb2-5"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
+<span id="cb2-6"><a href=""></a><span class="cf">for</span> name, group <span class="kw">in</span> raw_plot.groupby(<span class="st">"instrument"</span>):</span>
+<span id="cb2-7"><a href=""></a>    ax.plot(group[<span class="st">"parsed_date"</span>], group[<span class="st">"parsed_price"</span>], marker<span class="op">=</span><span class="st">"o"</span>, label<span class="op">=</span><span class="bu">repr</span>(name))</span>
+<span id="cb2-8"><a href=""></a>ax.<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Raw labels fragment visual series"</span>, xlabel<span class="op">=</span><span class="st">"Date"</span>, ylabel<span class="op">=</span><span class="st">"Reported price"</span>)</span>
+<span id="cb2-9"><a href=""></a>ax.legend(ncol<span class="op">=</span><span class="dv">3</span>, fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb2-10"><a href=""></a>plt.tight_layout()</span>
+<span id="cb2-11"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+</div>
+<img data-src="teste3_files/figure-revealjs/cell-4-output-1.png" class="r-stretch"><aside class="notes">
+<p>Mostre fragmentação de labels, falhas de parsing e mistura de unidades. Um gráfico bonito não corrige dados sem significado consistente. Tempo: 2 min.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section></section>
+<section>
+<section id="data-cleaning" class="title-slide slide level1 center">
+<h1>Data Cleaning</h1>
+
+</section>
+<section id="quality-problems-are-different-problems" class="slide level2">
+<h2>Quality problems are different problems</h2>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Problem</th>
+<th>Meaning</th>
+<th>First response</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Missing</td>
+<td>not observed or unavailable</td>
+<td>inspect the pattern</td>
+</tr>
+<tr class="even">
+<td>Invalid</td>
+<td>violates a domain rule</td>
+<td>verify or quarantine</td>
+</tr>
+<tr class="odd">
+<td>Duplicate</td>
+<td>repeated analytical unit</td>
+<td>define the key</td>
+</tr>
+<tr class="even">
+<td>Inconsistent</td>
+<td>same concept, different encoding</td>
+<td>standardize</td>
+</tr>
+<tr class="odd">
+<td>Outlier</td>
+<td>unusual but possibly valid</td>
+<td>investigate</td>
+</tr>
+</tbody>
+</table>
+<aside class="notes">
+<p>Insista que outlier não é sinônimo de erro e que ausência não implica remoção automática. Tempo: 3 min.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="diagnose-before-changing" class="slide level2">
+<h2>Diagnose before changing</h2>
+<div id="9e20ffc2" class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href=""></a>quality <span class="op">=</span> pd.DataFrame({</span>
+<span id="cb3-2"><a href=""></a>    <span class="st">"dtype"</span>: raw.dtypes.astype(<span class="bu">str</span>),</span>
+<span id="cb3-3"><a href=""></a>    <span class="st">"missing"</span>: raw.isna().<span class="bu">sum</span>(),</span>
+<span id="cb3-4"><a href=""></a>    <span class="st">"unique"</span>: raw.nunique(dropna<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb3-5"><a href=""></a>})</span>
+<span id="cb3-6"><a href=""></a>quality</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="4">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+
+<table class="dataframe caption-top" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header" style="text-align: right;">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">dtype</th>
+<th data-quarto-table-cell-role="th">missing</th>
+<th data-quarto-table-cell-role="th">unique</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">date</td>
+<td>str</td>
+<td>0</td>
+<td>10</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">instrument</td>
+<td>str</td>
+<td>0</td>
+<td>7</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">market</td>
+<td>str</td>
+<td>0</td>
+<td>5</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">price</td>
+<td>str</td>
+<td>2</td>
+<td>10</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">volume</td>
+<td>float64</td>
+<td>1</td>
+<td>10</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">currency</td>
+<td>str</td>
+<td>0</td>
+<td>3</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<div id="e066829f" class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href=""></a><span class="bu">print</span>(<span class="st">"exact duplicate rows:"</span>, raw.duplicated().<span class="bu">sum</span>())</span>
+<span id="cb4-2"><a href=""></a><span class="bu">print</span>(<span class="st">"instrument labels:"</span>, raw[<span class="st">"instrument"</span>].unique().tolist())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>exact duplicate rows: 1
+instrument labels: [' brent ', 'WTI', 'ttf', 'BRENT', 'wti ', 'TTF', 'UNKNOWN']</code></pre>
+</div>
+</div>
+<aside class="notes">
+<p>Discuta como object pode esconder números e datas. Head sozinho não é um diagnóstico suficiente. Tempo: 2 min.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="checkpoint-1-quality-diagnosis" class="slide level2">
+<h2>Checkpoint 1: quality diagnosis</h2>
+<div id="a004905e" class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href=""></a>raw.loc[[<span class="dv">0</span>, <span class="dv">2</span>, <span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">6</span>, <span class="dv">7</span>, <span class="dv">10</span>], :]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="6">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+
+<table class="dataframe caption-top" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header" style="text-align: right;">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">date</th>
+<th data-quarto-table-cell-role="th">instrument</th>
+<th data-quarto-table-cell-role="th">market</th>
+<th data-quarto-table-cell-role="th">price</th>
+<th data-quarto-table-cell-role="th">volume</th>
+<th data-quarto-table-cell-role="th">currency</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>2026-01-02</td>
+<td>brent</td>
+<td>Oil</td>
+<td>76.4</td>
+<td>120.0</td>
+<td>USD</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">2</td>
+<td>03-01-2026</td>
+<td>ttf</td>
+<td>gas</td>
+<td>48.2</td>
+<td>84.0</td>
+<td>EUR</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>2026-01-04</td>
+<td>wti</td>
+<td>Oil</td>
+<td>NaN</td>
+<td>105.0</td>
+<td>USD</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">5</td>
+<td>2026-01-04</td>
+<td>wti</td>
+<td>Oil</td>
+<td>NaN</td>
+<td>105.0</td>
+<td>USD</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">6</td>
+<td>2026-01-05</td>
+<td>TTF</td>
+<td>Gas</td>
+<td>-5</td>
+<td>90.0</td>
+<td>EUR</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">7</td>
+<td>bad-date</td>
+<td>TTF</td>
+<td>Gas</td>
+<td>49.1</td>
+<td>87.0</td>
+<td>EUR</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">10</td>
+<td>2026-01-07</td>
+<td>BRENT</td>
+<td>Oil</td>
+<td>1,250.0</td>
+<td>150.0</td>
+<td>USD</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>Identify evidence of:</p>
+<ul>
+<li>missing values;</li>
+<li>duplicate observations;</li>
+<li>inconsistent categories;</li>
+<li>incorrect dtypes;</li>
+<li>invalid values;</li>
+<li>parsing risk.</li>
+</ul>
+<aside class="notes">
+<p>Dê dois minutos em duplas. Peça evidência observável, não apenas suposições. Tempo: 3 min.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="missingness-is-itself-information" class="slide level2">
+<h2>Missingness is itself information</h2>
+<div id="d20d3472" class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href=""></a>missing <span class="op">=</span> raw.isna()</span>
+<span id="cb7-2"><a href=""></a>missing.<span class="bu">sum</span>().sort_values(ascending<span class="op">=</span><span class="va">False</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="7">
+<pre><code>price         2
+volume        1
+date          0
+instrument    0
+market        0
+currency      0
+dtype: int64</code></pre>
+</div>
+</div>
+<div id="a49320bd" class="cell" data-fig-height="4.5" data-fig-width="9" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
+<span id="cb9-2"><a href=""></a>sns.heatmap(missing.T, cbar<span class="op">=</span><span class="va">False</span>,</span>
+<span id="cb9-3"><a href=""></a>            cmap<span class="op">=</span>[<span class="st">"#F2F2F2"</span>, <span class="st">"#D55E00"</span>], ax<span class="op">=</span>ax)</span>
+<span id="cb9-4"><a href=""></a>ax.<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Observed missingness in the raw table"</span>,</span>
+<span id="cb9-5"><a href=""></a>       xlabel<span class="op">=</span><span class="st">"Row"</span>, ylabel<span class="op">=</span><span class="st">"Variable"</span>)</span>
+<span id="cb9-6"><a href=""></a>plt.tight_layout()</span>
+<span id="cb9-7"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+</div>
+<img data-src="teste3_files/figure-revealjs/cell-9-output-1.png" class="r-stretch"><aside class="notes">
+<p>Explique que padrões de ausência podem revelar problemas de coleta. Valores que falham no parsing também podem criar ausências novas. Tempo: 3 min.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="isna-and-notna" class="slide level2">
+<h2><code>isna</code> and <code>notna</code></h2>
+<div id="9bc1ab01" class="cell" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href=""></a>raw.loc[raw[<span class="st">"price"</span>].isna(), [<span class="st">"date"</span>, <span class="st">"instrument"</span>, <span class="st">"price"</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="9">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+
+<table class="dataframe caption-top" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header" style="text-align: right;">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">date</th>
+<th data-quarto-table-cell-role="th">instrument</th>
+<th data-quarto-table-cell-role="th">price</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>2026-01-04</td>
+<td>wti</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">5</td>
+<td>2026-01-04</td>
+<td>wti</td>
+<td>NaN</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<div id="60295ec5" class="cell" data-execution_count="10">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href=""></a>raw.loc[raw[<span class="st">"price"</span>].notna(), [<span class="st">"date"</span>, <span class="st">"instrument"</span>, <span class="st">"price"</span>]].head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="10">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+
+<table class="dataframe caption-top" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header" style="text-align: right;">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">date</th>
+<th data-quarto-table-cell-role="th">instrument</th>
+<th data-quarto-table-cell-role="th">price</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>2026-01-02</td>
+<td>brent</td>
+<td>76.4</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>2026/01/02</td>
+<td>WTI</td>
+<td>72.1</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>03-01-2026</td>
+<td>ttf</td>
+<td>48.2</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>2026-01-03</td>
+<td>BRENT</td>
+<td>77.0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">6</td>
+<td>2026-01-05</td>
+<td>TTF</td>
+<td>-5</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>Boolean diagnostics preserve the original table until a decision is made.</p>
+<aside class="notes">
+<p>Diferencie diagnóstico de tratamento. isna não modifica o DataFrame. Tempo: 2 min.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="drop-retain-or-fill" class="slide level2">
+<h2>Drop, retain, or fill?</h2>
+<div class="columns">
+<div class="column" style="width:50%;">
+<div id="1469610e" class="cell" data-execution_count="11">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href=""></a>raw.dropna(subset<span class="op">=</span>[<span class="st">"price"</span>]).shape</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="11">
+<pre><code>(10, 6)</code></pre>
+</div>
+</div>
+<p>Removal discards complete information from other columns.</p>
+</div><div class="column" style="width:50%;">
+<div id="19178e08" class="cell" data-execution_count="12">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href=""></a>raw.assign(</span>
+<span id="cb14-2"><a href=""></a>    volume<span class="op">=</span>raw[<span class="st">"volume"</span>].fillna(raw[<span class="st">"volume"</span>].median())</span>
+<span id="cb14-3"><a href=""></a>).loc[raw[<span class="st">"volume"</span>].isna()]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="12">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+
+<table class="dataframe caption-top" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header" style="text-align: right;">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">date</th>
+<th data-quarto-table-cell-role="th">instrument</th>
+<th data-quarto-table-cell-role="th">market</th>
+<th data-quarto-table-cell-role="th">price</th>
+<th data-quarto-table-cell-role="th">volume</th>
+<th data-quarto-table-cell-role="th">currency</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">8</td>
+<td>2026-01-06</td>
+<td>WTI</td>
+<td>Oil</td>
+<td>73.4</td>
+<td>98.0</td>
+<td>USD</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>Filling introduces an assumption.</p>
+</div></div>
+<aside class="notes">
+<p>Não apresente uma política universal. Pergunte qual mecanismo pode ter criado a ausência e qual variável será analisada. Tempo: 3 min.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="parse-types-and-expose-failures" class="slide level2">
+<h2>Parse types and expose failures</h2>
+<div id="00d6ae5f" class="cell" data-execution_count="13">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href=""></a>parsed <span class="op">=</span> raw.assign(</span>
+<span id="cb15-2"><a href=""></a>    date_parsed<span class="op">=</span>pd.to_datetime(</span>
+<span id="cb15-3"><a href=""></a>        raw[<span class="st">"date"</span>], errors<span class="op">=</span><span class="st">"coerce"</span>, <span class="bu">format</span><span class="op">=</span><span class="st">"mixed"</span>, dayfirst<span class="op">=</span><span class="va">True</span></span>
+<span id="cb15-4"><a href=""></a>    ),</span>
+<span id="cb15-5"><a href=""></a>    price_parsed<span class="op">=</span>pd.to_numeric(</span>
+<span id="cb15-6"><a href=""></a>        raw[<span class="st">"price"</span>].astype(<span class="st">"string"</span>).<span class="bu">str</span>.replace(<span class="st">","</span>, <span class="st">""</span>, regex<span class="op">=</span><span class="va">False</span>),</span>
+<span id="cb15-7"><a href=""></a>        errors<span class="op">=</span><span class="st">"coerce"</span></span>
+<span id="cb15-8"><a href=""></a>    )</span>
+<span id="cb15-9"><a href=""></a>)</span>
+<span id="cb15-10"><a href=""></a>parsed.loc[:, [<span class="st">"date"</span>, <span class="st">"date_parsed"</span>, <span class="st">"price"</span>, <span class="st">"price_parsed"</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="13">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+
+<table class="dataframe caption-top" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header" style="text-align: right;">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">date</th>
+<th data-quarto-table-cell-role="th">date_parsed</th>
+<th data-quarto-table-cell-role="th">price</th>
+<th data-quarto-table-cell-role="th">price_parsed</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>2026-01-02</td>
+<td>2026-02-01</td>
+<td>76.4</td>
+<td>76.4</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>2026/01/02</td>
+<td>2026-02-01</td>
+<td>72.1</td>
+<td>72.1</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>03-01-2026</td>
+<td>2026-01-03</td>
+<td>48.2</td>
+<td>48.2</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>2026-01-03</td>
+<td>2026-03-01</td>
+<td>77.0</td>
+<td>77.0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>2026-01-04</td>
+<td>2026-04-01</td>
+<td>NaN</td>
+<td>&lt;NA&gt;</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">5</td>
+<td>2026-01-04</td>
+<td>2026-04-01</td>
+<td>NaN</td>
+<td>&lt;NA&gt;</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">6</td>
+<td>2026-01-05</td>
+<td>2026-05-01</td>
+<td>-5</td>
+<td>-5.0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">7</td>
+<td>bad-date</td>
+<td>NaT</td>
+<td>49.1</td>
+<td>49.1</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">8</td>
+<td>2026-01-06</td>
+<td>2026-06-01</td>
+<td>73.4</td>
+<td>73.4</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">9</td>
+<td>2026-01-07</td>
+<td>2026-07-01</td>
+<td>80.0</td>
+<td>80.0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">10</td>
+<td>2026-01-07</td>
+<td>2026-07-01</td>
+<td>1,250.0</td>
+<td>1250.0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">11</td>
+<td>2026-01-08</td>
+<td>2026-08-01</td>
+<td>50.2</td>
+<td>50.2</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<div class="callout callout-warning callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Warning</strong></p>
+</div>
+<div class="callout-content">
+<p><code>errors="coerce"</code> exposes failures. It does not explain or correct them.</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p>Mostre NaT e NaN criados pela coerção. Toda falha deve ser auditada. Tempo: 3 min.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="standardize-text" class="slide level2">
+<h2>Standardize text</h2>
+<div id="7b6419e6" class="cell" data-execution_count="14">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href=""></a>clean <span class="op">=</span> (</span>
+<span id="cb16-2"><a href=""></a>    parsed.assign(</span>
+<span id="cb16-3"><a href=""></a>        instrument<span class="op">=</span>parsed[<span class="st">"instrument"</span>].<span class="bu">str</span>.strip().<span class="bu">str</span>.upper(),</span>
+<span id="cb16-4"><a href=""></a>        market<span class="op">=</span>parsed[<span class="st">"market"</span>].<span class="bu">str</span>.strip().<span class="bu">str</span>.title(),</span>
+<span id="cb16-5"><a href=""></a>        currency<span class="op">=</span>parsed[<span class="st">"currency"</span>].<span class="bu">str</span>.strip().<span class="bu">str</span>.upper()</span>
+<span id="cb16-6"><a href=""></a>    )</span>
+<span id="cb16-7"><a href=""></a>    .drop(columns<span class="op">=</span>[<span class="st">"date"</span>, <span class="st">"price"</span>])</span>
+<span id="cb16-8"><a href=""></a>    .rename(columns<span class="op">=</span>{<span class="st">"date_parsed"</span>: <span class="st">"date"</span>, <span class="st">"price_parsed"</span>: <span class="st">"price"</span>})</span>
+<span id="cb16-9"><a href=""></a>)</span>
+<span id="cb16-10"><a href=""></a>clean.loc[:, [<span class="st">"instrument"</span>, <span class="st">"market"</span>, <span class="st">"currency"</span>]].drop_duplicates()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="14">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+
+<table class="dataframe caption-top" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header" style="text-align: right;">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">instrument</th>
+<th data-quarto-table-cell-role="th">market</th>
+<th data-quarto-table-cell-role="th">currency</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>BRENT</td>
+<td>Oil</td>
+<td>USD</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>WTI</td>
+<td>Oil</td>
+<td>USD</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>TTF</td>
+<td>Gas</td>
+<td>EUR</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">9</td>
+<td>UNKNOWN</td>
+<td>Other</td>
+<td>USD</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<aside class="notes">
+<p>Explique strip, upper, title, drop e rename. Após padronizar, sempre inspecione os valores únicos novamente. Tempo: 3 min.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="replace-and-map-categories" class="slide level2">
+<h2>Replace and map categories</h2>
+<div id="32ed9440" class="cell" data-execution_count="15">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href=""></a>market_group <span class="op">=</span> clean[<span class="st">"market"</span>].<span class="bu">map</span>({</span>
+<span id="cb17-2"><a href=""></a>    <span class="st">"Oil"</span>: <span class="st">"Liquid energy"</span>,</span>
+<span id="cb17-3"><a href=""></a>    <span class="st">"Gas"</span>: <span class="st">"Gaseous energy"</span>,</span>
+<span id="cb17-4"><a href=""></a>    <span class="st">"Other"</span>: <span class="st">"Other"</span></span>
+<span id="cb17-5"><a href=""></a>})</span>
+<span id="cb17-6"><a href=""></a>market_group.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="15">
+<pre><code>0     Liquid energy
+1     Liquid energy
+2    Gaseous energy
+3     Liquid energy
+4     Liquid energy
+Name: market, dtype: str</code></pre>
+</div>
+</div>
+<div id="7c4da7a5" class="cell" data-execution_count="16">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href=""></a>clean <span class="op">=</span> clean.assign(</span>
+<span id="cb19-2"><a href=""></a>    currency<span class="op">=</span>clean[<span class="st">"currency"</span>].replace({<span class="st">"US$"</span>: <span class="st">"USD"</span>}),</span>
+<span id="cb19-3"><a href=""></a>    market_group<span class="op">=</span>market_group</span>
+<span id="cb19-4"><a href=""></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<aside class="notes">
+<p>Map cria uma correspondência elemento a elemento; replace corrige valores específicos. Valores sem chave em map viram ausentes. Tempo: 2 min.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="transformations-vectorization-before-apply" class="slide level2">
+<h2>Transformations: vectorization before <code>apply</code></h2>
+<div id="0a8dfca8" class="cell" data-execution_count="17">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href=""></a>clean <span class="op">=</span> clean.assign(</span>
+<span id="cb20-2"><a href=""></a>    price_log<span class="op">=</span>np.log(clean[<span class="st">"price"</span>].where(clean[<span class="st">"price"</span>].gt(<span class="dv">0</span>)))</span>
+<span id="cb20-3"><a href=""></a>)</span>
+<span id="cb20-4"><a href=""></a>clean.loc[:, [<span class="st">"price"</span>, <span class="st">"price_log"</span>]].head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="17">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+
+<table class="dataframe caption-top" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header" style="text-align: right;">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">price</th>
+<th data-quarto-table-cell-role="th">price_log</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>76.4</td>
+<td>4.335983</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>72.1</td>
+<td>4.278054</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>48.2</td>
+<td>3.875359</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>77.0</td>
+<td>4.343805</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>Prefer vectorized operations when a clear vectorized solution exists.</p>
+<aside class="notes">
+<p>Explique por que não usar apply neste caso. O objetivo é clareza e comportamento consistente em colunas. Tempo: 2 min.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="binning-continuous-values" class="slide level2">
+<h2>Binning continuous values</h2>
+<div id="31eeeef5" class="cell" data-execution_count="18">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href=""></a>clean <span class="op">=</span> clean.assign(</span>
+<span id="cb21-2"><a href=""></a>    volume_band<span class="op">=</span>pd.cut(</span>
+<span id="cb21-3"><a href=""></a>        clean[<span class="st">"volume"</span>],</span>
+<span id="cb21-4"><a href=""></a>        bins<span class="op">=</span>[<span class="dv">0</span>, <span class="dv">90</span>, <span class="dv">120</span>, np.inf],</span>
+<span id="cb21-5"><a href=""></a>        labels<span class="op">=</span>[<span class="st">"low"</span>, <span class="st">"medium"</span>, <span class="st">"high"</span>]</span>
+<span id="cb21-6"><a href=""></a>    )</span>
+<span id="cb21-7"><a href=""></a>)</span>
+<span id="cb21-8"><a href=""></a>clean.loc[:, [<span class="st">"volume"</span>, <span class="st">"volume_band"</span>]].head(<span class="dv">8</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="18">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+
+<table class="dataframe caption-top" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header" style="text-align: right;">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">volume</th>
+<th data-quarto-table-cell-role="th">volume_band</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>120.0</td>
+<td>medium</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>98.0</td>
+<td>medium</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>84.0</td>
+<td>low</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>133.0</td>
+<td>high</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>105.0</td>
+<td>medium</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">5</td>
+<td>105.0</td>
+<td>medium</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">6</td>
+<td>90.0</td>
+<td>low</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">7</td>
+<td>87.0</td>
+<td>low</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p><code>cut</code> uses substantively chosen boundaries; <code>qcut</code> uses sample quantiles.</p>
+<aside class="notes">
+<p>Destaque que a categorização perde informação e deve ter justificativa. Tempo: 2 min.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="duplicates-depend-on-the-analytical-unit" class="slide level2">
+<h2>Duplicates depend on the analytical unit</h2>
+<div id="51b84a61" class="cell" data-execution_count="19">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href=""></a>exact_dup <span class="op">=</span> clean.duplicated()</span>
+<span id="cb22-2"><a href=""></a>key_dup <span class="op">=</span> clean.duplicated(subset<span class="op">=</span>[<span class="st">"date"</span>, <span class="st">"instrument"</span>], keep<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb22-3"><a href=""></a>clean.loc[exact_dup <span class="op">|</span> key_dup,</span>
+<span id="cb22-4"><a href=""></a>          [<span class="st">"date"</span>, <span class="st">"instrument"</span>, <span class="st">"price"</span>, <span class="st">"volume"</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="19">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+
+<table class="dataframe caption-top" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header" style="text-align: right;">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">date</th>
+<th data-quarto-table-cell-role="th">instrument</th>
+<th data-quarto-table-cell-role="th">price</th>
+<th data-quarto-table-cell-role="th">volume</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>2026-04-01</td>
+<td>WTI</td>
+<td>&lt;NA&gt;</td>
+<td>105.0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">5</td>
+<td>2026-04-01</td>
+<td>WTI</td>
+<td>&lt;NA&gt;</td>
+<td>105.0</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<aside class="notes">
+<p>Pergunte: uma linha representa preço diário ou publicação? A chave depende da resposta. Tempo: 3 min.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="deduplicate-explicitly" class="slide level2">
+<h2>Deduplicate explicitly</h2>
+<div id="57a9259b" class="cell" data-execution_count="20">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href=""></a>dedup <span class="op">=</span> clean.drop_duplicates(</span>
+<span id="cb23-2"><a href=""></a>    subset<span class="op">=</span>[<span class="st">"date"</span>, <span class="st">"instrument"</span>, <span class="st">"price"</span>, <span class="st">"volume"</span>],</span>
+<span id="cb23-3"><a href=""></a>    keep<span class="op">=</span><span class="st">"first"</span></span>
+<span id="cb23-4"><a href=""></a>).copy()</span>
+<span id="cb23-5"><a href=""></a></span>
+<span id="cb23-6"><a href=""></a><span class="cf">assert</span> <span class="kw">not</span> dedup.duplicated().<span class="bu">any</span>()</span>
+<span id="cb23-7"><a href=""></a><span class="bu">print</span>(raw.shape, dedup.shape)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>(12, 6) (11, 9)</code></pre>
+</div>
+</div>
+<p>The subset and retention rule are part of the analytical decision.</p>
+<aside class="notes">
+<p>Mostre que drop_duplicates sem subset responde apenas à duplicação exata. Tempo: 2 min.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="invalid-values-versus-outliers" class="slide level2">
+<h2>Invalid values versus outliers</h2>
+<div id="7695abc8" class="cell" data-execution_count="21">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href=""></a>invalid <span class="op">=</span> dedup[<span class="st">"price"</span>].le(<span class="dv">0</span>)</span>
+<span id="cb25-2"><a href=""></a>unusual <span class="op">=</span> dedup[<span class="st">"price"</span>].gt(<span class="dv">500</span>)</span>
+<span id="cb25-3"><a href=""></a>dedup.loc[invalid <span class="op">|</span> unusual,</span>
+<span id="cb25-4"><a href=""></a>          [<span class="st">"date"</span>, <span class="st">"instrument"</span>, <span class="st">"price"</span>, <span class="st">"currency"</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="21">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+
+<table class="dataframe caption-top" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header" style="text-align: right;">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">date</th>
+<th data-quarto-table-cell-role="th">instrument</th>
+<th data-quarto-table-cell-role="th">price</th>
+<th data-quarto-table-cell-role="th">currency</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">6</td>
+<td>2026-05-01</td>
+<td>TTF</td>
+<td>-5.0</td>
+<td>EUR</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">10</td>
+<td>2026-07-01</td>
+<td>BRENT</td>
+<td>1250.0</td>
+<td>USD</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<ul>
+<li><code>price ≤ 0</code> is invalid under this teaching rule.</li>
+<li><code>price &gt; 500</code> requires investigation.</li>
+<li>The instruments do not necessarily share the same unit.</li>
+</ul>
+<aside class="notes">
+<p>Declare que preços negativos podem existir em mercados reais. A regra é didática e contextual. Tempo: 2 min.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="checkpoint-2-choose-a-treatment" class="slide level2">
+<h2>Checkpoint 2: choose a treatment</h2>
+<p>For each case, choose <strong>retain, flag, correct, fill, or remove</strong>:</p>
+<ol type="1">
+<li>price missing because no trade occurred;</li>
+<li>instrument name contains trailing spaces;</li>
+<li>duplicated ingestion event;</li>
+<li>extreme but verified market movement;</li>
+<li>date cannot be parsed;</li>
+<li>metadata category is missing.</li>
+</ol>
+<p>Justify the decision and state what must be recorded.</p>
+<aside class="notes">
+<p>Não há uma única resposta para todos os casos. Avalie a justificativa, rastreabilidade e efeito sobre a análise. Tempo: 3 min.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section></section>
+<section>
+<section id="combining-data" class="title-slide slide level1 center">
+<h1>Combining Data</h1>
+
+</section>
+<section id="concat-combine-compatible-objects-by-axis" class="slide level2">
+<h2><code>concat</code>: combine compatible objects by axis</h2>
+<div id="454ce978" class="cell" data-execution_count="22">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href=""></a>first_half <span class="op">=</span> dedup.iloc[:<span class="dv">4</span>].copy()</span>
+<span id="cb26-2"><a href=""></a>second_half <span class="op">=</span> dedup.iloc[<span class="dv">4</span>:<span class="dv">8</span>].copy()</span>
+<span id="cb26-3"><a href=""></a>combined <span class="op">=</span> pd.concat([first_half, second_half], ignore_index<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb26-4"><a href=""></a>combined.shape</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="22">
+<pre><code>(8, 9)</code></pre>
+</div>
+</div>
+<ul>
+<li>rows: <code>axis="index"</code>;</li>
+<li>columns: <code>axis="columns"</code>;</li>
+<li>no relational key matching.</li>
+</ul>
+<aside class="notes">
+<p>Diferencie concatenação de merge. Concat empilha ou alinha por eixo. Tempo: 2 min.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="keys-and-cardinality" class="slide level2">
+<h2>Keys and cardinality</h2>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Relationship</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>one-to-one</td>
+<td>each key appears once on both sides</td>
+</tr>
+<tr class="even">
+<td>many-to-one</td>
+<td>many observations reference one metadata row</td>
+</tr>
+<tr class="odd">
+<td>one-to-many</td>
+<td>one left key matches multiple right rows</td>
+</tr>
+<tr class="even">
+<td>many-to-many</td>
+<td>duplicates on both sides may multiply rows</td>
+</tr>
+</tbody>
+</table>
+<aside class="notes">
+<p>Use observações diárias para metadata como exemplo de muitos-para-um. Tempo: 2 min.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="anatomy-of-a-merge" class="slide level2">
+<h2>Anatomy of a merge</h2>
+<div id="4a445fb6" class="cell" data-execution_count="23">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href=""></a>merged_preview <span class="op">=</span> dedup.merge(</span>
+<span id="cb28-2"><a href=""></a>    metadata,</span>
+<span id="cb28-3"><a href=""></a>    on<span class="op">=</span><span class="st">"instrument"</span>,</span>
+<span id="cb28-4"><a href=""></a>    how<span class="op">=</span><span class="st">"left"</span>,</span>
+<span id="cb28-5"><a href=""></a>    validate<span class="op">=</span><span class="st">"many_to_one"</span>,</span>
+<span id="cb28-6"><a href=""></a>    indicator<span class="op">=</span><span class="va">True</span></span>
+<span id="cb28-7"><a href=""></a>)</span>
+<span id="cb28-8"><a href=""></a>merged_preview.loc[:, [<span class="st">"instrument"</span>, <span class="st">"region"</span>, <span class="st">"price_unit"</span>, <span class="st">"_merge"</span>]].head(<span class="dv">8</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="23">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+
+<table class="dataframe caption-top" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header" style="text-align: right;">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">instrument</th>
+<th data-quarto-table-cell-role="th">region</th>
+<th data-quarto-table-cell-role="th">price_unit</th>
+<th data-quarto-table-cell-role="th">_merge</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>BRENT</td>
+<td>Europe</td>
+<td>USD/bbl</td>
+<td>both</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>WTI</td>
+<td>North America</td>
+<td>USD/bbl</td>
+<td>both</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>TTF</td>
+<td>Europe</td>
+<td>EUR/MWh</td>
+<td>both</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>BRENT</td>
+<td>Europe</td>
+<td>USD/bbl</td>
+<td>both</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>WTI</td>
+<td>North America</td>
+<td>USD/bbl</td>
+<td>both</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">5</td>
+<td>TTF</td>
+<td>Europe</td>
+<td>EUR/MWh</td>
+<td>both</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">6</td>
+<td>TTF</td>
+<td>Europe</td>
+<td>EUR/MWh</td>
+<td>both</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">7</td>
+<td>WTI</td>
+<td>North America</td>
+<td>USD/bbl</td>
+<td>both</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<aside class="notes">
+<p>Explique esquerda, direita, chave, how, validate e indicator. Tempo: 3 min.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="join-types-as-set-logic" class="slide level2">
+<h2>Join types as set logic</h2>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Join</th>
+<th>Keeps</th>
+<th>Main question</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>inner</code></td>
+<td>matched keys only</td>
+<td>What overlaps?</td>
+</tr>
+<tr class="even">
+<td><code>left</code></td>
+<td>every left row</td>
+<td>What happened to each observation?</td>
+</tr>
+<tr class="odd">
+<td><code>right</code></td>
+<td>every right row</td>
+<td>Which metadata lacks observations?</td>
+</tr>
+<tr class="even">
+<td><code>outer</code></td>
+<td>union of keys</td>
+<td>Where are all mismatches?</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb29"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb29-1"><a href=""></a>LEFT: A B C      RIGHT: B C D</span>
+<span id="cb29-2"><a href=""></a>inner → B C      left → A B C</span>
+<span id="cb29-3"><a href=""></a>right → B C D    outer → A B C D</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<aside class="notes">
+<p>Lembre que o diagrama mostra conjuntos de chaves, não quantidade final de linhas quando há duplicatas. Tempo: 2 min.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="checkpoint-3-choose-the-join" class="slide level2">
+<h2>Checkpoint 3: choose the join</h2>
+<p>We must preserve every price observation and attach metadata when available.</p>
+<ol type="1">
+<li>Which join is appropriate?</li>
+<li>What happens to <code>UNKNOWN</code> under <code>inner</code>?</li>
+<li>What could happen if metadata contains two <code>BRENT</code> rows?</li>
+<li>Which diagnostic reveals unmatched records?</li>
+</ol>
+<aside class="notes">
+<p>Respostas: left, UNKNOWN desaparece, linhas podem multiplicar, indicator. Tempo: 3 min.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="many-to-many-risk" class="slide level2">
+<h2>Many-to-many risk</h2>
+<div id="8a8e7c78" class="cell" data-execution_count="24">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href=""></a>bad_metadata <span class="op">=</span> pd.concat([</span>
+<span id="cb30-2"><a href=""></a>    metadata,</span>
+<span id="cb30-3"><a href=""></a>    metadata.loc[metadata[<span class="st">"instrument"</span>].eq(<span class="st">"BRENT"</span>)]</span>
+<span id="cb30-4"><a href=""></a>], ignore_index<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb30-5"><a href=""></a></span>
+<span id="cb30-6"><a href=""></a><span class="cf">try</span>:</span>
+<span id="cb30-7"><a href=""></a>    dedup.merge(bad_metadata, on<span class="op">=</span><span class="st">"instrument"</span>, how<span class="op">=</span><span class="st">"left"</span>,</span>
+<span id="cb30-8"><a href=""></a>                validate<span class="op">=</span><span class="st">"many_to_one"</span>)</span>
+<span id="cb30-9"><a href=""></a><span class="cf">except</span> pd.errors.MergeError <span class="im">as</span> err:</span>
+<span id="cb30-10"><a href=""></a>    <span class="bu">print</span>(<span class="bu">type</span>(err).<span class="va">__name__</span>, <span class="st">"-"</span>, <span class="bu">str</span>(err).split(<span class="st">";"</span>)[<span class="dv">0</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>MergeError - Merge keys are not unique in right dataset</code></pre>
+</div>
+</div>
+<aside class="notes">
+<p>Mostre validate como contrato executável. Sem ele, a multiplicação pode ser silenciosa. Tempo: 2 min.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="audit-the-merge" class="slide level2">
+<h2>Audit the merge</h2>
+<div id="ef89fd56" class="cell" data-execution_count="25">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href=""></a>merged <span class="op">=</span> dedup.merge(</span>
+<span id="cb32-2"><a href=""></a>    metadata,</span>
+<span id="cb32-3"><a href=""></a>    on<span class="op">=</span><span class="st">"instrument"</span>,</span>
+<span id="cb32-4"><a href=""></a>    how<span class="op">=</span><span class="st">"left"</span>,</span>
+<span id="cb32-5"><a href=""></a>    validate<span class="op">=</span><span class="st">"many_to_one"</span>,</span>
+<span id="cb32-6"><a href=""></a>    indicator<span class="op">=</span><span class="va">True</span></span>
+<span id="cb32-7"><a href=""></a>)</span>
+<span id="cb32-8"><a href=""></a><span class="cf">assert</span> <span class="bu">len</span>(merged) <span class="op">==</span> <span class="bu">len</span>(dedup)</span>
+<span id="cb32-9"><a href=""></a>merged[<span class="st">"_merge"</span>].value_counts()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="25">
+<pre><code>_merge
+both          10
+left_only      1
+right_only     0
+Name: count, dtype: int64</code></pre>
+</div>
+</div>
+<div id="1c5e67eb" class="cell" data-execution_count="26">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href=""></a>merged.loc[merged[<span class="st">"_merge"</span>].ne(<span class="st">"both"</span>),</span>
+<span id="cb34-2"><a href=""></a>           [<span class="st">"instrument"</span>, <span class="st">"_merge"</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="26">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+
+<table class="dataframe caption-top" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header" style="text-align: right;">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">instrument</th>
+<th data-quarto-table-cell-role="th">_merge</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">8</td>
+<td>UNKNOWN</td>
+<td>left_only</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<aside class="notes">
+<p>Preservar linhas não é suficiente; também é preciso verificar correspondências. Tempo: 2 min.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="join-index-based-convenience" class="slide level2">
+<h2><code>join</code>: index-based convenience</h2>
+<div id="ade46057" class="cell" data-execution_count="27">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href=""></a>joined <span class="op">=</span> dedup.set_index(<span class="st">"instrument"</span>).join(</span>
+<span id="cb35-2"><a href=""></a>    metadata.set_index(<span class="st">"instrument"</span>),</span>
+<span id="cb35-3"><a href=""></a>    how<span class="op">=</span><span class="st">"left"</span>,</span>
+<span id="cb35-4"><a href=""></a>    validate<span class="op">=</span><span class="st">"many_to_one"</span></span>
+<span id="cb35-5"><a href=""></a>)</span>
+<span id="cb35-6"><a href=""></a>joined.loc[:, [<span class="st">"region"</span>, <span class="st">"category"</span>]].head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="27">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+
+<table class="dataframe caption-top" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header" style="text-align: right;">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">region</th>
+<th data-quarto-table-cell-role="th">category</th>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">instrument</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">BRENT</td>
+<td>Europe</td>
+<td>Crude oil</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">WTI</td>
+<td>North America</td>
+<td>Crude oil</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">TTF</td>
+<td>Europe</td>
+<td>Natural gas</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">BRENT</td>
+<td>Europe</td>
+<td>Crude oil</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">WTI</td>
+<td>North America</td>
+<td>Crude oil</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p><code>join</code> is convenient when keys are represented by indexes.</p>
+<aside class="notes">
+<p>Mostre que merge costuma ser mais explícito quando as chaves são colunas. Tempo: 2 min.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section></section>
+<section>
+<section id="reshaping-data" class="title-slide slide level1 center">
+<h1>Reshaping Data</h1>
+
+</section>
+<section id="multiindex-represents-multiple-dimensions" class="slide level2">
+<h2>MultiIndex represents multiple dimensions</h2>
+<div id="22ca6236" class="cell" data-execution_count="28">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href=""></a>multi <span class="op">=</span> merged.set_index([<span class="st">"instrument"</span>, <span class="st">"date"</span>]).sort_index()</span>
+<span id="cb36-2"><a href=""></a>multi.loc[:, [<span class="st">"price"</span>, <span class="st">"volume"</span>]].head(<span class="dv">7</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="28">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+
+<table class="dataframe caption-top" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header" style="text-align: right;">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">price</th>
+<th data-quarto-table-cell-role="th">volume</th>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">instrument</th>
+<th data-quarto-table-cell-role="th">date</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td rowspan="3" data-quarto-table-cell-role="th" data-valign="top">BRENT</td>
+<td data-quarto-table-cell-role="th">2026-02-01</td>
+<td>76.4</td>
+<td>120.0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">2026-03-01</td>
+<td>77.0</td>
+<td>133.0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2026-07-01</td>
+<td>1250.0</td>
+<td>150.0</td>
+</tr>
+<tr class="even">
+<td rowspan="4" data-quarto-table-cell-role="th" data-valign="top">TTF</td>
+<td data-quarto-table-cell-role="th">2026-01-03</td>
+<td>48.2</td>
+<td>84.0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2026-05-01</td>
+<td>-5.0</td>
+<td>90.0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">2026-08-01</td>
+<td>50.2</td>
+<td>91.0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">NaT</td>
+<td>49.1</td>
+<td>87.0</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<ul>
+<li>multiple index levels;</li>
+<li>partial selection;</li>
+<li>useful in grouped and reshaped results.</li>
+</ul>
+<aside class="notes">
+<p>Trate como conteúdo útil, não núcleo da aula. Mostre os nomes dos níveis. Tempo: 2 min.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="unstack-and-stack" class="slide level2">
+<h2><code>unstack</code> and <code>stack</code></h2>
+<div id="809ce729" class="cell" data-execution_count="29">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href=""></a>small_multi <span class="op">=</span> multi.loc[:, [<span class="st">"price"</span>]].dropna().head(<span class="dv">6</span>)</span>
+<span id="cb37-2"><a href=""></a>wide_indexed <span class="op">=</span> small_multi[<span class="st">"price"</span>].unstack(<span class="st">"instrument"</span>)</span>
+<span id="cb37-3"><a href=""></a>wide_indexed</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="29">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+
+<table class="dataframe caption-top" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header" style="text-align: right;">
+<th data-quarto-table-cell-role="th">instrument</th>
+<th data-quarto-table-cell-role="th">BRENT</th>
+<th data-quarto-table-cell-role="th">TTF</th>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">date</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2026-02-01</td>
+<td>76.4</td>
+<td>&lt;NA&gt;</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">2026-03-01</td>
+<td>77.0</td>
+<td>&lt;NA&gt;</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2026-07-01</td>
+<td>1250.0</td>
+<td>&lt;NA&gt;</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">2026-01-03</td>
+<td>&lt;NA&gt;</td>
+<td>48.2</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2026-05-01</td>
+<td>&lt;NA&gt;</td>
+<td>-5.0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">2026-08-01</td>
+<td>&lt;NA&gt;</td>
+<td>50.2</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<div id="fc415b1e" class="cell" data-execution_count="30">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href=""></a>wide_indexed.stack(future_stack<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="30">
+<pre><code>date        instrument
+2026-02-01  BRENT           76.4
+            TTF             &lt;NA&gt;
+2026-03-01  BRENT           77.0
+            TTF             &lt;NA&gt;
+2026-07-01  BRENT         1250.0
+            TTF             &lt;NA&gt;
+2026-01-03  BRENT           &lt;NA&gt;
+            TTF             48.2
+2026-05-01  BRENT           &lt;NA&gt;
+            TTF             -5.0
+2026-08-01  BRENT           &lt;NA&gt;
+            TTF             50.2
+dtype: Float64</code></pre>
+</div>
+</div>
+<p><code>unstack</code> moves an index level to columns; <code>stack</code> moves columns into an index level.</p>
+<aside class="notes">
+<p>Se o tempo estiver curto, use apenas como demonstração. Tempo: 2 min.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="wide-versus-long" class="slide level2">
+<h2>Wide versus long</h2>
+<div class="columns">
+<div class="column" style="width:50%;">
+<p><strong>Wide</strong></p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>date</th>
+<th style="text-align: right;">BRENT</th>
+<th style="text-align: right;">WTI</th>
+<th style="text-align: right;">TTF</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Jan 2</td>
+<td style="text-align: right;">76.4</td>
+<td style="text-align: right;">72.1</td>
+<td style="text-align: right;">48.2</td>
+</tr>
+</tbody>
+</table>
+<p>One column per instrument.</p>
+</div><div class="column" style="width:50%;">
+<p><strong>Long</strong></p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>date</th>
+<th>instrument</th>
+<th style="text-align: right;">price</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Jan 2</td>
+<td>BRENT</td>
+<td style="text-align: right;">76.4</td>
+</tr>
+<tr class="even">
+<td>Jan 2</td>
+<td>WTI</td>
+<td style="text-align: right;">72.1</td>
+</tr>
+<tr class="odd">
+<td>Jan 2</td>
+<td>TTF</td>
+<td style="text-align: right;">48.2</td>
+</tr>
+</tbody>
+</table>
+<p>One observation per row.</p>
+</div></div>
+<aside class="notes">
+<p>Formato é uma decisão estrutural. Long facilita mapear instrumento para cor, facet ou grupo. Tempo: 2 min.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="checkpoint-4-design-the-reshape" class="slide level2">
+<h2>Checkpoint 4: design the reshape</h2>
+<div id="c3209ffe" class="cell" data-execution_count="31">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href=""></a>wide <span class="op">=</span> pd.DataFrame({</span>
+<span id="cb40-2"><a href=""></a>    <span class="st">"date"</span>: [<span class="st">"2026-01-02"</span>, <span class="st">"2026-01-03"</span>],</span>
+<span id="cb40-3"><a href=""></a>    <span class="st">"BRENT"</span>: [<span class="fl">76.4</span>, <span class="fl">77.0</span>],</span>
+<span id="cb40-4"><a href=""></a>    <span class="st">"WTI"</span>: [<span class="fl">72.1</span>, <span class="fl">72.8</span>],</span>
+<span id="cb40-5"><a href=""></a>    <span class="st">"TTF"</span>: [<span class="fl">48.2</span>, <span class="fl">48.7</span>]</span>
+<span id="cb40-6"><a href=""></a>})</span>
+<span id="cb40-7"><a href=""></a>wide</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="31">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+
+<table class="dataframe caption-top" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header" style="text-align: right;">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">date</th>
+<th data-quarto-table-cell-role="th">BRENT</th>
+<th data-quarto-table-cell-role="th">WTI</th>
+<th data-quarto-table-cell-role="th">TTF</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>2026-01-02</td>
+<td>76.4</td>
+<td>72.1</td>
+<td>48.2</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>2026-01-03</td>
+<td>77.0</td>
+<td>72.8</td>
+<td>48.7</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>Which column is the identifier? Which columns should become a variable? What should the value column be called?</p>
+<aside class="notes">
+<p>Peça a resposta conceitual antes da sintaxe. Tempo: 2 min.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="melt-wide-to-long" class="slide level2">
+<h2><code>melt</code>: wide to long</h2>
+<div id="67035916" class="cell" data-execution_count="32">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb41-1"><a href=""></a><span class="bu">long</span> <span class="op">=</span> wide.melt(</span>
+<span id="cb41-2"><a href=""></a>    id_vars<span class="op">=</span><span class="st">"date"</span>,</span>
+<span id="cb41-3"><a href=""></a>    var_name<span class="op">=</span><span class="st">"instrument"</span>,</span>
+<span id="cb41-4"><a href=""></a>    value_name<span class="op">=</span><span class="st">"price"</span></span>
+<span id="cb41-5"><a href=""></a>)</span>
+<span id="cb41-6"><a href=""></a><span class="bu">long</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="32">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+
+<table class="dataframe caption-top" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header" style="text-align: right;">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">date</th>
+<th data-quarto-table-cell-role="th">instrument</th>
+<th data-quarto-table-cell-role="th">price</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>2026-01-02</td>
+<td>BRENT</td>
+<td>76.4</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>2026-01-03</td>
+<td>BRENT</td>
+<td>77.0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>2026-01-02</td>
+<td>WTI</td>
+<td>72.1</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>2026-01-03</td>
+<td>WTI</td>
+<td>72.8</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>2026-01-02</td>
+<td>TTF</td>
+<td>48.2</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">5</td>
+<td>2026-01-03</td>
+<td>TTF</td>
+<td>48.7</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>No aggregation occurs; the values are reorganized.</p>
+<aside class="notes">
+<p>Explique id_vars, var_name e value_name. Tempo: 2 min.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="pivot-long-to-wide" class="slide level2">
+<h2><code>pivot</code>: long to wide</h2>
+<div id="9fe27a97" class="cell" data-execution_count="33">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href=""></a><span class="bu">long</span>.pivot(index<span class="op">=</span><span class="st">"date"</span>, columns<span class="op">=</span><span class="st">"instrument"</span>, values<span class="op">=</span><span class="st">"price"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="33">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+
+<table class="dataframe caption-top" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header" style="text-align: right;">
+<th data-quarto-table-cell-role="th">instrument</th>
+<th data-quarto-table-cell-role="th">BRENT</th>
+<th data-quarto-table-cell-role="th">TTF</th>
+<th data-quarto-table-cell-role="th">WTI</th>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">date</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2026-01-02</td>
+<td>76.4</td>
+<td>48.2</td>
+<td>72.1</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">2026-01-03</td>
+<td>77.0</td>
+<td>48.7</td>
+<td>72.8</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p><code>pivot</code> requires unique date-instrument pairs.</p>
+<aside class="notes">
+<p>Mostre que pivot falha diante de duplicatas porque não escolhe uma agregação. Tempo: 2 min.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="pivot_table-reshape-and-aggregate" class="slide level2">
+<h2><code>pivot_table</code>: reshape and aggregate</h2>
+<div id="2512785f" class="cell" data-execution_count="34">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a href=""></a>duplicated_long <span class="op">=</span> pd.concat([<span class="bu">long</span>, <span class="bu">long</span>.iloc[[<span class="dv">0</span>]]], ignore_index<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb43-2"><a href=""></a>duplicated_long.pivot_table(</span>
+<span id="cb43-3"><a href=""></a>    index<span class="op">=</span><span class="st">"date"</span>, columns<span class="op">=</span><span class="st">"instrument"</span>, values<span class="op">=</span><span class="st">"price"</span>, aggfunc<span class="op">=</span><span class="st">"mean"</span></span>
+<span id="cb43-4"><a href=""></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="34">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+
+<table class="dataframe caption-top" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header" style="text-align: right;">
+<th data-quarto-table-cell-role="th">instrument</th>
+<th data-quarto-table-cell-role="th">BRENT</th>
+<th data-quarto-table-cell-role="th">TTF</th>
+<th data-quarto-table-cell-role="th">WTI</th>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">date</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2026-01-02</td>
+<td>76.4</td>
+<td>48.2</td>
+<td>72.1</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">2026-01-03</td>
+<td>77.0</td>
+<td>48.7</td>
+<td>72.8</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<div class="callout callout-warning callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Warning</strong></p>
+</div>
+<div class="callout-content">
+<p>Aggregation can hide duplicate records. Use it only when aggregation is analytically intended.</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p>Mostre que pivot_table resolve a colisão por uma decisão estatística. Tempo: 2 min.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="combine-reshape-or-aggregate" class="slide level2">
+<h2>Combine, reshape, or aggregate?</h2>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Goal</th>
+<th>Tool</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>append compatible tables</td>
+<td><code>concat</code></td>
+</tr>
+<tr class="even">
+<td>associate tables by keys</td>
+<td><code>merge</code> or <code>join</code></td>
+</tr>
+<tr class="odd">
+<td>move columns into rows</td>
+<td><code>melt</code> or <code>stack</code></td>
+</tr>
+<tr class="even">
+<td>move row values into columns</td>
+<td><code>pivot</code> or <code>unstack</code></td>
+</tr>
+<tr class="odd">
+<td>reshape while summarizing</td>
+<td><code>pivot_table</code></td>
+</tr>
+</tbody>
+</table>
+<aside class="notes">
+<p>Use como síntese de escolha de ferramenta, não como memorização isolada. Tempo: 2 min.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section></section>
+<section>
+<section id="integrated-case" class="title-slide slide level1 center">
+<h1>Integrated Case</h1>
+
+</section>
+<section id="step-1-define-a-working-copy" class="slide level2">
+<h2>Step 1: define a working copy</h2>
+<div id="9be3cb76" class="cell" data-execution_count="35">
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb44-1"><a href=""></a>working <span class="op">=</span> raw.loc[:, [</span>
+<span id="cb44-2"><a href=""></a>    <span class="st">"date"</span>, <span class="st">"instrument"</span>, <span class="st">"market"</span>, <span class="st">"price"</span>, <span class="st">"volume"</span>, <span class="st">"currency"</span></span>
+<span id="cb44-3"><a href=""></a>]].copy()</span>
+<span id="cb44-4"><a href=""></a><span class="bu">print</span>(working.shape)</span>
+<span id="cb44-5"><a href=""></a><span class="bu">print</span>(working.dtypes)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>(12, 6)
+date              str
+instrument        str
+market            str
+price             str
+volume        float64
+currency          str
+dtype: object</code></pre>
+</div>
+</div>
+<aside class="notes">
+<p>Reinicie do dado bruto para demonstrar reprodutibilidade. Tempo: 1 min.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="step-2-parse-and-standardize" class="slide level2">
+<h2>Step 2: parse and standardize</h2>
+<div id="80da7db9" class="cell" data-execution_count="36">
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb46-1"><a href=""></a>working <span class="op">=</span> working.assign(</span>
+<span id="cb46-2"><a href=""></a>    date<span class="op">=</span>pd.to_datetime(working[<span class="st">"date"</span>], errors<span class="op">=</span><span class="st">"coerce"</span>, <span class="bu">format</span><span class="op">=</span><span class="st">"mixed"</span>, dayfirst<span class="op">=</span><span class="va">True</span>),</span>
+<span id="cb46-3"><a href=""></a>    instrument<span class="op">=</span>working[<span class="st">"instrument"</span>].<span class="bu">str</span>.strip().<span class="bu">str</span>.upper(),</span>
+<span id="cb46-4"><a href=""></a>    market<span class="op">=</span>working[<span class="st">"market"</span>].<span class="bu">str</span>.strip().<span class="bu">str</span>.title(),</span>
+<span id="cb46-5"><a href=""></a>    currency<span class="op">=</span>working[<span class="st">"currency"</span>].<span class="bu">str</span>.strip().<span class="bu">str</span>.upper(),</span>
+<span id="cb46-6"><a href=""></a>    price<span class="op">=</span>pd.to_numeric(</span>
+<span id="cb46-7"><a href=""></a>        working[<span class="st">"price"</span>].astype(<span class="st">"string"</span>).<span class="bu">str</span>.replace(<span class="st">","</span>, <span class="st">""</span>, regex<span class="op">=</span><span class="va">False</span>),</span>
+<span id="cb46-8"><a href=""></a>        errors<span class="op">=</span><span class="st">"coerce"</span></span>
+<span id="cb46-9"><a href=""></a>    )</span>
+<span id="cb46-10"><a href=""></a>)</span>
+<span id="cb46-11"><a href=""></a>working.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="36">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+
+<table class="dataframe caption-top" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header" style="text-align: right;">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">date</th>
+<th data-quarto-table-cell-role="th">instrument</th>
+<th data-quarto-table-cell-role="th">market</th>
+<th data-quarto-table-cell-role="th">price</th>
+<th data-quarto-table-cell-role="th">volume</th>
+<th data-quarto-table-cell-role="th">currency</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>2026-02-01</td>
+<td>BRENT</td>
+<td>Oil</td>
+<td>76.4</td>
+<td>120.0</td>
+<td>USD</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>2026-02-01</td>
+<td>WTI</td>
+<td>Oil</td>
+<td>72.1</td>
+<td>98.0</td>
+<td>USD</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>2026-01-03</td>
+<td>TTF</td>
+<td>Gas</td>
+<td>48.2</td>
+<td>84.0</td>
+<td>EUR</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>2026-03-01</td>
+<td>BRENT</td>
+<td>Oil</td>
+<td>77.0</td>
+<td>133.0</td>
+<td>USD</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>2026-04-01</td>
+<td>WTI</td>
+<td>Oil</td>
+<td>&lt;NA&gt;</td>
+<td>105.0</td>
+<td>USD</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<aside class="notes">
+<p>Conecte cada transformação a um problema diagnosticado. Tempo: 2 min.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="step-3-retain-an-audit-trail" class="slide level2">
+<h2>Step 3: retain an audit trail</h2>
+<div id="3bd038af" class="cell" data-execution_count="37">
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb47-1"><a href=""></a>working <span class="op">=</span> working.assign(</span>
+<span id="cb47-2"><a href=""></a>    invalid_date<span class="op">=</span>working[<span class="st">"date"</span>].isna(),</span>
+<span id="cb47-3"><a href=""></a>    missing_price<span class="op">=</span>working[<span class="st">"price"</span>].isna(),</span>
+<span id="cb47-4"><a href=""></a>    nonpositive_price<span class="op">=</span>working[<span class="st">"price"</span>].le(<span class="dv">0</span>).fillna(<span class="va">False</span>)</span>
+<span id="cb47-5"><a href=""></a>)</span>
+<span id="cb47-6"><a href=""></a>rejected <span class="op">=</span> working.loc[</span>
+<span id="cb47-7"><a href=""></a>    working[[<span class="st">"invalid_date"</span>, <span class="st">"nonpositive_price"</span>]].<span class="bu">any</span>(axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb47-8"><a href=""></a>].copy()</span>
+<span id="cb47-9"><a href=""></a>rejected.loc[:, [<span class="st">"date"</span>, <span class="st">"instrument"</span>, <span class="st">"price"</span>,</span>
+<span id="cb47-10"><a href=""></a>                 <span class="st">"invalid_date"</span>, <span class="st">"nonpositive_price"</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="37">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+
+<table class="dataframe caption-top" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header" style="text-align: right;">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">date</th>
+<th data-quarto-table-cell-role="th">instrument</th>
+<th data-quarto-table-cell-role="th">price</th>
+<th data-quarto-table-cell-role="th">invalid_date</th>
+<th data-quarto-table-cell-role="th">nonpositive_price</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">6</td>
+<td>2026-05-01</td>
+<td>TTF</td>
+<td>-5.0</td>
+<td>False</td>
+<td>True</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">7</td>
+<td>NaT</td>
+<td>TTF</td>
+<td>49.1</td>
+<td>True</td>
+<td>False</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<aside class="notes">
+<p>Mostre que rejeições devem ser auditáveis. Ausência de preço não é automaticamente rejeitada nesta etapa. Tempo: 3 min.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="step-4-deduplicate-and-treat-missing-price" class="slide level2">
+<h2>Step 4: deduplicate and treat missing price</h2>
+<div id="7e2a97d0" class="cell" data-execution_count="38">
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb48-1"><a href=""></a>valid <span class="op">=</span> (</span>
+<span id="cb48-2"><a href=""></a>    working.loc[<span class="op">~</span>working[[<span class="st">"invalid_date"</span>, <span class="st">"nonpositive_price"</span>]].<span class="bu">any</span>(axis<span class="op">=</span><span class="dv">1</span>)]</span>
+<span id="cb48-3"><a href=""></a>    .drop_duplicates(subset<span class="op">=</span>[<span class="st">"date"</span>, <span class="st">"instrument"</span>, <span class="st">"price"</span>, <span class="st">"volume"</span>])</span>
+<span id="cb48-4"><a href=""></a>    .copy()</span>
+<span id="cb48-5"><a href=""></a>)</span>
+<span id="cb48-6"><a href=""></a>valid[<span class="st">"price_imputed"</span>] <span class="op">=</span> valid[<span class="st">"price"</span>].isna()</span>
+<span id="cb48-7"><a href=""></a>valid[<span class="st">"price"</span>] <span class="op">=</span> valid.groupby(<span class="st">"instrument"</span>)[<span class="st">"price"</span>].transform(</span>
+<span id="cb48-8"><a href=""></a>    <span class="kw">lambda</span> s: s.fillna(s.median())</span>
+<span id="cb48-9"><a href=""></a>)</span>
+<span id="cb48-10"><a href=""></a><span class="cf">assert</span> valid[<span class="st">"price"</span>].notna().<span class="bu">all</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<aside class="notes">
+<p>A mediana por instrumento é uma hipótese didática. Em produção, a política dependeria do processo de geração dos dados. Tempo: 3 min.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="step-5-merge-and-audit" class="slide level2">
+<h2>Step 5: merge and audit</h2>
+<div id="2ffa0384" class="cell" data-execution_count="39">
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb49-1"><a href=""></a>final <span class="op">=</span> valid.merge(</span>
+<span id="cb49-2"><a href=""></a>    metadata,</span>
+<span id="cb49-3"><a href=""></a>    on<span class="op">=</span><span class="st">"instrument"</span>,</span>
+<span id="cb49-4"><a href=""></a>    how<span class="op">=</span><span class="st">"left"</span>,</span>
+<span id="cb49-5"><a href=""></a>    validate<span class="op">=</span><span class="st">"many_to_one"</span>,</span>
+<span id="cb49-6"><a href=""></a>    indicator<span class="op">=</span><span class="va">True</span></span>
+<span id="cb49-7"><a href=""></a>)</span>
+<span id="cb49-8"><a href=""></a><span class="cf">assert</span> <span class="bu">len</span>(final) <span class="op">==</span> <span class="bu">len</span>(valid)</span>
+<span id="cb49-9"><a href=""></a>final[<span class="st">"_merge"</span>].value_counts()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="39">
+<pre><code>_merge
+both          8
+left_only     1
+right_only    0
+Name: count, dtype: int64</code></pre>
+</div>
+</div>
+<div id="e0c17999" class="cell" data-execution_count="40">
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb51-1"><a href=""></a>unmatched <span class="op">=</span> final.loc[final[<span class="st">"_merge"</span>].ne(<span class="st">"both"</span>)].copy()</span>
+<span id="cb51-2"><a href=""></a>unmatched.loc[:, [<span class="st">"instrument"</span>, <span class="st">"_merge"</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="40">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+
+<table class="dataframe caption-top" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header" style="text-align: right;">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">instrument</th>
+<th data-quarto-table-cell-role="th">_merge</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">6</td>
+<td>UNKNOWN</td>
+<td>left_only</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<aside class="notes">
+<p>UNKNOWN é preservado para auditoria. Não o remova antes de saber que não houve associação. Tempo: 2 min.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="step-6-create-chart-ready-data" class="slide level2">
+<h2>Step 6: create chart-ready data</h2>
+<div id="8233ae4a" class="cell" data-execution_count="41">
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb52-1"><a href=""></a>chart_data <span class="op">=</span> (</span>
+<span id="cb52-2"><a href=""></a>    final.loc[final[<span class="st">"_merge"</span>].eq(<span class="st">"both"</span>)]</span>
+<span id="cb52-3"><a href=""></a>    .drop(columns<span class="op">=</span><span class="st">"_merge"</span>)</span>
+<span id="cb52-4"><a href=""></a>    .sort_values([<span class="st">"category"</span>, <span class="st">"instrument"</span>, <span class="st">"date"</span>])</span>
+<span id="cb52-5"><a href=""></a>    .reset_index(drop<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb52-6"><a href=""></a>)</span>
+<span id="cb52-7"><a href=""></a><span class="cf">assert</span> chart_data[[<span class="st">"date"</span>, <span class="st">"instrument"</span>, <span class="st">"price"</span>, <span class="st">"price_unit"</span>]].notna().<span class="bu">all</span>().<span class="bu">all</span>()</span>
+<span id="cb52-8"><a href=""></a>chart_data.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="41">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+
+<table class="dataframe caption-top" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header" style="text-align: right;">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">date</th>
+<th data-quarto-table-cell-role="th">instrument</th>
+<th data-quarto-table-cell-role="th">market</th>
+<th data-quarto-table-cell-role="th">price</th>
+<th data-quarto-table-cell-role="th">volume</th>
+<th data-quarto-table-cell-role="th">currency</th>
+<th data-quarto-table-cell-role="th">...</th>
+<th data-quarto-table-cell-role="th">missing_price</th>
+<th data-quarto-table-cell-role="th">nonpositive_price</th>
+<th data-quarto-table-cell-role="th">price_imputed</th>
+<th data-quarto-table-cell-role="th">region</th>
+<th data-quarto-table-cell-role="th">category</th>
+<th data-quarto-table-cell-role="th">price_unit</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>2026-02-01</td>
+<td>BRENT</td>
+<td>Oil</td>
+<td>76.4</td>
+<td>120.0</td>
+<td>USD</td>
+<td>...</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>Europe</td>
+<td>Crude oil</td>
+<td>USD/bbl</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>2026-03-01</td>
+<td>BRENT</td>
+<td>Oil</td>
+<td>77.0</td>
+<td>133.0</td>
+<td>USD</td>
+<td>...</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>Europe</td>
+<td>Crude oil</td>
+<td>USD/bbl</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>2026-07-01</td>
+<td>BRENT</td>
+<td>Oil</td>
+<td>1250.0</td>
+<td>150.0</td>
+<td>USD</td>
+<td>...</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>Europe</td>
+<td>Crude oil</td>
+<td>USD/bbl</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>2026-02-01</td>
+<td>WTI</td>
+<td>Oil</td>
+<td>72.1</td>
+<td>98.0</td>
+<td>USD</td>
+<td>...</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>North America</td>
+<td>Crude oil</td>
+<td>USD/bbl</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>2026-04-01</td>
+<td>WTI</td>
+<td>Oil</td>
+<td>72.75</td>
+<td>105.0</td>
+<td>USD</td>
+<td>...</td>
+<td>True</td>
+<td>False</td>
+<td>True</td>
+<td>North America</td>
+<td>Crude oil</td>
+<td>USD/bbl</td>
+</tr>
+</tbody>
+</table>
+
+<p>5 rows × 13 columns</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p>A tabela final mantém unidade, categoria e marcador de imputação. Tempo: 2 min.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="compare-compatible-units" class="slide level2">
+<h2>Compare compatible units</h2>
+<div id="aabe0bc7" class="cell" data-fig-height="5" data-fig-width="10" data-execution_count="42">
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb53-1"><a href=""></a>crude <span class="op">=</span> chart_data.loc[chart_data[<span class="st">"category"</span>].eq(<span class="st">"Crude oil"</span>)]</span>
+<span id="cb53-2"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
+<span id="cb53-3"><a href=""></a>sns.lineplot(data<span class="op">=</span>crude, x<span class="op">=</span><span class="st">"date"</span>, y<span class="op">=</span><span class="st">"price"</span>,</span>
+<span id="cb53-4"><a href=""></a>             hue<span class="op">=</span><span class="st">"instrument"</span>, style<span class="op">=</span><span class="st">"price_imputed"</span>,</span>
+<span id="cb53-5"><a href=""></a>             markers<span class="op">=</span><span class="va">True</span>, dashes<span class="op">=</span><span class="va">False</span>, ax<span class="op">=</span>ax)</span>
+<span id="cb53-6"><a href=""></a>ax.<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Synthetic crude-oil prices after validated wrangling"</span>,</span>
+<span id="cb53-7"><a href=""></a>       xlabel<span class="op">=</span><span class="st">"Date"</span>, ylabel<span class="op">=</span><span class="st">"Price (USD/bbl)"</span>)</span>
+<span id="cb53-8"><a href=""></a>ax.legend(title<span class="op">=</span><span class="st">"Instrument / imputed"</span>, frameon<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb53-9"><a href=""></a>plt.tight_layout()</span>
+<span id="cb53-10"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+</div>
+<img data-src="teste3_files/figure-revealjs/cell-43-output-1.png" class="r-stretch"><aside class="notes">
+<p>A comparação agora restringe-se à mesma unidade. O estilo marca observações imputadas. Não faça inferência de mercado com dados sintéticos. Tempo: 3 min.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="a-visual-audit-of-record-counts" class="slide level2">
+<h2>A visual audit of record counts</h2>
+<div id="f6ac8985" class="cell" data-fig-height="4.5" data-fig-width="8" data-execution_count="43">
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb54-1"><a href=""></a>counts <span class="op">=</span> pd.Series({</span>
+<span id="cb54-2"><a href=""></a>    <span class="st">"Raw rows"</span>: <span class="bu">len</span>(raw),</span>
+<span id="cb54-3"><a href=""></a>    <span class="st">"Rejected"</span>: <span class="bu">len</span>(rejected),</span>
+<span id="cb54-4"><a href=""></a>    <span class="st">"Valid after rules"</span>: <span class="bu">len</span>(valid),</span>
+<span id="cb54-5"><a href=""></a>    <span class="st">"Chart-ready"</span>: <span class="bu">len</span>(chart_data)</span>
+<span id="cb54-6"><a href=""></a>})</span>
+<span id="cb54-7"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
+<span id="cb54-8"><a href=""></a>counts.plot.bar(color<span class="op">=</span><span class="st">"#4472C4"</span>, ax<span class="op">=</span>ax)</span>
+<span id="cb54-9"><a href=""></a>ax.<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Every reduction in rows should be explainable"</span>,</span>
+<span id="cb54-10"><a href=""></a>       xlabel<span class="op">=</span><span class="st">"Pipeline stage"</span>, ylabel<span class="op">=</span><span class="st">"Number of rows"</span>)</span>
+<span id="cb54-11"><a href=""></a>ax.tick_params(axis<span class="op">=</span><span class="st">"x"</span>, rotation<span class="op">=</span><span class="dv">20</span>)</span>
+<span id="cb54-12"><a href=""></a>plt.tight_layout()</span>
+<span id="cb54-13"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+</div>
+<img data-src="teste3_files/figure-revealjs/cell-44-output-1.png" class="r-stretch"><aside class="notes">
+<p>Explique que os estágios não formam todos uma decomposição aditiva. O gráfico serve para auditoria do pipeline. Tempo: 2 min.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="pipeline-invariants" class="slide level2">
+<h2>Pipeline invariants</h2>
+<div id="870d425c" class="cell" data-execution_count="44">
+<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb55-1"><a href=""></a><span class="cf">assert</span> metadata[<span class="st">"instrument"</span>].is_unique</span>
+<span id="cb55-2"><a href=""></a><span class="cf">assert</span> chart_data[<span class="st">"price"</span>].gt(<span class="dv">0</span>).<span class="bu">all</span>()</span>
+<span id="cb55-3"><a href=""></a><span class="cf">assert</span> chart_data[<span class="st">"date"</span>].dtype.kind <span class="op">==</span> <span class="st">"M"</span></span>
+<span id="cb55-4"><a href=""></a><span class="cf">assert</span> chart_data[<span class="st">"instrument"</span>].isin(metadata[<span class="st">"instrument"</span>]).<span class="bu">all</span>()</span>
+<span id="cb55-5"><a href=""></a><span class="cf">assert</span> final[<span class="st">"_merge"</span>].isin([<span class="st">"both"</span>, <span class="st">"left_only"</span>, <span class="st">"right_only"</span>]).<span class="bu">all</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Assertions turn analytical expectations into executable checks.</p>
+<aside class="notes">
+<p>Explique que testes não substituem conhecimento de domínio, mas tornam expectativas verificáveis. Tempo: 2 min.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section></section>
+<section>
+<section id="practice" class="title-slide slide level1 center">
+<h1>Practice</h1>
+
+</section>
+<section id="final-exercise" class="slide level2">
+<h2>Final exercise</h2>
+<p>Build a reproducible pipeline that:</p>
+<ol type="1">
+<li>parses dates and prices;</li>
+<li>standardizes text;</li>
+<li>flags failures before removing them;</li>
+<li>removes exact duplicates;</li>
+<li>makes one explicit missing-price decision;</li>
+<li>performs a validated left merge;</li>
+<li>reports unmatched instruments;</li>
+<li>creates long, chart-ready data;</li>
+<li>proves at least three assumptions with assertions;</li>
+<li>creates a valid visualization with compatible units.</li>
+</ol>
+<aside class="notes">
+<p>Dê tempo para trabalho em pares. Avalie decisões e validações, não apenas sintaxe. Tempo: 5 min.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="final-exercise-one-solution" class="slide level2">
+<h2>Final exercise: one solution</h2>
+<div id="c8ec0784" class="cell" data-execution_count="45">
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb56-1"><a href=""></a>solution <span class="op">=</span> (</span>
+<span id="cb56-2"><a href=""></a>    raw.assign(</span>
+<span id="cb56-3"><a href=""></a>        date<span class="op">=</span><span class="kw">lambda</span> d: pd.to_datetime(d[<span class="st">"date"</span>], errors<span class="op">=</span><span class="st">"coerce"</span>, <span class="bu">format</span><span class="op">=</span><span class="st">"mixed"</span>, dayfirst<span class="op">=</span><span class="va">True</span>),</span>
+<span id="cb56-4"><a href=""></a>        instrument<span class="op">=</span><span class="kw">lambda</span> d: d[<span class="st">"instrument"</span>].<span class="bu">str</span>.strip().<span class="bu">str</span>.upper(),</span>
+<span id="cb56-5"><a href=""></a>        currency<span class="op">=</span><span class="kw">lambda</span> d: d[<span class="st">"currency"</span>].<span class="bu">str</span>.strip().<span class="bu">str</span>.upper(),</span>
+<span id="cb56-6"><a href=""></a>        price<span class="op">=</span><span class="kw">lambda</span> d: pd.to_numeric(</span>
+<span id="cb56-7"><a href=""></a>            d[<span class="st">"price"</span>].astype(<span class="st">"string"</span>).<span class="bu">str</span>.replace(<span class="st">","</span>, <span class="st">""</span>, regex<span class="op">=</span><span class="va">False</span>),</span>
+<span id="cb56-8"><a href=""></a>            errors<span class="op">=</span><span class="st">"coerce"</span></span>
+<span id="cb56-9"><a href=""></a>        )</span>
+<span id="cb56-10"><a href=""></a>    )</span>
+<span id="cb56-11"><a href=""></a>    .drop_duplicates()</span>
+<span id="cb56-12"><a href=""></a>    .loc[<span class="kw">lambda</span> d: d[<span class="st">"date"</span>].notna() <span class="op">&amp;</span> d[<span class="st">"price"</span>].gt(<span class="dv">0</span>)]</span>
+<span id="cb56-13"><a href=""></a>    .merge(metadata, on<span class="op">=</span><span class="st">"instrument"</span>, how<span class="op">=</span><span class="st">"left"</span>,</span>
+<span id="cb56-14"><a href=""></a>           validate<span class="op">=</span><span class="st">"many_to_one"</span>, indicator<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb56-15"><a href=""></a>)</span>
+<span id="cb56-16"><a href=""></a>exercise_unmatched <span class="op">=</span> solution.loc[solution[<span class="st">"_merge"</span>].ne(<span class="st">"both"</span>), <span class="st">"instrument"</span>].unique()</span>
+<span id="cb56-17"><a href=""></a>exercise_chart <span class="op">=</span> solution.loc[solution[<span class="st">"_merge"</span>].eq(<span class="st">"both"</span>)].drop(columns<span class="op">=</span><span class="st">"_merge"</span>)</span>
+<span id="cb56-18"><a href=""></a><span class="cf">assert</span> exercise_chart[<span class="st">"price"</span>].gt(<span class="dv">0</span>).<span class="bu">all</span>()</span>
+<span id="cb56-19"><a href=""></a><span class="cf">assert</span> exercise_chart[<span class="st">"region"</span>].notna().<span class="bu">all</span>()</span>
+<span id="cb56-20"><a href=""></a><span class="cf">assert</span> metadata[<span class="st">"instrument"</span>].is_unique</span>
+<span id="cb56-21"><a href=""></a><span class="bu">print</span>(<span class="st">"unmatched:"</span>, exercise_unmatched)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>unmatched: &lt;StringArray&gt;
+['UNKNOWN']
+Length: 1, dtype: str</code></pre>
+</div>
+</div>
+<aside class="notes">
+<p>Esta solução remove preços ausentes, diferentemente do pipeline demonstrativo. Use a diferença para discutir políticas explícitas. Tempo: 3 min.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section></section>
+<section>
+<section id="key-takeaways" class="title-slide slide level1 center">
+<h1>Key Takeaways</h1>
+
+</section>
+<section id="visualization-ready-data-checklist" class="slide level2">
+<h2>Visualization-ready data checklist</h2>
+<ul class="task-list">
+<li><label><input type="checkbox">Is each row a clearly defined analytical unit?</label></li>
+<li><label><input type="checkbox">Are missing values diagnosed before treatment?</label></li>
+<li><label><input type="checkbox">Are dtypes and category labels consistent?</label></li>
+<li><label><input type="checkbox">Is the duplicate key explicitly defined?</label></li>
+<li><label><input type="checkbox">Are invalid values separated from unusual values?</label></li>
+<li><label><input type="checkbox">Does the merge validate intended cardinality?</label></li>
+<li><label><input type="checkbox">Are unmatched records audited?</label></li>
+<li><label><input type="checkbox">Is the data shape appropriate for the chart?</label></li>
+<li><label><input type="checkbox">Are units compatible with the comparison?</label></li>
+<li><label><input type="checkbox">Can assertions verify the key assumptions?</label></li>
+</ul>
+<aside class="notes">
+<p>Use como checklist reutilizável para trabalhos acadêmicos. Tempo: 2 min.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="main-conclusions" class="slide level2">
+<h2>Main conclusions</h2>
+<ol type="1">
+<li>Cleaning begins with diagnosis, not deletion.</li>
+<li>Missing, invalid, duplicate, inconsistent, and unusual values require different reasoning.</li>
+<li>Transformation choices should preserve an audit trail.</li>
+<li>A merge is a claim about keys and relationships.</li>
+<li>Reshaping changes structure; aggregation changes information.</li>
+<li>A tidy table may still support an invalid comparison.</li>
+<li>Trustworthy visualization depends on explicit rules, units, and validation.</li>
+</ol>
+<aside class="notes">
+<p>Retome a pergunta central. Peça que cada aluno cite uma validação que adicionará ao próximo projeto. Tempo: 2 min.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="references" class="slide level2">
+<h2>References</h2>
+<ul>
+<li>McKinney, W. <em>Python for Data Analysis</em>, 3rd ed., Chapters 7 and 8.</li>
+<li><a href="https://wesmckinney.com/book/data-cleaning">Chapter 7: Data Cleaning and Preparation</a></li>
+<li><a href="https://wesmckinney.com/book/data-wrangling">Chapter 8: Data Wrangling</a></li>
+<li><a href="https://pandas.pydata.org/docs/">pandas documentation</a></li>
+<li><a href="https://quarto.org/docs/presentations/revealjs/">Quarto RevealJS documentation</a></li>
+<li><a href="https://matplotlib.org/stable/">Matplotlib documentation</a></li>
+<li><a href="https://seaborn.pydata.org/">seaborn documentation</a></li>
+</ul>
+<p><strong>Attribution:</strong> concepts were adapted and rewritten from the cited references. The synthetic data, teaching narrative, exercises, and visualizations were created for this lesson.</p>
+<aside class="notes">
+<p>Diferencie referência conceitual, código didático e dados sintéticos. Tempo: 1 min.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section></section>
+<section>
+<section id="appendix" class="title-slide slide level1 unnumbered center">
+<h1>Appendix</h1>
+
+</section>
+<section id="optional-qcut" class="slide level2">
+<h2>Optional: <code>qcut</code></h2>
+<div id="e0505bd0" class="cell" data-execution_count="46">
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb58-1"><a href=""></a>observed_volume <span class="op">=</span> chart_data[<span class="st">"volume"</span>].dropna()</span>
+<span id="cb58-2"><a href=""></a>pd.qcut(observed_volume, q<span class="op">=</span><span class="dv">3</span>, labels<span class="op">=</span>[<span class="st">"lower"</span>, <span class="st">"middle"</span>, <span class="st">"upper"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="46">
+<pre><code>0    middle
+1     upper
+2     upper
+3     lower
+4    middle
+6     lower
+7     lower
+Name: volume, dtype: category
+Categories (3, str): ['lower' &lt; 'middle' &lt; 'upper']</code></pre>
+</div>
+</div>
+<p><code>qcut</code> targets approximately equal-frequency groups.</p>
+<aside class="notes">
+<p>Slide de backup. Compare com cut e discuta dependência da amostra. Tempo: 1 min.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="optional-string-extraction" class="slide level2">
+<h2>Optional: string extraction</h2>
+<div id="aaaeb4f7" class="cell" data-execution_count="47">
+<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb60-1"><a href=""></a>contracts <span class="op">=</span> pd.Series([<span class="st">"BRENT_M1"</span>, <span class="st">"WTI_M2"</span>, <span class="st">"TTF_Q1"</span>], dtype<span class="op">=</span><span class="st">"string"</span>)</span>
+<span id="cb60-2"><a href=""></a>contracts.<span class="bu">str</span>.extract(<span class="vs">r"(?P&lt;instrument&gt;[A-Z]+)_(?P&lt;tenor&gt;[A-Z]\d)"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="47">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+
+<table class="dataframe caption-top" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header" style="text-align: right;">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">instrument</th>
+<th data-quarto-table-cell-role="th">tenor</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>BRENT</td>
+<td>M1</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>WTI</td>
+<td>M2</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>TTF</td>
+<td>Q1</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<aside class="notes">
+<p>Slide de backup para demonstrar regex e str.extract. Tempo: 1 min.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<div class="quarto-auto-generated-content">
+<div class="footer footer-default">
+<p>Data Analytics &amp; Visualization | pandas Chapters 7–8</p>
+</div>
+</div>
+</section></section>
+    </div>
+  </div>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script>
+  <script src="teste3_files/libs/revealjs/dist/reveal.js"></script>
+  <!-- reveal.js plugins -->
+  <script src="teste3_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
+  <script src="teste3_files/libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
+  <script src="teste3_files/libs/revealjs/plugin/reveal-menu/menu.js"></script>
+  <script src="teste3_files/libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="teste3_files/libs/revealjs/plugin/reveal-chalkboard/plugin.js"></script>
+  <script src="teste3_files/libs/revealjs/plugin/quarto-support/support.js"></script>
+  
+
+  <script src="teste3_files/libs/revealjs/plugin/notes/notes.js"></script>
+  <script src="teste3_files/libs/revealjs/plugin/search/search.js"></script>
+  <script src="teste3_files/libs/revealjs/plugin/zoom/zoom.js"></script>
+  <script src="teste3_files/libs/revealjs/plugin/math/math.js"></script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://revealjs.com/config/
+      Reveal.initialize({
+'controlsAuto': true,
+'previewLinksAuto': true,
+'pdfSeparateFragments': false,
+'autoAnimateEasing': "ease",
+'autoAnimateDuration': 1,
+'autoAnimateUnmatched': true,
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleChalkboard(event)\"><kbd>b</kbd> Toggle Chalkboard</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleNotesCanvas(event)\"><kbd>c</kbd> Toggle Notes Canvas</a></li>\n<li class=\"slide-tool-item\" data-item=\"6\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.downloadDrawings(event)\"><kbd>d</kbd> Download Drawings</a></li>\n<li class=\"slide-tool-item\" data-item=\"7\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'chalkboard': {"buttons":true},
+'smaller': false,
+ 
+        // Display controls in the bottom right corner
+        controls: false,
+
+        // Help the user learn the controls by providing hints, for example by
+        // bouncing the down arrow when they first encounter a vertical slide
+        controlsTutorial: false,
+
+        // Determines where controls appear, "edges" or "bottom-right"
+        controlsLayout: 'edges',
+
+        // Visibility rule for backwards navigation arrows; "faded", "hidden"
+        // or "visible"
+        controlsBackArrows: 'faded',
+
+        // Display a presentation progress bar
+        progress: true,
+
+        // Display the page number of the current slide
+        slideNumber: 'c/t',
+
+        // 'all', 'print', or 'speaker'
+        showSlideNumber: 'all',
+
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+        hash: true,
+
+        // Start with 1 for the hash rather than 0
+        hashOneBasedIndex: false,
+
+        // Flags if we should monitor the hash and change slides accordingly
+        respondToHashChanges: true,
+
+        // Push each slide change to the browser history
+        history: true,
+
+        // Enable keyboard shortcuts for navigation
+        keyboard: true,
+
+        // Enable the slide overview mode
+        overview: true,
+
+        // Disables the default reveal.js slide layout (scaling and centering)
+        // so that you can use custom CSS layout
+        disableLayout: false,
+
+        // Vertical centering of slides
+        center: false,
+
+        // Enables touch navigation on devices with touch input
+        touch: true,
+
+        // Loop the presentation
+        loop: false,
+
+        // Change the presentation direction to be RTL
+        rtl: false,
+
+        // see https://revealjs.com/vertical-slides/#navigation-mode
+        navigationMode: 'linear',
+
+        // Randomizes the order of slides each time the presentation loads
+        shuffle: false,
+
+        // Turns fragments on and off globally
+        fragments: true,
+
+        // Flags whether to include the current fragment in the URL,
+        // so that reloading brings you to the same fragment position
+        fragmentInURL: false,
+
+        // Flags if the presentation is running in an embedded mode,
+        // i.e. contained within a limited portion of the screen
+        embedded: false,
+
+        // Flags if we should show a help overlay when the questionmark
+        // key is pressed
+        help: true,
+
+        // Flags if it should be possible to pause the presentation (blackout)
+        pause: true,
+
+        // Flags if speaker notes should be visible to all viewers
+        showNotes: false,
+
+        // Global override for autoplaying embedded media (null/true/false)
+        autoPlayMedia: null,
+
+        // Global override for preloading lazy-loaded iframes (null/true/false)
+        preloadIframes: null,
+
+        // Number of milliseconds between automatically proceeding to the
+        // next slide, disabled when set to 0, this value can be overwritten
+        // by using a data-autoslide attribute on your slides
+        autoSlide: 0,
+
+        // Stop auto-sliding after user input
+        autoSlideStoppable: true,
+
+        // Use this method for navigation when auto-sliding
+        autoSlideMethod: null,
+
+        // Specify the average time in seconds that you think you will spend
+        // presenting each slide. This is used to show a pacing timer in the
+        // speaker view
+        defaultTiming: null,
+
+        // Enable slide navigation via mouse wheel
+        mouseWheel: false,
+
+        // The display mode that will be used to show slides
+        display: 'block',
+
+        // Hide cursor if inactive
+        hideInactiveCursor: true,
+
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: 5000,
+
+        // Opens links in an iframe preview overlay
+        previewLinks: false,
+
+        // Transition style (none/fade/slide/convex/concave/zoom)
+        transition: 'fade',
+
+        // Transition speed (default/fast/slow)
+        transitionSpeed: 'default',
+
+        // Transition style for full page slide backgrounds
+        // (none/fade/slide/convex/concave/zoom)
+        backgroundTransition: 'none',
+
+        // Number of slides away from the current that are visible
+        viewDistance: 3,
+
+        // Number of slides away from the current that are visible on mobile
+        // devices. It is advisable to set this to a lower number than
+        // viewDistance in order to save resources.
+        mobileViewDistance: 2,
+
+        // The "normal" size of the presentation, aspect ratio will be preserved
+        // when the presentation is scaled to fit different resolutions. Can be
+        // specified using percentage units.
+        width: 1600,
+
+        height: 900,
+
+        // Factor of the display size that should remain empty around the content
+        margin: 7.0e-2,
+
+        math: {
+          mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js',
+          config: 'TeX-AMS_HTML-full',
+          tex2jax: {
+            inlineMath: [['\\(','\\)']],
+            displayMath: [['\\[','\\]']],
+            balanceBraces: true,
+            processEscapes: false,
+            processRefs: true,
+            processEnvironments: true,
+            preview: 'TeX',
+            skipTags: ['script','noscript','style','textarea','pre','code'],
+            ignoreClass: 'tex2jax_ignore',
+            processClass: 'tex2jax_process'
+          },
+        },
+
+        // reveal.js plugins
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, RevealChalkboard, QuartoSupport,
+
+          RevealMath,
+          RevealNotes,
+          RevealSearch,
+          RevealZoom
+        ]
+      });
+    </script>
+    <script id="quarto-html-after-body" type="application/javascript">
+    window.document.addEventListener("DOMContentLoaded", function (event) {
+      const toggleBodyColorMode = (bsSheetEl) => {
+        const mode = bsSheetEl.getAttribute("data-mode");
+        const bodyEl = window.document.querySelector("body");
+        if (mode === "dark") {
+          bodyEl.classList.add("quarto-dark");
+          bodyEl.classList.remove("quarto-light");
+        } else {
+          bodyEl.classList.add("quarto-light");
+          bodyEl.classList.remove("quarto-dark");
+        }
+      }
+      const toggleBodyColorPrimary = () => {
+        const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+        if (bsSheetEl) {
+          toggleBodyColorMode(bsSheetEl);
+        }
+      }
+      toggleBodyColorPrimary();  
+      const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
+      tabsets.forEach(function(tabset) {
+        const tabby = new Tabby('#' + tabset.id);
+      });
+      const isCodeAnnotation = (el) => {
+        for (const clz of el.classList) {
+          if (clz.startsWith('code-annotation-')) {                     
+            return true;
+          }
+        }
+        return false;
+      }
+      const onCopySuccess = function(e) {
+        // button target
+        const button = e.trigger;
+        // don't keep focus
+        button.blur();
+        // flash "checked"
+        button.classList.add('code-copy-button-checked');
+        var currentTitle = button.getAttribute("title");
+        button.setAttribute("title", "Copied!");
+        let tooltip;
+        if (window.bootstrap) {
+          button.setAttribute("data-bs-toggle", "tooltip");
+          button.setAttribute("data-bs-placement", "left");
+          button.setAttribute("data-bs-title", "Copied!");
+          tooltip = new bootstrap.Tooltip(button, 
+            { trigger: "manual", 
+              customClass: "code-copy-button-tooltip",
+              offset: [0, -8]});
+          tooltip.show();    
+        }
+        setTimeout(function() {
+          if (tooltip) {
+            tooltip.hide();
+            button.removeAttribute("data-bs-title");
+            button.removeAttribute("data-bs-toggle");
+            button.removeAttribute("data-bs-placement");
+          }
+          button.setAttribute("title", currentTitle);
+          button.classList.remove('code-copy-button-checked');
+        }, 1000);
+        // clear code selection
+        e.clearSelection();
+      }
+      const getTextToCopy = function(trigger) {
+          const codeEl = trigger.previousElementSibling.cloneNode(true);
+          for (const childEl of codeEl.children) {
+            if (isCodeAnnotation(childEl)) {
+              childEl.remove();
+            }
+          }
+          return codeEl.innerText;
+      }
+      const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+        text: getTextToCopy
+      });
+      clipboard.on('success', onCopySuccess);
+      if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+        // For code content inside modals, clipBoardJS needs to be initialized with a container option
+        // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+        const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+          text: getTextToCopy,
+          container: window.document.getElementById('quarto-embedded-source-code-modal')
+        });
+        clipboardModal.on('success', onCopySuccess);
+      }
+        var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+        var mailtoRegex = new RegExp(/^mailto:/);
+          var filterRegex = new RegExp('/' + window.location.host + '/');
+        var isInternal = (href) => {
+            return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+        }
+        // Inspect non-navigation links and adorn them if external
+     	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+        for (var i=0; i<links.length; i++) {
+          const link = links[i];
+          if (!isInternal(link.href)) {
+            // undo the damage that might have been done by quarto-nav.js in the case of
+            // links that we want to consider external
+            if (link.dataset.originalHref !== undefined) {
+              link.href = link.dataset.originalHref;
+            }
+          }
+        }
+      function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+        const config = {
+          allowHTML: true,
+          maxWidth: 500,
+          delay: 100,
+          arrow: false,
+          appendTo: function(el) {
+              return el.closest('section.slide') || el.parentElement;
+          },
+          interactive: true,
+          interactiveBorder: 10,
+          theme: 'light-border',
+          placement: 'bottom-start',
+        };
+        if (contentFn) {
+          config.content = contentFn;
+        }
+        if (onTriggerFn) {
+          config.onTrigger = onTriggerFn;
+        }
+        if (onUntriggerFn) {
+          config.onUntrigger = onUntriggerFn;
+        }
+          config['offset'] = [0,0];
+          config['maxWidth'] = 700;
+        window.tippy(el, config); 
+      }
+      const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+      for (var i=0; i<noterefs.length; i++) {
+        const ref = noterefs[i];
+        tippyHover(ref, function() {
+          // use id or data attribute instead here
+          let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+          try { href = new URL(href).hash; } catch {}
+          const id = href.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note) {
+            return note.innerHTML;
+          } else {
+            return "";
+          }
+        });
+      }
+      const findCites = (el) => {
+        const parentEl = el.parentElement;
+        if (parentEl) {
+          const cites = parentEl.dataset.cites;
+          if (cites) {
+            return {
+              el,
+              cites: cites.split(' ')
+            };
+          } else {
+            return findCites(el.parentElement)
+          }
+        } else {
+          return undefined;
+        }
+      };
+      var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+      for (var i=0; i<bibliorefs.length; i++) {
+        const ref = bibliorefs[i];
+        const citeInfo = findCites(ref);
+        if (citeInfo) {
+          tippyHover(citeInfo.el, function() {
+            var popup = window.document.createElement('div');
+            citeInfo.cites.forEach(function(cite) {
+              var citeDiv = window.document.createElement('div');
+              citeDiv.classList.add('hanging-indent');
+              citeDiv.classList.add('csl-entry');
+              var biblioDiv = window.document.getElementById('ref-' + cite);
+              if (biblioDiv) {
+                citeDiv.innerHTML = biblioDiv.innerHTML;
+              }
+              popup.appendChild(citeDiv);
+            });
+            return popup.innerHTML;
+          });
+        }
+      }
+    });
+    </script>
+    
+
+</body></html>

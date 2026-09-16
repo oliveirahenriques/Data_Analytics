@@ -35,17 +35,18 @@ py_config()
 
 
 py_install(
-  c("pandas", "matplotlib", "yfinance"),
+  c("pandas", "matplotlib", "yfinance","pathlib"),
   pip = TRUE
 )
 
 reticulate::py_require(
-  c("pandas", "matplotlib", "yfinance")
+    c("pandas", "matplotlib", "yfinance","pathlib")
 )
 
 py_module_available("pandas")
 py_module_available("matplotlib")
 py_module_available("yfinance")
+py_module_available("pathlib")
 ```
 
 ```{python, include=F, warning=F,echo=F}
@@ -237,9 +238,40 @@ The library is highly optimized for performance, with critical code paths writte
 
 ```{.python}
 import pandas as pd
+import pathlib 
 ```
 
 
+```{python}
+file = pathlib.Path("data.csv")
+data = pd.read_csv(file,index_col=None, header=0)
+
+data.head()
+```
+
+```{python}
+data.describe()
+```
+
+```{python}
+data.iloc[0]
+```
+
+```{python}
+data["ticker"].head()
+```
+
+```{python}
+data[["ticker", "ref_date", "volume"]].head()
+```
+
+```{python}
+data.iloc[:, 1:5].head()
+```
+
+```{python}
+
+```
 
 
 ## Agenda

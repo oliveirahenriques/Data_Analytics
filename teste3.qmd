@@ -1,0 +1,1009 @@
+---
+title: "Cleaning, Combining, and Reshaping Data with pandas"
+subtitle: "From Messy Tables to Trustworthy Visualizations"
+author: "Victor Henriques, Ph.D."
+format:
+  revealjs:
+    theme: simple
+    slide-number: c/t
+    transition: fade
+    center: false
+    width: 1600
+    height: 900
+    margin: 0.07
+    code-overflow: wrap
+    chalkboard: true
+    preview-links: auto
+    footer: "Data Analytics & Visualization"
+execute:
+  echo: true
+  warning: false
+  error: false
+  cache: false
+jupyter: python3
+---
+
+```{python}
+#| label: setup
+#| include: false
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+rng = np.random.default_rng(42)
+sns.set_theme(style="whitegrid", context="talk")
+pd.set_option("display.max_columns", 12)
+pd.set_option("display.width", 120)
+```
+
+# Cleaning, Combining, and Reshaping Data
+
+## From Messy Tables to Trustworthy Visualizations
+
+**A two-hour lesson based on Chapters 7 and 8**
+
+::: {.notes}
+Apresente a aula como uma investigação de qualidade e estrutura. Explique que todos os dados são sintéticos e foram criados para fins didáticos. Tempo: 2 min.
+:::
+
+# Motivation
+
+## The central question
+
+> How can we turn incomplete, inconsistent, duplicated, and distributed tables into data that support a valid visualization?
+
+**Diagnose → clean → transform → combine → reshape → validate → visualize → interpret**
+
+::: {.notes}
+Enfatize que limpeza e wrangling são decisões sobre significado, não apenas sintaxe. Tempo: 2 min.
+:::
+
+## Learning objectives
+
+By the end of the lesson, students will be able to:
+
+- diagnose missing, duplicate, invalid, and inconsistent values;
+- make explicit and defensible cleaning decisions;
+- transform strings, categories, and numerical variables;
+- combine tables with `concat`, `merge`, and `join`;
+- validate key cardinality and audit unmatched records;
+- use MultiIndex, `stack`, and `unstack`;
+- reshape data with `melt`, `pivot`, and `pivot_table`;
+- explain how wrangling choices affect a visualization.
+
+::: {.notes}
+Relacione cada objetivo a uma ação observável. Tempo: 2 min.
+:::
+
+## Lesson route
+
+| Block | Focus | Minutes |
+|---|---|---:|
+| Motivation | Problem and data | 8 |
+| Cleaning | Missingness, duplicates, transformation | 35 |
+| Combining | Concat, merge, keys, validation | 25 |
+| Reshaping | MultiIndex, wide and long | 22 |
+| Integrated case | Raw data to visualization | 20 |
+| Practice and synthesis | Exercise and recap | 10 |
+
+::: {.notes}
+Informe que MultiIndex avançado ficará como tópico útil, enquanto limpeza, merge e wide-long são essenciais. Tempo: 2 min.
+:::
+
+## The synthetic raw data
+
+```{python}
+raw = pd.DataFrame({
+    "date": ["2026-01-02", "2026/01/02", "03-01-2026", "2026-01-03",
+             "2026-01-04", "2026-01-04", "2026-01-05", "bad-date",
+             "2026-01-06", "2026-01-07", "2026-01-07", "2026-01-08"],
+    "instrument": [" brent ", "WTI", "ttf", "BRENT", "wti ", "wti ",
+                   "TTF", "TTF", "WTI", "UNKNOWN", "BRENT", "TTF"],
+    "market": ["Oil", "Oil", "gas", "OIL", "Oil", "Oil",
+               "Gas", "Gas", "Oil", "Other", "Oil", "Gas"],
+    "price": ["76.4", "72.1", "48.2", "77.0", None, None,
+              "-5", "49.1", "73.4", "80.0", "1,250.0", "50.2"],
+    "volume": [120, 98, 84, 133, 105, 105, 90, 87, None, 40, 150, 91],
+    "currency": ["USD", "USD", "EUR", "usd", "USD", "USD",
+                 "EUR", "EUR", "USD", "USD", "USD", "EUR"]
+})
+metadata = pd.DataFrame({
+    "instrument": ["BRENT", "WTI", "TTF"],
+    "region": ["Europe", "North America", "Europe"],
+    "category": ["Crude oil", "Crude oil", "Natural gas"],
+    "price_unit": ["USD/bbl", "USD/bbl", "EUR/MWh"]
+})
+raw.head(3)
+```
+
+::: {.notes}
+Peça à turma para observar sem corrigir. Destaque que existe uma tabela de observações e outra de referência. Tempo: 2 min.
+:::
+
+## Why the raw chart misleads
+
+```{python}
+#| fig-width: 10
+#| fig-height: 4.7
+raw_plot = raw.assign(
+    parsed_date=pd.to_datetime(raw["date"], errors="coerce", format="mixed", dayfirst=True),
+    parsed_price=pd.to_numeric(raw["price"], errors="coerce")
+)
+fig, ax = plt.subplots()
+for name, group in raw_plot.groupby("instrument"):
+    ax.plot(group["parsed_date"], group["parsed_price"], marker="o", label=repr(name))
+ax.set(title="Raw labels fragment visual series", xlabel="Date", ylabel="Reported price")
+ax.legend(ncol=3, fontsize=9)
+plt.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+Mostre fragmentação de labels, falhas de parsing e mistura de unidades. Um gráfico bonito não corrige dados sem significado consistente. Tempo: 2 min.
+:::
+
+# Data Cleaning
+
+## Quality problems are different problems
+
+| Problem | Meaning | First response |
+|---|---|---|
+| Missing | not observed or unavailable | inspect the pattern |
+| Invalid | violates a domain rule | verify or quarantine |
+| Duplicate | repeated analytical unit | define the key |
+| Inconsistent | same concept, different encoding | standardize |
+| Outlier | unusual but possibly valid | investigate |
+
+::: {.notes}
+Insista que outlier não é sinônimo de erro e que ausência não implica remoção automática. Tempo: 3 min.
+:::
+
+## Diagnose before changing
+
+```{python}
+quality = pd.DataFrame({
+    "dtype": raw.dtypes.astype(str),
+    "missing": raw.isna().sum(),
+    "unique": raw.nunique(dropna=True)
+})
+quality
+```
+
+```{python}
+print("exact duplicate rows:", raw.duplicated().sum())
+print("instrument labels:", raw["instrument"].unique().tolist())
+```
+
+::: {.notes}
+Discuta como object pode esconder números e datas. Head sozinho não é um diagnóstico suficiente. Tempo: 2 min.
+:::
+
+## Checkpoint 1: quality diagnosis
+
+```{python}
+raw.loc[[0, 2, 4, 5, 6, 7, 10], :]
+```
+
+Identify evidence of:
+
+- missing values;
+- duplicate observations;
+- inconsistent categories;
+- incorrect dtypes;
+- invalid values;
+- parsing risk.
+
+::: {.notes}
+Dê dois minutos em duplas. Peça evidência observável, não apenas suposições. Tempo: 3 min.
+:::
+
+## Missingness is itself information
+
+```{python}
+missing = raw.isna()
+missing.sum().sort_values(ascending=False)
+```
+
+```{python}
+#| fig-width: 9
+#| fig-height: 4.5
+fig, ax = plt.subplots()
+sns.heatmap(missing.T, cbar=False,
+            cmap=["#F2F2F2", "#D55E00"], ax=ax)
+ax.set(title="Observed missingness in the raw table",
+       xlabel="Row", ylabel="Variable")
+plt.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+Explique que padrões de ausência podem revelar problemas de coleta. Valores que falham no parsing também podem criar ausências novas. Tempo: 3 min.
+:::
+
+## `isna` and `notna`
+
+```{python}
+raw.loc[raw["price"].isna(), ["date", "instrument", "price"]]
+```
+
+```{python}
+raw.loc[raw["price"].notna(), ["date", "instrument", "price"]].head()
+```
+
+Boolean diagnostics preserve the original table until a decision is made.
+
+::: {.notes}
+Diferencie diagnóstico de tratamento. isna não modifica o DataFrame. Tempo: 2 min.
+:::
+
+## Drop, retain, or fill?
+
+::: {.columns}
+::: {.column width="50%"}
+```{python}
+raw.dropna(subset=["price"]).shape
+```
+
+Removal discards complete information from other columns.
+:::
+::: {.column width="50%"}
+```{python}
+raw.assign(
+    volume=raw["volume"].fillna(raw["volume"].median())
+).loc[raw["volume"].isna()]
+```
+
+Filling introduces an assumption.
+:::
+:::
+
+::: {.notes}
+Não apresente uma política universal. Pergunte qual mecanismo pode ter criado a ausência e qual variável será analisada. Tempo: 3 min.
+:::
+
+## Parse types and expose failures
+
+```{python}
+parsed = raw.assign(
+    date_parsed=pd.to_datetime(
+        raw["date"], errors="coerce", format="mixed", dayfirst=True
+    ),
+    price_parsed=pd.to_numeric(
+        raw["price"].astype("string").str.replace(",", "", regex=False),
+        errors="coerce"
+    )
+)
+parsed.loc[:, ["date", "date_parsed", "price", "price_parsed"]]
+```
+
+::: {.callout-warning}
+`errors="coerce"` exposes failures. It does not explain or correct them.
+:::
+
+::: {.notes}
+Mostre NaT e NaN criados pela coerção. Toda falha deve ser auditada. Tempo: 3 min.
+:::
+
+## Standardize text
+
+```{python}
+clean = (
+    parsed.assign(
+        instrument=parsed["instrument"].str.strip().str.upper(),
+        market=parsed["market"].str.strip().str.title(),
+        currency=parsed["currency"].str.strip().str.upper()
+    )
+    .drop(columns=["date", "price"])
+    .rename(columns={"date_parsed": "date", "price_parsed": "price"})
+)
+clean.loc[:, ["instrument", "market", "currency"]].drop_duplicates()
+```
+
+::: {.notes}
+Explique strip, upper, title, drop e rename. Após padronizar, sempre inspecione os valores únicos novamente. Tempo: 3 min.
+:::
+
+## Replace and map categories
+
+```{python}
+market_group = clean["market"].map({
+    "Oil": "Liquid energy",
+    "Gas": "Gaseous energy",
+    "Other": "Other"
+})
+market_group.head()
+```
+
+```{python}
+clean = clean.assign(
+    currency=clean["currency"].replace({"US$": "USD"}),
+    market_group=market_group
+)
+```
+
+::: {.notes}
+Map cria uma correspondência elemento a elemento; replace corrige valores específicos. Valores sem chave em map viram ausentes. Tempo: 2 min.
+:::
+
+## Transformations: vectorization before `apply`
+
+```{python}
+clean = clean.assign(
+    price_log=np.log(clean["price"].where(clean["price"].gt(0)))
+)
+clean.loc[:, ["price", "price_log"]].head()
+```
+
+Prefer vectorized operations when a clear vectorized solution exists.
+
+::: {.notes}
+Explique por que não usar apply neste caso. O objetivo é clareza e comportamento consistente em colunas. Tempo: 2 min.
+:::
+
+## Binning continuous values
+
+```{python}
+clean = clean.assign(
+    volume_band=pd.cut(
+        clean["volume"],
+        bins=[0, 90, 120, np.inf],
+        labels=["low", "medium", "high"]
+    )
+)
+clean.loc[:, ["volume", "volume_band"]].head(8)
+```
+
+`cut` uses substantively chosen boundaries; `qcut` uses sample quantiles.
+
+::: {.notes}
+Destaque que a categorização perde informação e deve ter justificativa. Tempo: 2 min.
+:::
+
+## Duplicates depend on the analytical unit
+
+```{python}
+exact_dup = clean.duplicated()
+key_dup = clean.duplicated(subset=["date", "instrument"], keep=False)
+clean.loc[exact_dup | key_dup,
+          ["date", "instrument", "price", "volume"]]
+```
+
+::: {.notes}
+Pergunte: uma linha representa preço diário ou publicação? A chave depende da resposta. Tempo: 3 min.
+:::
+
+## Deduplicate explicitly
+
+```{python}
+dedup = clean.drop_duplicates(
+    subset=["date", "instrument", "price", "volume"],
+    keep="first"
+).copy()
+
+assert not dedup.duplicated().any()
+print(raw.shape, dedup.shape)
+```
+
+The subset and retention rule are part of the analytical decision.
+
+::: {.notes}
+Mostre que drop_duplicates sem subset responde apenas à duplicação exata. Tempo: 2 min.
+:::
+
+## Invalid values versus outliers
+
+```{python}
+invalid = dedup["price"].le(0)
+unusual = dedup["price"].gt(500)
+dedup.loc[invalid | unusual,
+          ["date", "instrument", "price", "currency"]]
+```
+
+- `price ≤ 0` is invalid under this teaching rule.
+- `price > 500` requires investigation.
+- The instruments do not necessarily share the same unit.
+
+::: {.notes}
+Declare que preços negativos podem existir em mercados reais. A regra é didática e contextual. Tempo: 2 min.
+:::
+
+## Checkpoint 2: choose a treatment
+
+For each case, choose **retain, flag, correct, fill, or remove**:
+
+1. price missing because no trade occurred;
+2. instrument name contains trailing spaces;
+3. duplicated ingestion event;
+4. extreme but verified market movement;
+5. date cannot be parsed;
+6. metadata category is missing.
+
+Justify the decision and state what must be recorded.
+
+::: {.notes}
+Não há uma única resposta para todos os casos. Avalie a justificativa, rastreabilidade e efeito sobre a análise. Tempo: 3 min.
+:::
+
+# Combining Data
+
+## `concat`: combine compatible objects by axis
+
+```{python}
+first_half = dedup.iloc[:4].copy()
+second_half = dedup.iloc[4:8].copy()
+combined = pd.concat([first_half, second_half], ignore_index=True)
+combined.shape
+```
+
+- rows: `axis="index"`;
+- columns: `axis="columns"`;
+- no relational key matching.
+
+::: {.notes}
+Diferencie concatenação de merge. Concat empilha ou alinha por eixo. Tempo: 2 min.
+:::
+
+## Keys and cardinality
+
+| Relationship | Meaning |
+|---|---|
+| one-to-one | each key appears once on both sides |
+| many-to-one | many observations reference one metadata row |
+| one-to-many | one left key matches multiple right rows |
+| many-to-many | duplicates on both sides may multiply rows |
+
+::: {.notes}
+Use observações diárias para metadata como exemplo de muitos-para-um. Tempo: 2 min.
+:::
+
+## Anatomy of a merge
+
+```{python}
+merged_preview = dedup.merge(
+    metadata,
+    on="instrument",
+    how="left",
+    validate="many_to_one",
+    indicator=True
+)
+merged_preview.loc[:, ["instrument", "region", "price_unit", "_merge"]].head(8)
+```
+
+::: {.notes}
+Explique esquerda, direita, chave, how, validate e indicator. Tempo: 3 min.
+:::
+
+## Join types as set logic
+
+| Join | Keeps | Main question |
+|---|---|---|
+| `inner` | matched keys only | What overlaps? |
+| `left` | every left row | What happened to each observation? |
+| `right` | every right row | Which metadata lacks observations? |
+| `outer` | union of keys | Where are all mismatches? |
+
+```text
+LEFT: A B C      RIGHT: B C D
+inner → B C      left → A B C
+right → B C D    outer → A B C D
+```
+
+::: {.notes}
+Lembre que o diagrama mostra conjuntos de chaves, não quantidade final de linhas quando há duplicatas. Tempo: 2 min.
+:::
+
+## Checkpoint 3: choose the join
+
+We must preserve every price observation and attach metadata when available.
+
+1. Which join is appropriate?
+2. What happens to `UNKNOWN` under `inner`?
+3. What could happen if metadata contains two `BRENT` rows?
+4. Which diagnostic reveals unmatched records?
+
+::: {.notes}
+Respostas: left, UNKNOWN desaparece, linhas podem multiplicar, indicator. Tempo: 3 min.
+:::
+
+## Many-to-many risk
+
+```{python}
+bad_metadata = pd.concat([
+    metadata,
+    metadata.loc[metadata["instrument"].eq("BRENT")]
+], ignore_index=True)
+
+try:
+    dedup.merge(bad_metadata, on="instrument", how="left",
+                validate="many_to_one")
+except pd.errors.MergeError as err:
+    print(type(err).__name__, "-", str(err).split(";")[0])
+```
+
+::: {.notes}
+Mostre validate como contrato executável. Sem ele, a multiplicação pode ser silenciosa. Tempo: 2 min.
+:::
+
+## Audit the merge
+
+```{python}
+merged = dedup.merge(
+    metadata,
+    on="instrument",
+    how="left",
+    validate="many_to_one",
+    indicator=True
+)
+assert len(merged) == len(dedup)
+merged["_merge"].value_counts()
+```
+
+```{python}
+merged.loc[merged["_merge"].ne("both"),
+           ["instrument", "_merge"]]
+```
+
+::: {.notes}
+Preservar linhas não é suficiente; também é preciso verificar correspondências. Tempo: 2 min.
+:::
+
+## `join`: index-based convenience
+
+```{python}
+joined = dedup.set_index("instrument").join(
+    metadata.set_index("instrument"),
+    how="left",
+    validate="many_to_one"
+)
+joined.loc[:, ["region", "category"]].head()
+```
+
+`join` is convenient when keys are represented by indexes.
+
+::: {.notes}
+Mostre que merge costuma ser mais explícito quando as chaves são colunas. Tempo: 2 min.
+:::
+
+# Reshaping Data
+
+## MultiIndex represents multiple dimensions
+
+```{python}
+multi = merged.set_index(["instrument", "date"]).sort_index()
+multi.loc[:, ["price", "volume"]].head(7)
+```
+
+- multiple index levels;
+- partial selection;
+- useful in grouped and reshaped results.
+
+::: {.notes}
+Trate como conteúdo útil, não núcleo da aula. Mostre os nomes dos níveis. Tempo: 2 min.
+:::
+
+## `unstack` and `stack`
+
+```{python}
+small_multi = multi.loc[:, ["price"]].dropna().head(6)
+wide_indexed = small_multi["price"].unstack("instrument")
+wide_indexed
+```
+
+```{python}
+wide_indexed.stack(future_stack=True)
+```
+
+`unstack` moves an index level to columns; `stack` moves columns into an index level.
+
+::: {.notes}
+Se o tempo estiver curto, use apenas como demonstração. Tempo: 2 min.
+:::
+
+## Wide versus long
+
+::: {.columns}
+::: {.column width="50%"}
+**Wide**
+
+| date | BRENT | WTI | TTF |
+|---|---:|---:|---:|
+| Jan 2 | 76.4 | 72.1 | 48.2 |
+
+One column per instrument.
+:::
+::: {.column width="50%"}
+**Long**
+
+| date | instrument | price |
+|---|---|---:|
+| Jan 2 | BRENT | 76.4 |
+| Jan 2 | WTI | 72.1 |
+| Jan 2 | TTF | 48.2 |
+
+One observation per row.
+:::
+:::
+
+::: {.notes}
+Formato é uma decisão estrutural. Long facilita mapear instrumento para cor, facet ou grupo. Tempo: 2 min.
+:::
+
+## Checkpoint 4: design the reshape
+
+```{python}
+wide = pd.DataFrame({
+    "date": ["2026-01-02", "2026-01-03"],
+    "BRENT": [76.4, 77.0],
+    "WTI": [72.1, 72.8],
+    "TTF": [48.2, 48.7]
+})
+wide
+```
+
+Which column is the identifier? Which columns should become a variable? What should the value column be called?
+
+::: {.notes}
+Peça a resposta conceitual antes da sintaxe. Tempo: 2 min.
+:::
+
+## `melt`: wide to long
+
+```{python}
+long = wide.melt(
+    id_vars="date",
+    var_name="instrument",
+    value_name="price"
+)
+long
+```
+
+No aggregation occurs; the values are reorganized.
+
+::: {.notes}
+Explique id_vars, var_name e value_name. Tempo: 2 min.
+:::
+
+## `pivot`: long to wide
+
+```{python}
+long.pivot(index="date", columns="instrument", values="price")
+```
+
+`pivot` requires unique date-instrument pairs.
+
+::: {.notes}
+Mostre que pivot falha diante de duplicatas porque não escolhe uma agregação. Tempo: 2 min.
+:::
+
+## `pivot_table`: reshape and aggregate
+
+```{python}
+duplicated_long = pd.concat([long, long.iloc[[0]]], ignore_index=True)
+duplicated_long.pivot_table(
+    index="date", columns="instrument", values="price", aggfunc="mean"
+)
+```
+
+::: {.callout-warning}
+Aggregation can hide duplicate records. Use it only when aggregation is analytically intended.
+:::
+
+::: {.notes}
+Mostre que pivot_table resolve a colisão por uma decisão estatística. Tempo: 2 min.
+:::
+
+## Combine, reshape, or aggregate?
+
+| Goal | Tool |
+|---|---|
+| append compatible tables | `concat` |
+| associate tables by keys | `merge` or `join` |
+| move columns into rows | `melt` or `stack` |
+| move row values into columns | `pivot` or `unstack` |
+| reshape while summarizing | `pivot_table` |
+
+::: {.notes}
+Use como síntese de escolha de ferramenta, não como memorização isolada. Tempo: 2 min.
+:::
+
+# Integrated Case
+
+## Step 1: define a working copy
+
+```{python}
+working = raw.loc[:, [
+    "date", "instrument", "market", "price", "volume", "currency"
+]].copy()
+print(working.shape)
+print(working.dtypes)
+```
+
+::: {.notes}
+Reinicie do dado bruto para demonstrar reprodutibilidade. Tempo: 1 min.
+:::
+
+## Step 2: parse and standardize
+
+```{python}
+working = working.assign(
+    date=pd.to_datetime(working["date"], errors="coerce", format="mixed", dayfirst=True),
+    instrument=working["instrument"].str.strip().str.upper(),
+    market=working["market"].str.strip().str.title(),
+    currency=working["currency"].str.strip().str.upper(),
+    price=pd.to_numeric(
+        working["price"].astype("string").str.replace(",", "", regex=False),
+        errors="coerce"
+    )
+)
+working.head()
+```
+
+::: {.notes}
+Conecte cada transformação a um problema diagnosticado. Tempo: 2 min.
+:::
+
+## Step 3: retain an audit trail
+
+```{python}
+working = working.assign(
+    invalid_date=working["date"].isna(),
+    missing_price=working["price"].isna(),
+    nonpositive_price=working["price"].le(0).fillna(False)
+)
+rejected = working.loc[
+    working[["invalid_date", "nonpositive_price"]].any(axis=1)
+].copy()
+rejected.loc[:, ["date", "instrument", "price",
+                 "invalid_date", "nonpositive_price"]]
+```
+
+::: {.notes}
+Mostre que rejeições devem ser auditáveis. Ausência de preço não é automaticamente rejeitada nesta etapa. Tempo: 3 min.
+:::
+
+## Step 4: deduplicate and treat missing price
+
+```{python}
+valid = (
+    working.loc[~working[["invalid_date", "nonpositive_price"]].any(axis=1)]
+    .drop_duplicates(subset=["date", "instrument", "price", "volume"])
+    .copy()
+)
+valid["price_imputed"] = valid["price"].isna()
+valid["price"] = valid.groupby("instrument")["price"].transform(
+    lambda s: s.fillna(s.median())
+)
+assert valid["price"].notna().all()
+```
+
+::: {.notes}
+A mediana por instrumento é uma hipótese didática. Em produção, a política dependeria do processo de geração dos dados. Tempo: 3 min.
+:::
+
+## Step 5: merge and audit
+
+```{python}
+final = valid.merge(
+    metadata,
+    on="instrument",
+    how="left",
+    validate="many_to_one",
+    indicator=True
+)
+assert len(final) == len(valid)
+final["_merge"].value_counts()
+```
+
+```{python}
+unmatched = final.loc[final["_merge"].ne("both")].copy()
+unmatched.loc[:, ["instrument", "_merge"]]
+```
+
+::: {.notes}
+UNKNOWN é preservado para auditoria. Não o remova antes de saber que não houve associação. Tempo: 2 min.
+:::
+
+## Step 6: create chart-ready data
+
+```{python}
+chart_data = (
+    final.loc[final["_merge"].eq("both")]
+    .drop(columns="_merge")
+    .sort_values(["category", "instrument", "date"])
+    .reset_index(drop=True)
+)
+assert chart_data[["date", "instrument", "price", "price_unit"]].notna().all().all()
+chart_data.head()
+```
+
+::: {.notes}
+A tabela final mantém unidade, categoria e marcador de imputação. Tempo: 2 min.
+:::
+
+## Compare compatible units
+
+```{python}
+#| fig-width: 10
+#| fig-height: 5
+crude = chart_data.loc[chart_data["category"].eq("Crude oil")]
+fig, ax = plt.subplots()
+sns.lineplot(data=crude, x="date", y="price",
+             hue="instrument", style="price_imputed",
+             markers=True, dashes=False, ax=ax)
+ax.set(title="Synthetic crude-oil prices after validated wrangling",
+       xlabel="Date", ylabel="Price (USD/bbl)")
+ax.legend(title="Instrument / imputed", frameon=False)
+plt.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+A comparação agora restringe-se à mesma unidade. O estilo marca observações imputadas. Não faça inferência de mercado com dados sintéticos. Tempo: 3 min.
+:::
+
+## A visual audit of record counts
+
+```{python}
+#| fig-width: 8
+#| fig-height: 4.5
+counts = pd.Series({
+    "Raw rows": len(raw),
+    "Rejected": len(rejected),
+    "Valid after rules": len(valid),
+    "Chart-ready": len(chart_data)
+})
+fig, ax = plt.subplots()
+counts.plot.bar(color="#4472C4", ax=ax)
+ax.set(title="Every reduction in rows should be explainable",
+       xlabel="Pipeline stage", ylabel="Number of rows")
+ax.tick_params(axis="x", rotation=20)
+plt.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+Explique que os estágios não formam todos uma decomposição aditiva. O gráfico serve para auditoria do pipeline. Tempo: 2 min.
+:::
+
+## Pipeline invariants
+
+```{python}
+assert metadata["instrument"].is_unique
+assert chart_data["price"].gt(0).all()
+assert chart_data["date"].dtype.kind == "M"
+assert chart_data["instrument"].isin(metadata["instrument"]).all()
+assert final["_merge"].isin(["both", "left_only", "right_only"]).all()
+```
+
+Assertions turn analytical expectations into executable checks.
+
+::: {.notes}
+Explique que testes não substituem conhecimento de domínio, mas tornam expectativas verificáveis. Tempo: 2 min.
+:::
+
+# Practice
+
+## Final exercise
+
+Build a reproducible pipeline that:
+
+1. parses dates and prices;
+2. standardizes text;
+3. flags failures before removing them;
+4. removes exact duplicates;
+5. makes one explicit missing-price decision;
+6. performs a validated left merge;
+7. reports unmatched instruments;
+8. creates long, chart-ready data;
+9. proves at least three assumptions with assertions;
+10. creates a valid visualization with compatible units.
+
+::: {.notes}
+Dê tempo para trabalho em pares. Avalie decisões e validações, não apenas sintaxe. Tempo: 5 min.
+:::
+
+## Final exercise: one solution
+
+```{python}
+solution = (
+    raw.assign(
+        date=lambda d: pd.to_datetime(d["date"], errors="coerce", format="mixed", dayfirst=True),
+        instrument=lambda d: d["instrument"].str.strip().str.upper(),
+        currency=lambda d: d["currency"].str.strip().str.upper(),
+        price=lambda d: pd.to_numeric(
+            d["price"].astype("string").str.replace(",", "", regex=False),
+            errors="coerce"
+        )
+    )
+    .drop_duplicates()
+    .loc[lambda d: d["date"].notna() & d["price"].gt(0)]
+    .merge(metadata, on="instrument", how="left",
+           validate="many_to_one", indicator=True)
+)
+exercise_unmatched = solution.loc[solution["_merge"].ne("both"), "instrument"].unique()
+exercise_chart = solution.loc[solution["_merge"].eq("both")].drop(columns="_merge")
+assert exercise_chart["price"].gt(0).all()
+assert exercise_chart["region"].notna().all()
+assert metadata["instrument"].is_unique
+print("unmatched:", exercise_unmatched)
+```
+
+::: {.notes}
+Esta solução remove preços ausentes, diferentemente do pipeline demonstrativo. Use a diferença para discutir políticas explícitas. Tempo: 3 min.
+:::
+
+# Key Takeaways
+
+## Visualization-ready data checklist
+
+- [ ] Is each row a clearly defined analytical unit?
+- [ ] Are missing values diagnosed before treatment?
+- [ ] Are dtypes and category labels consistent?
+- [ ] Is the duplicate key explicitly defined?
+- [ ] Are invalid values separated from unusual values?
+- [ ] Does the merge validate intended cardinality?
+- [ ] Are unmatched records audited?
+- [ ] Is the data shape appropriate for the chart?
+- [ ] Are units compatible with the comparison?
+- [ ] Can assertions verify the key assumptions?
+
+::: {.notes}
+Use como checklist reutilizável para trabalhos acadêmicos. Tempo: 2 min.
+:::
+
+## Main conclusions
+
+1. Cleaning begins with diagnosis, not deletion.
+2. Missing, invalid, duplicate, inconsistent, and unusual values require different reasoning.
+3. Transformation choices should preserve an audit trail.
+4. A merge is a claim about keys and relationships.
+5. Reshaping changes structure; aggregation changes information.
+6. A tidy table may still support an invalid comparison.
+7. Trustworthy visualization depends on explicit rules, units, and validation.
+
+::: {.notes}
+Retome a pergunta central. Peça que cada aluno cite uma validação que adicionará ao próximo projeto. Tempo: 2 min.
+:::
+
+## References
+
+- McKinney, W. *Python for Data Analysis*, 3rd ed., Chapters 7 and 8.
+- [Chapter 7: Data Cleaning and Preparation](https://wesmckinney.com/book/data-cleaning)
+- [Chapter 8: Data Wrangling](https://wesmckinney.com/book/data-wrangling)
+- [pandas documentation](https://pandas.pydata.org/docs/)
+- [Quarto RevealJS documentation](https://quarto.org/docs/presentations/revealjs/)
+- [Matplotlib documentation](https://matplotlib.org/stable/)
+- [seaborn documentation](https://seaborn.pydata.org/)
+
+**Attribution:** concepts were adapted and rewritten from the cited references. The synthetic data, teaching narrative, exercises, and visualizations were created for this lesson.
+
+::: {.notes}
+Diferencie referência conceitual, código didático e dados sintéticos. Tempo: 1 min.
+:::
+
+# Appendix {.unnumbered}
+
+## Optional: `qcut`
+
+```{python}
+observed_volume = chart_data["volume"].dropna()
+pd.qcut(observed_volume, q=3, labels=["lower", "middle", "upper"])
+```
+
+`qcut` targets approximately equal-frequency groups.
+
+::: {.notes}
+Slide de backup. Compare com cut e discuta dependência da amostra. Tempo: 1 min.
+:::
+
+## Optional: string extraction
+
+```{python}
+contracts = pd.Series(["BRENT_M1", "WTI_M2", "TTF_Q1"], dtype="string")
+contracts.str.extract(r"(?P<instrument>[A-Z]+)_(?P<tenor>[A-Z]\d)")
+```
+
+::: {.notes}
+Slide de backup para demonstrar regex e str.extract. Tempo: 1 min.
+:::

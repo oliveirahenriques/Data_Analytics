@@ -1,0 +1,927 @@
+---
+title: "Data Analytics & Visualization"
+subtitle: "Data Analytics Foundations"
+author: "Victor Henriques, Ph.D."
+format:
+  revealjs:
+    theme: white
+    slide-number: c/t
+    transition: fade
+    center: false
+    width: 1600
+    height: 900
+    margin: 0.07
+    code-overflow: wrap
+    chalkboard: true
+    preview-links: auto
+    footer: "Data Analytics & Visualization"
+    logo: logo.svg
+execute:
+  echo: true
+  warning: false
+  error: false
+  cache: false
+jupyter: python3
+---
+
+```{python}
+#| label: setup
+#| include: false
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+rng = np.random.default_rng(42)
+sns.set_theme(style="whitegrid", context="talk")
+pd.set_option("display.max_columns", 12)
+pd.set_option("display.width", 120)
+```
+
+# From Grouped Data to Effective Visualizations
+
+## Aggregation First, Visualization Second
+
+**A two-hour academic lesson based on Chapters 10 and 9, in that order**
+
+::: notes
+Explique que a ordem é intencional: primeiro construiremos perguntas e resumos por grupo; depois escolheremos representações visuais adequadas. Todos os dados são sintéticos. Tempo: 2 min.
+:::
+
+# Motivation
+
+## The central question
+
+> How do we move from individual observations to defensible group comparisons and then communicate those comparisons visually?
+
+**Question → group → aggregate or transform → validate → encode → annotate → interpret**
+
+::: notes
+Diferencie cálculo de comunicação. Um resumo pode estar correto e ainda ser mal representado; um gráfico elegante pode partir de uma agregação inadequada. Tempo: 2 min.
+:::
+
+## Learning objectives
+
+By the end of the lesson, students will be able to:
+
+-   explain split-apply-combine;
+-   group by one or more keys;
+-   distinguish aggregation, transformation, filtering, and application;
+-   create named aggregations, pivot tables, and cross-tabulations;
+-   validate group results and denominators;
+-   explain the Figure–Axes model in Matplotlib;
+-   choose charts according to analytical questions;
+-   use pandas, Matplotlib, and seaborn coherently;
+-   produce accessible, labeled, and restrained visualizations.
+
+::: notes
+Apresente os objetivos como competências observáveis. Tempo: 2 min.
+:::
+
+## Lesson route
+
+| Block                  | Focus                            | Minutes |
+|------------------------|----------------------------------|--------:|
+| Motivation             | Question, data, baseline         |       8 |
+| Chapter 10             | Grouping and aggregation         |      52 |
+| Chapter 9              | Plotting and visualization       |      42 |
+| Integrated case        | Aggregate, validate, communicate |      12 |
+| Practice and synthesis | Applied task and recap           |       6 |
+
+::: notes
+Informe que o capítulo 10 será tratado primeiro, conforme solicitado. Tópicos avançados de apply e visualização interativa ficam como extensão. Tempo: 2 min.
+:::
+
+## Synthetic market observations
+
+```{python}
+dates = pd.date_range("2026-01-01", periods=30, freq="D")
+instruments = ["BRENT", "WTI", "TTF"]
+rows = []
+for date in dates:
+    for instrument in instruments:
+        base = {"BRENT": 76, "WTI": 72, "TTF": 49}[instrument]
+        region = {"BRENT": "Europe", "WTI": "North America", "TTF": "Europe"}[instrument]
+        category = "Crude oil" if instrument in {"BRENT", "WTI"} else "Natural gas"
+        unit = "USD/bbl" if category == "Crude oil" else "EUR/MWh"
+        rows.append({
+            "date": date, "instrument": instrument, "region": region,
+            "category": category, "unit": unit,
+            "price": base + 0.08 * date.day + rng.normal(0, 0.8),
+            "volume": max(10, rng.normal(110 if category == "Crude oil" else 80, 15))
+        })
+market = pd.DataFrame(rows)
+market.loc[[8, 39, 70], "price"] = np.nan
+market.head()
+```
+
+::: notes
+Defina a unidade de observação: instrumento por dia. A semente fixa torna o exemplo reproduzível. Tempo: 2 min.
+:::
+
+## Before summarizing, inspect the structure
+
+```{python}
+print(market.shape)
+print(market.dtypes)
+market.groupby("instrument", dropna=False).size()
+```
+
+```{python}
+market.groupby("instrument")["price"].agg(["count", "size"])
+```
+
+`count` excludes missing values; `size` counts rows.
+
+::: notes
+Antecipe o tema dos denominadores. Uma média e uma contagem podem responder perguntas diferentes se houver ausências. Tempo: 2 min.
+:::
+
+# Chapter 10: Data Aggregation and Group Operations
+
+## Split–apply–combine
+
+1.  **Split** observations using one or more keys.
+2.  **Apply** a summary, transformation, filter, or custom operation.
+3.  **Combine** the group results into a pandas object.
+
+```{python}
+grouped = market.groupby("instrument")
+type(grouped).__name__
+```
+
+The `GroupBy` object represents a plan; no summary has been computed yet.
+
+::: notes
+Evite descrever groupby apenas como SQL. O objeto guarda chaves e partições até receber uma operação. Tempo: 3 min.
+:::
+
+## First group summaries
+
+```{python}
+market.groupby("instrument")["price"].mean().round(2)
+```
+
+```{python}
+market.groupby("instrument")["price"].agg(["count", "mean", "std", "min", "max"]).round(2)
+```
+
+::: notes
+Mostre que selecionar a coluna antes da agregação torna a intenção explícita. Tempo: 3 min.
+:::
+
+## Checkpoint 1: predict the result shape
+
+Predict the output type and shape:
+
+``` python
+market.groupby("instrument")["price"].mean()
+market.groupby("instrument")[["price", "volume"]].mean()
+market.groupby(["category", "instrument"])["price"].mean()
+```
+
+Which result has a MultiIndex?
+
+::: notes
+Dê um minuto para previsão. O terceiro resultado tem duas chaves no índice. Tempo: 2 min.
+:::
+
+## Checkpoint 1: solution
+
+```{python}
+print(market.groupby("instrument")["price"].mean())
+print(market.groupby("instrument")[["price", "volume"]].mean())
+print(market.groupby(["category", "instrument"])["price"].mean())
+```
+
+::: notes
+Compare Series, DataFrame e Series com MultiIndex. Tempo: 2 min.
+:::
+
+## Multiple keys and `as_index`
+
+```{python}
+market.groupby(
+    ["category", "instrument"], as_index=False
+).agg(mean_price=("price", "mean"), observations=("price", "count"))
+```
+
+`as_index=False` keeps grouping keys as ordinary columns.
+
+::: notes
+Explique por que colunas comuns facilitam gráficos e merges posteriores. Tempo: 2 min.
+:::
+
+## Named aggregation
+
+```{python}
+summary = (
+    market.groupby("instrument", as_index=False)
+    .agg(
+        mean_price=("price", "mean"),
+        median_price=("price", "median"),
+        price_sd=("price", "std"),
+        total_volume=("volume", "sum"),
+        observed_prices=("price", "count")
+    )
+)
+summary.round(2)
+```
+
+::: notes
+Named aggregation produz nomes sem MultiIndex nas colunas. Destaque que total_volume e mean_price respondem perguntas diferentes. Tempo: 3 min.
+:::
+
+## Aggregation reduces rows
+
+```{python}
+print("input rows:", len(market))
+print("summary rows:", len(summary))
+assert len(summary) == market["instrument"].nunique()
+```
+
+Aggregation returns one or more values per group.
+
+::: notes
+Use a redução do número de linhas para diferenciar agg de transform. Tempo: 2 min.
+:::
+
+## Transformation preserves the original index
+
+```{python}
+market = market.assign(
+    group_mean=market.groupby("instrument")["price"].transform("mean"),
+    centered_price=lambda d: d["price"] - d["group_mean"]
+)
+market.loc[:, ["date", "instrument", "price", "group_mean", "centered_price"]].head()
+```
+
+```{python}
+assert market["group_mean"].index.equals(market.index)
+```
+
+::: notes
+Transform devolve um valor alinhado a cada observação. É útil para normalização e variáveis derivadas. Tempo: 3 min.
+:::
+
+## Within-group standardization
+
+```{python}
+market["price_z"] = market.groupby("instrument")["price"].transform(
+    lambda s: (s - s.mean()) / s.std()
+)
+market.groupby("instrument")["price_z"].agg(["mean", "std"]).round(6)
+```
+
+::: notes
+Explique que a lambda é necessária porque combinamos média e desvio da própria série. A padronização não torna instrumentos economicamente equivalentes. Tempo: 3 min.
+:::
+
+## Filtering entire groups
+
+```{python}
+complete_enough = market.groupby("instrument").filter(
+    lambda g: g["price"].notna().mean() >= 0.95
+)
+complete_enough["instrument"].unique()
+```
+
+`filter` retains or removes whole groups based on a group-level condition.
+
+::: notes
+Diferencie filtrar linhas por preço de remover um grupo inteiro por cobertura insuficiente. Tempo: 2 min.
+:::
+
+## `apply`: flexible but less predictable
+
+```{python}
+def top_volume_rows(group, n=2):
+    result = group.nlargest(n, "volume").copy()
+    result["instrument"] = group.name
+    return result
+
+top_volume = (
+    market.groupby("instrument", group_keys=False)
+    .apply(top_volume_rows, include_groups=False)
+)
+top_volume.loc[:, ["date", "instrument", "volume"]]
+```
+
+Prefer built-in aggregation or transformation when available.
+
+::: notes
+Explique que apply é poderoso, mas a forma da saída depende da função. Use somente quando agg, transform ou filter não expressarem claramente a tarefa. Tempo: 3 min.
+:::
+
+## Missing grouping keys
+
+```{python}
+with_missing_key = market.head(6).copy()
+with_missing_key.loc[0, "region"] = None
+print(with_missing_key.groupby("region").size())
+print(with_missing_key.groupby("region", dropna=False).size())
+```
+
+By default, missing group keys are excluded.
+
+::: notes
+Este é um ponto de auditoria importante. dropna=False torna o grupo ausente visível. Tempo: 2 min.
+:::
+
+## Observed categories
+
+```{python}
+category_type = pd.CategoricalDtype(
+    categories=["Crude oil", "Natural gas", "Power"]
+)
+categorical_market = market.assign(
+    category=market["category"].astype(category_type)
+)
+categorical_market.groupby("category", observed=True).size()
+```
+
+`observed=True` reports categories present in the data.
+
+::: notes
+Explique que categorias declaradas podem incluir níveis não observados. Tempo: 2 min.
+:::
+
+## Quantiles by group
+
+```{python}
+market.groupby("instrument")["price"].quantile([0.25, 0.5, 0.75]).round(2)
+```
+
+Quantiles describe distribution location without assuming symmetry.
+
+::: notes
+Compare mediana e média em distribuições assimétricas. Tempo: 2 min.
+:::
+
+## Groupwise ranking
+
+```{python}
+market["volume_rank"] = market.groupby("instrument")["volume"].rank(
+    method="dense", ascending=False
+)
+market.loc[market["volume_rank"].le(2),
+           ["date", "instrument", "volume", "volume_rank"]].head(6)
+```
+
+::: notes
+Explique que é um ranking de observações sintéticas dentro de cada instrumento, não uma avaliação humana. Tempo: 2 min.
+:::
+
+## Pivot tables summarize two dimensions
+
+```{python}
+market["week"] = ((market["date"].dt.day - 1) // 7 + 1).astype(int)
+pivot = market.pivot_table(
+    index="instrument", columns="week", values="price",
+    aggfunc="mean", observed=True
+)
+pivot.round(2)
+```
+
+::: notes
+Pivot_table combina agrupamento, agregação e reorganização. Explicite o aggfunc. Tempo: 3 min.
+:::
+
+## Margins and denominators
+
+```{python}
+market.pivot_table(
+    index="category", columns="region", values="volume",
+    aggfunc="sum", margins=True, fill_value=0, observed=True
+).round(0)
+```
+
+Totals should be interpreted with the aggregation rule and coverage in mind.
+
+::: notes
+Mostre que All é recalculado com a mesma agregação; não assuma que médias de médias são equivalentes à média global. Tempo: 2 min.
+:::
+
+## Cross-tabulation
+
+```{python}
+volume_band = pd.cut(
+    market["volume"], bins=[0, 80, 110, np.inf],
+    labels=["low", "medium", "high"]
+)
+pd.crosstab(market["instrument"], volume_band, normalize="index").round(2)
+```
+
+Row normalization answers: “Within each instrument, what share falls in each band?”
+
+::: notes
+Enfatize o denominador da normalização. Normalize index e columns respondem perguntas diferentes. Tempo: 3 min.
+:::
+
+## Checkpoint 2: `agg`, `transform`, `filter`, or `apply`?
+
+Choose the most specific operation:
+
+1.  one mean price per instrument;
+2.  subtract each instrument's own mean from every row;
+3.  retain instruments with at least 95% observed prices;
+4.  return the two largest-volume rows per instrument;
+5.  compute several named summaries per instrument.
+
+::: notes
+Respostas: agg, transform, filter, apply, agg. Tempo: 3 min.
+:::
+
+## Validate grouped results
+
+```{python}
+check = market.groupby("instrument").agg(
+    rows=("price", "size"),
+    observed=("price", "count"),
+    mean_price=("price", "mean")
+)
+assert check["rows"].sum() == len(market)
+assert check["observed"].sum() == market["price"].notna().sum()
+assert check["observed"].le(check["rows"]).all()
+check.round(2)
+```
+
+::: notes
+Mostre que validação deve verificar denominadores e cobertura, não apenas ausência de erros de execução. Tempo: 3 min.
+:::
+
+# Chapter 9: Plotting and Visualization
+
+## Visualization starts with a question
+
+| Question                      | Frequent starting point   |
+|-------------------------------|---------------------------|
+| How does a value evolve?      | line                      |
+| How do categories compare?    | bar or dot plot           |
+| What is the distribution?     | histogram, ECDF, box plot |
+| How do two quantities relate? | scatter plot              |
+| How does a matrix vary?       | heatmap                   |
+
+Chart choice follows analytical structure, not decoration.
+
+::: notes
+Diga que esta tabela é orientação inicial, não uma regra absoluta. Tempo: 3 min.
+:::
+
+## The Figure–Axes model
+
+```{python}
+#| fig-width: 8
+#| fig-height: 4.5
+fig, ax = plt.subplots()
+ax.plot([1, 2, 3], [2, 5, 4], marker="o")
+ax.set(title="A Figure contains one or more Axes",
+       xlabel="Observation", ylabel="Value")
+plt.tight_layout()
+plt.show()
+```
+
+-   `Figure`: the complete canvas;
+-   `Axes`: one plotting region;
+-   methods on `ax`: plot and customize.
+
+::: notes
+Evite chamar Axes de eixo. Um Axes contém os eixos x e y. Tempo: 3 min.
+:::
+
+## Subplots support comparison
+
+```{python}
+#| fig-width: 10
+#| fig-height: 4.5
+fig, axes = plt.subplots(1, 2)
+axes[0].hist(market["price"].dropna(), bins=12, color="#4472C4")
+axes[0].set(title="Distribution", xlabel="Price", ylabel="Frequency")
+axes[1].scatter(market["volume"], market["price"], alpha=0.65, color="#D55E00")
+axes[1].set(title="Relationship", xlabel="Volume", ylabel="Price")
+plt.tight_layout()
+plt.show()
+```
+
+::: notes
+Subplots devem apoiar uma comparação ou narrativa comum. Não use painéis apenas para preencher espaço. Tempo: 3 min.
+:::
+
+## Lines, markers, color, and style
+
+```{python}
+#| fig-width: 9
+#| fig-height: 4.5
+brent = market.loc[market["instrument"].eq("BRENT")]
+fig, ax = plt.subplots()
+ax.plot(brent["date"], brent["price"], color="#0072B2",
+        linewidth=2.2, marker="o", markersize=4)
+ax.set(title="BRENT synthetic daily prices", xlabel="Date", ylabel="Price (USD/bbl)")
+plt.tight_layout()
+plt.show()
+```
+
+::: notes
+Linha implica continuidade ou ordem. Títulos e unidade devem ser explícitos. Tempo: 2 min.
+:::
+
+## Ticks, labels, and annotations
+
+```{python}
+#| fig-width: 9
+#| fig-height: 4.5
+fig, ax = plt.subplots()
+ax.plot(brent["date"], brent["price"], color="#0072B2")
+max_row = brent.loc[brent["price"].idxmax()]
+ax.annotate("sample maximum", xy=(max_row["date"], max_row["price"]),
+            xytext=(10, 15), textcoords="offset points",
+            arrowprops={"arrowstyle": "->"})
+ax.set(title="Annotation should explain a relevant feature",
+       xlabel="Date", ylabel="Price (USD/bbl)")
+plt.tight_layout()
+plt.show()
+```
+
+::: notes
+A anotação deve servir à leitura. Como os dados são sintéticos, chame de sample maximum, sem conclusão de mercado. Tempo: 2 min.
+:::
+
+## pandas plotting integration
+
+```{python}
+#| fig-width: 8
+#| fig-height: 4.5
+ax = summary.plot.bar(x="instrument", y="mean_price",
+                      legend=False, color="#4472C4")
+ax.set(title="Mean synthetic price by instrument",
+       xlabel="Instrument", ylabel="Mean price in original units")
+plt.tight_layout()
+plt.show()
+```
+
+::: callout-warning
+The code works, but comparing bars across different units is analytically invalid.
+:::
+
+::: notes
+Use este contraexemplo: integração fácil não garante comparação válida. Tempo: 3 min.
+:::
+
+## Seaborn works naturally with long data
+
+```{python}
+#| fig-width: 9
+#| fig-height: 4.8
+fig, ax = plt.subplots()
+sns.lineplot(data=market, x="date", y="price", hue="instrument", ax=ax)
+ax.set(title="Readable structure, incompatible price units",
+       xlabel="Date", ylabel="Price in original units")
+plt.tight_layout()
+plt.show()
+```
+
+::: notes
+O formato é adequado ao mapeamento por hue, mas TTF continua incomparável aos óleos em nível. Tempo: 2 min.
+:::
+
+## Distribution before summary
+
+```{python}
+#| fig-width: 9
+#| fig-height: 4.8
+fig, ax = plt.subplots()
+sns.boxplot(data=market, x="instrument", y="price", hue="instrument",
+            palette="colorblind", legend=False, ax=ax)
+ax.set(title="Distribution of synthetic prices",
+       xlabel="Instrument", ylabel="Price in original units")
+plt.tight_layout()
+plt.show()
+```
+
+A box plot shows distribution summaries but still does not solve incompatible units.
+
+::: notes
+Explique mediana, quartis e whiskers sem chamar automaticamente pontos de erro. Tempo: 3 min.
+:::
+
+## Scatter plots and semantic mappings
+
+```{python}
+#| fig-width: 9
+#| fig-height: 4.8
+fig, ax = plt.subplots()
+sns.scatterplot(data=market, x="volume", y="price",
+                hue="instrument", style="category", alpha=0.75, ax=ax)
+ax.set(title="Volume and price in synthetic observations",
+       xlabel="Volume", ylabel="Price in original units")
+plt.tight_layout()
+plt.show()
+```
+
+::: notes
+Hue e style oferecem redundância parcial, mas a mistura de unidades continua limitando a interpretação. Tempo: 2 min.
+:::
+
+## Aggregation uncertainty must be visible
+
+```{python}
+plot_summary = (
+    market.groupby("instrument", as_index=False)
+    .agg(mean_z=("price_z", "mean"), sd_z=("price_z", "std"), n=("price_z", "count"))
+)
+plot_summary["se_z"] = plot_summary["sd_z"] / np.sqrt(plot_summary["n"])
+plot_summary.round(3)
+```
+
+A point estimate without sample size or uncertainty can conceal important information.
+
+::: notes
+Explique que erro-padrão não é faixa de dados nem garantia de inferência causal. Tempo: 3 min.
+:::
+
+## Error bars with Matplotlib
+
+```{python}
+#| fig-width: 8
+#| fig-height: 4.5
+fig, ax = plt.subplots()
+ax.errorbar(plot_summary["instrument"], plot_summary["mean_z"],
+            yerr=plot_summary["se_z"], fmt="o", capsize=5, color="#0072B2")
+ax.axhline(0, color="0.4", linewidth=1)
+ax.set(title="Mean within-instrument z-score and standard error",
+       xlabel="Instrument", ylabel="Mean standardized price")
+plt.tight_layout()
+plt.show()
+```
+
+::: notes
+A média padronizada é aproximadamente zero por construção. Use o slide para ensinar errorbar, não para comparação substantiva. Tempo: 2 min.
+:::
+
+## Heatmaps for pivot tables
+
+```{python}
+#| fig-width: 9
+#| fig-height: 4.8
+weekly_z = market.pivot_table(
+    index="instrument", columns="week", values="price_z", aggfunc="mean"
+)
+fig, ax = plt.subplots()
+sns.heatmap(weekly_z, cmap="vlag", center=0, annot=True, fmt=".2f", ax=ax)
+ax.set(title="Weekly mean standardized price", xlabel="Week", ylabel="Instrument")
+plt.tight_layout()
+plt.show()
+```
+
+::: notes
+A paleta divergente e o centro zero correspondem ao significado dos z-scores. Tempo: 3 min.
+:::
+
+## Checkpoint 3: choose the visual encoding
+
+Choose and justify a chart for:
+
+1.  daily price evolution for one instrument;
+2.  distribution of volume by instrument;
+3.  relationship between price change and volume;
+4.  weekly standardized values by instrument;
+5.  category shares within each region.
+
+::: notes
+Possíveis respostas: linha, box/violin, scatter, heatmap, barras proporcionais. Avalie a justificativa. Tempo: 3 min.
+:::
+
+## Accessibility and restraint
+
+-   use sufficient contrast;
+-   avoid color as the only carrier of meaning when possible;
+-   label axes with units;
+-   prefer direct, informative titles;
+-   remove redundant legends;
+-   limit annotations to relevant evidence;
+-   avoid 3D effects and decorative distortion.
+
+::: notes
+Conecte acessibilidade à precisão analítica. Tempo: 2 min.
+:::
+
+## Saving figures
+
+```{python}
+fig, ax = plt.subplots(figsize=(8, 4.5))
+ax.plot(brent["date"], brent["price"], color="#0072B2")
+ax.set(title="Exportable figure", xlabel="Date", ylabel="Price (USD/bbl)")
+fig.tight_layout()
+fig.savefig("brent_synthetic.png", dpi=160, bbox_inches="tight")
+plt.close(fig)
+```
+
+The file is created locally during rendering.
+
+::: notes
+Explique dpi para raster e bbox_inches. O arquivo é local e reproduzível. Tempo: 2 min.
+:::
+
+# Integrated Case
+
+## Analytical task
+
+Compare weekly movement across instruments without mixing physical units.
+
+1.  calculate daily percentage change within instrument;
+2.  summarize by instrument and week;
+3.  retain coverage information;
+4.  validate denominators;
+5.  visualize the weekly means;
+6.  interpret cautiously.
+
+::: notes
+A transformação percentual melhora comparabilidade de movimento, mas não cria equivalência de risco ou mercado. Tempo: 2 min.
+:::
+
+## Compute within groups
+
+```{python}
+market = market.sort_values(["instrument", "date"]).copy()
+market["return_pct"] = market.groupby("instrument")["price"].pct_change(
+    fill_method=None
+).mul(100)
+market.loc[:, ["date", "instrument", "price", "return_pct"]].head(7)
+```
+
+::: notes
+Ordenação é parte da validade. fill_method=None evita preenchimento implícito. Tempo: 2 min.
+:::
+
+## Aggregate and preserve coverage
+
+```{python}
+weekly = (
+    market.groupby(["instrument", "week"], as_index=False)
+    .agg(
+        mean_return=("return_pct", "mean"),
+        return_sd=("return_pct", "std"),
+        observed_returns=("return_pct", "count"),
+        total_volume=("volume", "sum")
+    )
+)
+weekly.round(2).head()
+```
+
+::: notes
+Não mostre apenas a média. A contagem informa cobertura e o desvio resume dispersão. Tempo: 2 min.
+:::
+
+## Validate the grouped result
+
+```{python}
+assert weekly[["instrument", "week"]].duplicated().sum() == 0
+assert weekly["observed_returns"].ge(0).all()
+assert weekly["observed_returns"].le(7).all()
+assert np.isfinite(weekly["mean_return"]).all()
+```
+
+::: notes
+As invariantes conectam a estrutura semanal ao calendário sintético. Tempo: 2 min.
+:::
+
+## Communicate the result
+
+```{python}
+#| fig-width: 10
+#| fig-height: 5
+fig, ax = plt.subplots()
+sns.lineplot(data=weekly, x="week", y="mean_return",
+             hue="instrument", marker="o", ax=ax)
+ax.axhline(0, color="0.35", linewidth=1)
+ax.set(title="Weekly mean daily return in synthetic data",
+       xlabel="Week", ylabel="Mean daily return (%)")
+ax.legend(title="Instrument", frameon=False)
+plt.tight_layout()
+plt.show()
+```
+
+::: notes
+Interprete somente direção e magnitude no exemplo. Não extrapole para dados reais. Tempo: 3 min.
+:::
+
+## Final exercise
+
+Using `market`, create a reproducible analysis that:
+
+1.  defines a grouping question;
+2.  uses named aggregation;
+3.  distinguishes `size` from `count`;
+4.  computes one within-group transformation;
+5.  validates at least three assumptions;
+6.  chooses a chart appropriate to the question;
+7.  labels units and states one interpretive limitation.
+
+::: notes
+Dê alguns minutos em pares. A solução deve ser avaliada pela coerência entre pergunta, resumo e gráfico. Tempo: 4 min.
+:::
+
+## Final exercise: one solution
+
+```{python}
+exercise = (
+    market.groupby("instrument", as_index=False)
+    .agg(
+        rows=("price", "size"),
+        observed_prices=("price", "count"),
+        median_volume=("volume", "median"),
+        mean_return=("return_pct", "mean")
+    )
+)
+assert exercise["rows"].sum() == len(market)
+assert exercise["observed_prices"].sum() == market["price"].notna().sum()
+assert exercise["observed_prices"].le(exercise["rows"]).all()
+exercise.round(2)
+```
+
+::: notes
+Uma visualização possível seria um dot plot de mean_return, com cobertura apresentada em labels ou painel separado. Tempo: 2 min.
+:::
+
+# Key Takeaways
+
+## Analysis-to-visualization checklist
+
+-   [ ] What is the observational unit?
+-   [ ] What exactly defines each group?
+-   [ ] Is the operation an aggregation, transformation, filter, or application?
+-   [ ] What is the denominator?
+-   [ ] Are missing grouping keys visible?
+-   [ ] Does the result have the expected number of rows?
+-   [ ] Are units comparable?
+-   [ ] Does the chart answer the analytical question?
+-   [ ] Are uncertainty and sample size relevant?
+-   [ ] Are title, axes, legend, and annotation informative?
+
+::: notes
+Use como checklist reutilizável nos projetos dos alunos. Tempo: 2 min.
+:::
+
+## Main conclusions
+
+1.  Group operations begin with a clearly defined key and observational unit.
+2.  Aggregation reduces; transformation preserves; filtering selects groups.
+3.  `apply` is a fallback for operations not clearly expressed by specialized methods.
+4.  Denominators, missing keys, and coverage must be validated.
+5.  Visualization translates analytical structure into visual encodings.
+6.  Easy plotting does not guarantee valid comparison.
+7.  Effective graphics combine correct summaries, compatible units, accessible design, and restrained interpretation.
+
+::: notes
+Retome a pergunta central e peça aos alunos uma validação e um princípio visual que usarão no próximo projeto. Tempo: 2 min.
+:::
+
+## References
+
+-   McKinney, W. *Python for Data Analysis*, 3rd ed., Chapter 10 followed by Chapter 9.
+-   [Chapter 10: Data Aggregation and Group Operations](https://wesmckinney.com/book/data-aggregation)
+-   [Chapter 9: Plotting and Visualization](https://wesmckinney.com/book/plotting-and-visualization)
+-   [pandas documentation](https://pandas.pydata.org/docs/)
+-   [Matplotlib documentation](https://matplotlib.org/stable/)
+-   [seaborn documentation](https://seaborn.pydata.org/)
+-   [Quarto RevealJS documentation](https://quarto.org/docs/presentations/revealjs/)
+
+**Attribution:** concepts were adapted and rewritten from the cited references. Synthetic data, exercises, validation rules, and teaching narrative were created for this lesson.
+
+::: notes
+Diferencie referência conceitual, código didático e dados sintéticos. Tempo: 1 min.
+:::
+
+# Appendix {.unnumbered}
+
+## Optional: grouped rolling mean
+
+```{python}
+market["rolling_price_3"] = (
+    market.groupby("instrument")["price"]
+    .transform(lambda s: s.rolling(3, min_periods=2).mean())
+)
+market.loc[:, ["date", "instrument", "price", "rolling_price_3"]].head(8)
+```
+
+::: notes
+Slide de backup. Explique janela móvel apenas se houver tempo. Tempo: 2 min.
+:::
+
+## Optional: transparent composition
+
+```{python}
+#| fig-width: 9
+#| fig-height: 4.5
+fig, ax = plt.subplots()
+sns.lineplot(data=market, x="date", y="rolling_price_3",
+             hue="instrument", ax=ax)
+ax.set(title="Three-observation rolling mean",
+       xlabel="Date", ylabel="Price in original units")
+plt.tight_layout()
+plt.show()
+```
+
+::: notes
+Slide de backup. Reforce que suavização remove detalhe e mistura de unidades permanece. Tempo: 2 min.
+:::

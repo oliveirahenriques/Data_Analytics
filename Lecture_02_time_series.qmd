@@ -1,0 +1,1780 @@
+---
+title: "Data Analytics & Visualization"
+subtitle: "Time Series Graphics for Data Analytics"
+author: "Victor Henriques, Ph.D."
+format:
+  revealjs:
+    theme: simple
+    slide-number: c/t
+    transition: fade
+    center: false
+    width: 1600
+    height: 900
+    margin: 0.07
+    code-overflow: wrap
+    code-line-numbers: false
+    chalkboard: true
+    preview-links: auto
+    footer: "Data Analytics & Visualization"
+execute:
+  echo: true
+  warning: false
+  error: false
+  cache: false
+jupyter: python3
+---
+
+```{python}
+#| label: setup
+#| include: false
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+from pandas.plotting import autocorrelation_plot, lag_plot
+from statsmodels.graphics.tsaplots import plot_acf
+from statsmodels.tsa.stattools import acf
+
+rng = np.random.default_rng(42)
+sns.set_theme(style="whitegrid", context="talk")
+pd.set_option("display.max_columns", 12)
+pd.set_option("display.width", 120)
+```
+
+# Foundations from pandas Time Series
+
+## Before visual diagnostics, define what time means
+
+**Timestamp → calendar → frequency → alignment → resampling → windows → graphics**
+
+::: {.notes}
+Este bloco deve ser inserido antes da seção Data and Time Structure da aula principal. A ideia é preparar a infraestrutura conceitual necessária para interpretar time plots, seasonal plots, lag plots e ACF.
+
+[Sources]
+- https://wesmckinney.com/book/time-series
+:::
+
+## What can a time coordinate represent?
+
+- **Timestamp:** a specific instant.
+- **Fixed period:** a span such as a month or quarter.
+- **Interval:** a start and an end.
+- **Elapsed time:** distance from an origin.
+
+> The representation must match what the observation actually measures.
+
+::: {.notes}
+Use preço de fechamento como exemplo de timestamp e produção mensal como período. Explique que a escolha altera slicing, agregação e labels.
+
+[Sources]
+- https://wesmckinney.com/book/time-series
+:::
+
+## Fixed-frequency and irregular series
+
+::: {.columns}
+::: {.column width="50%"}
+### Fixed frequency
+
+- every 15 seconds;
+- hourly;
+- business daily;
+- monthly.
+:::
+::: {.column width="50%"}
+### Irregular
+
+- trades;
+- incidents;
+- publications;
+- event records.
+:::
+:::
+
+A line can display either, but **lag 1 has a stable duration only under a regular calendar**.
+
+::: {.notes}
+Em série irregular, shift(1) significa registro anterior, não necessariamente uma hora anterior.
+
+[Sources]
+- https://wesmckinney.com/book/time-series
+:::
+
+## Python date and time objects
+
+```{python}
+from datetime import date, time, datetime, timedelta
+
+stamp = datetime(2026, 1, 15, 14, 30)
+delta = timedelta(days=2, hours=3)
+print(stamp)
+print(stamp + delta)
+```
+
+- `date`: calendar date;
+- `time`: time of day;
+- `datetime`: date and time;
+- `timedelta`: elapsed duration.
+
+::: {.notes}
+Timedelta representa diferença, não uma data.
+
+[Sources]
+- https://wesmckinney.com/book/time-series
+:::
+
+## Parse strings into temporal data
+
+```{python}
+raw_dates = pd.Series([
+    "2026-01-15", "15/02/2026", "March 20, 2026", "invalid"
+])
+parsed = pd.to_datetime(
+    raw_dates, format="mixed", dayfirst=True, errors="coerce"
+)
+pd.DataFrame({"raw": raw_dates, "parsed": parsed})
+```
+
+`errors="coerce"` exposes failures as missing timestamps. It does not repair their meaning.
+
+::: {.notes}
+Discuta ambiguidade entre dia e mês. Prefira formato explícito quando a fonte for estável.
+
+[Sources]
+- https://wesmckinney.com/book/time-series
+:::
+
+## Format timestamps for communication
+
+```{python}
+stamp = pd.Timestamp("2026-01-15 14:30")
+print(stamp.strftime("%Y-%m-%d"))
+print(stamp.strftime("%d %b %Y, %H:%M"))
+```
+
+Formatting changes display, not the underlying temporal value.
+
+::: {.notes}
+Diferencie armazenamento e apresentação. Labels dependentes de locale podem variar entre ambientes.
+
+[Sources]
+- https://wesmckinney.com/book/time-series
+:::
+
+## `DatetimeIndex`: time as an analytical axis
+
+```{python}
+idx = pd.date_range("2026-01-01", periods=6, freq="D")
+series = pd.Series([72, 74, 73, 77, 78, 76], index=idx, name="value")
+print(type(series.index).__name__)
+series
+```
+
+A timestamp-indexed Series supports temporal slicing, frequency logic, shifting, and resampling.
+
+::: {.notes}
+O DatetimeIndex é a estrutura central do pandas para séries indexadas por instantes.
+
+[Sources]
+- https://wesmckinney.com/book/time-series
+:::
+
+## Temporal slicing
+
+```{python}
+series.loc["2026-01-02":"2026-01-05"]
+```
+
+```{python}
+daily = pd.Series(
+    np.arange(90),
+    index=pd.date_range("2026-01-01", periods=90, freq="D")
+)
+daily.loc["2026-02"].head()
+```
+
+Partial strings can select meaningful calendar ranges.
+
+::: {.notes}
+Reforce a necessidade de índice temporal ordenado.
+
+[Sources]
+- https://wesmckinney.com/book/time-series
+:::
+
+## Duplicate timestamps require a rule
+
+```{python}
+duplicate_time = pd.Series(
+    [70, 72, 74, 76],
+    index=pd.to_datetime([
+        "2026-01-01", "2026-01-02", "2026-01-02", "2026-01-03"
+    ])
+)
+print("unique index:", duplicate_time.index.is_unique)
+duplicate_time.groupby(level=0).agg(["mean", "count"])
+```
+
+Aggregation resolves duplicates only when the rule is analytically justified.
+
+::: {.notes}
+Em preços, mean pode não ser a regra correta. Last, VWAP ou preservação por fonte podem ser alternativas.
+
+[Sources]
+- https://wesmckinney.com/book/time-series
+:::
+
+## Generate regular date ranges
+
+```{python}
+print(pd.date_range("2026-01-01", periods=5, freq="D"))
+print(pd.date_range("2026-01-01 00:00", periods=5, freq="15min"))
+print(pd.date_range("2026-01-01", periods=5, freq="B"))
+```
+
+Frequency aliases encode calendar rules, not merely display labels.
+
+::: {.notes}
+D difer de B. Frequências de negócio não incorporam automaticamente todo calendário local de mercado.
+
+[Sources]
+- https://wesmckinney.com/book/time-series
+:::
+
+## Regularization can introduce missing values
+
+```{python}
+irregular = pd.Series(
+    [10, 12, 15],
+    index=pd.to_datetime(["2026-01-01", "2026-01-03", "2026-01-06"])
+)
+irregular.asfreq("D")
+```
+
+`asfreq` establishes a target calendar. It does not aggregate or justify filling gaps.
+
+::: {.notes}
+Compare asfreq com resample. O primeiro expressa frequência; o segundo cria grupos temporais.
+
+[Sources]
+- https://wesmckinney.com/book/time-series
+:::
+
+## Shift values versus shift timestamps
+
+```{python}
+shift_demo = pd.Series(
+    [100, 102, 101, 105],
+    index=pd.date_range("2026-01-01", periods=4, freq="D")
+)
+print(shift_demo.shift(1))
+print(shift_demo.shift(1, freq="D"))
+```
+
+- `shift(1)`: moves values relative to the existing index.
+- `shift(1, freq="D")`: moves the timestamps by a calendar offset.
+
+::: {.notes}
+Essa distinção é central para retornos, lags e alinhamento.
+
+[Sources]
+- https://wesmckinney.com/book/time-series
+:::
+
+## Time zones: localize, then convert
+
+```{python}
+naive = pd.date_range("2026-01-15 09:00", periods=3, freq="h")
+dublin = naive.tz_localize("Europe/Dublin")
+utc = dublin.tz_convert("UTC")
+print(dublin)
+print(utc)
+```
+
+- `tz_localize`: attaches a zone to naive timestamps.
+- `tz_convert`: represents the same instants in another zone.
+
+::: {.notes}
+Não confunda vincular um timezone com converter instantes já timezone-aware.
+
+[Sources]
+- https://wesmckinney.com/book/time-series
+:::
+
+## UTC and local calendar features
+
+UTC supports consistent storage and cross-region alignment. Local time remains important for:
+
+- hour-of-day behavior;
+- market sessions;
+- business operations;
+- daylight-saving transitions;
+- calendar seasonality.
+
+> Derive seasonal coordinates in the calendar relevant to the phenomenon.
+
+::: {.notes}
+A recomendação é separar alinhamento temporal de interpretação sazonal.
+
+[Sources]
+- https://wesmckinney.com/book/time-series
+:::
+
+## Periods represent spans
+
+```{python}
+month = pd.Period("2026-01", freq="M")
+quarter = pd.Period("2026Q1", freq="Q-DEC")
+print(month)
+print(month + 2)
+print(quarter)
+```
+
+Period arithmetic moves across spans according to the declared frequency.
+
+::: {.notes}
+Somar dois a uma Period mensal significa avançar dois meses, não segundos.
+
+[Sources]
+- https://wesmckinney.com/book/time-series
+:::
+
+## Convert between timestamps and periods
+
+```{python}
+month_ends = pd.date_range("2026-01-31", periods=4, freq="ME")
+periods = month_ends.to_period("M")
+print(periods)
+print(periods.to_timestamp(how="end"))
+```
+
+Converting a period to a timestamp requires a boundary convention.
+
+::: {.notes}
+Start ou end afeta labels, joins e comparação temporal.
+
+[Sources]
+- https://wesmckinney.com/book/time-series
+:::
+
+## Resampling changes frequency
+
+```{python}
+hourly = pd.Series(
+    np.arange(24, dtype=float),
+    index=pd.date_range("2026-01-01", periods=24, freq="h")
+)
+hourly.resample("6h").agg(["mean", "max"])
+```
+
+- **Downsampling:** higher to lower frequency, usually with aggregation.
+- **Upsampling:** lower to higher frequency, usually creating gaps before a filling rule.
+
+::: {.notes}
+Mean e max respondem perguntas diferentes. A função de agregação pertence à definição do gráfico.
+
+[Sources]
+- https://wesmckinney.com/book/time-series
+:::
+
+## Interval boundaries matter
+
+```{python}
+boundary = pd.Series(
+    [1, 2, 3, 4],
+    index=pd.to_datetime([
+        "2026-01-01 00:00", "2026-01-01 05:59",
+        "2026-01-01 06:00", "2026-01-01 11:59"
+    ])
+)
+boundary.resample("6h", closed="left", label="left").sum()
+```
+
+`closed` controls interval membership; `label` controls interval naming.
+
+::: {.notes}
+Limites temporais são parte da estatística, não apenas detalhe de sintaxe.
+
+[Sources]
+- https://wesmckinney.com/book/time-series
+:::
+
+## Moving windows summarize local history
+
+```{python}
+observed = pd.Series(
+    [10, 13, 12, 16, 17, 15, 18],
+    index=pd.date_range("2026-01-01", periods=7, freq="D")
+)
+windows = pd.DataFrame({
+    "observed": observed,
+    "rolling_mean_3": observed.rolling(3, min_periods=2).mean(),
+    "expanding_mean": observed.expanding(min_periods=2).mean(),
+    "ewm_mean": observed.ewm(span=3, adjust=False).mean()
+})
+windows
+```
+
+::: {.notes}
+Rolling usa memória fixa; expanding acumula desde o começo; EWM reduz pesos gradualmente.
+
+[Sources]
+- https://wesmckinney.com/book/time-series
+:::
+
+## Smoothers encode different memory
+
+```{python}
+#| fig-width: 10
+#| fig-height: 4.7
+fig, ax = plt.subplots()
+ax.plot(windows.index, windows["observed"], marker="o", label="Observed")
+ax.plot(windows.index, windows["rolling_mean_3"], linewidth=2, label="Rolling mean, 3")
+ax.plot(windows.index, windows["ewm_mean"], linewidth=2, label="EWM, span 3")
+ax.set(title="Different smoothers encode different memory",
+       xlabel="Date", ylabel="Synthetic value")
+ax.legend(frameon=False)
+plt.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+Não apresente linha suavizada como dado observado. Janela e span alteram ruído e atraso.
+
+[Sources]
+- https://wesmckinney.com/book/time-series
+:::
+
+## Foundation checkpoint
+
+Match the task to the concept:
+
+1. attach `Europe/Dublin` to naive local timestamps;
+2. represent the whole month of January;
+3. calculate daily maxima from hourly data;
+4. compare each observation with its predecessor;
+5. expose missing dates on a daily calendar;
+6. compute a three-observation local average.
+
+::: {.notes}
+Respostas: tz_localize, Period, resample max, shift, asfreq/reindex, rolling.
+
+[Sources]
+- https://wesmckinney.com/book/time-series
+:::
+
+## Bridge to forecasting graphics
+
+The pandas toolkit establishes:
+
+- what time means;
+- whether the calendar is regular;
+- how observations align;
+- how frequency changes;
+- which values belong to each interval;
+- how local summaries are constructed.
+
+Only then can time plots, seasonal plots, lag plots, and ACF plots be interpreted reliably.
+
+::: {.notes}
+Use como transição para o conteúdo principal de gráficos de séries temporais.
+
+[Sources]
+- https://wesmckinney.com/book/time-series
+- https://otexts.com/fpppy/02-graphics.html
+:::
+
+## Seeing temporal structure before building a model
+
+**Synthetic electricity-market data for teaching**
+
+::: {.notes}
+Apresente a aula como investigação visual anterior à modelagem. Declare que os dados foram criados exclusivamente para fins didáticos. Tempo: 2 min.
+:::
+
+# Motivation
+
+## The central question
+
+> Which visualizations reveal the temporal structures?
+
+**Time order → pattern → seasonality → relationships → dependence → diagnostic judgment**
+
+::: {.notes}
+Explique que um gráfico de série temporal não serve apenas para apresentação. Ele orienta hipóteses sobre tendência, sazonalidade, ciclos, eventos incomuns e dependência serial. Tempo: 2 min.
+:::
+
+## Learning objectives
+
+By the end of the lesson, students will be able to:
+
+- represent timestamps, periods, frequency, and series identifiers;
+- construct and interpret time plots;
+- distinguish trend, seasonality, cycles, and irregular variation;
+- use seasonal and seasonal-subseries plots;
+- explore relationships with scatterplots and scatterplot matrices;
+- create and interpret lag plots and ACF plots;
+- distinguish structured series from white noise;
+- connect visual evidence to forecasting requirements;
+- avoid common visual and temporal reasoning errors.
+
+::: {.notes}
+Os objetivos são observáveis: cada estudante deverá produzir um gráfico, apontar evidências e explicitar uma implicação para previsão. Tempo: 2 min.
+:::
+
+## Narrative of the lesson
+
+```text
+SET UP TIME
+    ↓
+PLOT THE SERIES
+    ↓
+IDENTIFY PATTERNS
+    ↓
+EXPOSE SEASONALITY
+    ↓
+COMPARE VARIABLES
+    ↓
+MEASURE SERIAL DEPENDENCE
+    ↓
+FORM FORECASTING HYPOTHESES
+```
+
+::: {.notes}
+Mostre que o processo vai do contexto temporal básico até a dependência serial. Tempo: 2 min.
+:::
+
+## Why plotting comes first
+
+A time-series graph can reveal:
+
+- changes in level or direction;
+- repeating calendar patterns;
+- changing variance;
+- unusual observations or gaps;
+- relationships with exogenous variables;
+- persistence and lag structure;
+- possible data-quality or timestamp problems.
+
+::: {.notes}
+Enfatize que elementos vistos nos gráficos devem ser considerados na escolha ou avaliação do método de previsão. Um gráfico sugere hipóteses, não prova mecanismos causais. Tempo: 3 min.
+:::
+
+# Data and Time Structure
+
+## A synthetic electricity-demand dataset
+
+```{python}
+hours = pd.date_range("2026-01-01", periods=24 * 90, freq="h")
+t = np.arange(len(hours))
+hour = hours.hour.to_numpy()
+dow = hours.dayofweek.to_numpy()
+day = np.arange(len(hours)) / 24
+
+temperature = 17 + 7 * np.sin(2 * np.pi * (hour - 14) / 24) + 3 * np.sin(2 * np.pi * day / 45)
+weekend = dow >= 5
+daily_cycle = 9 * np.sin(2 * np.pi * (hour - 7) / 24) + 4 * np.sin(4 * np.pi * (hour - 7) / 24)
+weekly_effect = np.where(weekend, -8, 0)
+trend = 0.025 * day
+noise = rng.normal(0, 2.2, len(hours))
+demand = 72 + trend + daily_cycle + weekly_effect + 0.35 * (temperature - 17) ** 2 + noise
+
+ts = pd.DataFrame({
+    "timestamp": hours,
+    "demand_mw": demand,
+    "temperature_c": temperature,
+    "is_weekend": weekend
+})
+ts.loc[450, "demand_mw"] += 28
+ts.head(3 )
+```
+
+::: {.notes}
+Explique os componentes apenas após os alunos observarem os gráficos. Há tendência leve, padrões diário e semanal, relação não linear com temperatura, ruído e uma observação incomum intencional. Tempo: 3 min.
+:::
+
+## Observational unit and temporal key
+
+- **Observation:** one hourly market measurement.
+- **Time key:** `timestamp`.
+- **Target:** `demand_mw`.
+- **Covariate:** `temperature_c`.
+- **Calendar variable:** `is_weekend`.
+- **Declared frequency:** hourly.
+
+```{python}
+print(ts.shape)
+print(ts.dtypes)
+print("unique timestamps:", ts["timestamp"].is_unique)
+print("monotonic time:", ts["timestamp"].is_monotonic_increasing)
+```
+
+::: {.notes}
+A unidade temporal deve ser explícita. Frequência, duplicação e ordenação influenciam todos os gráficos e lags. Tempo: 3 min.
+:::
+
+## Index and columns
+
+```{python}
+ts_indexed = ts.set_index("timestamp")
+print(ts_indexed.index)
+print(ts_indexed.columns)
+ts_indexed.head(3)
+```
+
+A time index makes ordering, slicing, resampling, and lag construction explicit.
+
+::: {.notes}
+Diferencie índice estrutural de uma coluna comum. O índice não substitui a necessidade de verificar frequência e unicidade. Tempo: 2 min.
+:::
+
+## Timestamp versus Period
+
+```{python}
+print(pd.Timestamp("2026-01"))
+print(pd.Period("2026-01", freq="M"))
+```
+
+- `Timestamp`: an instant in time.
+- `Period`: a span associated with a frequency.
+
+::: {.notes}
+Um mês pode representar o primeiro instante do mês ou o intervalo mensal completo. Essa distinção importa para labels, agregações e interpretação. Tempo: 3 min.
+:::
+
+## Frequency is analytical metadata
+
+```{python}
+print("inferred frequency:", pd.infer_freq(ts_indexed.index))
+print("expected observations:", len(pd.date_range(
+    ts_indexed.index.min(), ts_indexed.index.max(), freq="h"
+)))
+```
+
+A regular frequency defines what “lag 1,” “season,” and “consecutive” mean.
+
+::: {.notes}
+Lag 1 em dados horários significa uma hora apenas se o calendário estiver regular. Tempo: 3 min.
+:::
+
+## Detect gaps and duplicate timestamps
+
+```{python}
+broken = pd.concat([ts.iloc[:100], ts.iloc[101:110], ts.iloc[[105]]], ignore_index=True)
+print("duplicate timestamps:", broken["timestamp"].duplicated().sum())
+expected = pd.date_range(broken["timestamp"].min(), broken["timestamp"].max(), freq="h")
+missing_timestamps = expected.difference(pd.DatetimeIndex(broken["timestamp"]))
+print("missing timestamps:", missing_timestamps.tolist())
+```
+
+::: {.notes}
+Uma linha unida através de um intervalo ausente pode sugerir continuidade falsa. Verifique o calendário antes de plotar. Tempo: 3 min.
+:::
+
+## Reindex to expose missing periods
+
+```{python}
+regular = (
+    broken.set_index("timestamp")
+    .loc[lambda d: ~d.index.duplicated(keep="first")]
+    .reindex(expected)
+)
+regular.loc[regular["demand_mw"].isna()].head()
+```
+
+Reindexing makes missing periods explicit; it does not justify interpolation.
+
+::: {.notes}
+Diferencie criar a linha ausente no calendário de preencher o valor de demanda. Tempo: 2 min.
+:::
+
+## Checkpoint 1: time structure
+
+Which problems can invalidate a time plot or a lag plot?
+
+1. unsorted timestamps;
+2. duplicate timestamps;
+3. an undeclared frequency;
+4. gaps joined by a line;
+5. timestamps stored as arbitrary text;
+6. aggregation without stating the interval.
+
+::: {.notes}
+Resposta: todos podem alterar ou obscurecer a interpretação. Peça um exemplo de consequência para cada item. Tempo: 4 min.
+:::
+
+# Time Plots
+
+## Start with a time plot
+
+```{python}
+#| fig-width: 11
+#| fig-height: 4.8
+fig, ax = plt.subplots()
+ax.plot(ts["timestamp"], ts["demand_mw"], linewidth=0.8, color="#0072B2")
+ax.set(title="Synthetic hourly electricity demand",
+       xlabel="Time [1h]", ylabel="Demand (MW)")
+plt.tight_layout()
+plt.show()
+```
+
+Consecutive observations are connected to emphasize temporal order.
+
+::: {.notes}
+Peça aos estudantes para descreverem evidências sem nomear causas. O gráfico completo revela repetição e possível observação incomum, mas fica visualmente denso. Tempo: 3 min.
+:::
+
+## The viewing window changes the story
+
+::: {.columns}
+::: {.column width="50%"}
+```{python}
+week_view = ts.loc[ts["timestamp"] < ts["timestamp"].min() + pd.Timedelta(days=7)]
+```
+
+Short windows expose intraday structure.
+:::
+::: {.column width="50%"}
+```{python}
+month_daily = ts.set_index("timestamp")["demand_mw"].resample("D").mean()
+```
+
+Aggregation exposes slower movement.
+:::
+:::
+
+::: {.notes}
+Escala temporal e agregação respondem perguntas diferentes. Agregar remove variação horária e pode ocultar picos. Tempo: 3 min.
+:::
+
+## Short-window time plot
+
+```{python}
+#| fig-width: 10
+#| fig-height: 4.7
+fig, ax = plt.subplots()
+ax.plot(week_view["timestamp"], week_view["demand_mw"], marker="o",
+        markersize=2.5, linewidth=1.2, color="#0072B2")
+ax.set(title="One week reveals the daily demand cycle",
+       xlabel="Time [1h]", ylabel="Demand (MW)")
+plt.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+Mostre picos e vales recorrentes dentro do dia. Não confunda repetição visual com explicação causal. Tempo: 3 min.
+:::
+
+## Aggregated time plot
+
+```{python}
+#| fig-width: 10
+#| fig-height: 4.7
+fig, ax = plt.subplots()
+ax.plot(month_daily.index, month_daily, marker="o", color="#009E73")
+ax.set(title="Daily mean demand emphasizes slower variation",
+       xlabel="Date [1D]", ylabel="Mean demand (MW)")
+plt.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+A resolução diária remove o ciclo intradiário. Compare objetivos: planejamento médio versus gestão de pico. Tempo: 3 min.
+:::
+
+## Aggregation function also changes the story
+
+```{python}
+daily_summary = ts.set_index("timestamp")["demand_mw"].resample("D").agg(
+    daily_mean="mean", daily_max="max", daily_min="min"
+)
+daily_summary.head()
+```
+## Aggregation function also changes the story
+
+```{python}
+#| fig-width: 10
+#| fig-height: 4.7
+fig, ax = plt.subplots()
+ax.plot(daily_summary.index, daily_summary["daily_mean"], label="Mean")
+ax.plot(daily_summary.index, daily_summary["daily_max"], label="Maximum")
+ax.plot(daily_summary.index, daily_summary["daily_min"], label="Minimum")
+ax.set(title="Mean, maximum, and minimum answer different questions",
+       xlabel="Date [1D]", ylabel="Demand (MW)")
+ax.legend(frameon=False)
+plt.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+Não trate ‘demanda diária’ como uma definição única. O operador de agregação faz parte da pergunta. Tempo: 4 min.
+:::
+
+## Missing values and line continuity
+
+```{python}
+gap_demo = week_view.copy()
+gap_demo.loc[30:38, "demand_mw"] = np.nan
+```
+
+```{python}
+#| fig-width: 10
+#| fig-height: 4.5
+fig, ax = plt.subplots()
+ax.plot(gap_demo["timestamp"], gap_demo["demand_mw"], color="#0072B2")
+ax.set(title="Missing observations create a visible discontinuity",
+       xlabel="Time [1h]", ylabel="Demand (MW)")
+plt.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+Uma lacuna visível pode ser informativa. Interpolação apenas para estética é inadequada. Tempo: 2 min.
+:::
+
+## Highlight unusual observations without deleting them
+
+```{python}
+median = ts["demand_mw"].median()
+mad = (ts["demand_mw"] - median).abs().median()
+ts["robust_score"] = 0.6745 * (ts["demand_mw"] - median) / mad
+flagged = ts.loc[ts["robust_score"].abs().gt(4)]
+flagged.loc[:, ["timestamp", "demand_mw", "robust_score"]].head()
+```
+
+```{python}
+#| fig-width: 10
+#| fig-height: 4.5
+fig, ax = plt.subplots()
+ax.plot(ts["timestamp"], ts["demand_mw"], linewidth=0.8, color="0.5")
+ax.scatter(flagged["timestamp"], flagged["demand_mw"], color="#D55E00", label="Flagged")
+ax.set(title="Statistical flags guide investigation",
+       xlabel="Time [1h]", ylabel="Demand (MW)")
+ax.legend(frameon=False)
+plt.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+A flag não comprova erro. O evento pode ser real, uma mudança operacional ou uma falha de coleta. Tempo: 3 min.
+:::
+
+# Time Series Patterns
+
+## Four pattern concepts
+
+| Pattern | Working definition |
+|---|---|
+| Trend | long-term increase or decrease; not necessarily linear |
+| Seasonality | repeating pattern with a fixed, known period |
+| Cycle | rise and fall without a fixed, known frequency |
+| Irregular | remaining variation not explained by visible structure |
+
+::: {.notes}
+A diferença principal entre sazonalidade e ciclo é a periodicidade fixa e conhecida da sazonalidade. Tempo: 4 min.
+:::
+
+## Trend is scale-dependent
+
+```{python}
+trend_series = pd.Series(50 + 0.03 * np.arange(365) + rng.normal(0, 2, 365),
+                         index=pd.date_range("2025-01-01", periods=365))
+```
+
+```{python}
+#| fig-width: 10
+#| fig-height: 4.5
+fig, ax = plt.subplots()
+ax.plot(trend_series.index, trend_series, color="#0072B2", alpha=0.7)
+ax.plot(trend_series.rolling(30, center=True).mean(), color="#D55E00", linewidth=2)
+ax.set(title="A smoother can reveal long-term direction",
+       xlabel="Date", ylabel="Synthetic value")
+plt.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+A janela de 30 dias é uma escolha analítica. Suavização remove detalhes e introduz perdas nas bordas. Tempo: 3 min.
+:::
+
+## Seasonality has a known period
+
+Hourly data may contain several seasonal periods:
+
+- daily: 24 observations;
+- weekly: 24 × 7 observations;
+- annual: calendar-dependent for hourly data.
+
+A series can contain more than one seasonal pattern.
+
+::: {.notes}
+Período é expresso em observações e depende da frequência. Em calendários reais, horário de verão e anos bissextos exigem cuidado. Tempo: 3 min.
+:::
+
+## Cycles are not seasons
+
+A cycle:
+
+- may last several years or varying durations;
+- does not repeat at a fixed known interval;
+- can appear as a trend in a short sample;
+- should not be inferred from one rise and fall alone.
+
+::: {.notes}
+Destaque dependência da janela observada. Um trecho curto de ciclo pode parecer tendência. Tempo: 2 min.
+:::
+
+## Changing variance matters visually
+
+```{python}
+level = np.linspace(20, 100, 160)
+multiplicative = level * (1 + 0.08 * rng.normal(size=len(level)))
+```
+
+```{python}
+#| fig-width: 10
+#| fig-height: 4.5
+fig, axes = plt.subplots(1, 2)
+axes[0].plot(level, multiplicative, color="#0072B2")
+axes[0].set(title="Original scale", xlabel="Time", ylabel="Value")
+axes[1].plot(level, np.log(multiplicative), color="#009E73")
+axes[1].set(title="Log scale", xlabel="Time", ylabel="log(Value)")
+plt.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+A transformação log pode estabilizar variação proporcional, mas muda a unidade e a interpretação. Só é válida para valores positivos. Tempo: 4 min.
+:::
+
+## Checkpoint 2: name the evidence
+
+For each description, choose trend, seasonality, cycle, irregular variation, or insufficient evidence:
+
+1. demand peaks at similar hours every day;
+2. a 60-day sample declines continuously;
+3. variance grows with the level;
+4. peaks recur every seven days;
+5. one isolated spike occurs;
+6. a multi-year rise and fall has variable duration.
+
+::: {.notes}
+A segunda pode ser tendência na amostra, mas ciclo em horizonte maior. Um spike é observação incomum, não um padrão por si só. Tempo: 4 min.
+:::
+
+# Seasonal Graphics
+
+## Add seasonal coordinates
+
+```{python}
+seasonal = ts.assign(
+    date=ts["timestamp"].dt.date,
+    hour=ts["timestamp"].dt.hour,
+    day_name=ts["timestamp"].dt.day_name(),
+    day_of_week=ts["timestamp"].dt.dayofweek,
+    week=ts["timestamp"].dt.isocalendar().week.astype(int)
+)
+seasonal.head(3)
+```
+
+::: {.notes}
+Variáveis de calendário transformam o tempo em coordenadas sazonais. Preserve sempre o timestamp original. Tempo: 2 min.
+:::
+
+## Seasonal plot: one line per day
+
+```{python}
+first_14_days = seasonal.loc[seasonal["timestamp"] < seasonal["timestamp"].min() + pd.Timedelta(days=14)]
+```
+
+```{python}
+#| fig-width: 10
+#| fig-height: 5
+fig, ax = plt.subplots()
+sns.lineplot(data=first_14_days, x="hour", y="demand_mw",
+             hue="date", legend=False, palette="viridis", ax=ax)
+ax.set(title="Daily seasonal plot of electricity demand",
+       xlabel="Hour of day", ylabel="Demand (MW)", xticks=range(0, 24, 3))
+plt.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+O eixo deixa de ser data absoluta e passa a ser posição dentro do dia. Compare a forma e a amplitude entre dias. Tempo: 3 min.
+:::
+
+## Direct labels versus a crowded legend
+
+With many seasonal lines:
+
+- a legend may become unreadable;
+- color should reflect order when possible;
+- direct labels can identify selected lines;
+- highlighting a few periods can be better than displaying all equally;
+- transparency can preserve context without dominating attention.
+
+::: {.notes}
+Não use 14 cores categóricas como se cada dia tivesse a mesma importância. Tempo: 2 min.
+:::
+
+## Weekly seasonal pattern
+
+```{python}
+hourly_profile = seasonal.groupby(
+    ["day_of_week", "day_name", "hour"], as_index=False
+).agg(mean_demand=("demand_mw", "mean"))
+hourly_profile["hour_of_week"] = 24 * hourly_profile["day_of_week"] + hourly_profile["hour"]
+```
+
+```{python}
+#| fig-width: 11
+#| fig-height: 4.8
+fig, ax = plt.subplots()
+ax.plot(hourly_profile["hour_of_week"], hourly_profile["mean_demand"], color="#0072B2")
+ax.set(title="Average weekly demand profile",
+       xlabel="Hour of week", ylabel="Mean demand (MW)")
+ax.set_xticks(np.arange(12, 168, 24), ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"])
+plt.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+A média semanal resume repetições e pode esconder variação entre semanas. Tempo: 3 min.
+:::
+
+## Seasonal subseries plot: design logic
+
+A seasonal-subseries plot:
+
+- places each season in a separate mini time plot;
+- shows evolution of the same season across cycles;
+- often includes the seasonal mean;
+- reveals both seasonal differences and changes through time.
+
+::: {.notes}
+Compare com seasonal plot: um sobrepõe ciclos; o outro reúne a mesma temporada. Tempo: 2 min.
+:::
+
+## Seasonal subseries plot by hour
+
+```{python}
+subseries = seasonal.loc[seasonal["hour"].isin([0, 6, 12, 18])].copy()
+subseries["day_index"] = (subseries["timestamp"] - subseries["timestamp"].min()).dt.days
+```
+
+```{python}
+#| fig-width: 11
+#| fig-height: 4.8
+fig, axes = plt.subplots(1, 4, sharey=True)
+for ax, (hour_value, group) in zip(axes, subseries.groupby("hour")):
+    ax.plot(group["day_index"], group["demand_mw"], color="0.3", linewidth=0.8)
+    ax.axhline(group["demand_mw"].mean(), color="#0072B2", linewidth=2)
+    ax.set(title=f"{hour_value:02d}:00", xlabel="Day")
+axes[0].set_ylabel("Demand (MW)")
+fig.suptitle("Seasonal subseries at selected hours", y=1.03)
+plt.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+A linha horizontal resume o nível médio da hora. Os painéis mostram evolução e dispersão por hora. Tempo: 4 min.
+:::
+
+## A seasonal heatmap
+
+```{python}
+heat = seasonal.pivot_table(
+    index="day_name", columns="hour", values="demand_mw", aggfunc="mean"
+).reindex(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"])
+```
+
+```{python}
+#| fig-width: 10
+#| fig-height: 5
+fig, ax = plt.subplots()
+sns.heatmap(heat, cmap="viridis", ax=ax)
+ax.set(title="Mean demand by weekday and hour",
+       xlabel="Hour of day", ylabel="Day of week")
+plt.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+O heatmap é uma extensão pedagógica para Data Visualization. É eficiente para duas dimensões sazonais, mas a cor é menos precisa que posição. Tempo: 3 min.
+:::
+
+## Checkpoint 3: choose a seasonal graphic
+
+Choose between a time plot, seasonal plot, subseries plot, and heatmap:
+
+1. preserve exact chronology;
+2. compare daily shapes across two weeks;
+3. track 18:00 demand across many days;
+4. summarize weekday-by-hour interaction;
+5. identify the timestamp of an unusual event.
+
+::: {.notes}
+Respostas: time plot, seasonal plot, subseries, heatmap, time plot. Tempo: 4 min.
+:::
+
+# Relationships Between Series
+
+## Covariates and exogenous variables
+
+A target series may be accompanied by predictors such as:
+
+- temperature;
+- price;
+- calendar indicators;
+- promotions or policy variables;
+- other market series.
+
+A graph can reveal association, nonlinearity, changing relationships, and subgroup structure.
+
+::: {.notes}
+Relação visual não garante disponibilidade futura da covariável nem causalidade. Tempo: 3 min.
+:::
+
+## Plot both series in time first
+
+```{python}
+relationship_week = ts.iloc[:24 * 7].copy()
+```
+
+```{python}
+#| fig-width: 10
+#| fig-height: 4.8
+fig, axes = plt.subplots(2, 1, sharex=True)
+axes[0].plot(relationship_week["timestamp"], relationship_week["demand_mw"], color="#0072B2")
+axes[0].set(ylabel="Demand (MW)", title="Demand and temperature over the same week")
+axes[1].plot(relationship_week["timestamp"], relationship_week["temperature_c"], color="#D55E00")
+axes[1].set(xlabel="Time [1h]", ylabel="Temperature (°C)")
+plt.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+Painéis alinhados preservam a escala de cada variável sem eixo duplo. Tempo: 3 min.
+:::
+
+## Why dual axes can mislead
+
+Two vertical axes allow arbitrary rescaling. Apparent alignment can change when either axis limit changes.
+
+Prefer:
+
+- aligned panels;
+- standardized series with explicit labels;
+- index values relative to a baseline;
+- direct comparison only when units are compatible.
+
+::: {.notes}
+Eixos duplos não são sempre proibidos, mas exigem forte justificativa. Tempo: 2 min.
+:::
+
+## Scatterplot: demand versus temperature
+
+```{python}
+#| fig-width: 8
+#| fig-height: 5
+fig, ax = plt.subplots()
+sns.scatterplot(data=ts, x="temperature_c", y="demand_mw",
+                hue="is_weekend", alpha=0.55, palette="colorblind", ax=ax)
+ax.set(title="Demand and temperature show a nonlinear relationship",
+       xlabel="Temperature (°C)", ylabel="Demand (MW)")
+ax.legend(title="Weekend", frameon=False)
+plt.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+A curvatura foi gerada sinteticamente. Hue mostra que calendário pode alterar a relação. Evite resumir tudo por uma única correlação. Tempo: 4 min.
+:::
+
+## Correlation can hide nonlinearity
+
+```{python}
+print("linear correlation:", ts["temperature_c"].corr(ts["demand_mw"]).round(3))
+```
+
+A low linear correlation does not imply absence of a relationship.
+
+::: {.notes}
+Correlação mede associação linear. Relações em U podem ter correlação próxima de zero. Tempo: 3 min.
+:::
+
+## Scatterplot matrix
+
+```{python}
+pairs = ts.assign(
+    hour=ts["timestamp"].dt.hour,
+    demand_change=ts["demand_mw"].diff()
+).loc[:, ["demand_mw", "temperature_c", "hour", "demand_change"]].dropna().sample(350, random_state=42)
+```
+
+```{python}
+#| fig-width: 9
+#| fig-height: 7
+axes = pd.plotting.scatter_matrix(
+    pairs, figsize=(9, 7), diagonal="hist", alpha=0.35,
+    color="#0072B2", hist_kwds={"bins": 12}
+)
+plt.suptitle("Scatterplot matrix of selected variables", y=1.02)
+plt.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+Matriz oferece triagem rápida, mas muitos painéis aumentam carga cognitiva. Use amostra reproduzível para legibilidade. Tempo: 3 min.
+:::
+
+## Relationship stability through time
+
+```{python}
+ts["month"] = ts["timestamp"].dt.month
+monthly_corr = ts.groupby("month").apply(
+    lambda g: g["temperature_c"].corr(g["demand_mw"]), include_groups=False
+)
+monthly_corr
+```
+
+Relationships may vary across time, season, or regime.
+
+::: {.notes}
+Com apenas três meses sintéticos, trate como diagnóstico, não conclusão robusta. Tempo: 2 min.
+:::
+
+# Lag Plots
+
+## A lag is a shifted observation
+
+For lag `k`:
+
+- vertical axis: current value, `y_t`;
+- horizontal axis: previous value, `y_{t-k}`;
+- points close to the diagonal indicate persistence;
+- structures at seasonal lags suggest seasonal dependence.
+
+::: {.notes}
+Lag deve ser interpretado em unidades da frequência. Em dados horários, k=24 representa um dia. Tempo: 3 min.
+:::
+
+## Construct lagged values safely
+
+```{python}
+lagged = ts.sort_values("timestamp").assign(
+    lag_1=lambda d: d["demand_mw"].shift(1),
+    lag_24=lambda d: d["demand_mw"].shift(24),
+    lag_168=lambda d: d["demand_mw"].shift(24 * 7)
+)
+lagged.loc[:, ["timestamp", "demand_mw", "lag_1", "lag_24", "lag_168"]].head()
+```
+
+::: {.notes}
+Shift não verifica o calendário sozinho. A série deve estar ordenada e regular. Tempo: 3 min.
+:::
+
+## Lag plot at one hour
+
+```{python}
+#| fig-width: 7
+#| fig-height: 5
+fig, ax = plt.subplots()
+sns.scatterplot(data=lagged, x="lag_1", y="demand_mw", alpha=0.35, s=24, ax=ax)
+lims = [ts["demand_mw"].min(), ts["demand_mw"].max()]
+ax.plot(lims, lims, linestyle="--", color="0.5")
+ax.set(title="Lag 1: adjacent hours", xlabel="Demand at t − 1 (MW)", ylabel="Demand at t (MW)")
+plt.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+A concentração diagonal indica persistência horária. A linha diagonal é referência, não ajuste. Tempo: 3 min.
+:::
+
+## Compare several lags
+
+```{python}
+#| fig-width: 10
+#| fig-height: 7
+lags = [1, 6, 12, 24, 48, 168]
+fig, axes = plt.subplots(2, 3, sharex=True, sharey=True)
+for ax, k in zip(axes.flat, lags):
+    frame = pd.DataFrame({"current": ts["demand_mw"], "lagged": ts["demand_mw"].shift(k)})
+    ax.scatter(frame["lagged"], frame["current"], alpha=0.25, s=12, color="#0072B2")
+    ax.set(title=f"lag {k}", xlabel="", ylabel="")
+fig.supxlabel("Lagged demand (MW)")
+fig.supylabel("Current demand (MW)")
+fig.suptitle("Lag plots reveal dependence at different horizons", y=1.02)
+plt.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+Compare lags curtos, diário e semanal. A força e forma mudam porque o ciclo diário alterna picos e vales. Tempo: 4 min.
+:::
+
+## Seasonal color can explain lag structure
+
+```{python}
+lag_24_plot = lagged.assign(hour=lagged["timestamp"].dt.hour).dropna(subset=["lag_24"])
+```
+
+```{python}
+#| fig-width: 8
+#| fig-height: 5
+fig, ax = plt.subplots()
+sns.scatterplot(data=lag_24_plot, x="lag_24", y="demand_mw",
+                hue="hour", palette="viridis", alpha=0.55, s=28, ax=ax)
+ax.set(title="Lag 24 colored by hour of day",
+       xlabel="Demand one day earlier (MW)", ylabel="Current demand (MW)")
+ax.legend(title="Hour", bbox_to_anchor=(1.02, 1), frameon=False, ncol=2)
+plt.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+A cor ordinal ajuda a interpretar grupos sazonais, mas muitas categorias podem sobrecarregar. Tempo: 3 min.
+:::
+
+## Checkpoint 4: interpret lag plots
+
+What would you expect for:
+
+1. strong positive lag-1 dependence;
+2. daily seasonality in hourly data;
+3. peaks followed by troughs at lag 12;
+4. independent white noise;
+5. a series with trend but no seasonality?
+
+::: {.notes}
+Respostas esperadas: diagonal, estrutura forte em 24, relação negativa ou curvada, nuvem sem forma, autocorrelação ampla e lentamente decrescente. Tempo: 4 min.
+:::
+
+# Autocorrelation
+
+## From lag plots to a summary coefficient
+
+Autocorrelation at lag `k` measures linear association between `y_t` and `y_{t-k}`.
+
+```math
+r_k =
+\frac{\sum_{t=k+1}^{T}(y_t-\bar{y})(y_{t-k}-\bar{y})}
+{\sum_{t=1}^{T}(y_t-\bar{y})^2}
+```
+
+The collection of coefficients is the **autocorrelation function**, or ACF.
+
+::: {.notes}
+Explique numerador como covariação defasada e denominador como escala total. ACF resume relação linear, não toda dependência possível. Tempo: 4 min.
+:::
+
+## Calculate selected autocorrelations
+
+```{python}
+for k in [1, 6, 12, 24, 48, 168]:
+    print(k, round(ts["demand_mw"].autocorr(lag=k), 3))
+```
+
+::: {.notes}
+Compare os valores com os lag plots. O coeficiente reduz cada painel a um número. Tempo: 2 min.
+:::
+
+## ACF plot
+
+```{python}
+#| fig-width: 11
+#| fig-height: 4.8
+fig, ax = plt.subplots()
+plot_acf(ts["demand_mw"], lags=24 * 8, zero=False,
+         bartlett_confint=False, auto_ylims=True, ax=ax)
+ax.set(title="Autocorrelation of hourly demand",
+       xlabel="Lag [1h]", ylabel="Autocorrelation")
+plt.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+Procure oscilações diárias e repetição semanal. Os limites padrão são aproximações e não devem ser usados mecanicamente quando a série é fortemente não estacionária ou sazonal. Tempo: 4 min.
+:::
+
+## Reading common ACF shapes
+
+- **slow decay:** possible trend or long persistence;
+- **repeated peaks:** seasonal dependence;
+- **alternating signs:** oscillating dynamics;
+- **isolated small spikes:** sampling variability may be sufficient;
+- **near-zero coefficients:** behavior compatible with white noise, subject to uncertainty.
+
+::: {.notes}
+Fale em evidências compatíveis, não diagnósticos definitivos. Tempo: 3 min.
+:::
+
+## Differencing changes what the ACF sees
+
+```{python}
+daily_means = ts.set_index("timestamp")["demand_mw"].resample("D").mean()
+daily_diff = daily_means.diff().dropna()
+```
+
+```{python}
+#| fig-width: 10
+#| fig-height: 6
+fig, axes = plt.subplots(2, 1)
+plot_acf(daily_means, lags=30, zero=False, bartlett_confint=False, ax=axes[0])
+axes[0].set(title="ACF of daily mean demand", xlabel="Lag [1D]")
+plot_acf(daily_diff, lags=30, zero=False, bartlett_confint=False, ax=axes[1])
+axes[1].set(title="ACF after first differencing", xlabel="Lag [1D]")
+plt.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+Diferenciação remove parte da variação de nível, mas pode aumentar ruído e não garante estacionariedade. Tempo: 4 min.
+:::
+
+## Multiple seasonalities complicate interpretation
+
+Hourly demand can simultaneously contain:
+
+- adjacent-hour persistence;
+- daily seasonality at lag 24;
+- weekly seasonality at lag 168;
+- changing calendar effects;
+- weather-driven variation.
+
+One ACF plot compresses these mechanisms, so combine it with time, seasonal, and covariate plots.
+
+::: {.notes}
+A visualização é um sistema de evidências complementares. Tempo: 2 min.
+:::
+
+# White Noise
+
+## What is white noise?
+
+A white-noise series has:
+
+- no systematic autocorrelation;
+- approximately constant mean and variance under the usual simple definition;
+- unpredictable observations from its own past linear structure.
+
+White noise is a benchmark for “no remaining temporal signal.”
+
+::: {.notes}
+Não confunda white noise com qualquer série aleatória ou com erros necessariamente normais. Tempo: 3 min.
+:::
+
+## Simulate white noise reproducibly
+
+```{python}
+white_noise = pd.Series(
+    rng.normal(0, 1, 240),
+    index=pd.RangeIndex(1, 241),
+    name="white_noise"
+)
+```
+
+```{python}
+#| fig-width: 10
+#| fig-height: 4.5
+fig, ax = plt.subplots()
+ax.plot(white_noise.index, white_noise, color="#0072B2")
+ax.axhline(0, color="0.4", linewidth=1)
+ax.set(title="Synthetic white-noise series", xlabel="Observation", ylabel="Value")
+plt.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+Pergunte se o time plot sozinho prova ausência de autocorrelação. Não prova; precisamos complementar com ACF. Tempo: 3 min.
+:::
+
+## ACF of white noise
+
+```{python}
+#| fig-width: 10
+#| fig-height: 4.5
+fig, ax = plt.subplots()
+plot_acf(white_noise, lags=36, zero=False, bartlett_confint=False, ax=ax)
+ax.set(title="ACF of synthetic white noise",
+       xlabel="Lag [1 observation]", ylabel="Autocorrelation")
+plt.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+Coeficientes não serão exatamente zero por variação amostral. Tempo: 3 min.
+:::
+
+## Approximate reference bounds
+
+For a white-noise series of length `T`, a common approximate reference is:
+
+```math
+\pm \frac{1.96}{\sqrt{T}}
+```
+
+```{python}
+white_noise_bound = 1.96 / np.sqrt(len(white_noise))
+round(white_noise_bound, 3)
+```
+
+These are approximate pointwise bounds, not a guarantee that every spike lies inside them.
+
+::: {.notes}
+Com muitos lags, alguns excedimentos podem ocorrer por acaso. Evite teste visual mecânico. Tempo: 3 min.
+:::
+
+## Time series signal versus white noise
+
+```{python}
+#| fig-width: 10
+#| fig-height: 6
+fig, axes = plt.subplots(2, 1)
+plot_acf(ts["demand_mw"], lags=48, zero=False, bartlett_confint=False, ax=axes[0])
+axes[0].set(title="Structured demand series", xlabel="Lag [1h]")
+plot_acf(white_noise, lags=48, zero=False, bartlett_confint=False, ax=axes[1])
+axes[1].set(title="White-noise benchmark", xlabel="Lag [1 observation]")
+plt.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+Compare padrões persistentes com flutuações ao redor de zero. Os eixos de lag têm unidades diferentes; destaque essa limitação. Tempo: 3 min.
+:::
+
+## Checkpoint 5: white-noise reasoning
+
+Which statement is defensible?
+
+1. every ACF spike must equal zero;
+2. one spike outside a bound proves predictability;
+3. no visible time-plot pattern proves white noise;
+4. white noise provides a benchmark for residual diagnostics;
+5. normally distributed observations are necessarily white noise.
+
+::: {.notes}
+A quarta é a afirmação defensável. Normalidade marginal não implica independência temporal. Tempo: 3 min.
+:::
+
+# Integrated Visual Investigation
+
+## The visual investigation protocol
+
+1. validate the time index and frequency;
+2. plot the full series;
+3. zoom into meaningful windows;
+4. compare aggregation functions;
+5. identify trend, seasonal, and unusual structures;
+6. construct seasonal graphics;
+7. inspect covariate relationships;
+8. examine lag plots and ACF;
+9. record forecasting implications and uncertainties.
+
+::: {.notes}
+Esse protocolo é o principal produto reutilizável da aula. Tempo: 3 min.
+:::
+
+## Build a compact visual feature table
+
+```{python}
+visual_evidence = pd.DataFrame({
+    "evidence": [
+        "Hourly persistence", "Daily seasonality", "Weekly seasonality",
+        "Temperature relationship", "Unusual observation"
+    ],
+    "visual": [
+        "Lag-1 plot and ACF", "Seasonal plot and lag 24",
+        "Weekly profile and lag 168", "Scatterplot by weekend",
+        "Full time plot with statistical flag"
+    ],
+    "forecasting_implication": [
+        "Represent short-run dependence", "Represent hour-of-day structure",
+        "Represent day-of-week structure", "Consider nonlinear covariate effects",
+        "Investigate event and robust loss"
+    ]
+})
+visual_evidence
+```
+
+::: {.notes}
+As implicações são sugestões pedagógicas baseadas nos dados sintéticos, não prescrições universais. Tempo: 3 min.
+:::
+
+## Small multiples as a final overview
+
+```{python}
+#| fig-width: 11
+#| fig-height: 7
+fig, axes = plt.subplots(2, 2)
+axes[0, 0].plot(week_view["timestamp"], week_view["demand_mw"], color="#0072B2")
+axes[0, 0].set(title="Time plot", ylabel="Demand (MW)")
+sns.scatterplot(data=ts.sample(500, random_state=42), x="temperature_c", y="demand_mw",
+                hue="is_weekend", alpha=0.45, legend=False, ax=axes[0, 1])
+axes[0, 1].set(title="Covariate relationship", xlabel="Temperature (°C)", ylabel="Demand (MW)")
+axes[1, 0].plot(hourly_profile["hour_of_week"], hourly_profile["mean_demand"], color="#009E73")
+axes[1, 0].set(title="Weekly seasonal profile", xlabel="Hour of week", ylabel="Mean demand (MW)")
+plot_acf(ts["demand_mw"], lags=48, zero=False, bartlett_confint=False, ax=axes[1, 1])
+axes[1, 1].set(title="ACF", xlabel="Lag [1h]")
+plt.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+Cada painel responde uma pergunta diferente. Não reduza o diagnóstico a um único gráfico. Tempo: 4 min.
+:::
+
+## What the graphics do not establish
+
+The graphics do not by themselves prove:
+
+- causality;
+- structural stability;
+- future availability of covariates;
+- the correct forecasting model;
+- the absence of data leakage;
+- out-of-sample forecasting accuracy.
+
+::: {.notes}
+Essa limitação protege contra excesso de interpretação. Visualização orienta hipóteses que precisam de validação temporal e avaliação fora da amostra. Tempo: 3 min.
+:::
+
+# Practice
+
+## Capstone exercise
+
+Using `ts`, produce a visual diagnostic report that:
+
+1. verifies order, uniqueness, and frequency;
+2. presents a full and a zoomed time plot;
+3. identifies at least two temporal patterns;
+4. uses one seasonal plot and one subseries or heatmap;
+5. examines temperature as a covariate;
+6. compares lag 1, lag 24, and lag 168;
+7. creates an ACF plot;
+8. compares the result with white noise;
+9. states three forecasting implications;
+10. states three limitations.
+
+::: {.notes}
+Avalie coerência entre pergunta, gráfico, evidência e implicação. Não avalie apenas estética. Tempo: atividade integradora.
+:::
+
+## Suggested solution structure
+
+```python
+# 1. Validate temporal structure
+# 2. Build calendar features
+# 3. Plot chronology at two scales
+# 4. Plot seasonal structure
+# 5. Plot target-covariate relationship
+# 6. Construct lagged values
+# 7. Plot ACF
+# 8. Record evidence, implications, and limitations
+```
+
+A good report explains **why each chart is present**.
+
+::: {.notes}
+A solução não precisa reproduzir exatamente os gráficos da aula. Exija justificativa. Tempo: 2 min.
+:::
+
+## Assessment rubric
+
+| Dimension | Evidence |
+|---|---|
+| Time structure | order, uniqueness, frequency, and gaps checked |
+| Visual choice | each chart matches a diagnostic question |
+| Temporal reasoning | trend, seasonality, cycles, and lags distinguished |
+| Statistical care | association, ACF, and bounds interpreted cautiously |
+| Communication | titles, axes, units, and encodings are explicit |
+| Forecast connection | visual evidence becomes a testable modeling hypothesis |
+| Reproducibility | code executes without external downloads |
+
+::: {.notes}
+Use a rubrica para feedback formativo. Tempo: 3 min.
+:::
+
+# Key Takeaways
+
+## Time-series visualization checklist
+
+- [ ] Is the time index parsed, ordered, unique, and regular?
+- [ ] Is frequency explicit in titles or axes?
+- [ ] Have full and local windows been inspected?
+- [ ] Is aggregation level and function documented?
+- [ ] Are trend, seasonality, cycles, and irregularity distinguished?
+- [ ] Are seasonal graphics aligned with the correct period?
+- [ ] Are covariate relationships checked for nonlinearity and subgroups?
+- [ ] Are lag units explicit?
+- [ ] Is ACF interpreted together with other plots?
+- [ ] Are forecasting implications framed as hypotheses?
+
+::: {.notes}
+Transforme em checklist permanente para projetos de previsão. Tempo: 3 min.
+:::
+
+## Main conclusions
+
+1. Plot the data before selecting a forecasting method.
+2. Time-index quality determines the validity of temporal graphics.
+3. Viewing window and aggregation change visible structure.
+4. Seasonal plots reorganize time to expose repetition.
+5. Scatterplots reveal relationships, but not causality.
+6. Lag plots preserve shape; ACF compresses linear dependence.
+7. White noise is a benchmark, not a visual certainty.
+8. No single chart provides a complete temporal diagnosis.
+9. Visual evidence should become explicit, testable forecasting hypotheses.
+
+::: {.notes}
+Retome os objetivos e peça que cada aluno cite um gráfico e a pergunta que ele responde. Tempo: 3 min.
+:::
+
+## References
+
+- McKinney, W. *Python for Data Analysis*, 3rd ed., Chapters 12.
+- Hyndman, R. J., Athanasopoulos, G., Garza, A., Challu, C., & Mergenthaler, M. *Forecasting: Principles and Practice, the Pythonic Way*, Chapter 2: Time series graphics.
+- [Chapter 12: Time series](https://wesmckinney.com/book/time-series) 
+- [Chapter 2: Time series graphics](https://otexts.com/fpppy/02-graphics.html)
+- [pandas documentation](https://pandas.pydata.org/docs/)
+- [Matplotlib documentation](https://matplotlib.org/stable/)
+- [seaborn documentation](https://seaborn.pydata.org/)
+- [statsmodels documentation](https://www.statsmodels.org/stable/index.html)
+
+**Attribution:** concepts were adapted and rewritten from the cited references. Synthetic data, exercises, validation rules, and teaching narrative were created for this module.
+
+::: {.notes}
+Não atribua os dados sintéticos ou as sugestões pedagógicas ao livro. Tempo: 1 min.
+:::
+
+<!-- # Appendix {.unnumbered} -->
+
+<!-- ## Optional: calendar heatmap logic -->
+
+<!-- ```{python} -->
+<!-- daily = ts.set_index("timestamp")["demand_mw"].resample("D").mean().to_frame("demand") -->
+<!-- daily["week"] = daily.index.isocalendar().week.astype(int) -->
+<!-- daily["weekday"] = daily.index.dayofweek -->
+<!-- calendar_matrix = daily.pivot(index="weekday", columns="week", values="demand") -->
+<!-- calendar_matrix.head() -->
+<!-- ``` -->
+
+<!-- ::: {.notes} -->
+<!-- Slide de backup. Um calendário heatmap é útil para padrões semanais e anomalias, mas exige labels claros. Tempo: 2 min. -->
+<!-- ::: -->
+
+<!-- ## Optional: rolling correlation -->
+
+<!-- ```{python} -->
+<!-- rolling_corr = ts.set_index("timestamp")[["demand_mw", "temperature_c"]].rolling(24 * 14).corr().loc[ -->
+<!--     (slice(None), "demand_mw"), "temperature_c" -->
+<!-- ] -->
+<!-- rolling_corr.index = rolling_corr.index.droplevel(1) -->
+<!-- rolling_corr.dropna().head() -->
+<!-- ``` -->
+
+<!-- ::: {.notes} -->
+<!-- Slide de backup. Janela móvel descreve estabilidade local, mas os pontos são dependentes e a escolha da janela afeta o resultado. Tempo: 2 min. -->
+<!-- ::: -->
