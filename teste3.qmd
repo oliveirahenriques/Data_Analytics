@@ -1,7 +1,7 @@
 ---
-title: "Cleaning, Combining, and Reshaping Data with pandas"
-subtitle: "From Messy Tables to Trustworthy Visualizations"
-author: "Victor Henriques, Ph.D."
+title: "Time Series Graphics"
+subtitle: "Forecasting: Principles and Practice, the Pythonic Way | Chapter 2"
+author: "Victor Henriques de Oliveira"
 format:
   revealjs:
     theme: simple
@@ -10,11 +10,11 @@ format:
     center: false
     width: 1600
     height: 900
-    margin: 0.07
+    margin: 0.06
     code-overflow: wrap
     chalkboard: true
     preview-links: auto
-    footer: "Data Analytics & Visualization"
+    footer: "Data Analytics & Visualization | Time Series Graphics"
 execute:
   echo: true
   warning: false
@@ -26,984 +26,1153 @@ jupyter: python3
 ```{python}
 #| label: setup
 #| include: false
+from pathlib import Path
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+import statsmodels.api as sm
+from scipy.stats import pearsonr
+from statsmodels.graphics.tsaplots import plot_acf
+from utilsforecast.plotting import plot_series
 
-rng = np.random.default_rng(42)
+DATA_PATH = Path.home() / "Documents/GitHub/Data_Analytics/data"
+assert DATA_PATH.exists(), f"Data directory not found: {DATA_PATH}"
+
 sns.set_theme(style="whitegrid", context="talk")
+plt.rcParams["figure.figsize"] = (9, 4.8)
 pd.set_option("display.max_columns", 12)
-pd.set_option("display.width", 120)
 ```
 
-# Cleaning, Combining, and Reshaping Data
+# Time Series Graphics
 
-## From Messy Tables to Trustworthy Visualizations
+## Why start with graphs?
 
-**A two-hour lesson based on Chapters 7 and 8**
+Graphs help reveal:
 
-::: {.notes}
-Apresente a aula como uma investigação de qualidade e estrutura. Explique que todos os dados são sintéticos e foram criados para fins didáticos. Tempo: 2 min.
-:::
+- patterns and changes through time;
+- unusual observations;
+- seasonal behavior;
+- relationships between variables;
+- temporal dependence.
 
-# Motivation
-
-## The central question
-
-> How can we turn incomplete, inconsistent, duplicated, and distributed tables into data that support a valid visualization?
-
-**Diagnose → clean → transform → combine → reshape → validate → visualize → interpret**
+Visual features should inform the forecasting method considered later.
 
 ::: {.notes}
-Enfatize que limpeza e wrangling são decisões sobre significado, não apenas sintaxe. Tempo: 2 min.
+Este material acompanha a sequência e os exemplos gráficos do Capítulo 2, com redação própria. Os exemplos utilizam os arquivos CSV locais informados pelo usuário.
+
+[Sources]
+- https://otexts.com/fpppy/02-graphics.html
 :::
 
-## Learning objectives
+# 2.1 DataFrame objects
 
-By the end of the lesson, students will be able to:
-
-- diagnose missing, duplicate, invalid, and inconsistent values;
-- make explicit and defensible cleaning decisions;
-- transform strings, categories, and numerical variables;
-- combine tables with `concat`, `merge`, and `join`;
-- validate key cardinality and audit unmatched records;
-- use MultiIndex, `stack`, and `unstack`;
-- reshape data with `melt`, `pivot`, and `pivot_table`;
-- explain how wrangling choices affect a visualization.
-
-::: {.notes}
-Relacione cada objetivo a uma ação observável. Tempo: 2 min.
-:::
-
-## Lesson route
-
-| Block | Focus | Minutes |
-|---|---|---:|
-| Motivation | Problem and data | 8 |
-| Cleaning | Missingness, duplicates, transformation | 35 |
-| Combining | Concat, merge, keys, validation | 25 |
-| Reshaping | MultiIndex, wide and long | 22 |
-| Integrated case | Raw data to visualization | 20 |
-| Practice and synthesis | Exercise and recap | 10 |
-
-::: {.notes}
-Informe que MultiIndex avançado ficará como tópico útil, enquanto limpeza, merge e wide-long são essenciais. Tempo: 2 min.
-:::
-
-## The synthetic raw data
+## A time series in a DataFrame
 
 ```{python}
-raw = pd.DataFrame({
-    "date": ["2026-01-02", "2026/01/02", "03-01-2026", "2026-01-03",
-             "2026-01-04", "2026-01-04", "2026-01-05", "bad-date",
-             "2026-01-06", "2026-01-07", "2026-01-07", "2026-01-08"],
-    "instrument": [" brent ", "WTI", "ttf", "BRENT", "wti ", "wti ",
-                   "TTF", "TTF", "WTI", "UNKNOWN", "BRENT", "TTF"],
-    "market": ["Oil", "Oil", "gas", "OIL", "Oil", "Oil",
-               "Gas", "Gas", "Oil", "Other", "Oil", "Gas"],
-    "price": ["76.4", "72.1", "48.2", "77.0", None, None,
-              "-5", "49.1", "73.4", "80.0", "1,250.0", "50.2"],
-    "volume": [120, 98, 84, 133, 105, 105, 90, 87, None, 40, 150, 91],
-    "currency": ["USD", "USD", "EUR", "usd", "USD", "USD",
-                 "EUR", "EUR", "USD", "USD", "USD", "EUR"]
+df = pd.DataFrame({
+    "Year": list(range(2015, 2020)),
+    "Observation": [123, 39, 78, 52, 110],
 })
-metadata = pd.DataFrame({
-    "instrument": ["BRENT", "WTI", "TTF"],
-    "region": ["Europe", "North America", "Europe"],
-    "category": ["Crude oil", "Crude oil", "Natural gas"],
-    "price_unit": ["USD/bbl", "USD/bbl", "EUR/MWh"]
-})
-raw.head(3)
+df
+```
+
+A DataFrame has two labeled axes: an index for rows and columns for variables.
+
+::: {.notes}
+Introduza DataFrame, index, columns e dtypes antes dos gráficos.
+
+[Sources]
+- https://otexts.com/fpppy/02-graphics.html
+:::
+
+## Index, columns, and data types
+
+```{python}
+print(df.index)
+print(df.columns)
+print(df.dtypes)
+print(type(df["Year"]))
+```
+
+```{python}
+year_df = df.set_index("Year")
+year_df
 ```
 
 ::: {.notes}
-Peça à turma para observar sem corrigir. Destaque que existe uma tabela de observações e outra de referência. Tempo: 2 min.
+Uma coluna individual é uma Series. set_index transforma Year em eixo de identificação.
+
+[Sources]
+- https://otexts.com/fpppy/02-graphics.html
 :::
 
-## Why the raw chart misleads
+## Timestamps and periods
 
 ```{python}
-#| fig-width: 10
-#| fig-height: 4.7
-raw_plot = raw.assign(
-    parsed_date=pd.to_datetime(raw["date"], errors="coerce", format="mixed", dayfirst=True),
-    parsed_price=pd.to_numeric(raw["price"], errors="coerce")
+print(repr(pd.Timestamp("2020-01")))
+print(repr(pd.Period("2020-01", freq="M")))
+```
+
+- `Timestamp`: a specific instant.
+- `Period`: a span of time with a frequency.
+
+::: {.notes}
+A distinção entre instante e período muda a forma como observações mensais são interpretadas.
+
+[Sources]
+- https://otexts.com/fpppy/02-graphics.html
+:::
+
+## Timestamp attributes
+
+```{python}
+timestamps = pd.date_range("2020-01-01", periods=3, freq="D")
+ts_frame = pd.DataFrame(index=timestamps)
+ts_frame["date"] = ts_frame.index.date
+ts_frame["year"] = ts_frame.index.year
+ts_frame["label"] = ts_frame.index.strftime("%A, %B %-d")
+ts_frame
+```
+
+::: {.notes}
+Em Windows, substitua %-d por %#d se necessário.
+
+[Sources]
+- https://otexts.com/fpppy/02-graphics.html
+:::
+
+## Key variables identify separate series
+
+```{python}
+olympic_running = pd.read_csv(DATA_PATH / "olympic_running_unparsed.csv")
+olympic_running.head(8)
+```
+
+```{python}
+key_columns = ["Length", "Sex"]
+olympic_running.groupby(key_columns).size().rename("observations")
+```
+
+A valid multi-series table needs a unique combination of identifying keys and time.
+
+::: {.notes}
+No conjunto olímpico, Length e Sex distinguem as séries. Year é a variável temporal.
+
+[Sources]
+- https://otexts.com/fpppy/02-graphics.html
+:::
+
+## Wide and long representations
+
+```{python}
+wide_demo = olympic_running.pivot_table(
+    index="Year", columns=["Length", "Sex"], values="Time"
 )
-fig, ax = plt.subplots()
-for name, group in raw_plot.groupby("instrument"):
-    ax.plot(group["parsed_date"], group["parsed_price"], marker="o", label=repr(name))
-ax.set(title="Raw labels fragment visual series", xlabel="Date", ylabel="Reported price")
-ax.legend(ncol=3, fontsize=9)
+wide_demo.head()
+```
+
+Long form is convenient for grouped operations and semantic mappings; wide form is useful for matrices and some comparisons.
+
+::: {.notes}
+Conecte formato dos dados às bibliotecas de visualização.
+
+[Sources]
+- https://otexts.com/fpppy/02-graphics.html
+:::
+
+## Pharmaceutical Benefits Scheme data
+
+```{python}
+pbs = (
+    pd.read_csv(DATA_PATH / "PBS_unparsed.csv", parse_dates=["Month"])
+    [["Month", "Concession", "Type", "ATC1", "ATC2", "Scripts", "Cost"]]
+)
+pbs.head()
+```
+
+::: {.notes}
+O conjunto contém várias séries mensais identificadas por atributos de produto e concessão.
+
+[Sources]
+- https://otexts.com/fpppy/02-graphics.html
+:::
+
+## Filter and aggregate one monthly series
+
+```{python}
+a10 = pbs.loc[pbs["ATC2"] == "A10"]
+total_cost_df = (
+    a10.groupby("Month", as_index=False)
+    .agg(Cost=("Cost", "sum"))
+    .assign(Cost=lambda x: x["Cost"] / 1e6)
+)
+total_cost_df.head()
+```
+
+::: {.notes}
+A agregação transforma várias categorias em uma série mensal de custo total. A unidade passa a milhões de dólares.
+
+[Sources]
+- https://otexts.com/fpppy/02-graphics.html
+:::
+
+## A quarterly multi-series table
+
+```{python}
+prison = (
+    pd.read_csv(DATA_PATH / "prison_population.csv", parse_dates=["Date"])
+    .rename(columns={"Date": "Quarter"})
+    .sort_values(["State", "Gender", "Legal", "Indigenous", "Quarter"])
+)
+prison.head()
+```
+
+```{python}
+keys = ["State", "Gender", "Legal", "Indigenous", "Quarter"]
+assert not prison.duplicated(keys).any()
+```
+
+::: {.notes}
+Cada combinação de State, Gender, Legal e Indigenous identifica uma série; Quarter identifica a observação no tempo.
+
+[Sources]
+- https://otexts.com/fpppy/02-graphics.html
+:::
+
+## Seasonal period
+
+| Observation interval | Frequent seasonal period |
+|---|---:|
+| Quarter | 4 |
+| Month | 12 |
+| Week | about 52 |
+| Day | 7 and about 365.25 |
+| Hour | 24, 168, and about 8766 |
+| Minute | 60, 1440, and 10080 |
+
+A series may contain more than one seasonal pattern.
+
+::: {.notes}
+O período sazonal é o número de observações até a repetição do padrão. Calendários reais podem não ser representados exatamente por inteiros simples.
+
+[Sources]
+- https://otexts.com/fpppy/02-graphics.html
+:::
+
+# 2.2 Time plots
+
+## Figure 2.1: Ansett Airlines
+
+```{python}
+# ansett = pd.read_csv(DATA_PATH / "ansett.csv", parse_dates=["ds"])
+# melsyd_economy = (
+#     ansett.loc[lambda x: (x["Airports"] == "MEL-SYD") & (x["Class"] == "Economy")]
+#     .rename(columns={"Airports": "unique_id"})
+#     .assign(y=lambda x: x["y"] / 1000)
+# )
+# plot_series(
+#     melsyd_economy, id_col="unique_id", time_col="ds", target_col="y",
+#     xlabel="Week [1W]", ylabel="Passengers ('000)",
+#     title="Ansett airlines economy class: Melbourne-Sydney"
+# )
+
+
+ansett = pd.read_csv(
+    DATA_PATH / "ansett.csv",
+    parse_dates=["ds"],
+)
+
+melsyd_economy = (
+    ansett
+    .loc[
+        lambda x:
+            (x["Airports"] == "MEL-SYD")
+            & (x["Class"] == "Economy")
+    ]
+    .rename(
+        columns={
+            "Airports": "unique_id",
+        }
+    )
+    .assign(
+        y=lambda x:
+            x["y"] / 1000
+    )
+)
+
+fig, ax = plt.subplots(
+    figsize=(10, 5)
+)
+
+plot_series(
+    df=melsyd_economy,
+    id_col="unique_id",
+    time_col="ds",
+    target_col="y",
+    plot_random=False,
+    engine="matplotlib",
+    ax=ax,
+)
+
+ax.set(
+    title="Ansett airlines economy class: Melbourne-Sydney",
+    xlabel="Week [1W]",
+    ylabel="Passengers ('000)",
+)
+
+fig.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+O time plot preserva a cronologia. Discuta períodos sem passageiros, mudanças de nível, quedas sazonais e flutuação de longo prazo observáveis no gráfico.
+
+[Sources]
+- https://otexts.com/fpppy/02-graphics.html
+:::
+
+## Time-plot reading protocol
+
+Look for:
+
+1. level and long-run direction;
+2. fixed-period repetition;
+3. changes in variability;
+4. unusual observations and gaps;
+5. structural breaks or interventions;
+6. whether the visible patterns are stable.
+
+::: {.notes}
+Descrição visual vem antes de explicação causal.
+
+[Sources]
+- https://otexts.com/fpppy/02-graphics.html
+:::
+
+## Figure 2.2: Antidiabetic drug sales
+
+```{python}
+# plot_series(
+#     total_cost_df.assign(unique_id="total_cost"),
+#     time_col="Month", target_col="Cost",
+#     xlabel="Month [1M]", ylabel="$ (millions)",
+#     title="Australian antidiabetic drug sales"
+# )
+
+fig, ax = plt.subplots(figsize=(10, 5))
+
+plot_series(
+    df=total_cost_df.assign(unique_id="total_cost"),
+    id_col="unique_id",
+    time_col="Month",
+    target_col="Cost",
+    plot_random=False,
+    engine="matplotlib",
+    ax=ax,
+)
+
+ax.set(
+    title="Australian antidiabetic drug sales",
+    xlabel="Month [1M]",
+    ylabel="$ (millions)",
+)
+
+fig.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+Identifique tendência crescente, sazonalidade forte e amplitude sazonal que aumenta com o nível.
+
+[Sources]
+- https://otexts.com/fpppy/02-graphics.html
+:::
+
+# 2.3 Time series patterns
+
+## Trend, seasonal, and cyclic behavior
+
+- **Trend:** long-term increase or decrease; it need not be linear.
+- **Seasonal:** repetition with a fixed, known, calendar-related period.
+- **Cyclic:** rises and falls without a fixed frequency.
+
+A forecasting method should be able to represent the patterns visible in the data.
+
+::: {.notes}
+O principal contraste é fixed known period versus duração variável.
+
+[Sources]
+- https://otexts.com/fpppy/02-graphics.html
+:::
+
+## Figure 2.3: Four contrasting patterns
+
+```{python}
+aus_production = pd.read_csv(DATA_PATH / "aus_production.csv", parse_dates=["ds"])
+gafa_stock = pd.read_csv(DATA_PATH / "gafa_stock.csv", parse_dates=["ds"])
+
+fig, axes = plt.subplots(2, 2, figsize=(11, 7))
+
+# Use chapter-compatible local datasets when present.
+if (DATA_PATH / "aus_housing.csv").exists():
+    housing = pd.read_csv(DATA_PATH / "aus_housing.csv", parse_dates=["ds"])
+    candidate = housing.select_dtypes("number").columns[0]
+    axes[0, 0].plot(housing["ds"], housing[candidate])
+    axes[0, 0].set_title("Monthly housing sales")
+else:
+    axes[0, 0].text(.5, .5, "aus_housing.csv not found", ha="center")
+    axes[0, 0].set_title("Monthly housing sales")
+
+if (DATA_PATH / "us_treasury.csv").exists():
+    treasury = pd.read_csv(DATA_PATH / "us_treasury.csv")
+    ycol = treasury.select_dtypes("number").columns[-1]
+    axes[0, 1].plot(treasury[ycol].head(100))
+else:
+    axes[0, 1].text(.5, .5, "us_treasury.csv not found", ha="center")
+axes[0, 1].set_title("US treasury bill contracts")
+
+axes[1, 0].plot(aus_production["ds"], aus_production["Electricity"])
+axes[1, 0].set_title("Australian electricity production")
+
+dgoog = (
+    gafa_stock.loc[lambda x: (x["unique_id"] == "GOOG_Close") & (x["ds"] >= "2018")]
+    .assign(diff=lambda x: x["y"].diff())
+)
+axes[1, 1].plot(dgoog["ds"], dgoog["diff"])
+axes[1, 1].set_title("Daily change in Google closing price")
+
+fig.suptitle("Four examples of time-series patterns")
 plt.tight_layout()
 plt.show()
 ```
 
 ::: {.notes}
-Mostre fragmentação de labels, falhas de parsing e mistura de unidades. Um gráfico bonito não corrige dados sem significado consistente. Tempo: 2 min.
+O capítulo contrasta sazonalidade e ciclo em housing, tendência no treasury, tendência com sazonalidade em electricity e mudanças aparentemente irregulares no preço do Google. Os dois primeiros painéis dependem dos arquivos locais correspondentes.
+
+[Sources]
+- https://otexts.com/fpppy/02-graphics.html
 :::
 
-# Data Cleaning
+# 2.4 Seasonal plots
 
-## Quality problems are different problems
-
-| Problem | Meaning | First response |
-|---|---|---|
-| Missing | not observed or unavailable | inspect the pattern |
-| Invalid | violates a domain rule | verify or quarantine |
-| Duplicate | repeated analytical unit | define the key |
-| Inconsistent | same concept, different encoding | standardize |
-| Outlier | unusual but possibly valid | investigate |
-
-::: {.notes}
-Insista que outlier não é sinônimo de erro e que ausência não implica remoção automática. Tempo: 3 min.
-:::
-
-## Diagnose before changing
+## Figure 2.4: Monthly seasonal plot
 
 ```{python}
-quality = pd.DataFrame({
-    "dtype": raw.dtypes.astype(str),
-    "missing": raw.isna().sum(),
-    "unique": raw.nunique(dropna=True)
-})
-quality
-```
-
-```{python}
-print("exact duplicate rows:", raw.duplicated().sum())
-print("instrument labels:", raw["instrument"].unique().tolist())
-```
-
-::: {.notes}
-Discuta como object pode esconder números e datas. Head sozinho não é um diagnóstico suficiente. Tempo: 2 min.
-:::
-
-## Checkpoint 1: quality diagnosis
-
-```{python}
-raw.loc[[0, 2, 4, 5, 6, 7, 10], :]
-```
-
-Identify evidence of:
-
-- missing values;
-- duplicate observations;
-- inconsistent categories;
-- incorrect dtypes;
-- invalid values;
-- parsing risk.
-
-::: {.notes}
-Dê dois minutos em duplas. Peça evidência observável, não apenas suposições. Tempo: 3 min.
-:::
-
-## Missingness is itself information
-
-```{python}
-missing = raw.isna()
-missing.sum().sort_values(ascending=False)
-```
-
-```{python}
-#| fig-width: 9
-#| fig-height: 4.5
+season_cost = total_cost_df.assign(
+    Year=total_cost_df["Month"].dt.year,
+    Month_num=total_cost_df["Month"].dt.month,
+)
+years = np.sort(season_cost["Year"].unique())
+palette = dict(zip(years, sns.color_palette("husl", len(years))))
 fig, ax = plt.subplots()
-sns.heatmap(missing.T, cbar=False,
-            cmap=["#F2F2F2", "#D55E00"], ax=ax)
-ax.set(title="Observed missingness in the raw table",
-       xlabel="Row", ylabel="Variable")
+sns.lineplot(
+    data=season_cost, x="Month_num", y="Cost", hue="Year",
+    palette=palette, legend=False, ax=ax
+)
+ax.set(
+    title="Seasonal Plot: Antidiabetic Drug Sales", xlabel="Month",
+    ylabel="$ (millions)", xticks=range(1, 13),
+    xticklabels=["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                 "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+)
+for year, group in season_cost.groupby("Year"):
+    ax.text(group["Month_num"].iloc[-1] + .1, group["Cost"].iloc[-1], str(year),
+            fontsize=8, color=palette[year], va="center")
 plt.tight_layout()
 plt.show()
 ```
 
 ::: {.notes}
-Explique que padrões de ausência podem revelar problemas de coleta. Valores que falham no parsing também podem criar ausências novas. Tempo: 3 min.
+Ao sobrepor anos, o padrão dentro do calendário fica mais evidente e anos incomuns podem ser identificados.
+
+[Sources]
+- https://otexts.com/fpppy/02-graphics.html
 :::
 
-## `isna` and `notna`
+## Multiple seasonal periods
 
 ```{python}
-raw.loc[raw["price"].isna(), ["date", "instrument", "price"]]
+vic_elec_df = pd.read_csv(DATA_PATH / "vic_elec.csv", parse_dates=["ds"])
+vic_elec_demand = vic_elec_df.loc[vic_elec_df["unique_id"] == "Demand"].copy()
 ```
 
-```{python}
-raw.loc[raw["price"].notna(), ["date", "instrument", "price"]].head()
-```
-
-Boolean diagnostics preserve the original table until a decision is made.
+Half-hourly demand can show daily, weekly, and annual patterns.
 
 ::: {.notes}
-Diferencie diagnóstico de tratamento. isna não modifica o DataFrame. Tempo: 2 min.
+A frequência de 30 minutos implica 48 observações por dia e 336 por semana.
+
+[Sources]
+- https://otexts.com/fpppy/02-graphics.html
 :::
 
-## Drop, retain, or fill?
-
-::: {.columns}
-::: {.column width="50%"}
-```{python}
-raw.dropna(subset=["price"]).shape
-```
-
-Removal discards complete information from other columns.
-:::
-::: {.column width="50%"}
-```{python}
-raw.assign(
-    volume=raw["volume"].fillna(raw["volume"].median())
-).loc[raw["volume"].isna()]
-```
-
-Filling introduces an assumption.
-:::
-:::
-
-::: {.notes}
-Não apresente uma política universal. Pergunte qual mecanismo pode ter criado a ausência e qual variável será analisada. Tempo: 3 min.
-:::
-
-## Parse types and expose failures
+## Figure 2.5: Daily seasonal pattern
 
 ```{python}
-parsed = raw.assign(
-    date_parsed=pd.to_datetime(
-        raw["date"], errors="coerce", format="mixed", dayfirst=True
-    ),
-    price_parsed=pd.to_numeric(
-        raw["price"].astype("string").str.replace(",", "", regex=False),
-        errors="coerce"
-    )
+daily_season = vic_elec_demand.assign(
+    hour_minute=lambda x: x["ds"].dt.strftime("%H:%M"),
+    day=lambda x: x["ds"].dt.date,
 )
-parsed.loc[:, ["date", "date_parsed", "price", "price_parsed"]]
-```
-
-::: {.callout-warning}
-`errors="coerce"` exposes failures. It does not explain or correct them.
-:::
-
-::: {.notes}
-Mostre NaT e NaN criados pela coerção. Toda falha deve ser auditada. Tempo: 3 min.
-:::
-
-## Standardize text
-
-```{python}
-clean = (
-    parsed.assign(
-        instrument=parsed["instrument"].str.strip().str.upper(),
-        market=parsed["market"].str.strip().str.title(),
-        currency=parsed["currency"].str.strip().str.upper()
-    )
-    .drop(columns=["date", "price"])
-    .rename(columns={"date_parsed": "date", "price_parsed": "price"})
-)
-clean.loc[:, ["instrument", "market", "currency"]].drop_duplicates()
-```
-
-::: {.notes}
-Explique strip, upper, title, drop e rename. Após padronizar, sempre inspecione os valores únicos novamente. Tempo: 3 min.
-:::
-
-## Replace and map categories
-
-```{python}
-market_group = clean["market"].map({
-    "Oil": "Liquid energy",
-    "Gas": "Gaseous energy",
-    "Other": "Other"
-})
-market_group.head()
-```
-
-```{python}
-clean = clean.assign(
-    currency=clean["currency"].replace({"US$": "USD"}),
-    market_group=market_group
-)
-```
-
-::: {.notes}
-Map cria uma correspondência elemento a elemento; replace corrige valores específicos. Valores sem chave em map viram ausentes. Tempo: 2 min.
-:::
-
-## Transformations: vectorization before `apply`
-
-```{python}
-clean = clean.assign(
-    price_log=np.log(clean["price"].where(clean["price"].gt(0)))
-)
-clean.loc[:, ["price", "price_log"]].head()
-```
-
-Prefer vectorized operations when a clear vectorized solution exists.
-
-::: {.notes}
-Explique por que não usar apply neste caso. O objetivo é clareza e comportamento consistente em colunas. Tempo: 2 min.
-:::
-
-## Binning continuous values
-
-```{python}
-clean = clean.assign(
-    volume_band=pd.cut(
-        clean["volume"],
-        bins=[0, 90, 120, np.inf],
-        labels=["low", "medium", "high"]
-    )
-)
-clean.loc[:, ["volume", "volume_band"]].head(8)
-```
-
-`cut` uses substantively chosen boundaries; `qcut` uses sample quantiles.
-
-::: {.notes}
-Destaque que a categorização perde informação e deve ter justificativa. Tempo: 2 min.
-:::
-
-## Duplicates depend on the analytical unit
-
-```{python}
-exact_dup = clean.duplicated()
-key_dup = clean.duplicated(subset=["date", "instrument"], keep=False)
-clean.loc[exact_dup | key_dup,
-          ["date", "instrument", "price", "volume"]]
-```
-
-::: {.notes}
-Pergunte: uma linha representa preço diário ou publicação? A chave depende da resposta. Tempo: 3 min.
-:::
-
-## Deduplicate explicitly
-
-```{python}
-dedup = clean.drop_duplicates(
-    subset=["date", "instrument", "price", "volume"],
-    keep="first"
-).copy()
-
-assert not dedup.duplicated().any()
-print(raw.shape, dedup.shape)
-```
-
-The subset and retention rule are part of the analytical decision.
-
-::: {.notes}
-Mostre que drop_duplicates sem subset responde apenas à duplicação exata. Tempo: 2 min.
-:::
-
-## Invalid values versus outliers
-
-```{python}
-invalid = dedup["price"].le(0)
-unusual = dedup["price"].gt(500)
-dedup.loc[invalid | unusual,
-          ["date", "instrument", "price", "currency"]]
-```
-
-- `price ≤ 0` is invalid under this teaching rule.
-- `price > 500` requires investigation.
-- The instruments do not necessarily share the same unit.
-
-::: {.notes}
-Declare que preços negativos podem existir em mercados reais. A regra é didática e contextual. Tempo: 2 min.
-:::
-
-## Checkpoint 2: choose a treatment
-
-For each case, choose **retain, flag, correct, fill, or remove**:
-
-1. price missing because no trade occurred;
-2. instrument name contains trailing spaces;
-3. duplicated ingestion event;
-4. extreme but verified market movement;
-5. date cannot be parsed;
-6. metadata category is missing.
-
-Justify the decision and state what must be recorded.
-
-::: {.notes}
-Não há uma única resposta para todos os casos. Avalie a justificativa, rastreabilidade e efeito sobre a análise. Tempo: 3 min.
-:::
-
-# Combining Data
-
-## `concat`: combine compatible objects by axis
-
-```{python}
-first_half = dedup.iloc[:4].copy()
-second_half = dedup.iloc[4:8].copy()
-combined = pd.concat([first_half, second_half], ignore_index=True)
-combined.shape
-```
-
-- rows: `axis="index"`;
-- columns: `axis="columns"`;
-- no relational key matching.
-
-::: {.notes}
-Diferencie concatenação de merge. Concat empilha ou alinha por eixo. Tempo: 2 min.
-:::
-
-## Keys and cardinality
-
-| Relationship | Meaning |
-|---|---|
-| one-to-one | each key appears once on both sides |
-| many-to-one | many observations reference one metadata row |
-| one-to-many | one left key matches multiple right rows |
-| many-to-many | duplicates on both sides may multiply rows |
-
-::: {.notes}
-Use observações diárias para metadata como exemplo de muitos-para-um. Tempo: 2 min.
-:::
-
-## Anatomy of a merge
-
-```{python}
-merged_preview = dedup.merge(
-    metadata,
-    on="instrument",
-    how="left",
-    validate="many_to_one",
-    indicator=True
-)
-merged_preview.loc[:, ["instrument", "region", "price_unit", "_merge"]].head(8)
-```
-
-::: {.notes}
-Explique esquerda, direita, chave, how, validate e indicator. Tempo: 3 min.
-:::
-
-## Join types as set logic
-
-| Join | Keeps | Main question |
-|---|---|---|
-| `inner` | matched keys only | What overlaps? |
-| `left` | every left row | What happened to each observation? |
-| `right` | every right row | Which metadata lacks observations? |
-| `outer` | union of keys | Where are all mismatches? |
-
-```text
-LEFT: A B C      RIGHT: B C D
-inner → B C      left → A B C
-right → B C D    outer → A B C D
-```
-
-::: {.notes}
-Lembre que o diagrama mostra conjuntos de chaves, não quantidade final de linhas quando há duplicatas. Tempo: 2 min.
-:::
-
-## Checkpoint 3: choose the join
-
-We must preserve every price observation and attach metadata when available.
-
-1. Which join is appropriate?
-2. What happens to `UNKNOWN` under `inner`?
-3. What could happen if metadata contains two `BRENT` rows?
-4. Which diagnostic reveals unmatched records?
-
-::: {.notes}
-Respostas: left, UNKNOWN desaparece, linhas podem multiplicar, indicator. Tempo: 3 min.
-:::
-
-## Many-to-many risk
-
-```{python}
-bad_metadata = pd.concat([
-    metadata,
-    metadata.loc[metadata["instrument"].eq("BRENT")]
-], ignore_index=True)
-
-try:
-    dedup.merge(bad_metadata, on="instrument", how="left",
-                validate="many_to_one")
-except pd.errors.MergeError as err:
-    print(type(err).__name__, "-", str(err).split(";")[0])
-```
-
-::: {.notes}
-Mostre validate como contrato executável. Sem ele, a multiplicação pode ser silenciosa. Tempo: 2 min.
-:::
-
-## Audit the merge
-
-```{python}
-merged = dedup.merge(
-    metadata,
-    on="instrument",
-    how="left",
-    validate="many_to_one",
-    indicator=True
-)
-assert len(merged) == len(dedup)
-merged["_merge"].value_counts()
-```
-
-```{python}
-merged.loc[merged["_merge"].ne("both"),
-           ["instrument", "_merge"]]
-```
-
-::: {.notes}
-Preservar linhas não é suficiente; também é preciso verificar correspondências. Tempo: 2 min.
-:::
-
-## `join`: index-based convenience
-
-```{python}
-joined = dedup.set_index("instrument").join(
-    metadata.set_index("instrument"),
-    how="left",
-    validate="many_to_one"
-)
-joined.loc[:, ["region", "category"]].head()
-```
-
-`join` is convenient when keys are represented by indexes.
-
-::: {.notes}
-Mostre que merge costuma ser mais explícito quando as chaves são colunas. Tempo: 2 min.
-:::
-
-# Reshaping Data
-
-## MultiIndex represents multiple dimensions
-
-```{python}
-multi = merged.set_index(["instrument", "date"]).sort_index()
-multi.loc[:, ["price", "volume"]].head(7)
-```
-
-- multiple index levels;
-- partial selection;
-- useful in grouped and reshaped results.
-
-::: {.notes}
-Trate como conteúdo útil, não núcleo da aula. Mostre os nomes dos níveis. Tempo: 2 min.
-:::
-
-## `unstack` and `stack`
-
-```{python}
-small_multi = multi.loc[:, ["price"]].dropna().head(6)
-wide_indexed = small_multi["price"].unstack("instrument")
-wide_indexed
-```
-
-```{python}
-wide_indexed.stack(future_stack=True)
-```
-
-`unstack` moves an index level to columns; `stack` moves columns into an index level.
-
-::: {.notes}
-Se o tempo estiver curto, use apenas como demonstração. Tempo: 2 min.
-:::
-
-## Wide versus long
-
-::: {.columns}
-::: {.column width="50%"}
-**Wide**
-
-| date | BRENT | WTI | TTF |
-|---|---:|---:|---:|
-| Jan 2 | 76.4 | 72.1 | 48.2 |
-
-One column per instrument.
-:::
-::: {.column width="50%"}
-**Long**
-
-| date | instrument | price |
-|---|---|---:|
-| Jan 2 | BRENT | 76.4 |
-| Jan 2 | WTI | 72.1 |
-| Jan 2 | TTF | 48.2 |
-
-One observation per row.
-:::
-:::
-
-::: {.notes}
-Formato é uma decisão estrutural. Long facilita mapear instrumento para cor, facet ou grupo. Tempo: 2 min.
-:::
-
-## Checkpoint 4: design the reshape
-
-```{python}
-wide = pd.DataFrame({
-    "date": ["2026-01-02", "2026-01-03"],
-    "BRENT": [76.4, 77.0],
-    "WTI": [72.1, 72.8],
-    "TTF": [48.2, 48.7]
-})
-wide
-```
-
-Which column is the identifier? Which columns should become a variable? What should the value column be called?
-
-::: {.notes}
-Peça a resposta conceitual antes da sintaxe. Tempo: 2 min.
-:::
-
-## `melt`: wide to long
-
-```{python}
-long = wide.melt(
-    id_vars="date",
-    var_name="instrument",
-    value_name="price"
-)
-long
-```
-
-No aggregation occurs; the values are reorganized.
-
-::: {.notes}
-Explique id_vars, var_name e value_name. Tempo: 2 min.
-:::
-
-## `pivot`: long to wide
-
-```{python}
-long.pivot(index="date", columns="instrument", values="price")
-```
-
-`pivot` requires unique date-instrument pairs.
-
-::: {.notes}
-Mostre que pivot falha diante de duplicatas porque não escolhe uma agregação. Tempo: 2 min.
-:::
-
-## `pivot_table`: reshape and aggregate
-
-```{python}
-duplicated_long = pd.concat([long, long.iloc[[0]]], ignore_index=True)
-duplicated_long.pivot_table(
-    index="date", columns="instrument", values="price", aggfunc="mean"
-)
-```
-
-::: {.callout-warning}
-Aggregation can hide duplicate records. Use it only when aggregation is analytically intended.
-:::
-
-::: {.notes}
-Mostre que pivot_table resolve a colisão por uma decisão estatística. Tempo: 2 min.
-:::
-
-## Combine, reshape, or aggregate?
-
-| Goal | Tool |
-|---|---|
-| append compatible tables | `concat` |
-| associate tables by keys | `merge` or `join` |
-| move columns into rows | `melt` or `stack` |
-| move row values into columns | `pivot` or `unstack` |
-| reshape while summarizing | `pivot_table` |
-
-::: {.notes}
-Use como síntese de escolha de ferramenta, não como memorização isolada. Tempo: 2 min.
-:::
-
-# Integrated Case
-
-## Step 1: define a working copy
-
-```{python}
-working = raw.loc[:, [
-    "date", "instrument", "market", "price", "volume", "currency"
-]].copy()
-print(working.shape)
-print(working.dtypes)
-```
-
-::: {.notes}
-Reinicie do dado bruto para demonstrar reprodutibilidade. Tempo: 1 min.
-:::
-
-## Step 2: parse and standardize
-
-```{python}
-working = working.assign(
-    date=pd.to_datetime(working["date"], errors="coerce", format="mixed", dayfirst=True),
-    instrument=working["instrument"].str.strip().str.upper(),
-    market=working["market"].str.strip().str.title(),
-    currency=working["currency"].str.strip().str.upper(),
-    price=pd.to_numeric(
-        working["price"].astype("string").str.replace(",", "", regex=False),
-        errors="coerce"
-    )
-)
-working.head()
-```
-
-::: {.notes}
-Conecte cada transformação a um problema diagnosticado. Tempo: 2 min.
-:::
-
-## Step 3: retain an audit trail
-
-```{python}
-working = working.assign(
-    invalid_date=working["date"].isna(),
-    missing_price=working["price"].isna(),
-    nonpositive_price=working["price"].le(0).fillna(False)
-)
-rejected = working.loc[
-    working[["invalid_date", "nonpositive_price"]].any(axis=1)
-].copy()
-rejected.loc[:, ["date", "instrument", "price",
-                 "invalid_date", "nonpositive_price"]]
-```
-
-::: {.notes}
-Mostre que rejeições devem ser auditáveis. Ausência de preço não é automaticamente rejeitada nesta etapa. Tempo: 3 min.
-:::
-
-## Step 4: deduplicate and treat missing price
-
-```{python}
-valid = (
-    working.loc[~working[["invalid_date", "nonpositive_price"]].any(axis=1)]
-    .drop_duplicates(subset=["date", "instrument", "price", "volume"])
-    .copy()
-)
-valid["price_imputed"] = valid["price"].isna()
-valid["price"] = valid.groupby("instrument")["price"].transform(
-    lambda s: s.fillna(s.median())
-)
-assert valid["price"].notna().all()
-```
-
-::: {.notes}
-A mediana por instrumento é uma hipótese didática. Em produção, a política dependeria do processo de geração dos dados. Tempo: 3 min.
-:::
-
-## Step 5: merge and audit
-
-```{python}
-final = valid.merge(
-    metadata,
-    on="instrument",
-    how="left",
-    validate="many_to_one",
-    indicator=True
-)
-assert len(final) == len(valid)
-final["_merge"].value_counts()
-```
-
-```{python}
-unmatched = final.loc[final["_merge"].ne("both")].copy()
-unmatched.loc[:, ["instrument", "_merge"]]
-```
-
-::: {.notes}
-UNKNOWN é preservado para auditoria. Não o remova antes de saber que não houve associação. Tempo: 2 min.
-:::
-
-## Step 6: create chart-ready data
-
-```{python}
-chart_data = (
-    final.loc[final["_merge"].eq("both")]
-    .drop(columns="_merge")
-    .sort_values(["category", "instrument", "date"])
-    .reset_index(drop=True)
-)
-assert chart_data[["date", "instrument", "price", "price_unit"]].notna().all().all()
-chart_data.head()
-```
-
-::: {.notes}
-A tabela final mantém unidade, categoria e marcador de imputação. Tempo: 2 min.
-:::
-
-## Compare compatible units
-
-```{python}
-#| fig-width: 10
-#| fig-height: 5
-crude = chart_data.loc[chart_data["category"].eq("Crude oil")]
 fig, ax = plt.subplots()
-sns.lineplot(data=crude, x="date", y="price",
-             hue="instrument", style="price_imputed",
-             markers=True, dashes=False, ax=ax)
-ax.set(title="Synthetic crude-oil prices after validated wrangling",
-       xlabel="Date", ylabel="Price (USD/bbl)")
-ax.legend(title="Instrument / imputed", frameon=False)
+sns.lineplot(
+    data=daily_season, x="hour_minute", y="y",
+    hue="day", palette="husl", legend=False, ax=ax
+)
+unique_ticks = daily_season["hour_minute"].unique()
+step = max(1, len(unique_ticks) // 12)
+positions = range(0, len(unique_ticks), step)
+ax.set_xticks(list(positions), labels=unique_ticks[::step], rotation=45)
+ax.set(title="Electricity Demand: Victoria", xlabel="Time", ylabel="MWh")
 plt.tight_layout()
 plt.show()
 ```
 
 ::: {.notes}
-A comparação agora restringe-se à mesma unidade. O estilo marca observações imputadas. Não faça inferência de mercado com dados sintéticos. Tempo: 3 min.
+Cada linha representa um dia; o eixo horizontal representa a posição dentro do dia.
+
+[Sources]
+- https://otexts.com/fpppy/02-graphics.html
 :::
 
-## A visual audit of record counts
+## Figure 2.6: Weekly seasonal pattern
 
 ```{python}
-#| fig-width: 8
-#| fig-height: 4.5
-counts = pd.Series({
-    "Raw rows": len(raw),
-    "Rejected": len(rejected),
-    "Valid after rules": len(valid),
-    "Chart-ready": len(chart_data)
-})
+weekly_season = (
+    vic_elec_demand
+    .loc[lambda x: x["ds"].between("2012-01-02", "2014-12-28 23:59")]
+    .assign(
+        day_of_week=lambda x: x["ds"].dt.day_name(),
+        week=lambda x: x["ds"].dt.to_period("W").dt.start_time,
+    )
+)
 fig, ax = plt.subplots()
-counts.plot.bar(color="#4472C4", ax=ax)
-ax.set(title="Every reduction in rows should be explainable",
-       xlabel="Pipeline stage", ylabel="Number of rows")
-ax.tick_params(axis="x", rotation=20)
+for _, group in weekly_season.groupby("week"):
+    group.plot(x="day_of_week", y="y", ax=ax, legend=False, alpha=.25)
+ax.set(title="Electricity Demand: Victoria", xlabel="Time", ylabel="MWh")
 plt.tight_layout()
 plt.show()
 ```
 
 ::: {.notes}
-Explique que os estágios não formam todos uma decomposição aditiva. O gráfico serve para auditoria do pipeline. Tempo: 2 min.
+O gráfico reorganiza observações pela posição na semana e permite comparar semanas.
+
+[Sources]
+- https://otexts.com/fpppy/02-graphics.html
 :::
 
-## Pipeline invariants
+## Figure 2.7: Annual seasonal pattern
 
 ```{python}
-assert metadata["instrument"].is_unique
-assert chart_data["price"].gt(0).all()
-assert chart_data["date"].dtype.kind == "M"
-assert chart_data["instrument"].isin(metadata["instrument"]).all()
-assert final["_merge"].isin(["both", "left_only", "right_only"]).all()
-```
-
-Assertions turn analytical expectations into executable checks.
-
-::: {.notes}
-Explique que testes não substituem conhecimento de domínio, mas tornam expectativas verificáveis. Tempo: 2 min.
-:::
-
-# Practice
-
-## Final exercise
-
-Build a reproducible pipeline that:
-
-1. parses dates and prices;
-2. standardizes text;
-3. flags failures before removing them;
-4. removes exact duplicates;
-5. makes one explicit missing-price decision;
-6. performs a validated left merge;
-7. reports unmatched instruments;
-8. creates long, chart-ready data;
-9. proves at least three assumptions with assertions;
-10. creates a valid visualization with compatible units.
-
-::: {.notes}
-Dê tempo para trabalho em pares. Avalie decisões e validações, não apenas sintaxe. Tempo: 5 min.
-:::
-
-## Final exercise: one solution
-
-```{python}
-solution = (
-    raw.assign(
-        date=lambda d: pd.to_datetime(d["date"], errors="coerce", format="mixed", dayfirst=True),
-        instrument=lambda d: d["instrument"].str.strip().str.upper(),
-        currency=lambda d: d["currency"].str.strip().str.upper(),
-        price=lambda d: pd.to_numeric(
-            d["price"].astype("string").str.replace(",", "", regex=False),
-            errors="coerce"
-        )
-    )
-    .drop_duplicates()
-    .loc[lambda d: d["date"].notna() & d["price"].gt(0)]
-    .merge(metadata, on="instrument", how="left",
-           validate="many_to_one", indicator=True)
+yearly_season = vic_elec_demand.assign(
+    day_of_year=lambda x: x["ds"].dt.strftime("%m-%d"),
+    year=lambda x: x["ds"].dt.year,
 )
-exercise_unmatched = solution.loc[solution["_merge"].ne("both"), "instrument"].unique()
-exercise_chart = solution.loc[solution["_merge"].eq("both")].drop(columns="_merge")
-assert exercise_chart["price"].gt(0).all()
-assert exercise_chart["region"].notna().all()
-assert metadata["instrument"].is_unique
-print("unmatched:", exercise_unmatched)
+fig, ax = plt.subplots()
+for year, group in yearly_season.groupby("year"):
+    group.plot(x="day_of_year", y="y", ax=ax, label=str(year), alpha=.7)
+ax.set(title="Electricity Demand: Victoria", xlabel="Time", ylabel="MWh")
+plt.tight_layout()
+plt.show()
 ```
 
 ::: {.notes}
-Esta solução remove preços ausentes, diferentemente do pipeline demonstrativo. Use a diferença para discutir políticas explícitas. Tempo: 3 min.
+A sazonalidade anual é exibida sobrepondo anos. Muitos pontos e linhas exigem interpretação cuidadosa.
+
+[Sources]
+- https://otexts.com/fpppy/02-graphics.html
 :::
 
-# Key Takeaways
+# 2.5 Seasonal subseries plots
 
-## Visualization-ready data checklist
+## Figure 2.8: Monthly subseries
 
-- [ ] Is each row a clearly defined analytical unit?
-- [ ] Are missing values diagnosed before treatment?
-- [ ] Are dtypes and category labels consistent?
-- [ ] Is the duplicate key explicitly defined?
-- [ ] Are invalid values separated from unusual values?
-- [ ] Does the merge validate intended cardinality?
-- [ ] Are unmatched records audited?
-- [ ] Is the data shape appropriate for the chart?
-- [ ] Are units compatible with the comparison?
-- [ ] Can assertions verify the key assumptions?
+```{python}
+subseries_cost = total_cost_df.assign(
+    year=lambda x: x["Month"].dt.year,
+    month_name=lambda x: x["Month"].dt.month_name(),
+    month_idx=lambda x: x["Month"].dt.month,
+)
+fig, axes = plt.subplots(1, 12, figsize=(12, 3.7), sharey=True)
+for ax, ((_, month_name), group) in zip(
+    axes, subseries_cost.groupby(["month_idx", "month_name"])
+):
+    ax.plot(group["year"], group["Cost"], color="k")
+    ax.axhline(group["Cost"].mean(), color="b", linewidth=1)
+    ax.set(title=month_name[:3], xlabel="")
+    ax.tick_params(axis="x", rotation=90, labelsize=7)
+fig.suptitle("Australian Antidiabetic Drug Sales")
+fig.supxlabel("Year")
+fig.supylabel("$ (millions)")
+plt.tight_layout()
+plt.show()
+```
 
 ::: {.notes}
-Use como checklist reutilizável para trabalhos acadêmicos. Tempo: 2 min.
+Cada painel reúne o mesmo mês ao longo dos anos; a linha azul representa a média daquele mês.
+
+[Sources]
+- https://otexts.com/fpppy/02-graphics.html
 :::
 
-## Main conclusions
+## Australian holiday tourism
 
-1. Cleaning begins with diagnosis, not deletion.
-2. Missing, invalid, duplicate, inconsistent, and unusual values require different reasoning.
-3. Transformation choices should preserve an audit trail.
-4. A merge is a claim about keys and relationships.
-5. Reshaping changes structure; aggregation changes information.
-6. A tidy table may still support an invalid comparison.
-7. Trustworthy visualization depends on explicit rules, units, and validation.
+```{python}
+tourism = pd.read_csv(DATA_PATH / "tourism.csv", parse_dates=["ds"])
+trips = (
+    tourism.loc[lambda x: x["Purpose"] == "Holiday"]
+    .groupby(["State", "ds"], as_index=False)
+    .agg(y=("y", "sum"))
+)
+trips.head()
+```
 
 ::: {.notes}
-Retome a pergunta central. Peça que cada aluno cite uma validação que adicionará ao próximo projeto. Tempo: 2 min.
+A agregação ignora Region e soma viagens por State e quarter para Purpose igual a Holiday.
+
+[Sources]
+- https://otexts.com/fpppy/02-graphics.html
+:::
+
+## Figure 2.9: Holiday time plots by state
+
+```{python}
+fig, ax = plt.subplots()
+sns.lineplot(
+    data=trips, x="ds", y="y", hue="State",
+    palette=sns.color_palette("husl", trips["State"].nunique()), ax=ax
+)
+ax.set(title="Australian domestic holidays",
+       ylabel="Overnight trips ('000)", xlabel="Quarter [1Q]")
+ax.legend(loc="center left", bbox_to_anchor=(1.02, .5), frameon=False, title="State")
+plt.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+Os estados apresentam sazonabilidade forte, mas os picos não coincidem necessariamente.
+
+[Sources]
+- https://otexts.com/fpppy/02-graphics.html
+:::
+
+## Figure 2.10: Seasonal plots by state
+
+```{python}
+season_trips = trips.assign(
+    Quarter="Q" + trips["ds"].dt.quarter.astype("string"),
+    Year=trips["ds"].dt.year,
+)
+states = season_trips["State"].unique()
+fig, axes = plt.subplots(len(states), 1, sharex=True, figsize=(9, 12))
+for ax, (state, group) in zip(axes, season_trips.groupby("State")):
+    sns.lineplot(data=group, x="Quarter", y="y", hue="Year",
+                 palette="husl", legend=False, ax=ax)
+    ax.set_ylabel("")
+    ax.text(1.01, .5, state, va="center", transform=ax.transAxes)
+fig.suptitle("Australian domestic holidays")
+fig.supylabel("Overnight trips ('000)")
+plt.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+O gráfico evidencia em qual trimestre cada estado tende a atingir maior atividade turística.
+
+[Sources]
+- https://otexts.com/fpppy/02-graphics.html
+:::
+
+## Figure 2.11: Holiday subseries by state
+
+```{python}
+fig, axes = plt.subplots(len(states), 4, sharex=True, sharey="row", figsize=(11, 13))
+for ax, ((state, quarter), group) in zip(
+    axes.flat, season_trips.groupby(["State", "Quarter"])
+):
+    ax.plot(group["Year"], group["y"], color="k")
+    ax.axhline(group["y"].mean(), color="b", linewidth=1)
+    if ax in axes[0]:
+        ax.set_title(quarter)
+    if ax in axes[:, -1]:
+        ax.text(1.03, .5, state, va="center", transform=ax.transAxes)
+fig.suptitle("Australian domestic holidays")
+fig.supxlabel("Year")
+fig.supylabel("Overnight trips ('000)")
+plt.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+O painel permite detectar mudanças específicas dentro de um trimestre e estado.
+
+[Sources]
+- https://otexts.com/fpppy/02-graphics.html
+:::
+
+# 2.6 Scatterplots
+
+## Figures 2.12 and 2.13: Demand and temperature
+
+```{python}
+# plot_series(
+#     vic_elec_df, ids=["Demand"], max_insample_length=2 * 24 * 365,
+#     xlabel="Time [30m]", ylabel="GW",
+#     title="Half-hourly electricity demand: Victoria"
+# )
+
+fig, ax = plt.subplots(
+    figsize=(10, 5)
+)
+
+plot_series(
+    df=vic_elec_df,
+    ids=["Demand"],
+    plot_random=False,
+    max_insample_length=2 * 24 * 365,
+    engine="matplotlib",
+    id_col="unique_id",
+    time_col="ds",
+    target_col="y",
+    ax=ax,
+)
+
+ax.set(
+    title="Half-hourly electricity demand: Victoria",
+    xlabel="Time [30m]",
+    ylabel="GW",
+)
+
+fig.tight_layout()
+plt.show()
+```
+
+```{python}
+# plot_series(
+#     vic_elec_df, ids=["Temperature"], max_insample_length=2 * 24 * 365,
+#     xlabel="Time [30m]", ylabel="Degrees Celsius",
+#     title="Half-hourly temperature: Melbourne, Australia"
+# )
+
+fig, ax = plt.subplots(
+    figsize=(10, 5)
+)
+
+plot_series(
+    df=vic_elec_df,
+    ids=["Temperature"],
+    plot_random=False,
+    max_insample_length=2 * 24 * 365,
+    engine="matplotlib",
+    id_col="unique_id",
+    time_col="ds",
+    target_col="y",
+    ax=ax,
+)
+
+ax.set(
+    title="Half-hourly temperature: Melbourne, Australia",
+    xlabel="Time [30m]",
+    ylabel="Degrees Celsius",
+)
+
+fig.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+Os dois time plots preservam a escala de cada variável antes de examinar a relação entre elas.
+
+[Sources]
+- https://otexts.com/fpppy/02-graphics.html
+:::
+
+## Figure 2.14: Demand versus temperature
+
+```{python}
+elec_2014 = (
+    vic_elec_df.loc[lambda x: x["ds"].dt.year == 2014]
+    .pivot(index="ds", columns="unique_id", values="y")
+    .reset_index()
+)
+fig, ax = plt.subplots()
+sns.scatterplot(data=elec_2014, x="Temperature", y="Demand",
+                linewidth=0, s=10, legend=False, ax=ax)
+ax.set(title="Scatter Plot of Demand vs. Temperature",
+       xlabel="Temperature (degrees Celsius)", ylabel="Electricity demand (GW)")
+plt.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+A relação é não linear: demanda elevada pode ocorrer em temperaturas altas e também em temperaturas baixas.
+
+[Sources]
+- https://otexts.com/fpppy/02-graphics.html
+:::
+
+## Correlation measures linear association
+
+```math
+r = \frac{\sum_t (x_t-\bar{x})(y_t-\bar{y})}
+{\sqrt{\sum_t(x_t-\bar{x})^2}\sqrt{\sum_t(y_t-\bar{y})^2}}
+```
+
+- `r` lies between -1 and 1;
+- sign indicates direction;
+- magnitude describes linear association;
+- nonlinear structure can be strong even when `r` is modest.
+
+::: {.notes}
+Use o scatterplot anterior para mostrar por que um coeficiente único pode ser insuficiente.
+
+[Sources]
+- https://otexts.com/fpppy/02-graphics.html
+:::
+
+## Figure 2.15: Different correlations
+
+```{python}
+correlations = [-0.9, -0.5, 0, 0.5, 0.9]
+fig, axes = plt.subplots(1, 5, figsize=(13, 3), sharex=True, sharey=True)
+rng = np.random.default_rng(42)
+for ax, rho in zip(axes, correlations):
+    values = rng.multivariate_normal([0, 0], [[1, rho], [rho, 1]], size=120)
+    ax.scatter(values[:, 0], values[:, 1], s=10, alpha=.55)
+    ax.set_title(f"r ≈ {np.corrcoef(values.T)[0,1]:.2f}")
+plt.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+Este gráfico recria o conceito da figura com dados simulados e mostra direção e intensidade da associação linear.
+
+[Sources]
+- https://otexts.com/fpppy/02-graphics.html
+:::
+
+## Figure 2.16: Anscombe's quartet
+
+```{python}
+anscombe = sns.load_dataset("anscombe")
+g = sns.FacetGrid(anscombe, col="dataset", col_wrap=2, height=2.8)
+g.map_dataframe(sns.scatterplot, x="x", y="y")
+g.map_dataframe(sns.regplot, x="x", y="y", scatter=False, ci=None, color="C1")
+g.set_titles("Dataset {col_name}")
+g.figure.suptitle("Anscombe's quartet", y=1.03)
+plt.show()
+```
+
+::: {.notes}
+Este bloco usa o dataset embutido do seaborn; se o ambiente não tiver cache e estiver offline, substitua pelos valores clássicos locais. As quatro séries possuem resumos semelhantes e relações visuais distintas.
+
+[Sources]
+- https://otexts.com/fpppy/02-graphics.html
+:::
+
+## Figures 2.17 and 2.18: Tourism relationships
+
+```{python}
+visitors = tourism.groupby(["State", "ds"], as_index=False)["y"].sum()
+visitor_wide = visitors.pivot(index="ds", columns="State", values="y")
+```
+
+```{python}
+fig, axes = plt.subplots(visitor_wide.shape[1], 1, sharex=True, figsize=(9, 12))
+for ax, state in zip(axes, visitor_wide.columns):
+    ax.plot(visitor_wide.index, visitor_wide[state])
+    ax.text(1.01, .5, state, va="center", transform=ax.transAxes)
+fig.suptitle("Australian domestic tourism")
+fig.supxlabel("Quarter")
+fig.supylabel("Overnight trips ('000)")
+plt.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+Small multiples preservam a cronologia de cada estado.
+
+[Sources]
+- https://otexts.com/fpppy/02-graphics.html
+:::
+
+## Figure 2.18: Scatterplot matrix
+
+```{python}
+def corrfunc(x, y, **kws):
+    r, pvalue = pearsonr(x, y)
+    plt.gca().annotate(
+        f"Corr:\n{r:.3f}{'***' if pvalue < .05 else ''}",
+        xy=(.5, .5), xycoords="axes fraction", ha="center", va="center"
+    )
+
+g = sns.PairGrid(visitor_wide.dropna(), height=1.5)
+g.map_lower(sns.scatterplot, s=12)
+g.map_upper(corrfunc)
+g.map_diag(sns.kdeplot, lw=2)
+g.set(xlabel="", ylabel="")
+plt.show()
+```
+
+::: {.notes}
+A diagonal mostra distribuições; a metade inferior mostra relações; a metade superior resume correlação.
+
+[Sources]
+- https://otexts.com/fpppy/02-graphics.html
+:::
+
+# 2.7 Lag plots
+
+## Figure 2.19: Quarterly beer production
+
+```{python}
+beer = (
+    aus_production[["ds", "Beer"]]
+    .loc[lambda x: x["ds"] >= "2000"]
+    .assign(Season=lambda x: "Q" + x["ds"].dt.quarter.astype("string"))
+    .rename(columns={"Beer": "y"})
+)
+lims = (.95 * beer["y"].min(), 1.05 * beer["y"].max())
+colors = dict(zip(beer["Season"].unique(), sns.color_palette("viridis", 4)))
+fig, axes = plt.subplots(3, 3, figsize=(9, 7), sharex=True, sharey=True)
+for i, ax in enumerate(axes.flat, start=1):
+    lagged = beer.assign(lag=beer["y"].shift(i))
+    sns.scatterplot(data=lagged, x="lag", y="y", hue="Season",
+                    palette=colors, ax=ax, legend=(i == 6), s=28)
+    ax.plot(lims, lims, color=".5", ls="--", lw=1)
+    ax.set(title=f"lag {i}", xlabel="", ylabel="", aspect="equal")
+    if i != 6 and ax.get_legend() is not None:
+        ax.get_legend().remove()
+fig.supxlabel("lag(Beer, k)")
+fig.supylabel("Beer")
+plt.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+Relações positivas nos lags 4 e 8 refletem sazonalidade trimestral; lags 2 e 6 relacionam picos a vales.
+
+[Sources]
+- https://otexts.com/fpppy/02-graphics.html
+:::
+
+# 2.8 Autocorrelation
+
+## Definition
+
+```math
+r_k = \frac{\sum_{t=k+1}^{T}(y_t-\bar{y})(y_{t-k}-\bar{y})}
+{\sum_{t=1}^{T}(y_t-\bar{y})^2}
+```
+
+Autocorrelation measures linear association between a series and its lagged values. The collection of coefficients is the ACF.
+
+::: {.notes}
+Cada coeficiente resume um dos painéis do lag plot.
+
+[Sources]
+- https://otexts.com/fpppy/02-graphics.html
+:::
+
+## Beer autocorrelation coefficients
+
+```{python}
+acf_values = sm.tsa.acf(beer["y"], nlags=9, fft=False)
+pd.Series(acf_values, name="ACF").to_frame().rename_axis("lag").iloc[1:]
+```
+
+::: {.notes}
+Compare os sinais e magnitudes com a geometria dos lag plots.
+
+[Sources]
+- https://otexts.com/fpppy/02-graphics.html
+:::
+
+## Figure 2.20: Beer ACF
+
+```{python}
+fig, ax = plt.subplots(figsize=(9, 4))
+plot_acf(beer["y"], lags=16, zero=False, bartlett_confint=False, auto_ylims=True, ax=ax)
+ax.set(title="Autocorrelation Function for Beer", xlabel="lag [1Q]", ylabel="acf")
+plt.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+Lag 4 é grande e positivo por sazonalidade; lag 2 tende a ser negativo porque relaciona trimestres opostos.
+
+[Sources]
+- https://otexts.com/fpppy/02-graphics.html
+:::
+
+## Trend and seasonality in ACF plots
+
+- trend often produces large positive autocorrelations that decay slowly;
+- seasonality produces peaks at seasonal lags;
+- trend plus seasonality combines slow decay with repeated seasonal structure.
+
+::: {.notes}
+A ACF não substitui o time plot; os dois gráficos respondem perguntas complementares.
+
+[Sources]
+- https://otexts.com/fpppy/02-graphics.html
+:::
+
+## Figure 2.21: Antidiabetic sales ACF
+
+```{python}
+fig, ax = plt.subplots(figsize=(9, 4))
+plot_acf(total_cost_df["Cost"], lags=48, zero=False,
+         bartlett_confint=False, auto_ylims=True, ax=ax)
+ax.set(title="Autocorrelation Function for Antidiabetic Drug Sales",
+       xlabel="lag [1M]", ylabel="acf", ylim=(-.3, None))
+plt.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+A redução lenta reflete tendência; a forma periódica reflete sazonalidade mensal.
+
+[Sources]
+- https://otexts.com/fpppy/02-graphics.html
+:::
+
+# 2.9 White noise
+
+## Figure 2.22: White-noise series
+
+```{python}
+# random = np.random.RandomState(30)
+# wn = pd.DataFrame({
+#     "y": random.normal(0, 1, 50),
+#     "ds": np.arange(1, 51),
+#     "unique_id": "wn",
+# })
+# plot_series(wn, target_col="y", xlabel="sample [1]", title="White noise")
+
+random = np.random.RandomState(30)
+
+wn = pd.DataFrame({
+    "y": random.normal(0, 1, 50),
+    "ds": np.arange(1, 51),
+    "unique_id": "wn",
+})
+
+fig, ax = plt.subplots(
+    figsize=(10, 5)
+)
+
+plot_series(
+    df=wn,
+    id_col="unique_id",
+    time_col="ds",
+    target_col="y",
+    ids=["wn"],
+    plot_random=False,
+    engine="matplotlib",
+    ax=ax,
+)
+
+ax.set(
+    title="White noise",
+    xlabel="Sample [1]",
+    ylabel="Value",
+)
+
+fig.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+White noise não apresenta autocorrelação sistemática; coeficientes amostrais não serão exatamente zero.
+
+[Sources]
+- https://otexts.com/fpppy/02-graphics.html
+:::
+
+## Figure 2.23: White-noise ACF
+
+```{python}
+fig, ax = plt.subplots(figsize=(9, 4))
+plot_acf(wn["y"], lags=16, zero=False, bartlett_confint=False, auto_ylims=True, ax=ax)
+ax.set(title="Autocorrelation Function for White Noise",
+       xlabel="lag [1]", ylabel="acf")
+plt.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+Para T igual a 50, a referência aproximada 1.96/sqrt(T) é cerca de 0.28. Os limites são aproximados e pointwise.
+
+[Sources]
+- https://otexts.com/fpppy/02-graphics.html
+:::
+
+## Approximate white-noise bounds
+
+```{python}
+T = len(wn)
+bound = 1.96 / np.sqrt(T)
+print(f"Approximate bound: ±{bound:.2f}")
+```
+
+Most sample autocorrelations should lie near zero, although random exceedances can occur.
+
+::: {.notes}
+Não conclua previsibilidade com base em um único spike marginal.
+
+[Sources]
+- https://otexts.com/fpppy/02-graphics.html
+:::
+
+# Exercises
+
+## Core exercises
+
+1. Plot `Bricks`, `Lynx`, `GOOG_Close`, and Victorian `Demand`.
+2. Identify the dates of peak closing prices in `gafa_stock`.
+3. Plot `Sales`, `AdBudget`, and `GDP` from `tute1.csv`.
+4. Explore annual US natural-gas consumption in New England.
+5. Create seasonal and subseries plots for quarterly arrivals.
+6. Diagnose a selected Australian retail series with time, seasonal, lag, and ACF plots.
+
+::: {.notes}
+Os exercícios são reformulados a partir da seção de exercícios do capítulo. Adapte o escopo aos arquivos disponíveis no diretório local.
+
+[Sources]
+- https://otexts.com/fpppy/02-graphics.html
+:::
+
+# Key takeaways
+
+## Visual diagnostic sequence
+
+1. validate time, identifiers, and frequency;
+2. begin with a time plot;
+3. identify trend, seasonality, and cycles;
+4. reorganize time with seasonal and subseries plots;
+5. inspect relationships with scatterplots;
+6. inspect serial dependence with lag plots and ACF;
+7. compare residual-looking behavior with white noise;
+8. convert visual findings into forecasting requirements.
+
+::: {.notes}
+O gráfico é parte do raciocínio de forecasting, não apenas uma etapa de comunicação.
+
+[Sources]
+- https://otexts.com/fpppy/02-graphics.html
 :::
 
 ## References
 
-- McKinney, W. *Python for Data Analysis*, 3rd ed., Chapters 7 and 8.
-- [Chapter 7: Data Cleaning and Preparation](https://wesmckinney.com/book/data-cleaning)
-- [Chapter 8: Data Wrangling](https://wesmckinney.com/book/data-wrangling)
-- [pandas documentation](https://pandas.pydata.org/docs/)
-- [Quarto RevealJS documentation](https://quarto.org/docs/presentations/revealjs/)
-- [Matplotlib documentation](https://matplotlib.org/stable/)
-- [seaborn documentation](https://seaborn.pydata.org/)
+- Hyndman, R. J., Athanasopoulos, G., Garza, A., Challu, C., & Mergenthaler, M. *Forecasting: Principles and Practice, the Pythonic Way*, Chapter 2.
+- [Chapter 2: Time series graphics](https://otexts.com/fpppy/02-graphics.html)
+- [utilsforecast plotting documentation](https://nixtlaverse.nixtla.io/utilsforecast/index.html#plotting)
 
-**Attribution:** concepts were adapted and rewritten from the cited references. The synthetic data, teaching narrative, exercises, and visualizations were created for this lesson.
+**Note:** This deck follows the chapter's dataset and figure sequence, while the teaching prose is adapted and rewritten. Code examples from the online edition are published under the license stated by the authors.
 
 ::: {.notes}
-Diferencie referência conceitual, código didático e dados sintéticos. Tempo: 1 min.
-:::
+Use a edição online como referência principal e preserve a atribuição.
 
-# Appendix {.unnumbered}
-
-## Optional: `qcut`
-
-```{python}
-observed_volume = chart_data["volume"].dropna()
-pd.qcut(observed_volume, q=3, labels=["lower", "middle", "upper"])
-```
-
-`qcut` targets approximately equal-frequency groups.
-
-::: {.notes}
-Slide de backup. Compare com cut e discuta dependência da amostra. Tempo: 1 min.
-:::
-
-## Optional: string extraction
-
-```{python}
-contracts = pd.Series(["BRENT_M1", "WTI_M2", "TTF_Q1"], dtype="string")
-contracts.str.extract(r"(?P<instrument>[A-Z]+)_(?P<tenor>[A-Z]\d)")
-```
-
-::: {.notes}
-Slide de backup para demonstrar regex e str.extract. Tempo: 1 min.
+[Sources]
+- https://otexts.com/fpppy/02-graphics.html
 :::
