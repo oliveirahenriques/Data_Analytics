@@ -1,0 +1,55 @@
+---
+title: "Strutural Breaks"
+subtitle: "Fundação Getulio Vargas - EESP"
+author: "Victor Henriques"
+format: 
+  revealjs:
+    smaller: true
+    toc: true
+    toc-depth: 1
+    theme: white
+    slide-number: true
+    incremental: false
+    code-fold: false
+    logo: logo.svg
+knitr:
+  opts_chunk:
+    fig.width: 10
+    fig.height: 5
+    out.width: "100%"
+    out.height: "65vh"
+    fig.align: "center"
+editor: source
+editor_options: 
+  chunk_output_type: console
+---
+
+## Types of Breaks
+
+- Transitional breaks that can be captures by dummies for a few
+observations.
+
+- Location Shifts
+
+- Levels and Dynamics
+
+Transitional breaks that can be captures by dummies for a few
+observations.
+These represent interventions that do not have a permanent e¤ect on
+the economy
+Location shifts
+The growth in productivity appears to have shifts in the level, so that
+for a long period the growth level is quite stable, but then suddenly it
+switches to another level.
+Levels and dynamic shifts
+This happens when a fundamental economic policy breaks down, such
+as the failure of a currency peg.
+
+
+## Break Tests 
+
+The break test of Andrews (1993) formalizes one of the Chow
+(1960)-type recursive tests.
+
+Bai and Perron (1998) generalized the Andrews test to a situation
+with multiple break points

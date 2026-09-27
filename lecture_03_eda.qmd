@@ -1,0 +1,1380 @@
+---
+title: "Data Analytics & Visualization"
+subtitle: "Exploratory Data Analysis"
+author: "Victor Henriques, Ph.D."
+format:
+  revealjs:
+    theme: white
+    smaller: true
+    toc: true
+    toc-depth: 1
+    slide-number: c/t
+    incremental: false
+    code-fold: false
+    code-overflow: wrap
+    center: false
+    width: 1600
+    height: 900
+    margin: 0.06
+    transition: fade
+    chalkboard: true
+    preview-links: auto
+    footer: "Data Analytics & Visualization"
+    logo: logo.svg
+execute:
+  echo: true
+  warning: false
+  error: false
+  cache: false
+  fig-align: center
+jupyter: python3
+---
+
+```{python}
+#| label: setup
+#| include: false
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from scipy import stats
+from statsmodels.distributions.empirical_distribution import ECDF
+from statsmodels.graphics.gofplots import qqplot
+
+rng = np.random.default_rng(42)
+sns.set_theme(style="whitegrid", context="talk")
+pd.set_option("display.max_columns", 20)
+pd.set_option("display.width", 140)
+plt.rcParams["figure.figsize"] = (10, 5)
+
+# Synthetic daily return data for a self-contained postgraduate lesson.
+n = 1250
+market = rng.standard_t(df=6, size=n) * 0.009
+asset_a = 0.0003 + 1.15 * market + rng.standard_t(df=5, size=n) * 0.008
+asset_b = 0.0001 + 0.55 * market + rng.normal(0, 0.006, size=n)
+asset_c = -0.0001 - 0.25 * market + rng.normal(0, 0.010, size=n)
+volume = np.exp(12.2 + 8 * np.abs(market) + rng.normal(0, 0.35, size=n))
+returns = pd.DataFrame({
+    "Market": market,
+    "Asset A": asset_a,
+    "Asset B": asset_b,
+    "Asset C": asset_c,
+    "Volume": volume,
+}, index=pd.bdate_range("2021-01-01", periods=n))
+returns.index.name = "Date"
+returns_pct = returns[["Market", "Asset A", "Asset B", "Asset C"]] * 100
+```
+
+# Introduction
+
+## Why EDA?
+
+**Exploratory Data Analysis turns observations into questions, structure, and evidence.**
+
+EDA combines:
+
+- numerical summaries;
+- visual displays;
+- data-quality checks;
+- transformations and comparisons;
+- iterative refinement of questions.
+
+::: {.notes}
+EDA is not a preliminary box-ticking exercise. It is an iterative mode of analysis that uses graphics and numerical summaries to uncover structure, detect anomalies, examine assumptions, and formulate models.
+
+[Sources]
+- https://www.itl.nist.gov/div898/handbook/eda/eda.htm
+- https://www.nist.gov/publications/nistsematech-e-handbook-statistical-methods-chapter-1-exploratory-data-analysis
+:::
+
+## Descriptive versus inferential statistics
+
+::: {.columns}
+::: {.column width="50%"}
+### Descriptive
+
+Describe the observations available:
+
+- center;
+- spread;
+- shape;
+- relationships;
+- unusual values.
+:::
+::: {.column width="50%"}
+### Inferential
+
+Use a sample to reason about a population:
+
+- estimation;
+- uncertainty;
+- hypothesis tests;
+- prediction.
+:::
+:::
+
+> A descriptive statistic is not automatically an estimate with quantified uncertainty.
+
+::: {.notes}
+This lesson focuses on description and visualization. Whenever a sample statistic is interpreted as evidence about a wider population, sampling design and uncertainty become essential.
+
+[Sources]
+- Internal teaching material: Lecture03.pdf, Descriptive Statistics and Populations and Samples.
+:::
+
+## Four descriptive questions
+
+1. **Position:** Where is the distribution located?
+2. **Dispersion:** How widely are observations spread?
+3. **Shape:** How is mass distributed around the center and into the tails?
+4. **Bivariate structure:** How do two variables vary together?
+
+::: {.notes}
+No single statistic answers all four questions. The lecture repeatedly pairs a numerical summary with a visual display.
+:::
+
+## Learning objectives
+
+By the end of the lecture, students will be able to:
+
+- compute and interpret measures of position, dispersion, and shape;
+- distinguish population parameters from sample statistics;
+- explain estimator conventions such as `ddof`, quantile method, and excess kurtosis;
+- select a visualization that matches the descriptive question;
+- diagnose sensitivity to skewness, multimodality, and outliers;
+- interpret covariance and Pearson, Spearman, and Kendall association;
+- avoid common descriptive-statistics and visualization errors.
+
+::: {.notes}
+The expected standard is postgraduate: students should justify the statistic and the graph, not merely calculate them.
+:::
+
+## The EDA workflow
+
+```text
+QUESTION → UNIT OF OBSERVATION → DATA QUALITY → UNIVARIATE STRUCTURE
+        → GROUP COMPARISON → BIVARIATE STRUCTURE → ITERATE
+```
+
+At each step:
+
+```text
+COMPUTE → VISUALIZE → INTERPRET → CHALLENGE
+```
+
+::: {.notes}
+Ask students to state the unit of observation before producing any statistic. For this lecture, one row is one synthetic business-day observation.
+:::
+
+## A self-contained financial dataset
+
+```{python}
+returns.head()
+```
+
+```{python}
+returns.info()
+```
+
+::: {.notes}
+The data are synthetic, avoiding network dependence and making the data-generating structure reproducible. Returns are decimals; visualizations often convert them to percentage points.
+:::
+
+## First visual inspection
+
+```{python}
+#| fig-width: 11
+#| fig-height: 5
+fig, axes = plt.subplots(2, 1, sharex=True)
+axes[0].plot(returns_pct.index, returns_pct["Market"], linewidth=.7, color="#0072B2")
+axes[0].set(title="Synthetic market returns", ylabel="Return (%)")
+axes[1].plot(returns.index, returns["Volume"], linewidth=.7, color="#D55E00")
+axes[1].set(xlabel="Date", ylabel="Volume")
+plt.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+Before summarizing, inspect ordering, scale, volatility, extremes, and possible nonstationarity. A table alone cannot reveal time clustering or isolated observations.
+:::
+
+## Data-quality checklist
+
+- correct unit of observation;
+- variable definitions and units;
+- missingness and duplicated rows;
+- impossible or invalid values;
+- temporal ordering and gaps;
+- categorical consistency;
+- measurement precision;
+- transformations already applied.
+
+::: {.notes}
+Descriptive statistics are only meaningful relative to valid observations and clearly defined variables.
+:::
+
+# Measures of Position
+
+## What is “typical”?
+
+Different definitions of typical answer different questions:
+
+- balance point: **mean**;
+- middle ordered observation: **median**;
+- most frequent observed value: **mode**;
+- threshold below which proportion `p` lies: **quantile**;
+- compounded growth rate: **geometric mean**.
+
+::: {.notes}
+Ask students which notion of typical is relevant before choosing a measure.
+:::
+
+## Arithmetic mean
+
+For observations $x_1,\ldots,x_n$, the sample mean is
+
+$$\bar{x}=\frac{1}{n}\sum_{i=1}^{n}x_i.$$
+
+```{python}
+market_mean = returns_pct["Market"].mean()
+market_mean
+```
+
+::: {.notes}
+The mean is the balance point and uses every observation. Therefore, it is sensitive to extreme values. Distinguish the sample statistic x-bar from the population parameter mu.
+:::
+
+## Mean and outlier sensitivity
+
+```{python}
+base = np.array([8, 9, 10, 10, 11, 12], dtype=float)
+contaminated = np.append(base, 60)
+pd.DataFrame({
+    "sample": ["base", "with extreme value"],
+    "mean": [base.mean(), contaminated.mean()],
+    "median": [np.median(base), np.median(contaminated)],
+})
+```
+
+::: {.notes}
+One extreme observation moves the mean substantially but has limited influence on the median. Robustness is not the same as correctness; the data-generating context determines whether the extreme value should remain.
+:::
+
+## Median
+
+For ordered observations $x_{(1)}\leq\cdots\leq x_{(n)}$, one conventional sample median is
+
+$$\widetilde{x}=\begin{cases}
+x_{((n+1)/2)}, & n\text{ odd},\\
+\frac{x_{(n/2)}+x_{(n/2+1)}}{2}, & n\text{ even}.
+\end{cases}$$
+
+```{python}
+returns_pct["Market"].median()
+```
+
+::: {.notes}
+The median is the 0.5 quantile under common interpolation conventions, but finite-sample quantile definitions vary.
+:::
+
+<!-- ## Median as an absolute-loss center -->
+
+<!-- Any sample median minimizes total absolute deviation: -->
+
+<!-- $$\widetilde{x}\in\arg\min_{a\in\mathbb{R}}\sum_{i=1}^{n}|x_i-a|$$ -->
+
+<!-- ```{python} -->
+<!-- sae = [np.abs(returns["Market"] - a).sum() for a in centers] -->
+<!-- centers[np.argmin(sae)], returns["Market"].median() -->
+<!-- ``` -->
+
+<!-- ::: {.notes} -->
+<!-- This links the median to least absolute deviations and helps explain its robustness. -->
+<!-- ::: -->
+
+## Mode
+
+For a discrete variable with probability mass function $p(x)=P(X=x)$, a population mode is
+
+$$\operatorname{Mode}(X)\in\arg\max_x p(x)$$
+
+```{python}
+ratings = pd.Series([1, 2, 2, 3, 3, 3, 4, 4, 5])
+ratings.mode().tolist()
+```
+
+::: {.notes}
+There may be more than one mode. For continuous data with nearly all values distinct, the raw sample mode may be uninformative. A histogram mode depends on binning; a density mode depends on smoothing.
+:::
+
+## Quantiles: population definition
+
+Let the cumulative distribution function be $F(x)=P(X\leq x)$. A left quantile is
+
+$$Q(p)=\inf\{x\in\mathbb{R}:F(x)\geq p\},\qquad 0<p<1$$
+
+The empirical CDF is
+
+$$\widehat{F}_n(x)=\frac{1}{n}\sum_{i=1}^{n}\mathbf{1}\{x_i\leq x\}$$
+
+and its generalized inverse defines the empirical quantile.
+
+::: {.notes}
+The infimum definition works for discrete and continuous distributions. It does not remove the practical issue that software supports multiple finite-sample quantile estimators.
+
+[Sources]
+- https://numpy.org/doc/stable/reference/generated/numpy.quantile.html
+:::
+
+## Quantiles in Python
+
+```{python}
+q = returns_pct["Market"].quantile([.01, .05, .25, .5, .75, .95, .99])
+q.rename("Market return (%)").to_frame()
+```
+
+```{python}
+np.quantile(returns_pct["Market"], [.25, .5, .75], method="linear")
+```
+
+::: {.notes}
+NumPy uses probabilities between zero and one and offers multiple methods. The default is linear. Method choice can matter in small samples and should be documented in reproducible work.
+
+[Sources]
+- https://numpy.org/doc/stable/reference/generated/numpy.quantile.html
+:::
+
+## Quantile estimator conventions
+
+```{python}
+small = np.array([1, 2, 4, 8, 16])
+methods = ["inverted_cdf", "closest_observation", "linear", "median_unbiased"]
+pd.Series({m: np.quantile(small, .25, method=m) for m in methods}, name="Q1")
+```
+
+::: {.notes}
+There is no universal finite-sample interpolation rule. NumPy documents several estimators. Choose one consistently and report it when exact replication matters.
+
+[Sources]
+- https://numpy.org/doc/stable/reference/generated/numpy.quantile.html
+:::
+
+## Geometric mean and compounded growth
+
+For strictly positive values $x_i>0$,
+
+$$G=\left(\prod_{i=1}^{n}x_i\right)^{1/n}
+=\exp\left(\frac{1}{n}\sum_{i=1}^{n}\log x_i\right)$$
+
+For simple returns $r_i>-1$, the constant compounded return is
+
+$$\bar r_G=\left(\prod_{i=1}^{n}(1+r_i)\right)^{1/n}-1$$
+
+```{python}
+arithmetic_daily = returns["Asset A"].mean()
+geometric_daily = stats.gmean(1 + returns["Asset A"]) - 1
+arithmetic_daily, geometric_daily
+```
+
+::: {.notes}
+The geometric mean answers a compounding question. It is not interchangeable with the arithmetic mean and requires positive growth factors.
+:::
+
+## Position: visual comparison
+
+```{python}
+#| fig-width: 10
+#| fig-height: 5
+x = returns_pct["Asset A"]
+fig, ax = plt.subplots()
+sns.histplot(x, bins=45, stat="density", color="#56B4E9", alpha=.5, ax=ax)
+sns.kdeplot(x, color="#0072B2", linewidth=2, ax=ax)
+ax.axvline(x.mean(), color="#D55E00", linewidth=2, label=f"Mean = {x.mean():.2f}")
+ax.axvline(x.median(), color="#009E73", linewidth=2, label=f"Median = {x.median():.2f}")
+ax.set(title="Position depends on the chosen notion of center", xlabel="Daily return (%)", ylabel="Density")
+ax.legend(frameon=False)
+plt.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+The histogram and KDE provide shape context that the two center lines cannot. KDE depends on bandwidth and should not be treated as raw data.
+:::
+
+# Measures of Dispersion
+
+## Why spread matters
+
+Two datasets can have the same mean and radically different uncertainty, heterogeneity, or risk.
+
+Measures of dispersion answer:
+
+- how far observations lie from a center;
+- how wide the central mass is;
+- how strongly extremes influence the scale;
+- whether groups are comparably stable.
+
+::: {.notes}
+Always report the unit of the dispersion measure. Variance is in squared units; standard deviation is in the original unit.
+:::
+
+## Range
+
+$$R=x_{(n)}-x_{(1)}=\max_i x_i-\min_i x_i$$
+
+```{python}
+market_range = returns_pct["Market"].max() - returns_pct["Market"].min()
+market_range
+```
+
+::: {.notes}
+The range uses only two observations and grows with sample size. It is highly sensitive to extremes.
+:::
+
+## Interquartile range
+
+$$\operatorname{IQR}=Q(0.75)-Q(0.25)=Q_3-Q_1$$
+
+```{python}
+q1, q3 = returns_pct["Market"].quantile([.25, .75])
+iqr = q3 - q1
+iqr
+```
+
+The IQR measures the width of the central 50% and is more resistant to extremes than the range.
+
+::: {.notes}
+The IQR still depends on the quantile estimator convention, especially for small samples.
+:::
+
+## Boxplot fences are rules, not proofs
+
+Tukey-style inner fences are
+
+$$
+L=Q_1-1.5\operatorname{IQR},\qquad U=Q_3+1.5\operatorname{IQR}.
+$$
+
+Values beyond the fences are **flagged observations**, not automatically errors.
+
+```{python}
+lower, upper = q1 - 1.5 * iqr, q3 + 1.5 * iqr
+returns_pct.loc[(returns_pct["Market"] < lower) | (returns_pct["Market"] > upper), "Market"].describe()
+```
+
+::: {.notes}
+In heavy-tailed financial returns, many valid values can fall beyond 1.5 IQR. The rule is a visual diagnostic, not an outlier deletion protocol.
+:::
+
+## Population and sample variance
+
+Population variance is
+
+$$
+\sigma^2=\operatorname{Var}(X)=\mathbb{E}\left[(X-\mu)^2\right].
+$$
+
+Given a sample, the unbiased sample variance under iid sampling with finite variance is
+
+$$
+s^2=\frac{1}{n-1}\sum_{i=1}^{n}(x_i-\bar{x})^2.
+$$
+
+```{python}
+pop_var = returns_pct["Market"].var(ddof=0)
+sample_var = returns_pct["Market"].var(ddof=1)
+pop_var, sample_var
+```
+
+::: {.notes}
+The denominator n describes the observed finite dataset as a population. The n minus one denominator is the conventional unbiased estimator of population variance under standard sampling assumptions.
+:::
+
+## Why divide by n - 1?
+
+The deviations from the sample mean satisfy
+
+$$
+\sum_{i=1}^{n}(x_i-\bar{x})=0,
+$$
+
+so only $n-1$ deviations are free. The adjustment also makes
+
+$$
+\mathbb{E}[s^2]=\sigma^2
+$$
+
+under iid sampling from a distribution with finite variance.
+
+::: {.notes}
+Degrees of freedom and unbiasedness are related explanations. Do not state that n minus one is always the correct denominator; it depends on the estimand.
+:::
+
+## Standard deviation
+
+$$
+s=\sqrt{s^2}=\sqrt{\frac{1}{n-1}\sum_{i=1}^{n}(x_i-\bar{x})^2}.
+$$
+
+```{python}
+returns_pct["Market"].std(ddof=1)
+```
+
+Standard deviation has the same physical unit as the observations.
+
+::: {.notes}
+Standard deviation is not the average absolute deviation. Squaring makes it especially sensitive to extreme observations.
+:::
+
+## Mean absolute deviation about a center
+
+About the mean:
+
+$$
+\operatorname{MAD}_{\bar{x}}=\frac{1}{n}\sum_{i=1}^{n}|x_i-\bar{x}|.
+$$
+
+Median absolute deviation:
+
+$$\operatorname{MAD}=\operatorname{median}_i\left|x_i-\widetilde{x}\right|$$
+
+```{python}
+x = returns_pct["Market"]
+mean_ad = np.mean(np.abs(x - x.mean()))
+median_ad = stats.median_abs_deviation(x, scale=1)
+normal_consistent_mad = stats.median_abs_deviation(x, scale="normal")
+mean_ad, median_ad, normal_consistent_mad
+```
+
+::: {.notes}
+Median absolute deviation is robust. SciPy's scale='normal' divides by the normal-distribution consistency constant, making the result comparable to standard deviation under normality.
+:::
+
+## Coefficient of variation
+
+For a variable with nonzero mean,
+
+$$
+\operatorname{CV}=\frac{s}{|\bar{x}|}.
+$$
+
+CV is dimensionless, but it is inappropriate when:
+
+- zero is arbitrary rather than meaningful;
+- the mean is close to zero;
+- values can change sign in a way that destroys interpretation.
+
+::: {.notes}
+Daily returns often have means close to zero, so the CV is unstable and not useful. Use it for ratio-scale variables with a meaningful zero.
+:::
+
+## Comparing dispersion measures
+
+```{python}
+def dispersion_summary(s):
+    q1, q3 = s.quantile([.25, .75])
+    return pd.Series({
+        "range": s.max() - s.min(),
+        "IQR": q3 - q1,
+        "variance": s.var(ddof=1),
+        "std": s.std(ddof=1),
+        "MAD": stats.median_abs_deviation(s, scale="normal"),
+    })
+
+returns_pct.apply(dispersion_summary).T.round(3)
+```
+
+::: {.notes}
+Do not compare variance numerically with standard deviation or IQR as if they shared units. This table is a catalog, not a ranking.
+:::
+
+## Boxplot anatomy
+
+```{python}
+#| fig-width: 10
+#| fig-height: 4.8
+long_returns = returns_pct.melt(var_name="Series", value_name="Return")
+fig, ax = plt.subplots()
+sns.boxplot(data=long_returns, x="Series", y="Return", hue="Series", palette="colorblind", legend=False, ax=ax)
+ax.set(title="Comparative boxplots", xlabel="", ylabel="Daily return (%)")
+plt.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+The box spans Q1 to Q3, the line marks the median, and whiskers extend to observations within the rule used by the plotting library. Points beyond whiskers are candidates for investigation.
+
+[Sources]
+- Internal teaching material: Lecture03.pdf, Boxplots and Comparative Boxplots.
+:::
+
+## Violin plus boxplot
+
+```{python}
+#| fig-width: 10
+#| fig-height: 5
+fig, ax = plt.subplots()
+sns.violinplot(data=long_returns, x="Series", y="Return", inner=None, cut=0, color="#A6CEE3", ax=ax)
+sns.boxplot(data=long_returns, x="Series", y="Return", width=.18, showfliers=False,
+            color="white", ax=ax)
+ax.set(title="Density shape plus robust positional summary", xlabel="", ylabel="Daily return (%)")
+plt.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+The violin estimates density and depends on smoothing. The boxplot supplies quartile landmarks. Combining them reduces the chance that either display is overinterpreted.
+:::
+
+# Measures of Shape
+
+## Shape is more than “normal or not”
+
+Shape includes:
+
+- symmetry or asymmetry;
+- number of modes;
+- tail weight;
+- gaps and truncation;
+- discreteness and heaping;
+- contamination or mixtures.
+
+::: {.notes}
+Skewness and kurtosis are only two scalar summaries. Histograms, ECDFs, and Q-Q plots show aspects that moments can hide.
+:::
+
+## Central moments
+
+For a population with mean $\mu$, the $r$th central moment is
+
+$$
+\mu_r=\mathbb{E}[(X-\mu)^r].
+$$
+
+The biased sample central moment is
+
+$$
+m_r=\frac{1}{n}\sum_{i=1}^{n}(x_i-\bar{x})^r.
+$$
+
+- $m_2$: scale;
+- $m_3$: asymmetry;
+- $m_4$: tail-sensitive shape.
+
+::: {.notes}
+Odd powers preserve sign; even powers emphasize magnitude. Higher moments are increasingly sensitive to extreme observations.
+:::
+
+## Skewness
+
+The moment coefficient is
+
+$$
+g_1=\frac{m_3}{m_2^{3/2}}.
+$$
+
+A common bias-adjusted Fisher-Pearson coefficient is
+
+$$
+G_1=\frac{\sqrt{n(n-1)}}{n-2}g_1,\qquad n>2.
+$$
+
+```{python}
+stats.skew(returns_pct["Asset A"], bias=True), stats.skew(returns_pct["Asset A"], bias=False)
+```
+
+::: {.notes}
+Positive skewness means more weight in the right tail for a unimodal continuous distribution; negative skewness means more weight in the left tail. Zero skewness does not imply normality.
+
+[Sources]
+- https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.skew.html
+:::
+
+## Skewness: visual examples
+
+```{python}
+#| fig-width: 11
+#| fig-height: 4
+samples = {
+    "Left-skewed": -rng.lognormal(0, .55, 3000),
+    "Symmetric": rng.normal(0, 1, 3000),
+    "Right-skewed": rng.lognormal(0, .55, 3000),
+}
+fig, axes = plt.subplots(1, 3, sharey=True)
+for ax, (label, values) in zip(axes, samples.items()):
+    sns.histplot(values, bins=45, stat="density", color="#56B4E9", ax=ax)
+    ax.set_title(f"{label}\nskew = {stats.skew(values, bias=False):.2f}")
+    ax.set_xlabel("")
+plt.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+The mirror-image examples isolate direction of skew. In observational data, skewness may arise from bounds, mixtures, nonlinear transformations, or genuine tail behavior.
+:::
+
+## Kurtosis and excess kurtosis
+
+Pearson kurtosis is
+
+$$
+\beta_2=\frac{\mu_4}{\mu_2^2}.
+$$
+
+Excess kurtosis is
+
+$$
+\gamma_2=\beta_2-3.
+$$
+
+Thus a normal distribution has Pearson kurtosis 3 and excess kurtosis 0.
+
+```{python}
+pearson_k = stats.kurtosis(returns_pct["Market"], fisher=False, bias=False)
+excess_k = stats.kurtosis(returns_pct["Market"], fisher=True, bias=False)
+pearson_k, excess_k
+```
+
+::: {.notes}
+Kurtosis is the standardized fourth central moment and is highly sensitive to extremes. State explicitly whether you report Pearson or Fisher/excess kurtosis.
+
+[Sources]
+- https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.kurtosis.html
+:::
+
+## Kurtosis is tail-sensitive
+
+```{python}
+#| fig-width: 11
+#| fig-height: 4
+shape_samples = {
+    "Uniform": rng.uniform(-np.sqrt(3), np.sqrt(3), 5000),
+    "Normal": rng.normal(0, 1, 5000),
+    "Student t (df=5)": rng.standard_t(5, 5000) / np.sqrt(5/3),
+}
+fig, axes = plt.subplots(1, 3, sharex=True, sharey=True)
+for ax, (label, values) in zip(axes, shape_samples.items()):
+    sns.kdeplot(values, fill=False, cut=0, color="#0072B2", ax=ax)
+    ax.set_title(f"{label}\nexcess k = {stats.kurtosis(values, bias=False):.2f}")
+    ax.set_xlim(-5, 5)
+plt.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+These distributions are standardized to comparable variance. The t distribution has heavier tails. Avoid reducing kurtosis to peak height; the fourth moment is driven strongly by tail observations.
+:::
+
+## Histogram: useful and fragile
+
+```{python}
+#| fig-width: 11
+#| fig-height: 4
+x = returns_pct["Market"]
+fig, axes = plt.subplots(1, 3, sharey=True)
+for ax, bins in zip(axes, [15, 40, 100]):
+    ax.hist(x, bins=bins, color="#56B4E9", edgecolor="white")
+    ax.set_title(f"{bins} bins")
+    ax.set_xlabel("Return (%)")
+axes[0].set_ylabel("Frequency")
+plt.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+Bin width changes the apparent modality and smoothness. Use the same bin edges for group comparisons.
+:::
+
+## Empirical cumulative distribution function
+
+$$
+\widehat F_n(x)=\frac{1}{n}\sum_{i=1}^{n}\mathbf{1}\{x_i\le x\}.
+$$
+
+```{python}
+#| fig-width: 9
+#| fig-height: 5
+fig, ax = plt.subplots()
+sns.ecdfplot(data=long_returns, x="Return", hue="Series", ax=ax)
+ax.set(title="Empirical CDF", xlabel="Daily return (%)", ylabel="Cumulative proportion")
+plt.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+The ECDF displays all observations without bins or smoothing. Vertical comparisons answer what proportion lies below a threshold; horizontal comparisons answer the quantile at a probability.
+:::
+
+## Q-Q plot
+
+```{python}
+#| fig-width: 10
+#| fig-height: 4.8
+fig, axes = plt.subplots(1, 2)
+qqplot(rng.normal(size=1000), line="45", ax=axes[0])
+axes[0].set_title("Normal sample")
+qqplot(returns_pct["Market"], line="45", ax=axes[1])
+axes[1].set_title("Synthetic market returns")
+plt.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+A Q-Q plot compares empirical quantiles to theoretical quantiles. Systematic tail departures indicate that a normal reference underrepresents or overrepresents the observed tails.
+:::
+
+## Multimodality can defeat moment summaries
+
+```{python}
+#| fig-width: 10
+#| fig-height: 4.8
+a = rng.normal(-2, 1, 2500)
+b = rng.normal(2, 1, 2500)
+mixture = np.concatenate([a, b])
+normal_match = rng.normal(mixture.mean(), mixture.std(ddof=1), len(mixture))
+fig, ax = plt.subplots()
+sns.kdeplot(mixture, label="Bimodal mixture", linewidth=2, color="#0072B2", ax=ax)
+sns.kdeplot(normal_match, label="Normal with matching mean and SD", linewidth=2, color="#D55E00", ax=ax)
+ax.set(title="Same center and scale do not imply the same shape", xlabel="Value", ylabel="Density")
+ax.legend(frameon=False)
+plt.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+Mean and standard deviation cannot reveal two subpopulations. Shape visualization is essential.
+:::
+
+# Bivariate Measures
+
+## Bivariate questions
+
+- Do two variables move together?
+- Is the relationship positive or negative?
+- Is it linear, monotonic, nonlinear, or grouped?
+- Is the relationship driven by a small number of observations?
+- Does the relationship change across subgroups or time?
+
+::: {.notes}
+Always begin with a scatterplot or another appropriate joint display before summarizing association with one number.
+:::
+
+## Population and sample covariance
+
+Population covariance is
+
+$$
+\operatorname{Cov}(X,Y)=\mathbb{E}[(X-\mu_X)(Y-\mu_Y)].
+$$
+
+Sample covariance is
+
+$$
+s_{XY}=\frac{1}{n-1}\sum_{i=1}^{n}(x_i-\bar{x})(y_i-\bar{y}).
+$$
+
+```{python}
+returns_pct[["Market", "Asset A"]].cov()
+```
+
+::: {.notes}
+Positive covariance means paired deviations tend to share sign. Covariance depends on measurement units, so magnitude is not directly comparable across differently scaled variables.
+
+[Sources]
+- https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.cov.html
+:::
+
+## Covariance matrix
+
+For a random vector $\mathbf X\in\mathbb R^p$,
+
+$$
+\boldsymbol\Sigma=\mathbb E[(\mathbf X-\boldsymbol\mu)(\mathbf X-\boldsymbol\mu)^\top].
+$$
+
+Its diagonal contains variances; off-diagonal entries contain covariances.
+
+```{python}
+returns_pct.cov().round(3)
+```
+
+::: {.notes}
+Pandas computes pairwise covariance excluding missing pairs and uses ddof=1 by default. Pairwise missingness can create covariance matrices with undesirable mathematical properties.
+
+[Sources]
+- https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.cov.html
+:::
+
+## Pearson correlation
+
+$$
+\rho_{XY}=\frac{\operatorname{Cov}(X,Y)}{\sigma_X\sigma_Y},
+\qquad
+r_{XY}=\frac{s_{XY}}{s_Xs_Y}.
+$$
+
+For nonconstant variables, $-1\le r_{XY}\le1$.
+
+```{python}
+returns_pct.corr(method="pearson").round(3)
+```
+
+::: {.notes}
+Pearson correlation measures linear association. Zero correlation does not imply independence except under additional distributional conditions. Correlation does not imply causation.
+
+[Sources]
+- https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.corr.html
+:::
+
+## Scatterplot first, coefficient second
+
+```{python}
+#| fig-width: 8.5
+#| fig-height: 5
+fig, ax = plt.subplots()
+sns.scatterplot(data=returns_pct, x="Market", y="Asset A", alpha=.4, s=22, ax=ax)
+sns.regplot(data=returns_pct, x="Market", y="Asset A", scatter=False, ci=None,
+            color="#D55E00", ax=ax)
+r = returns_pct["Market"].corr(returns_pct["Asset A"])
+ax.set(title=f"Market and Asset A: Pearson r = {r:.2f}", xlabel="Market return (%)", ylabel="Asset A return (%)")
+plt.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+Inspect linearity, heteroscedasticity, subgroups, and influential observations. A fitted line is a model summary, not decoration.
+:::
+
+## Correlation is invariant to positive rescaling
+
+```{python}
+x = returns_pct["Market"]
+y = returns_pct["Asset A"]
+pd.Series({
+    "corr(x, y)": x.corr(y),
+    "corr(100x, y)": (100 * x).corr(y),
+    "cov(x, y)": x.cov(y),
+    "cov(100x, y)": (100 * x).cov(y),
+})
+```
+
+::: {.notes}
+Correlation is dimensionless and unchanged by positive linear rescaling. Covariance changes with units.
+:::
+
+## Pearson can miss nonlinear association
+
+```{python}
+#| fig-width: 8
+#| fig-height: 5
+x_nonlin = rng.uniform(-2, 2, 1000)
+y_nonlin = x_nonlin**2 + rng.normal(0, .25, 1000)
+fig, ax = plt.subplots()
+ax.scatter(x_nonlin, y_nonlin, alpha=.35, s=18)
+ax.set(title=f"Strong nonlinear structure, Pearson r = {np.corrcoef(x_nonlin, y_nonlin)[0,1]:.2f}",
+       xlabel="x", ylabel="y")
+plt.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+Near-zero Pearson correlation does not mean no relationship. The scatterplot reveals a deterministic curved structure obscured by a linear summary.
+:::
+
+<!-- ## Spearman rank correlation -->
+
+<!-- For ranks $R_i=\operatorname{rank}(x_i)$ and $S_i=\operatorname{rank}(y_i)$, -->
+
+<!-- $$ -->
+<!-- r_S=\operatorname{Corr}(R,S). -->
+<!-- $$ -->
+
+<!-- Without ties, an equivalent formula is -->
+
+<!-- $$ -->
+<!-- r_S=1-\frac{6\sum_{i=1}^{n}d_i^2}{n(n^2-1)},\qquad d_i=R_i-S_i. -->
+<!-- $$ -->
+
+<!-- ```{python} -->
+<!-- returns_pct.corr(method="spearman").round(3) -->
+<!-- ``` -->
+
+<!-- ::: {.notes} -->
+<!-- Spearman measures monotonic association and is invariant to strictly monotonic transformations. With ties, compute Pearson correlation of ranks rather than relying on the no-ties formula. -->
+
+<!-- [Sources] -->
+<!-- - https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.corr.html -->
+<!-- ::: -->
+
+<!-- ## Kendall's tau -->
+
+<!-- For pairs of observations, Kendall's tau compares concordant and discordant pairs. Without ties, -->
+
+<!-- $$ -->
+<!-- \tau=\frac{C-D}{\binom{n}{2}}, -->
+<!-- $$ -->
+
+<!-- where $C$ is the number of concordant pairs and $D$ the number of discordant pairs. -->
+
+<!-- ```{python} -->
+<!-- returns_pct.corr(method="kendall").round(3) -->
+<!-- ``` -->
+
+<!-- ::: {.notes} -->
+<!-- Software uses tie-adjusted variants when necessary. Kendall's tau has a direct pairwise ordering interpretation. -->
+
+<!-- [Sources] -->
+<!-- - https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.corr.html -->
+<!-- ::: -->
+
+<!-- ## Pearson, Spearman, and Kendall -->
+
+<!-- ```{python} -->
+<!-- pair = returns_pct[["Market", "Asset A"]] -->
+<!-- pd.Series({ -->
+<!--     "Pearson": pair.corr(method="pearson").iloc[0, 1], -->
+<!--     "Spearman": pair.corr(method="spearman").iloc[0, 1], -->
+<!--     "Kendall": pair.corr(method="kendall").iloc[0, 1], -->
+<!-- }).round(3) -->
+<!-- ``` -->
+
+<!-- ::: {.notes} -->
+<!-- The coefficients use different scales and estimands. Do not interpret their numerical differences as a contest without considering the relationship type. -->
+<!-- ::: -->
+
+## Correlation matrix heatmap
+
+```{python}
+#| fig-width: 8
+#| fig-height: 6
+corr = returns_pct.corr()
+mask = np.triu(np.ones_like(corr, dtype=bool), k=1)
+fig, ax = plt.subplots()
+sns.heatmap(corr, mask=mask, annot=True, fmt=".2f", cmap="vlag", center=0,
+            vmin=-1, vmax=1, square=True, ax=ax)
+ax.set(title="Pearson correlation matrix")
+plt.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+Fixing the scale from -1 to 1 ensures colors retain a stable interpretation. A heatmap is useful for overview, but scatterplots are needed to inspect shape and outliers.
+:::
+
+## Pairwise visualization
+
+```{python}
+#| fig-width: 10
+#| fig-height: 8
+sample_pairs = returns_pct.sample(450, random_state=42)
+g = sns.pairplot(sample_pairs, corner=True, diag_kind="hist",
+                 plot_kws={"alpha": .35, "s": 18, "color": "#0072B2"},
+                 diag_kws={"color": "#56B4E9"})
+g.figure.suptitle("Pairwise distributions and relationships", y=1.02)
+plt.show()
+```
+
+::: {.notes}
+The diagonal shows marginal distributions; off-diagonal panels show joint structure. Sampling improves readability but should be reproducible.
+:::
+
+## Overplotting: use density or hexagonal bins
+
+```{python}
+#| fig-width: 10
+#| fig-height: 4.5
+fig, axes = plt.subplots(1, 2)
+axes[0].scatter(returns_pct["Market"], returns_pct["Asset A"], alpha=.15, s=12)
+axes[0].set(title="Transparent points", xlabel="Market (%)", ylabel="Asset A (%)")
+hb = axes[1].hexbin(returns_pct["Market"], returns_pct["Asset A"], gridsize=35, cmap="viridis", mincnt=1)
+axes[1].set(title="Hexagonal counts", xlabel="Market (%)", ylabel="Asset A (%)")
+fig.colorbar(hb, ax=axes[1], label="Count")
+plt.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+Transparency helps but can depend on rendering. Hexbin makes local counts explicit and is useful for dense bivariate data.
+:::
+
+## Group structure can distort aggregate relationships
+
+```{python}
+#| fig-width: 9
+#| fig-height: 5
+n_group = 120
+x1 = rng.normal(2, .7, n_group); y1 = -x1 + 6 + rng.normal(0, .35, n_group)
+x2 = rng.normal(6, .7, n_group); y2 = -x2 + 14 + rng.normal(0, .35, n_group)
+groups = pd.DataFrame({"x": np.r_[x1, x2], "y": np.r_[y1, y2],
+                       "group": ["Group 1"]*n_group + ["Group 2"]*n_group})
+fig, ax = plt.subplots()
+sns.scatterplot(data=groups, x="x", y="y", hue="group", ax=ax)
+sns.regplot(data=groups, x="x", y="y", scatter=False, ci=None, color="black", ax=ax)
+ax.set(title="Aggregate and within-group relationships can differ")
+plt.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+This constructed example illustrates confounding and Simpson-like reversals. Always inspect meaningful groups before interpreting an aggregate coefficient.
+:::
+
+# Integrated EDA
+
+## A descriptive-statistics table
+
+```{python}
+def descriptive_table(df):
+    out = pd.DataFrame(index=df.columns)
+    out["n"] = df.count()
+    out["missing"] = df.isna().sum()
+    out["mean"] = df.mean()
+    out["median"] = df.median()
+    out["std"] = df.std(ddof=1)
+    out["Q1"] = df.quantile(.25)
+    out["Q3"] = df.quantile(.75)
+    out["IQR"] = out["Q3"] - out["Q1"]
+    out["min"] = df.min()
+    out["max"] = df.max()
+    out["skew"] = df.apply(lambda s: stats.skew(s.dropna(), bias=False))
+    out["excess_kurtosis"] = df.apply(lambda s: stats.kurtosis(s.dropna(), fisher=True, bias=False))
+    return out
+
+descriptive_table(returns_pct).round(3)
+```
+
+::: {.notes}
+This table documents conventions explicitly: sample SD uses ddof=1, skewness is bias-adjusted, and kurtosis is excess kurtosis. A table should not replace graphics.
+:::
+
+## One variable, four complementary views
+
+```{python}
+#| fig-width: 11
+#| fig-height: 7
+x = returns_pct["Market"]
+fig, axes = plt.subplots(2, 2)
+sns.histplot(x, bins=40, kde=True, color="#56B4E9", ax=axes[0,0])
+axes[0,0].set(title="Histogram + KDE", xlabel="Return (%)")
+sns.boxplot(x=x, orient="h", color="#56B4E9", ax=axes[0,1])
+axes[0,1].set(title="Boxplot", xlabel="Return (%)")
+sns.ecdfplot(x=x, color="#0072B2", ax=axes[1,0])
+axes[1,0].set(title="ECDF", xlabel="Return (%)", ylabel="Cumulative proportion")
+qqplot(x, line="45", ax=axes[1,1])
+axes[1,1].set_title("Normal Q-Q plot")
+plt.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+Histogram reveals local mass, boxplot provides robust positional landmarks, ECDF exposes all thresholds, and Q-Q reveals departures from a normal reference.
+:::
+
+## Outlier sensitivity experiment
+
+```{python}
+clean = rng.normal(0, 1, 300)
+contaminated = np.r_[clean, 12]
+comparison = pd.DataFrame({
+    "Statistic": ["Mean", "Median", "SD", "IQR", "Skewness", "Excess kurtosis"],
+    "Clean": [np.mean(clean), np.median(clean), np.std(clean, ddof=1), stats.iqr(clean),
+              stats.skew(clean, bias=False), stats.kurtosis(clean, bias=False)],
+    "Contaminated": [np.mean(contaminated), np.median(contaminated), np.std(contaminated, ddof=1),
+                     stats.iqr(contaminated), stats.skew(contaminated, bias=False),
+                     stats.kurtosis(contaminated, bias=False)],
+})
+comparison.round(3)
+```
+
+::: {.notes}
+The experiment shows differential sensitivity. Median and IQR are resistant; skewness and kurtosis can change dramatically.
+:::
+
+## Missing values and denominators
+
+```{python}
+missing_demo = returns_pct[["Market", "Asset A"]].copy()
+missing_demo.loc[missing_demo.sample(100, random_state=1).index, "Asset A"] = np.nan
+pd.DataFrame({
+    "count": missing_demo.count(),
+    "mean": missing_demo.mean(),
+    "std": missing_demo.std(),
+})
+```
+
+```{python}
+missing_demo.corr(min_periods=1200)
+```
+
+::: {.notes}
+Pandas descriptive methods commonly omit missing values. Pairwise covariance and correlation can use different observation sets for different pairs. Report counts and use min_periods when appropriate.
+
+[Sources]
+- https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.corr.html
+- https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.cov.html
+:::
+
+## Transformations change interpretation
+
+```{python}
+#| fig-width: 10
+#| fig-height: 4.5
+raw_volume = returns["Volume"]
+log_volume = np.log(raw_volume)
+fig, axes = plt.subplots(1, 2)
+sns.histplot(raw_volume, bins=40, color="#56B4E9", ax=axes[0])
+axes[0].set(title="Volume", xlabel="Raw units")
+sns.histplot(log_volume, bins=40, color="#009E73", ax=axes[1])
+axes[1].set(title="Log volume", xlabel="log(Volume)")
+plt.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+A log transformation changes the scale, distances, skewness, and meaning of differences. Do not describe the transformed variable as if it were still in raw units.
+:::
+
+## EDA is iterative
+
+After each graph or statistic, ask:
+
+- What feature did the display reveal?
+- Is the feature real, constructed, or an artifact of scale or method?
+- Which subgroup, time window, or variable should be inspected next?
+- What assumption became questionable?
+- Which alternative summary would challenge the current interpretation?
+
+::: {.notes}
+This is the transition from descriptive output to analytical reasoning.
+:::
+
+# Common Errors
+
+## Descriptive-statistics failure modes
+
+- reporting mean without shape or sample size;
+- calling every extreme observation an error;
+- omitting quantile estimator conventions when exact replication matters;
+- confusing population and sample denominators;
+- reporting kurtosis without saying Pearson or excess;
+- treating correlation as causation or independence;
+- trusting a correlation matrix without scatterplots;
+- comparing histograms with different bins or scales;
+- ignoring missing-data denominators;
+- presenting smoothed density as raw observation frequency.
+
+::: {.notes}
+Use this as a quality-control checklist for reports and dashboards.
+:::
+
+## Graph selection guide
+
+| Question | Primary display | Complement |
+|---|---|---|
+| Where is the center? | histogram/ECDF | mean and median |
+| How dispersed? | box/violin | SD, IQR, MAD |
+| Tail behavior? | ECDF/Q-Q | quantiles, kurtosis |
+| Multiple modes? | histogram/KDE | subgroup analysis |
+| Group comparison? | shared-scale box/violin | grouped table |
+| Linear association? | scatterplot | Pearson correlation |
+| Monotonic association? | scatterplot of ranks | Spearman/Kendall |
+| Many variables? | pairplot/heatmap | selected scatterplots |
+
+::: {.notes}
+This is a heuristic, not an absolute rule. The graph must still respect variable type, sample size, and measurement design.
+:::
+
+# Practice
+
+## Capstone exercise
+
+Using `returns`, create an EDA report that:
+
+1. defines the unit of observation and units;
+2. audits completeness and validity;
+3. compares mean, median, and selected quantiles;
+4. compares range, IQR, SD, and MAD;
+5. reports adjusted skewness and excess kurtosis;
+6. produces histogram, ECDF, boxplot, and Q-Q plot;
+7. compares assets using shared scales;
+8. examines covariance and three forms of correlation;
+9. uses scatterplots to challenge the coefficients;
+10. states limitations and next analytical questions.
+
+::: {.notes}
+Grade reasoning and reproducibility rather than visual decoration.
+:::
+
+## Suggested assessment rubric
+
+| Dimension | Evidence |
+|---|---|
+| Definitions | formulas and conventions are precise |
+| Computation | code matches the stated estimand |
+| Visualization | graph answers a defined question |
+| Interpretation | claims stay within descriptive evidence |
+| Robustness | sensitivity to extremes and methods is examined |
+| Bivariate reasoning | shape is inspected before coefficients |
+| Reproducibility | data, seed, units, and parameters are explicit |
+
+::: {.notes}
+A postgraduate submission should show why each statistic and each plot was selected.
+:::
+
+# Key Takeaways
+
+## Descriptive statistics are a system
+
+- Position locates the distribution.
+- Dispersion quantifies heterogeneity or scale.
+- Shape describes asymmetry, modes, and tails.
+- Bivariate measures summarize joint variation.
+- Graphics reveal structure that scalar summaries can conceal.
+- Robust and classical measures answer different questions.
+- Software defaults are methodological choices.
+- EDA generates better questions before it generates models.
+
+::: {.notes}
+End by asking students to name one statistic that changed meaning when a software convention changed.
+:::
+
+## Final checklist
+
+- [ ] What is one row?
+- [ ] Are units and denominators explicit?
+- [ ] Which center is substantively meaningful?
+- [ ] Is spread reported in interpretable units?
+- [ ] Are shape and tails visualized?
+- [ ] Are estimator conventions documented?
+- [ ] Are group structures inspected?
+- [ ] Is every correlation accompanied by a joint display?
+- [ ] Were missingness and extreme observations investigated?
+- [ ] Are limitations and next questions stated?
+
+::: {.notes}
+This checklist is reusable for assignments, research, and professional analysis.
+:::
+
+# References
+
+## Core references
+
+- Tukey, J. W. *Exploratory Data Analysis*. Addison-Wesley, 1977.
+- NIST/SEMATECH, *Exploratory Data Analysis*, Engineering Statistics Handbook.
+- NumPy documentation, `numpy.quantile`.
+- SciPy documentation, `scipy.stats.skew` and `scipy.stats.kurtosis`.
+- pandas documentation, `DataFrame.cov` and `DataFrame.corr`.
+- Wilke, C. O. *Fundamentals of Data Visualization*. O'Reilly, 2019.
+- Cleveland, W. S. *Visualizing Data*. Hobart Press, 1993.
+
+::: {.notes}
+The lecture text and synthetic examples were created for this course. Mathematical definitions follow the references listed here, with software conventions explicitly stated.
+
+[Sources]
+- https://www.itl.nist.gov/div898/handbook/eda/eda.htm
+- https://numpy.org/doc/stable/reference/generated/numpy.quantile.html
+- https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.skew.html
+- https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.kurtosis.html
+- https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.cov.html
+- https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.corr.html
+:::

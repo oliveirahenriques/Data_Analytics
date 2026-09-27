@@ -38,7 +38,7 @@ pd.set_option("display.max_columns", 12)
 pd.set_option("display.width", 120)
 ```
 
-# From Raw Data to Visual Insight
+# Data Analytics Foundations
 
 ## The complete pandas workflow for Data Visualization
 
@@ -155,6 +155,7 @@ Defina a unidade pretendida: um preço por instrumento e data. Peça aos alunos 
 ```{python}
 #| fig-width: 10
 #| fig-height: 4.7
+#| fig-align: center
 raw_plot = raw.assign(
     date_plot=pd.to_datetime(raw["date"], errors="coerce", format="mixed", dayfirst=True),
     price_plot=pd.to_numeric(raw["price"], errors="coerce")
@@ -320,26 +321,40 @@ Use `.copy()` when the subset will later be modified.
 Explique máscara, seleção nos dois eixos e intenção de cópia. Tempo: 2 min.
 :::
 
-## Checkpoint 1
+<!-- ## Checkpoint 1 -->
 
-Predict the result:
+<!-- Predict the result: -->
 
-```python
-quiz = pd.DataFrame(
-    {"price": [10, 20, 30], "volume": [2, 4, 6]},
-    index=["A", "B", "C"]
-)
+<!-- ```python -->
+<!-- quiz = pd.DataFrame( -->
+<!--     {"price": [10, 20, 30], "volume": [2, 4, 6]}, -->
+<!--     index=["A", "B", "C"] -->
+<!-- ) -->
 
-quiz.loc["A":"B", ["price"]]
-quiz.iloc[0:2, 0:1]
-```
+<!-- quiz.loc["A":"B", ["price"]] -->
+<!-- quiz.iloc[0:2, 0:1] -->
+<!-- ``` -->
 
-What is equal, and what rule differs?
+<!-- What is equal, and what rule differs? -->
 
-::: {.notes}
-Dê um minuto em duplas. Ambos retornam DataFrame 2 por 1, mas loc inclui o label final e iloc exclui a posição stop. Tempo: 3 min.
-:::
+<!-- ::: {.notes} -->
+<!-- Dê um minuto em duplas. Ambos retornam DataFrame 2 por 1, mas loc inclui o label final e iloc exclui a posição stop. Tempo: 3 min. -->
+<!-- ::: -->
 
+
+<!-- ## Checkpoint 1 -->
+
+<!-- Predict the result: -->
+
+<!-- ```{python} -->
+<!-- quiz = pd.DataFrame( -->
+<!--     {"price": [10, 20, 30], "volume": [2, 4, 6]}, -->
+<!--     index=["A", "B", "C"] -->
+<!-- ) -->
+
+<!-- quiz.loc["A":"B", ["price"]] -->
+<!-- quiz.iloc[0:2, 0:1] -->
+<!-- ``` -->
 
 ## Constructing Series and DataFrames
 
@@ -639,6 +654,7 @@ missing.sum().sort_values(ascending=False)
 ```{python}
 #| fig-width: 9
 #| fig-height: 4.5
+#| fig-align: center
 fig, ax = plt.subplots()
 sns.heatmap(missing.T, cbar=False,
             cmap=["#F2F2F2", "#D55E00"], ax=ax)
@@ -688,7 +704,7 @@ parsed = raw.assign(
         errors="coerce"
     )
 )
-parsed.loc[:, ["date", "date_parsed", "price", "price_parsed"]]
+parsed.loc[:, ["date", "date_parsed", "price", "price_parsed"]].head(6)
 ```
 
 ::: {.notes}
@@ -770,21 +786,21 @@ dedup.loc[invalid | unusual,
 Explicite que a regra é contextual e didática. Tempo: 2 min.
 :::
 
-## Checkpoint 2
+<!-- ## Checkpoint 2 -->
 
-For each case, choose **retain, flag, correct, fill, or remove**:
+<!-- For each case, choose **retain, flag, correct, fill, or remove**: -->
 
-1. no trade occurred;
-2. instrument has trailing spaces;
-3. duplicated ingestion event;
-4. extreme but verified market movement;
-5. date cannot be parsed.
+<!-- 1. no trade occurred; -->
+<!-- 2. instrument has trailing spaces; -->
+<!-- 3. duplicated ingestion event; -->
+<!-- 4. extreme but verified market movement; -->
+<!-- 5. date cannot be parsed. -->
 
-State what must be recorded.
+<!-- State what must be recorded. -->
 
-::: {.notes}
-Avalie justificativa e rastreabilidade, não apenas a resposta. Tempo: 4 min.
-:::
+<!-- ::: {.notes} -->
+<!-- Avalie justificativa e rastreabilidade, não apenas a resposta. Tempo: 4 min. -->
+<!-- ::: -->
 
 
 ## Missing values must be interpreted by dtype
@@ -1237,21 +1253,21 @@ chart_ready.head(2)
 A mediana por instrumento é uma hipótese didática. A saída é validada, tidy e pronta para análise. Tempo: 3 min.
 :::
 
-## End of Class 1
+<!-- ## End of Class 1 -->
 
-### Deliverable
+<!-- ### Deliverable -->
 
-> A validated, tidy, analysis-ready dataset with explicit units, keys, and quality flags.
+<!-- > A validated, tidy, analysis-ready dataset with explicit units, keys, and quality flags. -->
 
-### Exit ticket
+<!-- ### Exit ticket -->
 
-- What is one assumption in the pipeline?
-- Which assertion protects a key relationship?
-- Which records are absent from `chart_ready`, and why?
+<!-- - What is one assumption in the pipeline? -->
+<!-- - Which assertion protects a key relationship? -->
+<!-- - Which records are absent from `chart_ready`, and why? -->
 
-::: {.notes}
-Use como fechamento da primeira aula e ponte para a segunda. Tempo: 4 min.
-:::
+<!-- ::: {.notes} -->
+<!-- Use como fechamento da primeira aula e ponte para a segunda. Tempo: 4 min. -->
+<!-- ::: -->
 
 <!-- # Class 2 -->
 
@@ -1388,6 +1404,12 @@ weekly_price = chart_ready.pivot_table(
 weekly_price.round(2)
 ```
 
+::: {.notes}
+Pivot table agrega e reorganiza. Crosstab mostra proporções dentro de cada instrumento; explicite o denominador. Tempo: 3 min.
+:::
+
+## Pivot tables and crosstabs
+
 ```{python}
 pd.crosstab(
     chart_ready["instrument"], chart_ready["price_imputed"], normalize="index"
@@ -1415,19 +1437,19 @@ check
 Valide denominadores, cobertura e forma do resultado. Tempo: 2 min.
 :::
 
-## Checkpoint 3
+<!-- ## Checkpoint 3 -->
 
-Choose the most specific operation:
+<!-- Choose the most specific operation: -->
 
-1. one mean per instrument;
-2. subtract each instrument's own mean from every row;
-3. retain instruments with sufficient coverage;
-4. obtain two rows with highest volume per group;
-5. create several named summaries.
+<!-- 1. one mean per instrument; -->
+<!-- 2. subtract each instrument's own mean from every row; -->
+<!-- 3. retain instruments with sufficient coverage; -->
+<!-- 4. obtain two rows with highest volume per group; -->
+<!-- 5. create several named summaries. -->
 
-::: {.notes}
-Respostas: agg, transform, filter, apply, agg. Tempo: 3 min.
-:::
+<!-- ::: {.notes} -->
+<!-- Respostas: agg, transform, filter, apply, agg. Tempo: 3 min. -->
+<!-- ::: -->
 
 
 ## Inspecting groups directly
@@ -1721,21 +1743,21 @@ Títulos devem comunicar a mensagem, mas não exagerar a evidência. Tempo: 2 mi
 Acessibilidade melhora precisão e reduz ambiguidade. Tempo: 2 min.
 :::
 
-## Checkpoint 4
+<!-- ## Checkpoint 4 -->
 
-Choose and justify a chart for:
+<!-- Choose and justify a chart for: -->
 
-1. evolution of one instrument;
-2. distribution of returns by instrument;
-3. relationship between volume and return;
-4. weekly standardized values;
-5. proportions by category.
+<!-- 1. evolution of one instrument; -->
+<!-- 2. distribution of returns by instrument; -->
+<!-- 3. relationship between volume and return; -->
+<!-- 4. weekly standardized values; -->
+<!-- 5. proportions by category. -->
 
-State the unit and one interpretive limitation.
+<!-- State the unit and one interpretive limitation. -->
 
-::: {.notes}
-Possíveis respostas: linha, box/violin, scatter, heatmap, barras proporcionais. Avalie coerência entre pergunta, resumo e gráfico. Tempo: 4 min.
-:::
+<!-- ::: {.notes} -->
+<!-- Possíveis respostas: linha, box/violin, scatter, heatmap, barras proporcionais. Avalie coerência entre pergunta, resumo e gráfico. Tempo: 4 min. -->
+<!-- ::: -->
 
 
 ## Choose the visual channel deliberately
@@ -1904,115 +1926,115 @@ PNG is raster-based; SVG is vector-based and scales cleanly for many publication
 Explique escolha de formato de saída e reprodução local. Tempo: 2 min.
 :::
 
-# Integrated Case
+<!-- # Integrated Case -->
 
-## From analysis-ready data to visual evidence
+<!-- ## From analysis-ready data to visual evidence -->
 
-Question:
+<!-- Question: -->
 
-> How did average daily movement vary by instrument and week in the synthetic sample?
+<!-- > How did average daily movement vary by instrument and week in the synthetic sample? -->
 
-Requirements:
+<!-- Requirements: -->
 
-- compute returns within instrument;
-- aggregate by instrument and week;
-- retain coverage and dispersion;
-- validate group keys and denominators;
-- visualize on a common percentage scale.
+<!-- - compute returns within instrument; -->
+<!-- - aggregate by instrument and week; -->
+<!-- - retain coverage and dispersion; -->
+<!-- - validate group keys and denominators; -->
+<!-- - visualize on a common percentage scale. -->
 
-::: {.notes}
-Este caso integra toda a segunda aula. Tempo: 2 min.
-:::
+<!-- ::: {.notes} -->
+<!-- Este caso integra toda a segunda aula. Tempo: 2 min. -->
+<!-- ::: -->
 
-## Aggregate with context
+<!-- ## Aggregate with context -->
 
-```{python}
-weekly = (
-    chart_ready.groupby(["instrument", "week"], as_index=False)
-    .agg(
-        mean_return=("return_pct", "mean"),
-        return_sd=("return_pct", "std"),
-        observed_returns=("return_pct", "count"),
-        total_volume=("volume", "sum")
-    )
-)
-weekly = weekly.dropna(subset=["mean_return"]).reset_index(drop=True)
-weekly.round(2)
-```
+<!-- ```{python} -->
+<!-- weekly = ( -->
+<!--     chart_ready.groupby(["instrument", "week"], as_index=False) -->
+<!--     .agg( -->
+<!--         mean_return=("return_pct", "mean"), -->
+<!--         return_sd=("return_pct", "std"), -->
+<!--         observed_returns=("return_pct", "count"), -->
+<!--         total_volume=("volume", "sum") -->
+<!--     ) -->
+<!-- ) -->
+<!-- weekly = weekly.dropna(subset=["mean_return"]).reset_index(drop=True) -->
+<!-- weekly.round(2) -->
+<!-- ``` -->
 
-::: {.notes}
-A média é acompanhada por cobertura, dispersão e volume. Tempo: 2 min.
-:::
+<!-- ::: {.notes} -->
+<!-- A média é acompanhada por cobertura, dispersão e volume. Tempo: 2 min. -->
+<!-- ::: -->
 
-## Validate the analytical table
+<!-- ## Validate the analytical table -->
 
-```{python}
-assert weekly[["instrument", "week"]].duplicated().sum() == 0
-assert weekly["observed_returns"].ge(0).all()
-assert weekly["observed_returns"].le(7).all()
-assert weekly["mean_return"].notna().all()
-```
+<!-- ```{python} -->
+<!-- assert weekly[["instrument", "week"]].duplicated().sum() == 0 -->
+<!-- assert weekly["observed_returns"].ge(0).all() -->
+<!-- assert weekly["observed_returns"].le(7).all() -->
+<!-- assert weekly["mean_return"].notna().all() -->
+<!-- ``` -->
 
-::: {.notes}
-As invariantes verificam chave única e coerência com a semana. Tempo: 2 min.
-:::
+<!-- ::: {.notes} -->
+<!-- As invariantes verificam chave única e coerência com a semana. Tempo: 2 min. -->
+<!-- ::: -->
 
-## Communicate the result
+<!-- ## Communicate the result -->
 
-```{python}
-#| fig-width: 10
-#| fig-height: 5
-fig, ax = plt.subplots()
-sns.lineplot(data=weekly, x="week", y="mean_return",
-             hue="instrument", marker="o", ax=ax)
-ax.axhline(0, color="0.35", linewidth=1)
-ax.set(title="Weekly mean daily return in synthetic data",
-       xlabel="Week", ylabel="Mean daily return (%)")
-ax.legend(title="Instrument", frameon=False)
-plt.tight_layout()
-plt.show()
-```
+<!-- ```{python} -->
+<!-- #| fig-width: 10 -->
+<!-- #| fig-height: 5 -->
+<!-- fig, ax = plt.subplots() -->
+<!-- sns.lineplot(data=weekly, x="week", y="mean_return", -->
+<!--              hue="instrument", marker="o", ax=ax) -->
+<!-- ax.axhline(0, color="0.35", linewidth=1) -->
+<!-- ax.set(title="Weekly mean daily return in synthetic data", -->
+<!--        xlabel="Week", ylabel="Mean daily return (%)") -->
+<!-- ax.legend(title="Instrument", frameon=False) -->
+<!-- plt.tight_layout() -->
+<!-- plt.show() -->
+<!-- ``` -->
 
-::: {.notes}
-Interprete apenas a amostra sintética. A escala percentual melhora comparabilidade de movimento, não equivalência econômica. Tempo: 3 min.
-:::
+<!-- ::: {.notes} -->
+<!-- Interprete apenas a amostra sintética. A escala percentual melhora comparabilidade de movimento, não equivalência econômica. Tempo: 3 min. -->
+<!-- ::: -->
 
 # Final Practice
 
-## Capstone exercise
+<!-- ## Capstone exercise -->
 
-Using `raw` and `metadata`:
+<!-- Using `raw` and `metadata`: -->
 
-1. define the observational unit;
-2. inspect types and labels;
-3. diagnose and clean quality problems;
-4. preserve an audit trail;
-5. perform a validated merge;
-6. reshape if required;
-7. formulate a grouped question;
-8. aggregate and retain denominators;
-9. validate at least five assumptions;
-10. create and interpret one defensible visualization.
+<!-- 1. define the observational unit; -->
+<!-- 2. inspect types and labels; -->
+<!-- 3. diagnose and clean quality problems; -->
+<!-- 4. preserve an audit trail; -->
+<!-- 5. perform a validated merge; -->
+<!-- 6. reshape if required; -->
+<!-- 7. formulate a grouped question; -->
+<!-- 8. aggregate and retain denominators; -->
+<!-- 9. validate at least five assumptions; -->
+<!-- 10. create and interpret one defensible visualization. -->
 
-::: {.notes}
-Avalie processo, justificativas e testes, não apenas o resultado visual. Tempo sugerido: atividade integradora da segunda aula.
-:::
+<!-- ::: {.notes} -->
+<!-- Avalie processo, justificativas e testes, não apenas o resultado visual. Tempo sugerido: atividade integradora da segunda aula. -->
+<!-- ::: -->
 
-## Suggested assessment rubric
+<!-- ## Suggested assessment rubric -->
 
-| Dimension | Evidence |
-|---|---|
-| Structure | observational unit and dtypes are explicit |
-| Quality | problems and treatments are documented |
-| Relationships | keys and cardinality are validated |
-| Analysis | grouping and denominator answer the question |
-| Visualization | encoding, units, and labels are appropriate |
-| Interpretation | claims remain within the evidence |
-| Reproducibility | code executes and assertions pass |
+<!-- | Dimension | Evidence | -->
+<!-- |---|---| -->
+<!-- | Structure | observational unit and dtypes are explicit | -->
+<!-- | Quality | problems and treatments are documented | -->
+<!-- | Relationships | keys and cardinality are validated | -->
+<!-- | Analysis | grouping and denominator answer the question | -->
+<!-- | Visualization | encoding, units, and labels are appropriate | -->
+<!-- | Interpretation | claims remain within the evidence | -->
+<!-- | Reproducibility | code executes and assertions pass | -->
 
-::: {.notes}
-Use a rubrica para feedback formativo e avaliação do projeto. Tempo: 3 min.
-:::
+<!-- ::: {.notes} -->
+<!-- Use a rubrica para feedback formativo e avaliação do projeto. Tempo: 3 min. -->
+<!-- ::: -->
 
 # Key Takeaways
 
@@ -2033,27 +2055,27 @@ Use a rubrica para feedback formativo e avaliação do projeto. Tempo: 3 min.
 Use como checklist permanente da disciplina. Tempo: 3 min.
 :::
 
-## Five chapters, five questions
+<!-- ## Five chapters, five questions -->
 
-1. **Chapter 5:** What do the observations and labels mean?
-2. **Chapter 7:** Can the values be trusted and interpreted consistently?
-3. **Chapter 8:** Are relationships and shapes appropriate?
-4. **Chapter 10:** Which summary constitutes relevant evidence?
-5. **Chapter 9:** Which visual encoding communicates that evidence accurately?
+<!-- 1. **Chapter 5:** What do the observations and labels mean? -->
+<!-- 2. **Chapter 7:** Can the values be trusted and interpreted consistently? -->
+<!-- 3. **Chapter 8:** Are relationships and shapes appropriate? -->
+<!-- 4. **Chapter 10:** Which summary constitutes relevant evidence? -->
+<!-- 5. **Chapter 9:** Which visual encoding communicates that evidence accurately? -->
 
-::: {.notes}
-Este é o resumo conceitual mais importante do módulo. Tempo: 2 min.
-:::
+<!-- ::: {.notes} -->
+<!-- Este é o resumo conceitual mais importante do módulo. Tempo: 2 min. -->
+<!-- ::: -->
 
-## Final message
+<!-- ## Final message -->
 
-> **A visualization is the final expression of a sequence of data decisions.**
+<!-- > **A visualization is the final expression of a sequence of data decisions.** -->
 
-**Understand the observations → improve their quality → organize their relationships → construct evidence → communicate the evidence**
+<!-- **Understand the observations → improve their quality → organize their relationships → construct evidence → communicate the evidence** -->
 
-::: {.notes}
-Peça a cada aluno uma decisão anterior ao gráfico que pode alterar a interpretação final. Tempo: 2 min.
-:::
+<!-- ::: {.notes} -->
+<!-- Peça a cada aluno uma decisão anterior ao gráfico que pode alterar a interpretação final. Tempo: 2 min. -->
+<!-- ::: -->
 
 ## References
 
@@ -2073,7 +2095,7 @@ Peça a cada aluno uma decisão anterior ao gráfico que pode alterar a interpre
 Diferencie referência conceitual, código didático e dados sintéticos. Tempo: 1 min.
 :::
 
-# Appendix {.unnumbered}
+<!-- # Appendix {.unnumbered} -->
 
 <!-- ## Optional: save a publication-ready figure -->
 

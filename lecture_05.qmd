@@ -1,0 +1,947 @@
+---
+title: "Data Analytics & Visualization"
+subtitle: "Time Series Features - Part 1"
+author: "Victor Henriques, Ph.D."
+format:
+  revealjs:
+    theme: white
+    smaller: true
+    toc: true
+    toc-depth: 1
+    slide-number: c/t
+    incremental: false
+    code-fold: false
+    code-overflow: wrap
+    center: false
+    width: 1600
+    height: 900
+    margin: 0.06
+    transition: fade
+    chalkboard: true
+    preview-links: auto
+    footer: "Data Visualization"
+execute:
+  echo: true
+  warning: false
+  error: false
+  cache: false
+jupyter: python3
+---
+
+```{python}
+#| label: setup
+#| include: false
+from pathlib import Path
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from scipy import stats
+from statsmodels.tsa.seasonal import STL, seasonal_decompose
+from statsmodels.graphics.tsaplots import plot_acf
+
+DATA_PATH = Path.home() / "Documents/GitHub/Data_Analytics/data"
+assert DATA_PATH.exists(), f"Data directory not found: {DATA_PATH}"
+
+sns.set_theme(style="whitegrid", context="talk")
+plt.rcParams["figure.figsize"] = (10, 5)
+pd.set_option("display.max_columns", 20)
+pd.set_option("display.width", 140)
+
+COLORS = {
+    "data": "#6B7280",
+    "trend": "#D55E00",
+    "seasonal": "#0072B2",
+    "remainder": "#009E73",
+    "adjusted": "#CC79A7",
+}
+
+COLORS = {
+    "data": "#6B7280",
+    "adjusted": "#CC79A7",
+    "observed": "#6B7280",
+    "trend": "#D55E00",
+    "seasonal": "#0072B2",
+    "remainder": "#009E73",
+    "outlier": "#CC3311",
+    "missing": "#CC79A7",
+    "imputed": "#E69F00",
+}
+
+
+def time_plot(df, x, y, *, title, xlabel, ylabel, color="#0072B2",
+              label=None, ax=None, figsize=(10, 5), linewidth=1.2):
+    """Version-stable Matplotlib helper; avoids plot_series API changes."""
+    if ax is None:
+        fig, ax = plt.subplots(figsize=figsize)
+    else:
+        fig = ax.figure
+    ax.plot(df[x], df[y], color=color, label=label, linewidth=linewidth)
+    ax.set(title=title, xlabel=xlabel, ylabel=ylabel)
+    if label is not None:
+        ax.legend(frameon=False)
+    fig.tight_layout()
+    return fig, ax
+
+def component_plot(frame, *, title, observed="data", trend="trend",
+                   seasonal="seasonal", remainder="remainder"):
+    fig, axes = plt.subplots(4, 1, sharex=True, figsize=(11, 7))
+    specifications = [
+        (observed, "Observed", COLORS["data"]),
+        (trend, "Trend-cycle", COLORS["trend"]),
+        (seasonal, "Seasonal", COLORS["seasonal"]),
+        (remainder, "Remainder", COLORS["remainder"]),
+    ]
+    for ax, (column, label, color) in zip(axes, specifications):
+        ax.plot(frame["ds"], frame[column], color=color, linewidth=1)
+        ax.set_ylabel(label)
+    axes[-1].set_xlabel("Time")
+    fig.suptitle(title)
+    fig.tight_layout()
+    return fig, axes
+  
+def plot_series_matplotlib(df, *, x="ds", y="y", title="", xlabel="Time",
+                           ylabel="Value", color="#0072B2", ax=None):
+    """Stable plotting helper that does not depend on utilsforecast APIs."""
+    if ax is None:
+        fig, ax = plt.subplots()
+    else:
+        fig = ax.figure
+    ax.plot(df[x], df[y], color=color, linewidth=1.3)
+    ax.set(title=title, xlabel=xlabel, ylabel=ylabel)
+    fig.tight_layout()
+    return fig, ax
+```
+
+
+# Introduction
+
+## Real time-series data are messy
+
+A recorded series may contain:
+
+- observations that are unusually large or small;
+- values that are absent;
+- zeros whose meaning is ambiguous;
+- data-entry or sensor failures;
+- genuine shocks and structural changes.
+
+The first task is not automatic correction. It is **diagnosis**.
+
+::: {.notes}
+The source section states that real data often contain missing values, outlying observations, and other messy features. This lecture focuses only on that subsection.
+
+[Sources]
+- https://otexts.com/fpppy/13-practical.html#sec-missing-outliers
+:::
+
+## Learning objectives
+
+Students will be able to:
+
+- distinguish an unusual observation from an error;
+- visualize outliers in temporal context;
+- use robust STL to isolate unusual remainders;
+- apply and critique IQR-based detection rules;
+- map missingness through time;
+- distinguish missing values from structural zeros;
+- compare deletion and imputation strategies;
+- visualize uncertainty introduced by data cleaning;
+- preserve an auditable trail of modifications.
+
+::: {.notes}
+The emphasis is visualization-led reasoning. Numerical rules support investigation but do not replace context.
+:::
+
+## A responsible workflow
+
+```text
+DETECT → VERIFY → CLASSIFY → DECIDE → MODIFY → COMPARE → DOCUMENT
+```
+
+Never begin with:
+
+```text
+DETECT → DELETE
+```
+
+::: {.notes}
+The book warns that simply replacing outliers without thinking about why they occurred is dangerous because unusual values may contain useful information about the process.
+
+[Sources]
+- https://otexts.com/fpppy/13-practical.html#sec-missing-outliers
+:::
+
+# Outliers
+
+## What is an outlier?
+
+An outlier is an observation that is very different from most observations in the time series.
+
+An outlier may be:
+
+- a recording or processing error;
+- a valid but unusual event;
+- evidence of model misspecification;
+- evidence of a level shift or structural change.
+
+::: {.notes}
+The chapter explicitly states that outliers may be errors or may simply be unusual. The additional classifications are teaching categories for investigation.
+
+[Sources]
+- https://otexts.com/fpppy/13-practical.html#sec-missing-outliers
+:::
+
+## Why time context matters
+
+A value can appear ordinary marginally but be unusual for:
+
+- its season;
+- its neighboring observations;
+- the current trend level;
+- its day of week or quarter;
+- the variance regime at that time.
+
+> Outlier detection for time series should respect temporal structure.
+
+::: {.notes}
+This is a teaching recommendation. A global boxplot of the raw data may flag regular seasonal peaks rather than anomalies.
+:::
+
+## Adelaide Hills tourism data
+
+```{python}
+tourism_raw = pd.read_csv(DATA_PATH / "tourism.csv", parse_dates=["ds"])
+tourism = (
+    tourism_raw
+    .loc[lambda x: (x["Region"] == "Adelaide Hills") &
+                   (x["Purpose"] == "Visiting")]
+    .assign(unique_id="trips")
+    .reset_index(drop=True)
+    [["unique_id", "ds", "y"]]
+)
+tourism.head()
+```
+
+::: {.notes}
+This reproduces the series used in the source subsection: quarterly overnight trips to Adelaide Hills for the Visiting purpose.
+
+[Sources]
+- https://otexts.com/fpppy/13-practical.html#sec-missing-outliers
+:::
+
+## Figure 13.9: Inspect the original series
+
+```{python}
+fig, ax = plot_series_matplotlib(
+    tourism,
+    title="Quarterly overnight trips to Adelaide Hills",
+    xlabel="Quarter [1Q]",
+    ylabel="Number of trips",
+)
+plt.show()
+```
+
+::: {.notes}
+The chapter identifies an apparently unusual observation in 2002 Q4. Ask students to describe the observation before labeling or replacing it.
+
+[Sources]
+- https://otexts.com/fpppy/13-practical.html#sec-missing-outliers
+:::
+
+## Annotate suspected observations
+
+```{python}
+suspected_date = pd.Timestamp("2002-10-01")
+suspected = tourism.loc[tourism["ds"] == suspected_date]
+fig, ax = plt.subplots()
+ax.plot(tourism["ds"], tourism["y"], color=COLORS["observed"], linewidth=1.2)
+ax.scatter(suspected["ds"], suspected["y"], color=COLORS["outlier"], s=90,
+           zorder=3, label="Candidate: 2002 Q4")
+ax.set(title="Candidate outlier shown in temporal context",
+       xlabel="Quarter [1Q]", ylabel="Number of trips")
+ax.legend(frameon=False)
+plt.tight_layout(); plt.show()
+```
+
+::: {.notes}
+Use the label candidate outlier until the observation has been verified. Annotation makes the analytical focus visible without silently editing the data.
+:::
+
+## Why decompose before detecting?
+
+Raw observations combine:
+
+$$
+y_t = T_t + S_t + R_t.
+$$
+
+A seasonally high value may be normal. An unusual remainder is unusual **after accounting for estimated trend and seasonality**.
+
+::: {.notes}
+The chapter recommends STL decomposition as a useful way to reveal outliers in the remainder series.
+
+[Sources]
+- https://otexts.com/fpppy/13-practical.html#sec-missing-outliers
+:::
+
+## Robust STL decomposition
+
+```{python}
+stl = STL(tourism["y"], period=4, robust=True)
+stl_result = stl.fit()
+dcmp = pd.DataFrame({
+    "ds": tourism["ds"].to_numpy(),
+    "data": tourism["y"].to_numpy(),
+    "trend": stl_result.trend,
+    "seasonal": stl_result.seasonal,
+    "remainder": stl_result.resid,
+})
+dcmp.head()
+```
+
+::: {.notes}
+The book implements robust STL through MSTL with one seasonal period. Here, statsmodels STL gives the corresponding single-season robust decomposition directly.
+:::
+
+## Figure 13.10: Components and remainder
+
+```{python}
+fig, axes = plt.subplots(4, 1, sharex=True, figsize=(11, 7))
+for ax, column, label, color in zip(
+    axes,
+    ["data", "trend", "seasonal", "remainder"],
+    ["Observed", "Trend", "Seasonal", "Remainder"],
+    [COLORS["observed"], COLORS["trend"], COLORS["seasonal"], COLORS["remainder"]],
+):
+    ax.plot(dcmp["ds"], dcmp[column], color=color)
+    ax.set_ylabel(label)
+axes[-1].set_xlabel("Quarter")
+fig.suptitle("Robust STL decomposition")
+plt.tight_layout(); plt.show()
+```
+
+::: {.notes}
+The source figure uses data, trend, and remainder panels. The seasonal panel is retained here because this is a visualization class and seasonal magnitude is diagnostically useful.
+
+[Sources]
+- https://otexts.com/fpppy/13-practical.html#sec-missing-outliers
+:::
+
+## Remainder in time
+
+```{python}
+fig, ax = plt.subplots()
+ax.plot(dcmp["ds"], dcmp["remainder"], color=COLORS["remainder"])
+ax.axhline(0, color="0.35", linewidth=1)
+ax.scatter(suspected_date,
+           dcmp.loc[dcmp["ds"] == suspected_date, "remainder"],
+           color=COLORS["outlier"], s=90, zorder=3)
+ax.set(title="Outliers should be judged against the remainder",
+       xlabel="Quarter", ylabel="Remainder")
+plt.tight_layout(); plt.show()
+```
+
+::: {.notes}
+The remainder plot preserves time ordering, allowing detection of isolated spikes, clusters, and changes in variance.
+:::
+
+## IQR rule on the remainder
+
+Let
+
+$$
+\operatorname{IQR}=Q_3-Q_1.
+$$
+
+A general fence with multiplier $k$ is
+
+$$
+L=Q_1-k\operatorname{IQR},
+\qquad
+U=Q_3+k\operatorname{IQR}.
+$$
+
+Flag observations for which $R_t<L$ or $R_t>U$.
+
+::: {.notes}
+The book discusses k equal to 1.5 and prefers a stricter k equal to 3 for this context.
+
+[Sources]
+- https://otexts.com/fpppy/13-practical.html#sec-missing-outliers
+:::
+
+## Implement the chapter's 3-IQR rule
+
+```{python}
+q1 = dcmp["remainder"].quantile(.25)
+q3 = dcmp["remainder"].quantile(.75)
+iqr = q3 - q1
+lower = q1 - 3 * iqr
+upper = q3 + 3 * iqr
+outliers = dcmp.loc[~dcmp["remainder"].between(lower, upper)].copy()
+outliers
+```
+
+::: {.notes}
+The source section reports that this rule identifies the suspected observation plus three additional observations in the example.
+
+[Sources]
+- https://otexts.com/fpppy/13-practical.html#sec-missing-outliers
+:::
+
+## Visualize the fences and flags
+
+```{python}
+fig, ax = plt.subplots()
+ax.plot(dcmp["ds"], dcmp["remainder"], color=COLORS["remainder"], label="Remainder")
+ax.axhline(lower, color=COLORS["outlier"], linestyle="--", label="3-IQR fences")
+ax.axhline(upper, color=COLORS["outlier"], linestyle="--")
+ax.scatter(outliers["ds"], outliers["remainder"], color=COLORS["outlier"],
+           s=75, zorder=3, label="Flagged")
+ax.set(title="Remainder-based candidate outliers",
+       xlabel="Quarter", ylabel="Remainder")
+ax.legend(frameon=False)
+plt.tight_layout(); plt.show()
+```
+
+::: {.notes}
+Plotting the fences makes the rule auditable. The points are flags for investigation, not proof of error.
+:::
+
+## Boxplot of the remainder
+
+```{python}
+fig, ax = plt.subplots()
+sns.boxplot(x=dcmp["remainder"], color="#56B4E9", whis=3, ax=ax)
+ax.set(title="Remainder boxplot with 3-IQR whisker rule",
+       xlabel="Remainder")
+plt.tight_layout(); plt.show()
+```
+
+::: {.notes}
+The chapter recommends a boxplot of the remainder in more difficult cases. The horizontal time plot and boxplot answer complementary questions.
+
+[Sources]
+- https://otexts.com/fpppy/13-practical.html#sec-missing-outliers
+:::
+
+## A rule is not a diagnosis
+
+Before replacing a flag, ask:
+
+- Is the raw source correct?
+- Did units or definitions change?
+- Was there a one-off real event?
+- Is the seasonal period correctly specified?
+- Did the decomposition leave systematic structure?
+- Is the value part of a level shift rather than an isolated outlier?
+
+::: {.notes}
+These are recommended diagnostic questions. The source warns against replacement without understanding why the observation occurred.
+:::
+
+## Isolated outlier versus level shift
+
+```{python}
+#| fig-width: 11
+#| fig-height: 4
+idx = pd.date_range("2020-01-01", periods=80, freq="D")
+rng = np.random.default_rng(42)
+base = rng.normal(0, 1, 80)
+isolated = base.copy(); isolated[40] += 8
+level_shift = base.copy(); level_shift[40:] += 4
+fig, axes = plt.subplots(1, 2, sharey=True)
+axes[0].plot(idx, isolated); axes[0].set_title("Isolated observation")
+axes[1].plot(idx, level_shift); axes[1].set_title("Persistent level shift")
+plt.tight_layout(); plt.show()
+```
+
+::: {.notes}
+This is a teaching illustration. Replacing one point may be reasonable for a verified measurement error, but it would conceal a persistent regime change.
+:::
+
+# Missing Values
+
+## Missing is not a value
+
+A missing observation may mean:
+
+- the event was not recorded;
+- the device failed;
+- the reporting process was delayed;
+- the activity did not occur;
+- the business was closed;
+- the record is structurally inapplicable.
+
+These meanings require different treatments.
+
+::: {.notes}
+The source distinguishes context-driven missingness, such as public-holiday closures, from essentially random recording failures.
+
+[Sources]
+- https://otexts.com/fpppy/13-practical.html#sec-missing-outliers
+:::
+
+## Zero versus missing
+
+```text
+0       = observed absence or true zero quantity
+NaN     = no usable observation is recorded
+```
+
+Never convert `NaN` to zero unless zero accurately represents the data-generating process.
+
+::: {.notes}
+The source gives a holiday-closure example where setting a missing value to zero may be reasonable when closure means zero sales, but the model must also account for holiday and post-holiday effects.
+
+[Sources]
+- https://otexts.com/fpppy/13-practical.html#sec-missing-outliers
+:::
+
+## Missingness can be informative
+
+The source example:
+
+- a store is closed on a public holiday;
+- sales are zero on the holiday;
+- sales may increase on the following day;
+- ignoring the mechanism can bias forecasts around the holiday.
+
+No automated method can infer this business context on its own.
+
+::: {.notes}
+The chapter suggests setting holiday closure values to zero and using dummy variables for the holiday and the following day in an AutoARIMA model.
+
+[Sources]
+- https://otexts.com/fpppy/13-practical.html#sec-missing-outliers
+:::
+
+## Create missing-value scenarios
+
+```{python}
+tourism_missing = tourism.copy()
+tourism_missing.loc[[8, 9, 25], "y"] = np.nan
+missing_dates = tourism_missing.loc[tourism_missing["y"].isna(), "ds"]
+tourism_missing.head(12)
+```
+
+::: {.notes}
+These missing observations are synthetic for teaching. Two are consecutive and one is isolated, allowing different visual and interpolation behavior to be discussed.
+:::
+
+## Show gaps honestly
+
+```{python}
+fig, ax = plt.subplots()
+ax.plot(tourism_missing["ds"], tourism_missing["y"], color=COLORS["observed"], marker="o")
+for date in missing_dates:
+    ax.axvline(date, color=COLORS["missing"], alpha=.35)
+ax.set(title="Missing observations should appear as gaps",
+       xlabel="Quarter", ylabel="Number of trips")
+plt.tight_layout(); plt.show()
+```
+
+::: {.notes}
+Do not connect across gaps without an explicit visual indication. Otherwise, the line suggests observed continuity.
+:::
+
+## Missingness map
+
+```{python}
+missing_indicator = tourism_missing["y"].isna().astype(int).to_numpy()[None, :]
+fig, ax = plt.subplots(figsize=(11, 2.4))
+sns.heatmap(missing_indicator, cmap=["#E5E7EB", COLORS["missing"]], cbar=False,
+            xticklabels=tourism_missing["ds"].dt.strftime("%Y Q%q") if False else False,
+            yticklabels=["y missing"], ax=ax)
+ax.set(title="Temporal location of missing observations", xlabel="Observation order")
+plt.tight_layout(); plt.show()
+```
+
+::: {.notes}
+A missingness map reveals isolated gaps, blocks, and alignment across variables. The code intentionally uses observation order to avoid unsupported quarter formatting.
+:::
+
+## Count and locate missing observations
+
+```{python}
+missing_summary = pd.Series({
+    "observations": len(tourism_missing),
+    "missing": tourism_missing["y"].isna().sum(),
+    "missing_share": tourism_missing["y"].isna().mean(),
+    "first_missing": tourism_missing.loc[tourism_missing["y"].isna(), "ds"].min(),
+    "last_missing": tourism_missing.loc[tourism_missing["y"].isna(), "ds"].max(),
+})
+missing_summary
+```
+
+::: {.notes}
+A count alone is insufficient. Temporal location and run length determine whether a gap disrupts trend, seasonality, or the forecast origin.
+:::
+
+## Two options stated in the source
+
+When a forecasting implementation does not accept missing observations:
+
+1. use the section after the last missing value, if enough data remain;
+2. replace missing values with estimates.
+
+The choice depends on the context and forecasting purpose.
+
+::: {.notes}
+The source specifically states these two options in relation to StatsForecast not allowing missing values in the time-series data.
+
+[Sources]
+- https://otexts.com/fpppy/13-practical.html#sec-missing-outliers
+:::
+
+# Imputation
+
+## Interpolation is an estimate
+
+Linear interpolation between observed endpoints $y_a$ and $y_b$ is
+
+$$
+\widehat y_t
+=
+y_a+
+\frac{t-a}{b-a}(y_b-y_a),
+\qquad a<t<b.
+$$
+
+It assumes smooth movement between neighboring observations.
+
+::: {.notes}
+Interpolation creates estimated values, not recovered truths. Long gaps and seasonal series make the assumption less plausible.
+:::
+
+## Reproduce the source's interpolation approach
+
+```{python}
+outlier_dates = outliers["ds"]
+tourism_cleaned = tourism.copy()
+tourism_cleaned["was_replaced"] = tourism_cleaned["ds"].isin(outlier_dates)
+tourism_cleaned["y_original"] = tourism_cleaned["y"]
+tourism_cleaned.loc[tourism_cleaned["was_replaced"], "y"] = np.nan
+tourism_cleaned["y"] = tourism_cleaned["y"].interpolate(method="linear")
+tourism_cleaned.loc[tourism_cleaned["was_replaced"]].head()
+```
+
+::: {.notes}
+The source replaces detected outlier values with missing values and then applies pandas interpolate. This version matches by date rather than value, avoiding accidental replacement of legitimate duplicate values.
+
+[Sources]
+- https://otexts.com/fpppy/13-practical.html#sec-missing-outliers
+:::
+
+## Figure 13.11: Original and cleaned series
+
+```{python}
+fig, ax = plt.subplots()
+ax.plot(tourism_cleaned["ds"], tourism_cleaned["y_original"],
+        color="0.75", label="Original")
+ax.plot(tourism_cleaned["ds"], tourism_cleaned["y"],
+        color="#0072B2", label="Cleaned")
+replaced = tourism_cleaned.loc[tourism_cleaned["was_replaced"]]
+ax.scatter(replaced["ds"], replaced["y"], color=COLORS["imputed"],
+           s=80, zorder=3, label="Interpolated replacement")
+ax.set(title="Quarterly overnight trips to Adelaide Hills",
+       xlabel="Quarter [1Q]", ylabel="Number of trips")
+ax.legend(frameon=False)
+plt.tight_layout(); plt.show()
+```
+
+::: {.notes}
+Displaying original and cleaned values together preserves transparency. The source figure shows the cleaned series after interpolation.
+
+[Sources]
+- https://otexts.com/fpppy/13-practical.html#sec-missing-outliers
+:::
+
+## Compare common imputation strategies
+
+```{python}
+comparison = tourism_missing[["ds", "y"]].copy()
+comparison["linear"] = comparison["y"].interpolate("linear")
+comparison["forward_fill"] = comparison["y"].ffill()
+comparison["seasonal_lag4"] = comparison["y"].fillna(comparison["y"].shift(4))
+comparison.loc[comparison["y"].isna()]
+```
+
+::: {.notes}
+These are teaching alternatives, not methods prescribed by the source. Linear interpolation assumes local smoothness, forward fill assumes persistence, and seasonal lag substitution assumes seasonal repetition.
+:::
+
+## Visual comparison of imputations
+
+```{python}
+fig, ax = plt.subplots()
+ax.plot(comparison["ds"], comparison["y"], color="0.75", marker="o", label="Observed")
+for column, color in zip(["linear", "forward_fill", "seasonal_lag4"],
+                         ["#0072B2", "#D55E00", "#009E73"]):
+    ax.plot(comparison["ds"], comparison[column], color=color, alpha=.85, label=column)
+ax.set(title="Imputation methods encode different assumptions",
+       xlabel="Quarter", ylabel="Number of trips")
+ax.legend(frameon=False, ncol=2)
+plt.tight_layout(); plt.show()
+```
+
+::: {.notes}
+The disagreement between methods is a visual representation of imputation uncertainty. Do not select a method solely because it produces the smoothest line.
+:::
+
+## Gap length matters
+
+```{python}
+missing_mask = tourism_missing["y"].isna()
+run_id = missing_mask.ne(missing_mask.shift()).cumsum()
+missing_runs = (
+    tourism_missing.assign(missing=missing_mask, run_id=run_id)
+    .loc[lambda x: x["missing"]]
+    .groupby("run_id")
+    .agg(start=("ds", "min"), end=("ds", "max"), length=("missing", "size"))
+)
+missing_runs
+```
+
+::: {.notes}
+An isolated gap and a long missing block should not automatically receive the same treatment. Long gaps weaken local interpolation and may span structural changes.
+:::
+
+## Do not overwrite the raw data
+
+Keep at least:
+
+- original value;
+- cleaned or imputed value;
+- modification flag;
+- reason for modification;
+- method used;
+- parameters or window;
+- analyst review status.
+
+::: {.notes}
+This is a recommended governance pattern. It supports reproducibility and auditability.
+:::
+
+## An auditable cleaning table
+
+```{python}
+audit = tourism_cleaned.loc[tourism_cleaned["was_replaced"],
+                            ["ds", "y_original", "y"]].rename(
+    columns={"y": "replacement"}
+)
+audit["reason"] = "3-IQR flag on robust STL remainder"
+audit["method"] = "linear interpolation"
+audit
+```
+
+::: {.notes}
+The detection rule is recorded separately from the replacement method. A flag does not establish that an observation is erroneous.
+:::
+
+# Visual Diagnostics After Cleaning
+
+## Compare decomposition before and after
+
+```{python}
+original_fit = STL(tourism["y"], period=4, robust=True).fit()
+clean_fit = STL(tourism_cleaned["y"], period=4, robust=True).fit()
+fig, axes = plt.subplots(2, 1, sharex=True, figsize=(11, 6))
+axes[0].plot(tourism["ds"], original_fit.trend, label="Original trend", color="0.5")
+axes[0].plot(tourism["ds"], clean_fit.trend, label="Cleaned trend", color=COLORS["trend"])
+axes[0].set_ylabel("Trend"); axes[0].legend(frameon=False)
+axes[1].plot(tourism["ds"], original_fit.resid, label="Original remainder", color="0.5")
+axes[1].plot(tourism["ds"], clean_fit.resid, label="Cleaned remainder", color=COLORS["remainder"])
+axes[1].set(xlabel="Quarter", ylabel="Remainder"); axes[1].legend(frameon=False)
+fig.suptitle("Cleaning changes estimated components")
+plt.tight_layout(); plt.show()
+```
+
+::: {.notes}
+Cleaning is not neutral. It can change the trend, seasonal component, remainder, and subsequent forecasts. Compare before and after explicitly.
+:::
+
+## Remainder ACF before and after
+
+```{python}
+fig, axes = plt.subplots(1, 2, figsize=(11, 4.5))
+plot_acf(original_fit.resid, lags=16, zero=False, ax=axes[0])
+axes[0].set_title("Original remainder ACF")
+plot_acf(clean_fit.resid, lags=16, zero=False, ax=axes[1])
+axes[1].set_title("Cleaned remainder ACF")
+plt.tight_layout(); plt.show()
+```
+
+::: {.notes}
+A cleaner-looking ACF is not proof that replacement was correct. It only shows how the modeling residual structure changed.
+:::
+
+## Visual honesty checklist
+
+- show gaps rather than silently connecting them;
+- use a distinct marker for imputed values;
+- retain the original series for comparison;
+- disclose the detection rule;
+- disclose the replacement method;
+- avoid calling flags confirmed errors;
+- report how many observations were modified;
+- inspect whether cleaning changes substantive conclusions.
+
+::: {.notes}
+This checklist translates the source warning into visualization practice.
+:::
+
+# Decision Framework
+
+## Outlier decision tree
+
+```text
+FLAGGED OBSERVATION
+        ↓
+VERIFY SOURCE AND UNITS
+        ↓
+ERROR? ── YES → REPLACE / CORRECT + AUDIT
+  │
+  NO
+  ↓
+RECURRING OR FORECAST-RELEVANT EVENT?
+  ├─ YES → RETAIN + MODEL EVENT
+  └─ NO  → RETAIN OR ROBUSTLY DOWNWEIGHT,
+           BASED ON FORECAST PURPOSE
+```
+
+::: {.notes}
+The source says replacement is more defensible if the value is genuinely erroneous or if the event will not occur during the forecast period.
+
+[Sources]
+- https://otexts.com/fpppy/13-practical.html#sec-missing-outliers
+:::
+
+## Missing-value decision tree
+
+```text
+MISSING OBSERVATION
+        ↓
+WHAT DOES MISSING MEAN?
+  ├─ TRUE ZERO / CLOSURE → ENCODE ZERO + EVENT VARIABLES
+  ├─ RANDOM RECORDING FAILURE → ESTIMATE IF NEEDED
+  ├─ STRUCTURAL NON-APPLICABILITY → RETAIN AS MISSING
+  └─ UNKNOWN → INVESTIGATE BEFORE IMPUTING
+```
+
+::: {.notes}
+The source emphasizes that treatment depends on forecasting context and that automated methods cannot infer contextual effects such as public holidays.
+
+[Sources]
+- https://otexts.com/fpppy/13-practical.html#sec-missing-outliers
+:::
+
+# Practice
+
+## Classroom exercise
+
+Using the Adelaide Hills series:
+
+1. plot the raw series and annotate 2002 Q4;
+2. perform robust STL with period 4;
+3. calculate 1.5-IQR and 3-IQR remainder fences;
+4. compare the flagged sets;
+5. investigate whether flags form isolated points or clusters;
+6. replace only one selected candidate by interpolation;
+7. compare trend and remainder before and after;
+8. create an audit table;
+9. explain why the chosen treatment is defensible;
+10. state what evidence remains unavailable.
+
+::: {.notes}
+Assessment should reward reasoning, transparency, and visual comparison rather than maximizing the number of detected outliers.
+:::
+
+## Missingness experiment
+
+Create three versions of the series:
+
+- one isolated missing quarter;
+- four consecutive missing quarters;
+- one missing seasonal peak every year.
+
+For each version:
+
+- visualize the pattern of missingness;
+- compare linear, forward-fill, and seasonal-lag imputation;
+- explain which strategy is least implausible;
+- identify possible forecast bias.
+
+::: {.notes}
+This extension illustrates that the temporal mechanism and gap pattern matter more than a universal imputation rule.
+:::
+
+## Assessment rubric
+
+| Dimension | Evidence |
+|---|---|
+| Temporal reasoning | seasonality and trend are removed before flagging |
+| Visualization | candidates, gaps, and replacements are visible |
+| Context | error, event, zero, and missing are distinguished |
+| Method | detection and replacement procedures are explicit |
+| Sensitivity | alternative thresholds or imputations are compared |
+| Transparency | original values and audit flags are retained |
+| Interpretation | cleaning consequences are assessed, not hidden |
+
+::: {.notes}
+A strong submission treats cleaning as a model choice with consequences.
+:::
+
+# Key Takeaways
+
+## Main conclusions
+
+1. An outlier can be an error or a genuine event.
+2. Time-series outliers should be judged relative to temporal structure.
+3. Robust STL can isolate unusual values in the remainder.
+4. IQR fences produce candidates, not confirmed errors.
+5. Missing values and zeros are not interchangeable.
+6. Missingness mechanisms can affect forecast bias.
+7. Interpolation is an assumption-based estimate.
+8. Different imputations can produce different stories.
+9. Cleaning can alter trends, seasonality, remainders, and forecasts.
+10. Every modification should remain visible and auditable.
+
+::: {.notes}
+End by asking students whether a smoother series is necessarily a more truthful series. The correct answer is no.
+:::
+
+## Final checklist
+
+- [ ] Was the original series plotted first?
+- [ ] Was trend and seasonality considered before flagging?
+- [ ] Are flags described as candidates?
+- [ ] Was the source or event context investigated?
+- [ ] Is missing distinguished from zero?
+- [ ] Are missing runs and locations shown?
+- [ ] Is the imputation assumption explicit?
+- [ ] Are imputed points visually distinct?
+- [ ] Are original and cleaned results compared?
+- [ ] Is there an audit table?
+
+::: {.notes}
+This checklist is suitable for forecasting reports, dashboards, and production data-quality workflows.
+:::
+
+# References
+
+## Core reference
+
+- Hyndman, R. J., Athanasopoulos, G., Garza, A., Challu, C., & Mergenthaler, M. *Forecasting: Principles and Practice, the Pythonic Way*, Section 13.7, “Dealing with outliers and missing values”.
+- Tukey, J. W. *Exploratory Data Analysis*. Addison-Wesley, 1977.
+- Cleveland, R. B., Cleveland, W. S., McRae, J. E., & Terpenning, I. *STL: A Seasonal-Trend Decomposition Procedure Based on Loess*. 1990.
+- pandas documentation: interpolation and missing-data handling.
+- statsmodels documentation: `STL`.
+
+::: {.notes}
+The lecture follows the source subsection's examples and recommendations while adding visual diagnostics, comparison methods, and reproducibility structures for postgraduate teaching.
+
+[Sources]
+- https://otexts.com/fpppy/13-practical.html#sec-missing-outliers
+:::

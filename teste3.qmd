@@ -5,6 +5,7 @@ author: "Victor Henriques de Oliveira"
 format:
   revealjs:
     theme: simple
+    smaller: true
     slide-number: c/t
     transition: fade
     center: false
@@ -21,6 +22,8 @@ execute:
   error: false
   cache: false
 jupyter: python3
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{python}
@@ -201,6 +204,8 @@ O conjunto contém várias séries mensais identificadas por atributos de produt
 ## Filter and aggregate one monthly series
 
 ```{python}
+total_cost_df = pd.read_csv(DATA_PATH / "total_cost_df.csv")
+
 a10 = pbs.loc[pbs["ATC2"] == "A10"]
 total_cost_df = (
     a10.groupby("Month", as_index=False)
@@ -265,19 +270,7 @@ O período sazonal é o número de observações até a repetição do padrão. 
 ## Figure 2.1: Ansett Airlines
 
 ```{python}
-# ansett = pd.read_csv(DATA_PATH / "ansett.csv", parse_dates=["ds"])
-# melsyd_economy = (
-#     ansett.loc[lambda x: (x["Airports"] == "MEL-SYD") & (x["Class"] == "Economy")]
-#     .rename(columns={"Airports": "unique_id"})
-#     .assign(y=lambda x: x["y"] / 1000)
-# )
-# plot_series(
-#     melsyd_economy, id_col="unique_id", time_col="ds", target_col="y",
-#     xlabel="Week [1W]", ylabel="Passengers ('000)",
-#     title="Ansett airlines economy class: Melbourne-Sydney"
-# )
-
-
+# total_cost_df = pd.read_csv(DATA_PATH / "total_cost_df.csv")
 ansett = pd.read_csv(
     DATA_PATH / "ansett.csv",
     parse_dates=["ds"],
@@ -300,19 +293,16 @@ melsyd_economy = (
             x["y"] / 1000
     )
 )
+```
 
-fig, ax = plt.subplots(
-    figsize=(10, 5)
-)
+## Figure 2.1: Ansett Airlines
 
-plot_series(
-    df=melsyd_economy,
-    id_col="unique_id",
-    time_col="ds",
-    target_col="y",
-    plot_random=False,
-    engine="matplotlib",
-    ax=ax,
+```{python}
+fig, ax = plt.subplots(figsize=(10, 5))
+
+ax.plot(
+    melsyd_economy["ds"],
+    melsyd_economy["y"],
 )
 
 ax.set(
@@ -324,6 +314,7 @@ ax.set(
 fig.tight_layout()
 plt.show()
 ```
+
 
 ::: {.notes}
 O time plot preserva a cronologia. Discuta períodos sem passageiros, mudanças de nível, quedas sazonais e flutuação de longo prazo observáveis no gráfico.
@@ -353,12 +344,6 @@ Descrição visual vem antes de explicação causal.
 ## Figure 2.2: Antidiabetic drug sales
 
 ```{python}
-# plot_series(
-#     total_cost_df.assign(unique_id="total_cost"),
-#     time_col="Month", target_col="Cost",
-#     xlabel="Month [1M]", ylabel="$ (millions)",
-#     title="Australian antidiabetic drug sales"
-# )
 
 fig, ax = plt.subplots(figsize=(10, 5))
 
@@ -369,8 +354,9 @@ plot_series(
     target_col="Cost",
     plot_random=False,
     engine="matplotlib",
-    ax=ax,
 )
+
+ax = plt.gca()
 
 ax.set(
     title="Australian antidiabetic drug sales",
@@ -415,8 +401,8 @@ gafa_stock = pd.read_csv(DATA_PATH / "gafa_stock.csv", parse_dates=["ds"])
 fig, axes = plt.subplots(2, 2, figsize=(11, 7))
 
 # Use chapter-compatible local datasets when present.
-if (DATA_PATH / "aus_housing.csv").exists():
-    housing = pd.read_csv(DATA_PATH / "aus_housing.csv", parse_dates=["ds"])
+if (DATA_PATH / "hsales.csv").exists():
+    housing = pd.read_csv(DATA_PATH / "hsales.csv", parse_dates=["ds"])
     candidate = housing.select_dtypes("number").columns[0]
     axes[0, 0].plot(housing["ds"], housing[candidate])
     axes[0, 0].set_title("Monthly housing sales")
@@ -424,8 +410,8 @@ else:
     axes[0, 0].text(.5, .5, "aus_housing.csv not found", ha="center")
     axes[0, 0].set_title("Monthly housing sales")
 
-if (DATA_PATH / "us_treasury.csv").exists():
-    treasury = pd.read_csv(DATA_PATH / "us_treasury.csv")
+if (DATA_PATH / "ustreas.csv").exists():
+    treasury = pd.read_csv(DATA_PATH / "ustreas.csv")
     ycol = treasury.select_dtypes("number").columns[-1]
     axes[0, 1].plot(treasury[ycol].head(100))
 else:
@@ -711,7 +697,7 @@ O painel permite detectar mudanças específicas dentro de um trimestre e estado
 
 # 2.6 Scatterplots
 
-## Figures 2.12 and 2.13: Demand and temperature
+## Electricity demand
 
 ```{python}
 # plot_series(
@@ -746,12 +732,14 @@ fig.tight_layout()
 plt.show()
 ```
 
+## Temperature
+
 ```{python}
-# plot_series(
-#     vic_elec_df, ids=["Temperature"], max_insample_length=2 * 24 * 365,
-#     xlabel="Time [30m]", ylabel="Degrees Celsius",
-#     title="Half-hourly temperature: Melbourne, Australia"
-# )
+plot_series(
+    vic_elec_df, ids=["Temperature"], max_insample_length=2 * 24 * 365,
+    xlabel="Time [30m]", ylabel="Degrees Celsius",
+    title="Half-hourly temperature: Melbourne, Australia"
+)
 
 fig, ax = plt.subplots(
     figsize=(10, 5)

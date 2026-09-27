@@ -1,0 +1,3437 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="lecture_03_eda_files/libs/clipboard/clipboard.min.js"></script>
+<script src="lecture_03_eda_files/libs/quarto-html/tabby.min.js"></script>
+<script src="lecture_03_eda_files/libs/quarto-html/popper.min.js"></script>
+<script src="lecture_03_eda_files/libs/quarto-html/tippy.umd.min.js"></script>
+<link href="lecture_03_eda_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="lecture_03_eda_files/libs/quarto-html/light-border.css" rel="stylesheet">
+<link href="lecture_03_eda_files/libs/quarto-html/quarto-html.min.css" rel="stylesheet" data-mode="light">
+<link href="lecture_03_eda_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.5.57">
+
+  <meta name="author" content="Victor Henriques, Ph.D.">
+  <title>Data Analytics &amp; Visualization</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="lecture_03_eda_files/libs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="lecture_03_eda_files/libs/revealjs/dist/reveal.css">
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+      vertical-align: middle;
+    }
+    /* CSS for syntax highlighting */
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      { color: #003b4f; background-color: #f1f3f5; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span { color: #003b4f; } /* Normal */
+    code span.al { color: #ad0000; } /* Alert */
+    code span.an { color: #5e5e5e; } /* Annotation */
+    code span.at { color: #657422; } /* Attribute */
+    code span.bn { color: #ad0000; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #003b4f; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #20794d; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #5e5e5e; } /* Comment */
+    code span.cv { color: #5e5e5e; font-style: italic; } /* CommentVar */
+    code span.do { color: #5e5e5e; font-style: italic; } /* Documentation */
+    code span.dt { color: #ad0000; } /* DataType */
+    code span.dv { color: #ad0000; } /* DecVal */
+    code span.er { color: #ad0000; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #ad0000; } /* Float */
+    code span.fu { color: #4758ab; } /* Function */
+    code span.im { color: #00769e; } /* Import */
+    code span.in { color: #5e5e5e; } /* Information */
+    code span.kw { color: #003b4f; font-weight: bold; } /* Keyword */
+    code span.op { color: #5e5e5e; } /* Operator */
+    code span.ot { color: #003b4f; } /* Other */
+    code span.pp { color: #ad0000; } /* Preprocessor */
+    code span.sc { color: #5e5e5e; } /* SpecialChar */
+    code span.ss { color: #20794d; } /* SpecialString */
+    code span.st { color: #20794d; } /* String */
+    code span.va { color: #111111; } /* Variable */
+    code span.vs { color: #20794d; } /* VerbatimString */
+    code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="lecture_03_eda_files/libs/revealjs/dist/theme/quarto.css">
+  <link href="lecture_03_eda_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
+  <link href="lecture_03_eda_files/libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
+  <link href="lecture_03_eda_files/libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="lecture_03_eda_files/libs/revealjs/plugin/reveal-chalkboard/font-awesome/css/all.css" rel="stylesheet">
+  <link href="lecture_03_eda_files/libs/revealjs/plugin/reveal-chalkboard/style.css" rel="stylesheet">
+  <link href="lecture_03_eda_files/libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
+  <style type="text/css">
+
+  .callout {
+    margin-top: 1em;
+    margin-bottom: 1em;  
+    border-radius: .25rem;
+  }
+
+  .callout.callout-style-simple { 
+    padding: 0em 0.5em;
+    border-left: solid #acacac .3rem;
+    border-right: solid 1px silver;
+    border-top: solid 1px silver;
+    border-bottom: solid 1px silver;
+    display: flex;
+  }
+
+  .callout.callout-style-default {
+    border-left: solid #acacac .3rem;
+    border-right: solid 1px silver;
+    border-top: solid 1px silver;
+    border-bottom: solid 1px silver;
+  }
+
+  .callout .callout-body-container {
+    flex-grow: 1;
+  }
+
+  .callout.callout-style-simple .callout-body {
+    font-size: 1rem;
+    font-weight: 400;
+  }
+
+  .callout.callout-style-default .callout-body {
+    font-size: 0.9rem;
+    font-weight: 400;
+  }
+
+  .callout.callout-titled.callout-style-simple .callout-body {
+    margin-top: 0.2em;
+  }
+
+  .callout:not(.callout-titled) .callout-body {
+      display: flex;
+  }
+
+  .callout:not(.no-icon).callout-titled.callout-style-simple .callout-content {
+    padding-left: 1.6em;
+  }
+
+  .callout.callout-titled .callout-header {
+    padding-top: 0.2em;
+    margin-bottom: -0.2em;
+  }
+
+  .callout.callout-titled .callout-title  p {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+  }
+    
+  .callout.callout-titled.callout-style-simple .callout-content  p {
+    margin-top: 0;
+  }
+
+  .callout.callout-titled.callout-style-default .callout-content  p {
+    margin-top: 0.7em;
+  }
+
+  .callout.callout-style-simple div.callout-title {
+    border-bottom: none;
+    font-size: .9rem;
+    font-weight: 600;
+    opacity: 75%;
+  }
+
+  .callout.callout-style-default  div.callout-title {
+    border-bottom: none;
+    font-weight: 600;
+    opacity: 85%;
+    font-size: 0.9rem;
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+  }
+
+  .callout.callout-style-default div.callout-content {
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+  }
+
+  .callout.callout-style-simple .callout-icon::before {
+    height: 1rem;
+    width: 1rem;
+    display: inline-block;
+    content: "";
+    background-repeat: no-repeat;
+    background-size: 1rem 1rem;
+  }
+
+  .callout.callout-style-default .callout-icon::before {
+    height: 0.9rem;
+    width: 0.9rem;
+    display: inline-block;
+    content: "";
+    background-repeat: no-repeat;
+    background-size: 0.9rem 0.9rem;
+  }
+
+  .callout-title {
+    display: flex
+  }
+    
+  .callout-icon::before {
+    margin-top: 1rem;
+    padding-right: .5rem;
+  }
+
+  .callout.no-icon::before {
+    display: none !important;
+  }
+
+  .callout.callout-titled .callout-body > .callout-content > :last-child {
+    padding-bottom: 0.5rem;
+    margin-bottom: 0;
+  }
+
+  .callout.callout-titled .callout-icon::before {
+    margin-top: .5rem;
+    padding-right: .5rem;
+  }
+
+  .callout:not(.callout-titled) .callout-icon::before {
+    margin-top: 1rem;
+    padding-right: .5rem;
+  }
+
+  /* Callout Types */
+
+  div.callout-note {
+    border-left-color: #4582ec !important;
+  }
+
+  div.callout-note .callout-icon::before {
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAIKADAAQAAAABAAAAIAAAAACshmLzAAAEU0lEQVRYCcVXTWhcVRQ+586kSUMMxkyaElstCto2SIhitS5Ek8xUKV2poatCcVHtUlFQk8mbaaziwpWgglJwVaquitBOfhQXFlqlzSJpFSpIYyXNjBNiTCck7x2/8/LeNDOZxDuEkgOXe++553zfefee+/OYLOXFk3+1LLrRdiO81yNqZ6K9cG0P3MeFaMIQjXssE8Z1JzLO9ls20MBZX7oG8w9GxB0goaPrW5aNMp1yOZIa7Wv6o2ykpLtmAPs/vrG14Z+6d4jpbSKuhdcSyq9wGMPXjonwmESXrriLzFGOdDBLB8Y6MNYBu0dRokSygMA/mrun8MGFN3behm6VVAwg4WR3i6FvYK1T7MHo9BK7ydH+1uurECoouk5MPRyVSBrBHMYwVobG2aOXM07sWrn5qgB60rc6mcwIDJtQrnrEr44kmy+UO9r0u9O5/YbkS9juQckLed3DyW2XV/qWBBB3ptvI8EUY3I9p/67OW+g967TNr3Sotn3IuVlfMLVnsBwH4fsnebJvyGm5GeIUA3jljERmrv49SizPYuq+z7c2H/jlGC+Ghhupn/hcapqmcudB9jwJ/3jvnvu6vu5lVzF1fXyZuZZ7U8nRmVzytvT+H3kilYvH09mLWrQdwFSsFEsxFVs5fK7A0g8gMZjbif4ACpKbjv7gNGaD8bUrlk8x+KRflttr22JEMRUbTUwwDQScyzPgedQHZT0xnx7ujw2jfVfExwYHwOsDTjLdJ2ebmeQIlJ7neo41s/DrsL3kl+W2lWvAga0tR3zueGr6GL78M3ifH0rGXrBC2aAR8uYcIA5gwV8zIE8onoh8u0Fca/ciF7j1uOzEnqcIm59sEXoGc0+z6+H45V1CvAvHcD7THztu669cnp+L0okAeIc6zjbM/24LgGM1gZk7jnRu1aQWoU9sfUOuhrmtaPIO3YY1KLLWZaEO5TKUbMY5zx8W9UJ6elpLwKXbsaZ4EFl7B4bMtDv0iRipKoDQT2sNQI9b1utXFdYisi+wzZ/ri/1m7QfDgEuvgUUEIJPq3DhX/5DWNqIXDOweC2wvIR90Oq3lDpdMIgD2r0dXvGdsEW5H6x6HLRJYU7C69VefO1x8Gde1ZFSJLfWS1jbCnhtOPxmpfv2LXOA2Xk2tvnwKKPFuZ/oRmwBwqRQDcKNeVQkYcOjtWVBuM/JuYw5b6isojIkYxyYAFn5K7ZBF10fea52y8QltAg6jnMqNHFBmGkQ1j+U43HMi2xMar1Nv0zGsf1s8nUsmUtPOOrbFIR8bHFDMB5zL13Gmr/kGlCkUzedTzzmzsaJXhYawnA3UmARpiYj5ooJZiUoxFRtK3X6pgNPv+IZVPcnwbOl6f+aBaO1CNvPW9n9LmCp01nuSaTRF2YxHqZ8DYQT6WsXT+RD6eUztwYLZ8rM+rcPxamv1VQzFUkzFXvkiVrySGQgJNvXHJAxiU3/NwiC03rSf05VBaPtu/Z7/B8Yn/w7eguloAAAAAElFTkSuQmCC');
+  }
+
+  div.callout-note.callout-style-default .callout-title {
+    background-color: #dae6fb
+  }
+
+  div.callout-important {
+    border-left-color: #d9534f !important;
+  }
+
+  div.callout-important .callout-icon::before {
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAIKADAAQAAAABAAAAIAAAAACshmLzAAAEKklEQVRYCcVXTWhcVRS+575MJym48A+hSRFr00ySRQhURRfd2HYjk2SSTokuBCkU2o0LoSKKraKIBTcuFCoidGFD08nkBzdREbpQ1EDNIv8qSGMFUboImMSZd4/f9zJv8ibJMC8xJQfO3HPPPef7zrvvvnvviIkpC9nsw0UttFunbUhpFzFtarSd6WJkStVMw5xyVqYTvkwfzuf/5FgtkVoB0729j1rjXwThS7Vio+Mo6DNnvLfahoZ+i/o32lULuJ3NNiz7q6+pyAUkJaFF6JwaM2lUJlV0MlnQn5aTRbEu0SEqHUa0A4AdiGuB1kFXRfVyg5d87+Dg4DL6m2TLAub60ilj7A1Ec4odSAc8X95sHh7+ZRPCFo6Fnp7HfU/fBng/hi10CjCnWnJjsxvDNxWw0NfV6Rv5GgP3I3jGWXumdTD/3cbEOP2ZbOZp69yniG3FQ9z1jD7bnBu9Fc2tKGC2q+uAJOQHBDRiZX1x36o7fWBs7J9ownbtO+n0/qWkvW7UPIfc37WgT6ZGR++EOJyeQDSb9UB+DZ1G6DdLDzyS+b/kBCYGsYgJbSQHuThGKRcw5xdeQf8YdNHsc6ePXrlSYMBuSIAFTGAtQo+VuALo4BX83N190NWZWbynBjhOHsmNfFWLeL6v+ynsA58zDvvAC8j5PkbOcXCMg2PZFk3q8MjI7WAG/Dp9AwP7jdGBOOQkAvlFUB+irtm16I1Zw9YBcpGTGXYmk3kQIC/Cds55l+iMI3jqhjAuaoe+am2Jw5GT3Nbz3CkE12NavmzN5+erJW7046n/CH1RO/RVa8lBLozXk9uqykkGAyRXLWlLv5jyp4RFsG5vGVzpDLnIjTWgnRy2Rr+tDKvRc7Y8AyZq10jj8DqXdnIRNtFZb+t/ZRtXcDiVnzpqx8mPcDWxgARUqx0W1QB9MeUZiNrV4qP+Ehc+BpNgATsTX8ozYKL2NtFYAHc84fG7ndxUPr+AR/iQSns7uSUufAymwDOb2+NjK27lEFocm/EE2WpyIy/Hi66MWuMKJn8RvxIcj87IM5Vh9663ziW36kR0HNenXuxmfaD8JC7tfKbrhFr7LiZCrMjrzTeGx+PmkosrkNzW94ObzwocJ7A1HokLolY+AvkTiD/q1H0cN48c5EL8Crkttsa/AXQVDmutfyku0E7jShx49XqV3MFK8IryDhYVbj7Sj2P2eBxwcXoe8T8idsKKPRcnZw1b+slFTubwUwhktrfnAt7J++jwQtLZcm3sr9LQrjRzz6cfMv9aLvgmnAGvpoaGLxM4mAEaLV7iAzQ3oU0IvD5x9ix3yF2RAAuYAOO2f7PEFWCXZ4C9Pb2UsgDeVnFSpbFK7/IWu7TPTvBqzbGdCHOJQSxiEjt6IyZmxQyEJHv6xyQsYk//moVFsN2zP6fRImjfq7/n/wFDguUQFNEwugAAAABJRU5ErkJggg==');
+  }
+
+  div.callout-important.callout-style-default .callout-title {
+    background-color: #f7dddc
+  }
+
+  div.callout-warning {
+    border-left-color: #f0ad4e !important;
+  }
+
+  div.callout-warning .callout-icon::before {
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAIKADAAQAAAABAAAAIAAAAACshmLzAAAETklEQVRYCeVWW2gcVRg+58yaTUnizqbipZeX4uWhBEniBaoUX1Ioze52t7sRq6APio9V9MEaoWlVsFasRq0gltaAPuxms8lu0gcviE/FFOstVbSIxgcv6SU7EZqmdc7v9+9mJtNks51NTUH84ed889/PP+cmxP+d5FIbMJmNbpREu4WUkiTtCicKny0l1pIKmBzovF2S+hIJHX8iEu3hZJ5lNZGqyRrGSIQpq15AzF28jgpeY6yk6GVdrfFqdrD6Iw+QlB8g0YS2g7dyQmXM/IDhBhT0UCiRf59lfqmmDvzRt6kByV/m4JjtzuaujMUM2c5Z2d6JdKrRb3K2q6mA+oYVz8JnDdKPmmNthzkAk/lN63sYPgevrguc72aZX/L9C6x09GYyxBgCX4NlvyGUHOKELlm5rXeR1kchuChJt4SSwyddZRXgvwMGvYo4QSlk3/zkHD8UHxwVJA6zjZZqP8v8kK8OWLnIZtLyCAJagYC4rTGW/9Pqj92N/c+LUaAj27movwbi19tk/whRCIE7Q9vyI6yvRpftAKVTdUjOW40X3h5OXsKCdmFcx0xlLJoSuQngnrJe7Kcjm4OMq9FlC7CMmScQANuNvjfP3PjGXDBaUQmbp296S5L4DrpbrHN1T87ZVEZVCzg1FF0Ft+dKrlLukI+/c9ENo+TvlTDbYFvuKPtQ9+l052rXrgKoWkDAFnvh0wTOmYn8R5f4k/jN/fZiCM1tQx9jQQ4ANhqG4hiL0qIFTGViG9DKB7GYzgubnpofgYRwO+DFjh0Zin2m4b/97EDkXkc+f6xYAPX0KK2I/7fUQuwzuwo/L3AkcjugPNixC8cHf0FyPjWlItmLxWw4Ou9YsQCr5fijMGoD/zpdRy95HRysyXA74MWOnscpO4j2y3HAVisw85hX5+AFBRSHt4ShfLFkIMXTqyKFc46xdzQM6XbAi702a7sy04J0+feReMFKp5q9esYLCqAZYw/k14E/xcLLsFElaornTuJB0svMuJINy8xkIYuL+xPAlWRceH6+HX7THJ0djLUom46zREu7tTkxwmf/FdOZ/sh6Q8qvEAiHpm4PJ4a/doJe0gH1t+aHRgCzOvBvJedEK5OFE5jpm4AGP2a8Dxe3gGJ/pAutug9Gp6he92CsSsWBaEcxGx0FHytmIpuqGkOpldqNYQK8cSoXvd+xLxXADw0kf6UkJNFtdo5MOgaLjiQOQHcn+A6h5NuL2s0qsC2LOM75PcF3yr5STuBSAcGG+meA14K/CI21HcS4LBT6tv0QAh8Dr5l93AhZzG5ZJ4VxAqdZUEl9z7WJ4aN+svMvwHHL21UKTd1mqvChH7/Za5xzXBBKrUcB0TQ+Ulgkfbi/H/YT5EptrGzsEK7tR1B7ln9BBwckYfMiuSqklSznIuoIIOM42MQO+QnduCoFCI0bpkzjCjddHPN/F+2Yu+sd9bKNpVwHhbS3LluK/0zgfwD0xYI5dXuzlQAAAABJRU5ErkJggg==');
+  }
+
+  div.callout-warning.callout-style-default .callout-title {
+    background-color: #fcefdc
+  }
+
+  div.callout-tip {
+    border-left-color: #02b875 !important;
+  }
+
+  div.callout-tip .callout-icon::before {
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAIKADAAQAAAABAAAAIAAAAACshmLzAAADr0lEQVRYCe1XTWgTQRj9ZjZV8a9SPIkKgj8I1bMHsUWrqYLVg4Ue6v9BwZOxSYsIerFao7UiUryIqJcqgtpimhbBXoSCVxUFe9CTiogUrUp2Pt+3aUI2u5vdNh4dmMzOzHvvezuz8xNFM0mjnbXaNu1MvFWRXkXEyE6aYOYJpdW4IXuA4r0fo8qqSMDBU0v1HJUgVieAXxzCsdE/YJTdFcVIZQNMyhruOMJKXYFoLfIfIvVIMWdsrd+Rpd86ZmyzzjJmLStqRn0v8lzkb4rVIXvnpScOJuAn2ACC65FkPzEdEy4TPWRLJ2h7z4cArXzzaOdKlbOvKKX25Wl00jSnrwVxAg3o4dRxhO13RBSdNvH0xSARv3adTXbBdTf64IWO2vH0LT+cv4GR1DJt+DUItaQogeBX/chhbTBxEiZ6gftlDNXTrvT7co4ub5A6gp9HIcHvzTa46OS5fBeP87Qm0fQkr4FsYgVQ7Qg+ZayaDg9jhg1GkWj8RG6lkeSacrrHgDaxdoBiZPg+NXV/KifMuB6//JmYH4CntVEHy/keA6x4h4CU5oFy8GzrBS18cLJMXcljAKB6INjWsRcuZBWVaS3GDrqB7rdapVIeA+isQ57Eev9eCqzqOa81CY05VLd6SamW2wA2H3SiTbnbSxmzfp7WtKZkqy4mdyAlGx7ennghYf8voqp9cLSgKdqNfa6RdRsAAkPwRuJZNbpByn+RrJi1RXTwdi8RQF6ymDwGMAtZ6TVE+4uoKh+MYkcLsT0Hk8eAienbiGdjJHZTpmNjlbFJNKDVAp2fJlYju6IreQxQ08UJDNYdoLSl6AadO+fFuCQqVMB1NJwPm69T04Wv5WhfcWyfXQB+wXRs1pt+nCknRa0LVzSA/2B+a9+zQJadb7IyyV24YAxKp2Jqs3emZTuNnKxsah+uabKbMk7CbTgJx/zIgQYErIeTKRQ9yD9wxVof5YolPHqaWo7TD6tJlh7jQnK5z2n3+fGdggIOx2kaa2YI9QWarc5Ce1ipNWMKeSG4DysFF52KBmTNMmn5HqCFkwy34rDg05gDwgH3bBi+sgFhN/e8QvRn8kbamCOhgrZ9GJhFDgfcMHzFb6BAtjKpFhzTjwv1KCVuxHvCbsSiEz4CANnj84cwHdFXAbAOJ4LTSAawGWFn5tDhLMYz6nWeU2wJfIhmIJBefcd/A5FWQWGgrWzyORZ3Q6HuV+Jf0Bj+BTX69fm1zWgK7By1YTXchFDORywnfQ7GpzOo6S+qECrsx2ifVQAAAABJRU5ErkJggg==');
+  }
+
+  div.callout-tip.callout-style-default .callout-title {
+    background-color: #ccf1e3
+  }
+
+  div.callout-caution {
+    border-left-color: #fd7e14 !important;
+  }
+
+  div.callout-caution .callout-icon::before {
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAIKADAAQAAAABAAAAIAAAAACshmLzAAACV0lEQVRYCdVWzWoUQRCuqp2ICBLJXgITZL1EfQDBW/bkzUMUD7klD+ATSHBEfAIfQO+iXsWDxJsHL96EHAwhgzlkg8nBg25XWb0zIb0zs9muYYWkoKeru+vn664fBqElyZNuyh167NXJ8Ut8McjbmEraKHkd7uAnAFku+VWdb3reSmRV8PKSLfZ0Gjn3a6Xlcq9YGb6tADjn+lUfTXtVmaZ1KwBIvFI11rRXlWlatwIAAv2asaa9mlB9wwygiDX26qaw1yYPzFXg2N1GgG0FMF8Oj+VIx7E/03lHx8UhvYyNZLN7BwSPgekXXLribw7w5/c8EF+DBK5idvDVYtEEwMeYefjjLAdEyQ3M9nfOkgnPTEkYU+sxMq0BxNR6jExrAI31H1rzvLEfRIdgcv1XEdj6QTQAS2wtstEALLG1yEZ3QhH6oDX7ExBSFEkFINXH98NTrme5IOaaA7kIfiu2L8A3qhH9zRbukdCqdsA98TdElyeMe5BI8Rs2xHRIsoTSSVFfCFCWGPn9XHb4cdobRIWABNf0add9jakDjQJpJ1bTXOJXnnRXHRf+dNL1ZV1MBRCXhMbaHqGI1JkKIL7+i8uffuP6wVQAzO7+qVEbF6NbS0LJureYcWXUUhH66nLR5rYmva+2tjRFtojkM2aD76HEGAD3tPtKM309FJg5j/K682ywcWJ3PASCcycH/22u+Bh7Aa0ehM2Fu4z0SAE81HF9RkB21c5bEn4Dzw+/qNOyXr3DCTQDMBOdhi4nAgiFDGCinIa2owCEChUwD8qzd03PG+qdW/4fDzjUMcE1ZpIAAAAASUVORK5CYII=');
+  }
+
+  div.callout-caution.callout-style-default .callout-title {
+    background-color: #ffe5d0
+  }
+
+  </style>
+  <style type="text/css">
+    .reveal div.sourceCode {
+      margin: 0;
+      overflow: auto;
+    }
+    .reveal div.hanging-indent {
+      margin-left: 1em;
+      text-indent: -1em;
+    }
+    .reveal .slide:not(.center) {
+      height: 100%;
+    }
+    .reveal .slide.scrollable {
+      overflow-y: auto;
+    }
+    .reveal .footnotes {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide .absolute {
+      position: absolute;
+      display: block;
+    }
+    .reveal .footnotes ol {
+      counter-reset: ol;
+      list-style-type: none; 
+      margin-left: 0;
+    }
+    .reveal .footnotes ol li:before {
+      counter-increment: ol;
+      content: counter(ol) ". "; 
+    }
+    .reveal .footnotes ol li > p:first-child {
+      display: inline-block;
+    }
+    .reveal .slide ul,
+    .reveal .slide ol {
+      margin-bottom: 0.5em;
+    }
+    .reveal .slide ul li,
+    .reveal .slide ol li {
+      margin-top: 0.4em;
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide ul[role="tablist"] li {
+      margin-bottom: 0;
+    }
+    .reveal .slide ul li > *:first-child,
+    .reveal .slide ol li > *:first-child {
+      margin-block-start: 0;
+    }
+    .reveal .slide ul li > *:last-child,
+    .reveal .slide ol li > *:last-child {
+      margin-block-end: 0;
+    }
+    .reveal .slide .columns:nth-child(3) {
+      margin-block-start: 0.8em;
+    }
+    .reveal blockquote {
+      box-shadow: none;
+    }
+    .reveal .tippy-content>* {
+      margin-top: 0.2em;
+      margin-bottom: 0.7em;
+    }
+    .reveal .tippy-content>*:last-child {
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide > img.stretch.quarto-figure-center,
+    .reveal .slide > img.r-stretch.quarto-figure-center {
+      display: block;
+      margin-left: auto;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-left,
+    .reveal .slide > img.r-stretch.quarto-figure-left  {
+      display: block;
+      margin-left: 0;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-right,
+    .reveal .slide > img.r-stretch.quarto-figure-right  {
+      display: block;
+      margin-left: auto;
+      margin-right: 0; 
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+  
+  <script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+</head>
+<body class="quarto-light">
+  <div class="reveal">
+    <div class="slides">
+
+<section id="title-slide" class="quarto-title-block center">
+  <h1 class="title">Data Analytics &amp; Visualization</h1>
+  <p class="subtitle">Exploratory Data Analysis and Descriptive Statistics</p>
+
+<div class="quarto-title-authors">
+<div class="quarto-title-author">
+<div class="quarto-title-author-name">
+Victor Henriques, Ph.D. 
+</div>
+</div>
+</div>
+
+</section><section id="TOC">
+<nav role="doc-toc"> 
+<h2 id="toc-title">Table of contents</h2>
+<ul>
+<li><a href="#/introduction" id="/toc-introduction">Introduction</a></li>
+<li><a href="#/measures-of-position" id="/toc-measures-of-position">Measures of Position</a></li>
+<li><a href="#/measures-of-dispersion" id="/toc-measures-of-dispersion">Measures of Dispersion</a></li>
+<li><a href="#/measures-of-shape" id="/toc-measures-of-shape">Measures of Shape</a></li>
+<li><a href="#/bivariate-measures" id="/toc-bivariate-measures">Bivariate Measures</a></li>
+<li><a href="#/integrated-eda" id="/toc-integrated-eda">Integrated EDA</a></li>
+<li><a href="#/common-errors" id="/toc-common-errors">Common Errors</a></li>
+<li><a href="#/practice" id="/toc-practice">Practice</a></li>
+<li><a href="#/key-takeaways" id="/toc-key-takeaways">Key Takeaways</a></li>
+<li><a href="#/references" id="/toc-references">References</a></li>
+</ul>
+</nav>
+</section>
+<section>
+<section id="introduction" class="title-slide slide level1 center">
+<h1>Introduction</h1>
+
+</section>
+<section id="why-eda" class="slide level2">
+<h2>Why EDA?</h2>
+<p><strong>Exploratory Data Analysis turns observations into questions, structure, and evidence.</strong></p>
+<p>EDA combines:</p>
+<ul>
+<li>numerical summaries;</li>
+<li>visual displays;</li>
+<li>data-quality checks;</li>
+<li>transformations and comparisons;</li>
+<li>iterative refinement of questions.</li>
+</ul>
+<aside class="notes">
+<p>EDA is not a preliminary box-ticking exercise. It is an iterative mode of analysis that uses graphics and numerical summaries to uncover structure, detect anomalies, examine assumptions, and formulate models.</p>
+<p>[Sources] - https://www.itl.nist.gov/div898/handbook/eda/eda.htm - https://www.nist.gov/publications/nistsematech-e-handbook-statistical-methods-chapter-1-exploratory-data-analysis</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="descriptive-versus-inferential-statistics" class="slide level2">
+<h2>Descriptive versus inferential statistics</h2>
+<div class="columns">
+<div class="column" style="width:50%;">
+<h3 id="descriptive">Descriptive</h3>
+<p>Describe the observations available:</p>
+<ul>
+<li>center;</li>
+<li>spread;</li>
+<li>shape;</li>
+<li>relationships;</li>
+<li>unusual values.</li>
+</ul>
+</div><div class="column" style="width:50%;">
+<h3 id="inferential">Inferential</h3>
+<p>Use a sample to reason about a population:</p>
+<ul>
+<li>estimation;</li>
+<li>uncertainty;</li>
+<li>hypothesis tests;</li>
+<li>prediction.</li>
+</ul>
+</div></div>
+<blockquote>
+<p>A descriptive statistic is not automatically an estimate with quantified uncertainty.</p>
+</blockquote>
+<aside class="notes">
+<p>This lesson focuses on description and visualization. Whenever a sample statistic is interpreted as evidence about a wider population, sampling design and uncertainty become essential.</p>
+<p>[Sources] - Internal teaching material: Lecture03.pdf, Descriptive Statistics and Populations and Samples.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="four-descriptive-questions" class="slide level2">
+<h2>Four descriptive questions</h2>
+<ol type="1">
+<li><strong>Position:</strong> Where is the distribution located?</li>
+<li><strong>Dispersion:</strong> How widely are observations spread?</li>
+<li><strong>Shape:</strong> How is mass distributed around the center and into the tails?</li>
+<li><strong>Bivariate structure:</strong> How do two variables vary together?</li>
+</ol>
+<aside class="notes">
+<p>No single statistic answers all four questions. The lecture repeatedly pairs a numerical summary with a visual display.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="learning-objectives" class="slide level2">
+<h2>Learning objectives</h2>
+<p>By the end of the lecture, students will be able to:</p>
+<ul>
+<li>compute and interpret measures of position, dispersion, and shape;</li>
+<li>distinguish population parameters from sample statistics;</li>
+<li>explain estimator conventions such as <code>ddof</code>, quantile method, and excess kurtosis;</li>
+<li>select a visualization that matches the descriptive question;</li>
+<li>diagnose sensitivity to skewness, multimodality, and outliers;</li>
+<li>interpret covariance and Pearson, Spearman, and Kendall association;</li>
+<li>avoid common descriptive-statistics and visualization errors.</li>
+</ul>
+<aside class="notes">
+<p>The expected standard is postgraduate: students should justify the statistic and the graph, not merely calculate them.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="the-eda-workflow" class="slide level2">
+<h2>The EDA workflow</h2>
+<div class="sourceCode" id="cb1"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb1-1"><a href=""></a>QUESTION → UNIT OF OBSERVATION → DATA QUALITY → UNIVARIATE STRUCTURE</span>
+<span id="cb1-2"><a href=""></a>        → GROUP COMPARISON → BIVARIATE STRUCTURE → ITERATE</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>At each step:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb2-1"><a href=""></a>COMPUTE → VISUALIZE → INTERPRET → CHALLENGE</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<aside class="notes">
+<p>Ask students to state the unit of observation before producing any statistic. For this lecture, one row is one synthetic business-day observation.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="a-self-contained-financial-dataset" class="slide level2">
+<h2>A self-contained financial dataset</h2>
+<div id="1709dd46" class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href=""></a>returns.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="48">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+
+<table class="dataframe caption-top" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header" style="text-align: right;">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Market</th>
+<th data-quarto-table-cell-role="th">Asset A</th>
+<th data-quarto-table-cell-role="th">Asset B</th>
+<th data-quarto-table-cell-role="th">Asset C</th>
+<th data-quarto-table-cell-role="th">Volume</th>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">Date</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2021-01-01</td>
+<td>0.004161</td>
+<td>0.004692</td>
+<td>0.005241</td>
+<td>-0.016105</td>
+<td>169774.447404</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">2021-01-04</td>
+<td>0.008638</td>
+<td>0.013114</td>
+<td>0.001701</td>
+<td>-0.019054</td>
+<td>329754.607698</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2021-01-05</td>
+<td>-0.000214</td>
+<td>-0.006454</td>
+<td>0.008921</td>
+<td>-0.017314</td>
+<td>164879.373570</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">2021-01-06</td>
+<td>0.007277</td>
+<td>0.012039</td>
+<td>0.001343</td>
+<td>0.004260</td>
+<td>190228.897875</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2021-01-07</td>
+<td>0.005960</td>
+<td>0.000440</td>
+<td>0.005903</td>
+<td>-0.013105</td>
+<td>119450.314996</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<div id="4af15062" class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href=""></a>returns.info()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>&lt;class 'pandas.core.frame.DataFrame'&gt;
+DatetimeIndex: 1250 entries, 2021-01-01 to 2025-10-16
+Freq: B
+Data columns (total 5 columns):
+ #   Column   Non-Null Count  Dtype  
+---  ------   --------------  -----  
+ 0   Market   1250 non-null   float64
+ 1   Asset A  1250 non-null   float64
+ 2   Asset B  1250 non-null   float64
+ 3   Asset C  1250 non-null   float64
+ 4   Volume   1250 non-null   float64
+dtypes: float64(5)
+memory usage: 58.6 KB</code></pre>
+</div>
+</div>
+<aside class="notes">
+<p>The data are synthetic, avoiding network dependence and making the data-generating structure reproducible. Returns are decimals; visualizations often convert them to percentage points.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="first-visual-inspection" class="slide level2">
+<h2>First visual inspection</h2>
+<div id="8fa5e386" class="cell" data-fig-height="5" data-fig-width="11" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href=""></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">1</span>, sharex<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb6-2"><a href=""></a>axes[<span class="dv">0</span>].plot(returns_pct.index, returns_pct[<span class="st">"Market"</span>], linewidth<span class="op">=</span><span class="fl">.7</span>, color<span class="op">=</span><span class="st">"#0072B2"</span>)</span>
+<span id="cb6-3"><a href=""></a>axes[<span class="dv">0</span>].<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Synthetic market returns"</span>, ylabel<span class="op">=</span><span class="st">"Return (%)"</span>)</span>
+<span id="cb6-4"><a href=""></a>axes[<span class="dv">1</span>].plot(returns.index, returns[<span class="st">"Volume"</span>], linewidth<span class="op">=</span><span class="fl">.7</span>, color<span class="op">=</span><span class="st">"#D55E00"</span>)</span>
+<span id="cb6-5"><a href=""></a>axes[<span class="dv">1</span>].<span class="bu">set</span>(xlabel<span class="op">=</span><span class="st">"Date"</span>, ylabel<span class="op">=</span><span class="st">"Volume"</span>)</span>
+<span id="cb6-6"><a href=""></a>plt.tight_layout()</span>
+<span id="cb6-7"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+</div>
+<img data-src="lecture_03_eda_files/figure-revealjs/cell-5-output-1.png" class="r-stretch"><aside class="notes">
+<p>Before summarizing, inspect ordering, scale, volatility, extremes, and possible nonstationarity. A table alone cannot reveal time clustering or isolated observations.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="data-quality-checklist" class="slide level2">
+<h2>Data-quality checklist</h2>
+<ul>
+<li>correct unit of observation;</li>
+<li>variable definitions and units;</li>
+<li>missingness and duplicated rows;</li>
+<li>impossible or invalid values;</li>
+<li>temporal ordering and gaps;</li>
+<li>categorical consistency;</li>
+<li>measurement precision;</li>
+<li>transformations already applied.</li>
+</ul>
+<aside class="notes">
+<p>Descriptive statistics are only meaningful relative to valid observations and clearly defined variables.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section></section>
+<section>
+<section id="measures-of-position" class="title-slide slide level1 center">
+<h1>Measures of Position</h1>
+
+</section>
+<section id="what-is-typical" class="slide level2">
+<h2>What is “typical”?</h2>
+<p>Different definitions of typical answer different questions:</p>
+<ul>
+<li>balance point: <strong>mean</strong>;</li>
+<li>middle ordered observation: <strong>median</strong>;</li>
+<li>most frequent observed value: <strong>mode</strong>;</li>
+<li>threshold below which proportion <code>p</code> lies: <strong>quantile</strong>;</li>
+<li>compounded growth rate: <strong>geometric mean</strong>.</li>
+</ul>
+<aside class="notes">
+<p>Ask students which notion of typical is relevant before choosing a measure.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="arithmetic-mean" class="slide level2">
+<h2>Arithmetic mean</h2>
+<p>For observations <span class="math inline">\(x_1,\ldots,x_n\)</span>, the sample mean is</p>
+<p><span class="math display">\[\bar{x}=\frac{1}{n}\sum_{i=1}^{n}x_i.\]</span></p>
+<div id="558b0582" class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href=""></a>market_mean <span class="op">=</span> returns_pct[<span class="st">"Market"</span>].mean()</span>
+<span id="cb7-2"><a href=""></a>market_mean</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="51">
+<pre><code>np.float64(-0.03425928909721227)</code></pre>
+</div>
+</div>
+<aside class="notes">
+<p>The mean is the balance point and uses every observation. Therefore, it is sensitive to extreme values. Distinguish the sample statistic x-bar from the population parameter mu.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="mean-and-outlier-sensitivity" class="slide level2">
+<h2>Mean and outlier sensitivity</h2>
+<div id="dd338f9f" class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href=""></a>base <span class="op">=</span> np.array([<span class="dv">8</span>, <span class="dv">9</span>, <span class="dv">10</span>, <span class="dv">10</span>, <span class="dv">11</span>, <span class="dv">12</span>], dtype<span class="op">=</span><span class="bu">float</span>)</span>
+<span id="cb9-2"><a href=""></a>contaminated <span class="op">=</span> np.append(base, <span class="dv">60</span>)</span>
+<span id="cb9-3"><a href=""></a>pd.DataFrame({</span>
+<span id="cb9-4"><a href=""></a>    <span class="st">"sample"</span>: [<span class="st">"base"</span>, <span class="st">"with extreme value"</span>],</span>
+<span id="cb9-5"><a href=""></a>    <span class="st">"mean"</span>: [base.mean(), contaminated.mean()],</span>
+<span id="cb9-6"><a href=""></a>    <span class="st">"median"</span>: [np.median(base), np.median(contaminated)],</span>
+<span id="cb9-7"><a href=""></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="52">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+
+<table class="dataframe caption-top" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header" style="text-align: right;">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">sample</th>
+<th data-quarto-table-cell-role="th">mean</th>
+<th data-quarto-table-cell-role="th">median</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>base</td>
+<td>10.000000</td>
+<td>10.0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>with extreme value</td>
+<td>17.142857</td>
+<td>10.0</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<aside class="notes">
+<p>One extreme observation moves the mean substantially but has limited influence on the median. Robustness is not the same as correctness; the data-generating context determines whether the extreme value should remain.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="median" class="slide level2">
+<h2>Median</h2>
+<p>For ordered observations <span class="math inline">\(x_{(1)}\leq\cdots\leq x_{(n)}\)</span>, one conventional sample median is</p>
+<p><span class="math display">\[\widetilde{x}=\begin{cases}
+x_{((n+1)/2)}, &amp; n\text{ odd},\\
+\frac{x_{(n/2)}+x_{(n/2+1)}}{2}, &amp; n\text{ even}.
+\end{cases}\]</span></p>
+<div id="30cfb17d" class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href=""></a>returns_pct[<span class="st">"Market"</span>].median()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="53">
+<pre><code>np.float64(0.002752422683212025)</code></pre>
+</div>
+</div>
+<aside class="notes">
+<p>The median is the 0.5 quantile under common interpolation conventions, but finite-sample quantile definitions vary.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<!-- ## Median as an absolute-loss center -->
+<!-- Any sample median minimizes total absolute deviation: -->
+<!-- $$\widetilde{x}\in\arg\min_{a\in\mathbb{R}}\sum_{i=1}^{n}|x_i-a|$$ -->
+<!-- ```{python} -->
+<!-- sae = [np.abs(returns["Market"] - a).sum() for a in centers] -->
+<!-- centers[np.argmin(sae)], returns["Market"].median() -->
+<!-- ``` -->
+<!-- ::: {.notes} -->
+<!-- This links the median to least absolute deviations and helps explain its robustness. -->
+<!-- ::: -->
+</section>
+<section id="mode" class="slide level2">
+<h2>Mode</h2>
+<p>For a discrete variable with probability mass function <span class="math inline">\(p(x)=P(X=x)\)</span>, a population mode is</p>
+<p><span class="math display">\[\operatorname{Mode}(X)\in\arg\max_x p(x)\]</span></p>
+<div id="5f883f1b" class="cell" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href=""></a>ratings <span class="op">=</span> pd.Series([<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">3</span>, <span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">4</span>, <span class="dv">5</span>])</span>
+<span id="cb12-2"><a href=""></a>ratings.mode().tolist()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="54">
+<pre><code>[3]</code></pre>
+</div>
+</div>
+<aside class="notes">
+<p>There may be more than one mode. For continuous data with nearly all values distinct, the raw sample mode may be uninformative. A histogram mode depends on binning; a density mode depends on smoothing.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="quantiles-population-definition" class="slide level2">
+<h2>Quantiles: population definition</h2>
+<p>Let the cumulative distribution function be <span class="math inline">\(F(x)=P(X\leq x)\)</span>. A left quantile is</p>
+<p><span class="math display">\[Q(p)=\inf\{x\in\mathbb{R}:F(x)\geq p\},\qquad 0&lt;p&lt;1\]</span></p>
+<p>The empirical CDF is</p>
+<p><span class="math display">\[\widehat{F}_n(x)=\frac{1}{n}\sum_{i=1}^{n}\mathbf{1}\{x_i\leq x\}\]</span></p>
+<p>and its generalized inverse defines the empirical quantile.</p>
+<aside class="notes">
+<p>The infimum definition works for discrete and continuous distributions. It does not remove the practical issue that software supports multiple finite-sample quantile estimators.</p>
+<p>[Sources] - https://numpy.org/doc/stable/reference/generated/numpy.quantile.html</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="quantiles-in-python" class="slide level2">
+<h2>Quantiles in Python</h2>
+<div id="9d874334" class="cell" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href=""></a>q <span class="op">=</span> returns_pct[<span class="st">"Market"</span>].quantile([<span class="fl">.01</span>, <span class="fl">.05</span>, <span class="fl">.25</span>, <span class="fl">.5</span>, <span class="fl">.75</span>, <span class="fl">.95</span>, <span class="fl">.99</span>])</span>
+<span id="cb14-2"><a href=""></a>q.rename(<span class="st">"Market return (%)"</span>).to_frame()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="55">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+
+<table class="dataframe caption-top" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header" style="text-align: right;">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Market return (%)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0.01</td>
+<td>-2.969256</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">0.05</td>
+<td>-1.828420</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0.25</td>
+<td>-0.651925</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">0.50</td>
+<td>0.002752</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0.75</td>
+<td>0.575775</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">0.95</td>
+<td>1.643206</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0.99</td>
+<td>2.763907</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<div id="b72c67f8" class="cell" data-execution_count="10">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href=""></a>np.quantile(returns_pct[<span class="st">"Market"</span>], [<span class="fl">.25</span>, <span class="fl">.5</span>, <span class="fl">.75</span>], method<span class="op">=</span><span class="st">"linear"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="56">
+<pre><code>array([-0.65192525,  0.00275242,  0.57577457])</code></pre>
+</div>
+</div>
+<aside class="notes">
+<p>NumPy uses probabilities between zero and one and offers multiple methods. The default is linear. Method choice can matter in small samples and should be documented in reproducible work.</p>
+<p>[Sources] - https://numpy.org/doc/stable/reference/generated/numpy.quantile.html</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="quantile-estimator-conventions" class="slide level2">
+<h2>Quantile estimator conventions</h2>
+<div id="f95cff1a" class="cell" data-execution_count="11">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href=""></a>small <span class="op">=</span> np.array([<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">4</span>, <span class="dv">8</span>, <span class="dv">16</span>])</span>
+<span id="cb17-2"><a href=""></a>methods <span class="op">=</span> [<span class="st">"inverted_cdf"</span>, <span class="st">"closest_observation"</span>, <span class="st">"linear"</span>, <span class="st">"median_unbiased"</span>]</span>
+<span id="cb17-3"><a href=""></a>pd.Series({m: np.quantile(small, <span class="fl">.25</span>, method<span class="op">=</span>m) <span class="cf">for</span> m <span class="kw">in</span> methods}, name<span class="op">=</span><span class="st">"Q1"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="57">
+<pre><code>inverted_cdf           2.000000
+closest_observation    1.000000
+linear                 2.000000
+median_unbiased        1.666667
+Name: Q1, dtype: float64</code></pre>
+</div>
+</div>
+<aside class="notes">
+<p>There is no universal finite-sample interpolation rule. NumPy documents several estimators. Choose one consistently and report it when exact replication matters.</p>
+<p>[Sources] - https://numpy.org/doc/stable/reference/generated/numpy.quantile.html</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="geometric-mean-and-compounded-growth" class="slide level2">
+<h2>Geometric mean and compounded growth</h2>
+<p>For strictly positive values <span class="math inline">\(x_i&gt;0\)</span>,</p>
+<p><span class="math display">\[G=\left(\prod_{i=1}^{n}x_i\right)^{1/n}
+=\exp\left(\frac{1}{n}\sum_{i=1}^{n}\log x_i\right)\]</span></p>
+<p>For simple returns <span class="math inline">\(r_i&gt;-1\)</span>, the constant compounded return is</p>
+<p><span class="math display">\[\bar r_G=\left(\prod_{i=1}^{n}(1+r_i)\right)^{1/n}-1\]</span></p>
+<div id="0732078f" class="cell" data-execution_count="12">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href=""></a>arithmetic_daily <span class="op">=</span> returns[<span class="st">"Asset A"</span>].mean()</span>
+<span id="cb19-2"><a href=""></a>geometric_daily <span class="op">=</span> stats.gmean(<span class="dv">1</span> <span class="op">+</span> returns[<span class="st">"Asset A"</span>]) <span class="op">-</span> <span class="dv">1</span></span>
+<span id="cb19-3"><a href=""></a>arithmetic_daily, geometric_daily</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="58">
+<pre><code>(np.float64(2.0346450299774686e-05), np.float64(-0.00011047693172605566))</code></pre>
+</div>
+</div>
+<aside class="notes">
+<p>The geometric mean answers a compounding question. It is not interchangeable with the arithmetic mean and requires positive growth factors.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="position-visual-comparison" class="slide level2">
+<h2>Position: visual comparison</h2>
+<div id="0e72e14a" class="cell" data-fig-height="5" data-fig-width="10" data-execution_count="13">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href=""></a>x <span class="op">=</span> returns_pct[<span class="st">"Asset A"</span>]</span>
+<span id="cb21-2"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
+<span id="cb21-3"><a href=""></a>sns.histplot(x, bins<span class="op">=</span><span class="dv">45</span>, stat<span class="op">=</span><span class="st">"density"</span>, color<span class="op">=</span><span class="st">"#56B4E9"</span>, alpha<span class="op">=</span><span class="fl">.5</span>, ax<span class="op">=</span>ax)</span>
+<span id="cb21-4"><a href=""></a>sns.kdeplot(x, color<span class="op">=</span><span class="st">"#0072B2"</span>, linewidth<span class="op">=</span><span class="dv">2</span>, ax<span class="op">=</span>ax)</span>
+<span id="cb21-5"><a href=""></a>ax.axvline(x.mean(), color<span class="op">=</span><span class="st">"#D55E00"</span>, linewidth<span class="op">=</span><span class="dv">2</span>, label<span class="op">=</span><span class="ss">f"Mean = </span><span class="sc">{</span>x<span class="sc">.</span>mean()<span class="sc">:.2f}</span><span class="ss">"</span>)</span>
+<span id="cb21-6"><a href=""></a>ax.axvline(x.median(), color<span class="op">=</span><span class="st">"#009E73"</span>, linewidth<span class="op">=</span><span class="dv">2</span>, label<span class="op">=</span><span class="ss">f"Median = </span><span class="sc">{</span>x<span class="sc">.</span>median()<span class="sc">:.2f}</span><span class="ss">"</span>)</span>
+<span id="cb21-7"><a href=""></a>ax.<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Position depends on the chosen notion of center"</span>, xlabel<span class="op">=</span><span class="st">"Daily return (%)"</span>, ylabel<span class="op">=</span><span class="st">"Density"</span>)</span>
+<span id="cb21-8"><a href=""></a>ax.legend(frameon<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb21-9"><a href=""></a>plt.tight_layout()</span>
+<span id="cb21-10"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+</div>
+<img data-src="lecture_03_eda_files/figure-revealjs/cell-14-output-1.png" class="r-stretch"><aside class="notes">
+<p>The histogram and KDE provide shape context that the two center lines cannot. KDE depends on bandwidth and should not be treated as raw data.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section></section>
+<section>
+<section id="measures-of-dispersion" class="title-slide slide level1 center">
+<h1>Measures of Dispersion</h1>
+
+</section>
+<section id="why-spread-matters" class="slide level2">
+<h2>Why spread matters</h2>
+<p>Two datasets can have the same mean and radically different uncertainty, heterogeneity, or risk.</p>
+<p>Measures of dispersion answer:</p>
+<ul>
+<li>how far observations lie from a center;</li>
+<li>how wide the central mass is;</li>
+<li>how strongly extremes influence the scale;</li>
+<li>whether groups are comparably stable.</li>
+</ul>
+<aside class="notes">
+<p>Always report the unit of the dispersion measure. Variance is in squared units; standard deviation is in the original unit.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="range" class="slide level2">
+<h2>Range</h2>
+<p><span class="math display">\[R=x_{(n)}-x_{(1)}=\max_i x_i-\min_i x_i\]</span></p>
+<div id="b0a65023" class="cell" data-execution_count="14">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href=""></a>market_range <span class="op">=</span> returns_pct[<span class="st">"Market"</span>].<span class="bu">max</span>() <span class="op">-</span> returns_pct[<span class="st">"Market"</span>].<span class="bu">min</span>()</span>
+<span id="cb22-2"><a href=""></a>market_range</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="60">
+<pre><code>np.float64(9.493759675543203)</code></pre>
+</div>
+</div>
+<aside class="notes">
+<p>The range uses only two observations and grows with sample size. It is highly sensitive to extremes.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="interquartile-range" class="slide level2">
+<h2>Interquartile range</h2>
+<p><span class="math display">\[\operatorname{IQR}=Q(0.75)-Q(0.25)=Q_3-Q_1\]</span></p>
+<div id="c9cbb1cc" class="cell" data-execution_count="15">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href=""></a>q1, q3 <span class="op">=</span> returns_pct[<span class="st">"Market"</span>].quantile([<span class="fl">.25</span>, <span class="fl">.75</span>])</span>
+<span id="cb24-2"><a href=""></a>iqr <span class="op">=</span> q3 <span class="op">-</span> q1</span>
+<span id="cb24-3"><a href=""></a>iqr</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="61">
+<pre><code>1.2276998196004094</code></pre>
+</div>
+</div>
+<p>The IQR measures the width of the central 50% and is more resistant to extremes than the range.</p>
+<aside class="notes">
+<p>The IQR still depends on the quantile estimator convention, especially for small samples.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="boxplot-fences-are-rules-not-proofs" class="slide level2">
+<h2>Boxplot fences are rules, not proofs</h2>
+<p>Tukey-style inner fences are</p>
+<p><span class="math display">\[
+L=Q_1-1.5\operatorname{IQR},\qquad U=Q_3+1.5\operatorname{IQR}.
+\]</span></p>
+<p>Values beyond the fences are <strong>flagged observations</strong>, not automatically errors.</p>
+<div id="cc6281c8" class="cell" data-execution_count="16">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href=""></a>lower, upper <span class="op">=</span> q1 <span class="op">-</span> <span class="fl">1.5</span> <span class="op">*</span> iqr, q3 <span class="op">+</span> <span class="fl">1.5</span> <span class="op">*</span> iqr</span>
+<span id="cb26-2"><a href=""></a>returns_pct.loc[(returns_pct[<span class="st">"Market"</span>] <span class="op">&lt;</span> lower) <span class="op">|</span> (returns_pct[<span class="st">"Market"</span>] <span class="op">&gt;</span> upper), <span class="st">"Market"</span>].describe()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="62">
+<pre><code>count    47.000000
+mean     -0.173931
+std       3.298818
+min      -4.602688
+25%      -3.001673
+50%      -2.506343
+75%       2.770529
+max       4.891071
+Name: Market, dtype: float64</code></pre>
+</div>
+</div>
+<aside class="notes">
+<p>In heavy-tailed financial returns, many valid values can fall beyond 1.5 IQR. The rule is a visual diagnostic, not an outlier deletion protocol.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="population-and-sample-variance" class="slide level2">
+<h2>Population and sample variance</h2>
+<p>Population variance is</p>
+<p><span class="math display">\[
+\sigma^2=\operatorname{Var}(X)=\mathbb{E}\left[(X-\mu)^2\right].
+\]</span></p>
+<p>Given a sample, the unbiased sample variance under iid sampling with finite variance is</p>
+<p><span class="math display">\[
+s^2=\frac{1}{n-1}\sum_{i=1}^{n}(x_i-\bar{x})^2.
+\]</span></p>
+<div id="3c97151b" class="cell" data-execution_count="17">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href=""></a>pop_var <span class="op">=</span> returns_pct[<span class="st">"Market"</span>].var(ddof<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb28-2"><a href=""></a>sample_var <span class="op">=</span> returns_pct[<span class="st">"Market"</span>].var(ddof<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb28-3"><a href=""></a>pop_var, sample_var</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="63">
+<pre><code>(np.float64(1.20215864759486), np.float64(1.2031211445104686))</code></pre>
+</div>
+</div>
+<aside class="notes">
+<p>The denominator n describes the observed finite dataset as a population. The n minus one denominator is the conventional unbiased estimator of population variance under standard sampling assumptions.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="why-divide-by-n---1" class="slide level2">
+<h2>Why divide by n - 1?</h2>
+<p>The deviations from the sample mean satisfy</p>
+<p><span class="math display">\[
+\sum_{i=1}^{n}(x_i-\bar{x})=0,
+\]</span></p>
+<p>so only <span class="math inline">\(n-1\)</span> deviations are free. The adjustment also makes</p>
+<p><span class="math display">\[
+\mathbb{E}[s^2]=\sigma^2
+\]</span></p>
+<p>under iid sampling from a distribution with finite variance.</p>
+<aside class="notes">
+<p>Degrees of freedom and unbiasedness are related explanations. Do not state that n minus one is always the correct denominator; it depends on the estimand.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="standard-deviation" class="slide level2">
+<h2>Standard deviation</h2>
+<p><span class="math display">\[
+s=\sqrt{s^2}=\sqrt{\frac{1}{n-1}\sum_{i=1}^{n}(x_i-\bar{x})^2}.
+\]</span></p>
+<div id="04bce130" class="cell" data-execution_count="18">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href=""></a>returns_pct[<span class="st">"Market"</span>].std(ddof<span class="op">=</span><span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="64">
+<pre><code>np.float64(1.096868790927369)</code></pre>
+</div>
+</div>
+<p>Standard deviation has the same physical unit as the observations.</p>
+<aside class="notes">
+<p>Standard deviation is not the average absolute deviation. Squaring makes it especially sensitive to extreme observations.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="mean-absolute-deviation-about-a-center" class="slide level2">
+<h2>Mean absolute deviation about a center</h2>
+<p>About the mean:</p>
+<p><span class="math display">\[
+\operatorname{MAD}_{\bar{x}}=\frac{1}{n}\sum_{i=1}^{n}|x_i-\bar{x}|.
+\]</span></p>
+<p>Median absolute deviation:</p>
+<p><span class="math display">\[\operatorname{MAD}=\operatorname{median}_i\left|x_i-\widetilde{x}\right|\]</span></p>
+<div id="4f8dbb1b" class="cell" data-execution_count="19">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href=""></a>x <span class="op">=</span> returns_pct[<span class="st">"Market"</span>]</span>
+<span id="cb32-2"><a href=""></a>mean_ad <span class="op">=</span> np.mean(np.<span class="bu">abs</span>(x <span class="op">-</span> x.mean()))</span>
+<span id="cb32-3"><a href=""></a>median_ad <span class="op">=</span> stats.median_abs_deviation(x, scale<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb32-4"><a href=""></a>normal_consistent_mad <span class="op">=</span> stats.median_abs_deviation(x, scale<span class="op">=</span><span class="st">"normal"</span>)</span>
+<span id="cb32-5"><a href=""></a>mean_ad, median_ad, normal_consistent_mad</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="65">
+<pre><code>(np.float64(0.8137265955371538),
+ np.float64(0.6239238299835972),
+ np.float64(0.9250308545121932))</code></pre>
+</div>
+</div>
+<aside class="notes">
+<p>Median absolute deviation is robust. SciPy’s scale=‘normal’ divides by the normal-distribution consistency constant, making the result comparable to standard deviation under normality.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="coefficient-of-variation" class="slide level2">
+<h2>Coefficient of variation</h2>
+<p>For a variable with nonzero mean,</p>
+<p><span class="math display">\[
+\operatorname{CV}=\frac{s}{|\bar{x}|}.
+\]</span></p>
+<p>CV is dimensionless, but it is inappropriate when:</p>
+<ul>
+<li>zero is arbitrary rather than meaningful;</li>
+<li>the mean is close to zero;</li>
+<li>values can change sign in a way that destroys interpretation.</li>
+</ul>
+<aside class="notes">
+<p>Daily returns often have means close to zero, so the CV is unstable and not useful. Use it for ratio-scale variables with a meaningful zero.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="comparing-dispersion-measures" class="slide level2">
+<h2>Comparing dispersion measures</h2>
+<div id="d080f806" class="cell" data-execution_count="20">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href=""></a><span class="kw">def</span> dispersion_summary(s):</span>
+<span id="cb34-2"><a href=""></a>    q1, q3 <span class="op">=</span> s.quantile([<span class="fl">.25</span>, <span class="fl">.75</span>])</span>
+<span id="cb34-3"><a href=""></a>    <span class="cf">return</span> pd.Series({</span>
+<span id="cb34-4"><a href=""></a>        <span class="st">"range"</span>: s.<span class="bu">max</span>() <span class="op">-</span> s.<span class="bu">min</span>(),</span>
+<span id="cb34-5"><a href=""></a>        <span class="st">"IQR"</span>: q3 <span class="op">-</span> q1,</span>
+<span id="cb34-6"><a href=""></a>        <span class="st">"variance"</span>: s.var(ddof<span class="op">=</span><span class="dv">1</span>),</span>
+<span id="cb34-7"><a href=""></a>        <span class="st">"std"</span>: s.std(ddof<span class="op">=</span><span class="dv">1</span>),</span>
+<span id="cb34-8"><a href=""></a>        <span class="st">"MAD"</span>: stats.median_abs_deviation(s, scale<span class="op">=</span><span class="st">"normal"</span>),</span>
+<span id="cb34-9"><a href=""></a>    })</span>
+<span id="cb34-10"><a href=""></a></span>
+<span id="cb34-11"><a href=""></a>returns_pct.<span class="bu">apply</span>(dispersion_summary).T.<span class="bu">round</span>(<span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="66">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+
+<table class="dataframe caption-top" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header" style="text-align: right;">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">range</th>
+<th data-quarto-table-cell-role="th">IQR</th>
+<th data-quarto-table-cell-role="th">variance</th>
+<th data-quarto-table-cell-role="th">std</th>
+<th data-quarto-table-cell-role="th">MAD</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Market</td>
+<td>9.494</td>
+<td>1.228</td>
+<td>1.203</td>
+<td>1.097</td>
+<td>0.925</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Asset A</td>
+<td>14.063</td>
+<td>1.864</td>
+<td>2.614</td>
+<td>1.617</td>
+<td>1.382</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Asset B</td>
+<td>5.817</td>
+<td>1.066</td>
+<td>0.688</td>
+<td>0.830</td>
+<td>0.786</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Asset C</td>
+<td>6.999</td>
+<td>1.468</td>
+<td>1.178</td>
+<td>1.085</td>
+<td>1.086</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<aside class="notes">
+<p>Do not compare variance numerically with standard deviation or IQR as if they shared units. This table is a catalog, not a ranking.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="boxplot-anatomy" class="slide level2">
+<h2>Boxplot anatomy</h2>
+<div id="11055ca4" class="cell" data-fig-height="4.8" data-fig-width="10" data-execution_count="21">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href=""></a>long_returns <span class="op">=</span> returns_pct.melt(var_name<span class="op">=</span><span class="st">"Series"</span>, value_name<span class="op">=</span><span class="st">"Return"</span>)</span>
+<span id="cb35-2"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
+<span id="cb35-3"><a href=""></a>sns.boxplot(data<span class="op">=</span>long_returns, x<span class="op">=</span><span class="st">"Series"</span>, y<span class="op">=</span><span class="st">"Return"</span>, hue<span class="op">=</span><span class="st">"Series"</span>, palette<span class="op">=</span><span class="st">"colorblind"</span>, legend<span class="op">=</span><span class="va">False</span>, ax<span class="op">=</span>ax)</span>
+<span id="cb35-4"><a href=""></a>ax.<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Comparative boxplots"</span>, xlabel<span class="op">=</span><span class="st">""</span>, ylabel<span class="op">=</span><span class="st">"Daily return (%)"</span>)</span>
+<span id="cb35-5"><a href=""></a>plt.tight_layout()</span>
+<span id="cb35-6"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+</div>
+<img data-src="lecture_03_eda_files/figure-revealjs/cell-22-output-1.png" class="r-stretch"><aside class="notes">
+<p>The box spans Q1 to Q3, the line marks the median, and whiskers extend to observations within the rule used by the plotting library. Points beyond whiskers are candidates for investigation.</p>
+<p>[Sources] - Internal teaching material: Lecture03.pdf, Boxplots and Comparative Boxplots.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="violin-plus-boxplot" class="slide level2">
+<h2>Violin plus boxplot</h2>
+<div id="1937a0e6" class="cell" data-fig-height="5" data-fig-width="10" data-execution_count="22">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
+<span id="cb36-2"><a href=""></a>sns.violinplot(data<span class="op">=</span>long_returns, x<span class="op">=</span><span class="st">"Series"</span>, y<span class="op">=</span><span class="st">"Return"</span>, inner<span class="op">=</span><span class="va">None</span>, cut<span class="op">=</span><span class="dv">0</span>, color<span class="op">=</span><span class="st">"#A6CEE3"</span>, ax<span class="op">=</span>ax)</span>
+<span id="cb36-3"><a href=""></a>sns.boxplot(data<span class="op">=</span>long_returns, x<span class="op">=</span><span class="st">"Series"</span>, y<span class="op">=</span><span class="st">"Return"</span>, width<span class="op">=</span><span class="fl">.18</span>, showfliers<span class="op">=</span><span class="va">False</span>,</span>
+<span id="cb36-4"><a href=""></a>            color<span class="op">=</span><span class="st">"white"</span>, ax<span class="op">=</span>ax)</span>
+<span id="cb36-5"><a href=""></a>ax.<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Density shape plus robust positional summary"</span>, xlabel<span class="op">=</span><span class="st">""</span>, ylabel<span class="op">=</span><span class="st">"Daily return (%)"</span>)</span>
+<span id="cb36-6"><a href=""></a>plt.tight_layout()</span>
+<span id="cb36-7"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+</div>
+<img data-src="lecture_03_eda_files/figure-revealjs/cell-23-output-1.png" class="r-stretch"><aside class="notes">
+<p>The violin estimates density and depends on smoothing. The boxplot supplies quartile landmarks. Combining them reduces the chance that either display is overinterpreted.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section></section>
+<section>
+<section id="measures-of-shape" class="title-slide slide level1 center">
+<h1>Measures of Shape</h1>
+
+</section>
+<section id="shape-is-more-than-normal-or-not" class="slide level2">
+<h2>Shape is more than “normal or not”</h2>
+<p>Shape includes:</p>
+<ul>
+<li>symmetry or asymmetry;</li>
+<li>number of modes;</li>
+<li>tail weight;</li>
+<li>gaps and truncation;</li>
+<li>discreteness and heaping;</li>
+<li>contamination or mixtures.</li>
+</ul>
+<aside class="notes">
+<p>Skewness and kurtosis are only two scalar summaries. Histograms, ECDFs, and Q-Q plots show aspects that moments can hide.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="central-moments" class="slide level2">
+<h2>Central moments</h2>
+<p>For a population with mean <span class="math inline">\(\mu\)</span>, the <span class="math inline">\(r\)</span>th central moment is</p>
+<p><span class="math display">\[
+\mu_r=\mathbb{E}[(X-\mu)^r].
+\]</span></p>
+<p>The biased sample central moment is</p>
+<p><span class="math display">\[
+m_r=\frac{1}{n}\sum_{i=1}^{n}(x_i-\bar{x})^r.
+\]</span></p>
+<ul>
+<li><span class="math inline">\(m_2\)</span>: scale;</li>
+<li><span class="math inline">\(m_3\)</span>: asymmetry;</li>
+<li><span class="math inline">\(m_4\)</span>: tail-sensitive shape.</li>
+</ul>
+<aside class="notes">
+<p>Odd powers preserve sign; even powers emphasize magnitude. Higher moments are increasingly sensitive to extreme observations.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="skewness" class="slide level2">
+<h2>Skewness</h2>
+<p>The moment coefficient is</p>
+<p><span class="math display">\[
+g_1=\frac{m_3}{m_2^{3/2}}.
+\]</span></p>
+<p>A common bias-adjusted Fisher-Pearson coefficient is</p>
+<p><span class="math display">\[
+G_1=\frac{\sqrt{n(n-1)}}{n-2}g_1,\qquad n&gt;2.
+\]</span></p>
+<div id="b892d8e3" class="cell" data-execution_count="23">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href=""></a>stats.skew(returns_pct[<span class="st">"Asset A"</span>], bias<span class="op">=</span><span class="va">True</span>), stats.skew(returns_pct[<span class="st">"Asset A"</span>], bias<span class="op">=</span><span class="va">False</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="69">
+<pre><code>(np.float64(-0.09986793156345523), np.float64(-0.09998795712960533))</code></pre>
+</div>
+</div>
+<aside class="notes">
+<p>Positive skewness means more weight in the right tail for a unimodal continuous distribution; negative skewness means more weight in the left tail. Zero skewness does not imply normality.</p>
+<p>[Sources] - https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.skew.html</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="skewness-visual-examples" class="slide level2">
+<h2>Skewness: visual examples</h2>
+<div id="d8d1f343" class="cell" data-fig-height="4" data-fig-width="11" data-execution_count="24">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href=""></a>samples <span class="op">=</span> {</span>
+<span id="cb39-2"><a href=""></a>    <span class="st">"Left-skewed"</span>: <span class="op">-</span>rng.lognormal(<span class="dv">0</span>, <span class="fl">.55</span>, <span class="dv">3000</span>),</span>
+<span id="cb39-3"><a href=""></a>    <span class="st">"Symmetric"</span>: rng.normal(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">3000</span>),</span>
+<span id="cb39-4"><a href=""></a>    <span class="st">"Right-skewed"</span>: rng.lognormal(<span class="dv">0</span>, <span class="fl">.55</span>, <span class="dv">3000</span>),</span>
+<span id="cb39-5"><a href=""></a>}</span>
+<span id="cb39-6"><a href=""></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">3</span>, sharey<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb39-7"><a href=""></a><span class="cf">for</span> ax, (label, values) <span class="kw">in</span> <span class="bu">zip</span>(axes, samples.items()):</span>
+<span id="cb39-8"><a href=""></a>    sns.histplot(values, bins<span class="op">=</span><span class="dv">45</span>, stat<span class="op">=</span><span class="st">"density"</span>, color<span class="op">=</span><span class="st">"#56B4E9"</span>, ax<span class="op">=</span>ax)</span>
+<span id="cb39-9"><a href=""></a>    ax.set_title(<span class="ss">f"</span><span class="sc">{</span>label<span class="sc">}</span><span class="ch">\n</span><span class="ss">skew = </span><span class="sc">{</span>stats<span class="sc">.</span>skew(values, bias<span class="op">=</span><span class="va">False</span>)<span class="sc">:.2f}</span><span class="ss">"</span>)</span>
+<span id="cb39-10"><a href=""></a>    ax.set_xlabel(<span class="st">""</span>)</span>
+<span id="cb39-11"><a href=""></a>plt.tight_layout()</span>
+<span id="cb39-12"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+</div>
+<img data-src="lecture_03_eda_files/figure-revealjs/cell-25-output-1.png" class="r-stretch"><aside class="notes">
+<p>The mirror-image examples isolate direction of skew. In observational data, skewness may arise from bounds, mixtures, nonlinear transformations, or genuine tail behavior.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="kurtosis-and-excess-kurtosis" class="slide level2">
+<h2>Kurtosis and excess kurtosis</h2>
+<p>Pearson kurtosis is</p>
+<p><span class="math display">\[
+\beta_2=\frac{\mu_4}{\mu_2^2}.
+\]</span></p>
+<p>Excess kurtosis is</p>
+<p><span class="math display">\[
+\gamma_2=\beta_2-3.
+\]</span></p>
+<p>Thus a normal distribution has Pearson kurtosis 3 and excess kurtosis 0.</p>
+<div id="0233e5b2" class="cell" data-execution_count="25">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href=""></a>pearson_k <span class="op">=</span> stats.kurtosis(returns_pct[<span class="st">"Market"</span>], fisher<span class="op">=</span><span class="va">False</span>, bias<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb40-2"><a href=""></a>excess_k <span class="op">=</span> stats.kurtosis(returns_pct[<span class="st">"Market"</span>], fisher<span class="op">=</span><span class="va">True</span>, bias<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb40-3"><a href=""></a>pearson_k, excess_k</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="71">
+<pre><code>(np.float64(4.805249386766962), np.float64(1.8052493867669623))</code></pre>
+</div>
+</div>
+<aside class="notes">
+<p>Kurtosis is the standardized fourth central moment and is highly sensitive to extremes. State explicitly whether you report Pearson or Fisher/excess kurtosis.</p>
+<p>[Sources] - https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.kurtosis.html</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="kurtosis-is-tail-sensitive" class="slide level2">
+<h2>Kurtosis is tail-sensitive</h2>
+<div id="e671ac68" class="cell" data-fig-height="4" data-fig-width="11" data-execution_count="26">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href=""></a>shape_samples <span class="op">=</span> {</span>
+<span id="cb42-2"><a href=""></a>    <span class="st">"Uniform"</span>: rng.uniform(<span class="op">-</span>np.sqrt(<span class="dv">3</span>), np.sqrt(<span class="dv">3</span>), <span class="dv">5000</span>),</span>
+<span id="cb42-3"><a href=""></a>    <span class="st">"Normal"</span>: rng.normal(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">5000</span>),</span>
+<span id="cb42-4"><a href=""></a>    <span class="st">"Student t (df=5)"</span>: rng.standard_t(<span class="dv">5</span>, <span class="dv">5000</span>) <span class="op">/</span> np.sqrt(<span class="dv">5</span><span class="op">/</span><span class="dv">3</span>),</span>
+<span id="cb42-5"><a href=""></a>}</span>
+<span id="cb42-6"><a href=""></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">3</span>, sharex<span class="op">=</span><span class="va">True</span>, sharey<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb42-7"><a href=""></a><span class="cf">for</span> ax, (label, values) <span class="kw">in</span> <span class="bu">zip</span>(axes, shape_samples.items()):</span>
+<span id="cb42-8"><a href=""></a>    sns.kdeplot(values, fill<span class="op">=</span><span class="va">False</span>, cut<span class="op">=</span><span class="dv">0</span>, color<span class="op">=</span><span class="st">"#0072B2"</span>, ax<span class="op">=</span>ax)</span>
+<span id="cb42-9"><a href=""></a>    ax.set_title(<span class="ss">f"</span><span class="sc">{</span>label<span class="sc">}</span><span class="ch">\n</span><span class="ss">excess k = </span><span class="sc">{</span>stats<span class="sc">.</span>kurtosis(values, bias<span class="op">=</span><span class="va">False</span>)<span class="sc">:.2f}</span><span class="ss">"</span>)</span>
+<span id="cb42-10"><a href=""></a>    ax.set_xlim(<span class="op">-</span><span class="dv">5</span>, <span class="dv">5</span>)</span>
+<span id="cb42-11"><a href=""></a>plt.tight_layout()</span>
+<span id="cb42-12"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+</div>
+<img data-src="lecture_03_eda_files/figure-revealjs/cell-27-output-1.png" class="r-stretch"><aside class="notes">
+<p>These distributions are standardized to comparable variance. The t distribution has heavier tails. Avoid reducing kurtosis to peak height; the fourth moment is driven strongly by tail observations.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="histogram-useful-and-fragile" class="slide level2">
+<h2>Histogram: useful and fragile</h2>
+<div id="f62e955c" class="cell" data-fig-height="4" data-fig-width="11" data-execution_count="27">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a href=""></a>x <span class="op">=</span> returns_pct[<span class="st">"Market"</span>]</span>
+<span id="cb43-2"><a href=""></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">3</span>, sharey<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb43-3"><a href=""></a><span class="cf">for</span> ax, bins <span class="kw">in</span> <span class="bu">zip</span>(axes, [<span class="dv">15</span>, <span class="dv">40</span>, <span class="dv">100</span>]):</span>
+<span id="cb43-4"><a href=""></a>    ax.hist(x, bins<span class="op">=</span>bins, color<span class="op">=</span><span class="st">"#56B4E9"</span>, edgecolor<span class="op">=</span><span class="st">"white"</span>)</span>
+<span id="cb43-5"><a href=""></a>    ax.set_title(<span class="ss">f"</span><span class="sc">{</span>bins<span class="sc">}</span><span class="ss"> bins"</span>)</span>
+<span id="cb43-6"><a href=""></a>    ax.set_xlabel(<span class="st">"Return (%)"</span>)</span>
+<span id="cb43-7"><a href=""></a>axes[<span class="dv">0</span>].set_ylabel(<span class="st">"Frequency"</span>)</span>
+<span id="cb43-8"><a href=""></a>plt.tight_layout()</span>
+<span id="cb43-9"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+</div>
+<img data-src="lecture_03_eda_files/figure-revealjs/cell-28-output-1.png" class="r-stretch"><aside class="notes">
+<p>Bin width changes the apparent modality and smoothness. Use the same bin edges for group comparisons.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="empirical-cumulative-distribution-function" class="slide level2">
+<h2>Empirical cumulative distribution function</h2>
+<p><span class="math display">\[
+\widehat F_n(x)=\frac{1}{n}\sum_{i=1}^{n}\mathbf{1}\{x_i\le x\}.
+\]</span></p>
+<div id="e3e84821" class="cell" data-fig-height="5" data-fig-width="9" data-execution_count="28">
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb44-1"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
+<span id="cb44-2"><a href=""></a>sns.ecdfplot(data<span class="op">=</span>long_returns, x<span class="op">=</span><span class="st">"Return"</span>, hue<span class="op">=</span><span class="st">"Series"</span>, ax<span class="op">=</span>ax)</span>
+<span id="cb44-3"><a href=""></a>ax.<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Empirical CDF"</span>, xlabel<span class="op">=</span><span class="st">"Daily return (%)"</span>, ylabel<span class="op">=</span><span class="st">"Cumulative proportion"</span>)</span>
+<span id="cb44-4"><a href=""></a>plt.tight_layout()</span>
+<span id="cb44-5"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+</div>
+<img data-src="lecture_03_eda_files/figure-revealjs/cell-29-output-1.png" class="r-stretch"><aside class="notes">
+<p>The ECDF displays all observations without bins or smoothing. Vertical comparisons answer what proportion lies below a threshold; horizontal comparisons answer the quantile at a probability.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="q-q-plot" class="slide level2">
+<h2>Q-Q plot</h2>
+<div id="d1017fc9" class="cell" data-fig-height="4.8" data-fig-width="10" data-execution_count="29">
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb45-1"><a href=""></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>)</span>
+<span id="cb45-2"><a href=""></a>qqplot(rng.normal(size<span class="op">=</span><span class="dv">1000</span>), line<span class="op">=</span><span class="st">"45"</span>, ax<span class="op">=</span>axes[<span class="dv">0</span>])</span>
+<span id="cb45-3"><a href=""></a>axes[<span class="dv">0</span>].set_title(<span class="st">"Normal sample"</span>)</span>
+<span id="cb45-4"><a href=""></a>qqplot(returns_pct[<span class="st">"Market"</span>], line<span class="op">=</span><span class="st">"45"</span>, ax<span class="op">=</span>axes[<span class="dv">1</span>])</span>
+<span id="cb45-5"><a href=""></a>axes[<span class="dv">1</span>].set_title(<span class="st">"Synthetic market returns"</span>)</span>
+<span id="cb45-6"><a href=""></a>plt.tight_layout()</span>
+<span id="cb45-7"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+</div>
+<img data-src="lecture_03_eda_files/figure-revealjs/cell-30-output-1.png" class="r-stretch"><aside class="notes">
+<p>A Q-Q plot compares empirical quantiles to theoretical quantiles. Systematic tail departures indicate that a normal reference underrepresents or overrepresents the observed tails.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="multimodality-can-defeat-moment-summaries" class="slide level2">
+<h2>Multimodality can defeat moment summaries</h2>
+<div id="67517913" class="cell" data-fig-height="4.8" data-fig-width="10" data-execution_count="30">
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb46-1"><a href=""></a>a <span class="op">=</span> rng.normal(<span class="op">-</span><span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">2500</span>)</span>
+<span id="cb46-2"><a href=""></a>b <span class="op">=</span> rng.normal(<span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">2500</span>)</span>
+<span id="cb46-3"><a href=""></a>mixture <span class="op">=</span> np.concatenate([a, b])</span>
+<span id="cb46-4"><a href=""></a>normal_match <span class="op">=</span> rng.normal(mixture.mean(), mixture.std(ddof<span class="op">=</span><span class="dv">1</span>), <span class="bu">len</span>(mixture))</span>
+<span id="cb46-5"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
+<span id="cb46-6"><a href=""></a>sns.kdeplot(mixture, label<span class="op">=</span><span class="st">"Bimodal mixture"</span>, linewidth<span class="op">=</span><span class="dv">2</span>, color<span class="op">=</span><span class="st">"#0072B2"</span>, ax<span class="op">=</span>ax)</span>
+<span id="cb46-7"><a href=""></a>sns.kdeplot(normal_match, label<span class="op">=</span><span class="st">"Normal with matching mean and SD"</span>, linewidth<span class="op">=</span><span class="dv">2</span>, color<span class="op">=</span><span class="st">"#D55E00"</span>, ax<span class="op">=</span>ax)</span>
+<span id="cb46-8"><a href=""></a>ax.<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Same center and scale do not imply the same shape"</span>, xlabel<span class="op">=</span><span class="st">"Value"</span>, ylabel<span class="op">=</span><span class="st">"Density"</span>)</span>
+<span id="cb46-9"><a href=""></a>ax.legend(frameon<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb46-10"><a href=""></a>plt.tight_layout()</span>
+<span id="cb46-11"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+</div>
+<img data-src="lecture_03_eda_files/figure-revealjs/cell-31-output-1.png" class="r-stretch"><aside class="notes">
+<p>Mean and standard deviation cannot reveal two subpopulations. Shape visualization is essential.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section></section>
+<section>
+<section id="bivariate-measures" class="title-slide slide level1 center">
+<h1>Bivariate Measures</h1>
+
+</section>
+<section id="bivariate-questions" class="slide level2">
+<h2>Bivariate questions</h2>
+<ul>
+<li>Do two variables move together?</li>
+<li>Is the relationship positive or negative?</li>
+<li>Is it linear, monotonic, nonlinear, or grouped?</li>
+<li>Is the relationship driven by a small number of observations?</li>
+<li>Does the relationship change across subgroups or time?</li>
+</ul>
+<aside class="notes">
+<p>Always begin with a scatterplot or another appropriate joint display before summarizing association with one number.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="population-and-sample-covariance" class="slide level2">
+<h2>Population and sample covariance</h2>
+<p>Population covariance is</p>
+<p><span class="math display">\[
+\operatorname{Cov}(X,Y)=\mathbb{E}[(X-\mu_X)(Y-\mu_Y)].
+\]</span></p>
+<p>Sample covariance is</p>
+<p><span class="math display">\[
+s_{XY}=\frac{1}{n-1}\sum_{i=1}^{n}(x_i-\bar{x})(y_i-\bar{y}).
+\]</span></p>
+<div id="48fda97a" class="cell" data-execution_count="31">
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb47-1"><a href=""></a>returns_pct[[<span class="st">"Market"</span>, <span class="st">"Asset A"</span>]].cov()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="77">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+
+<table class="dataframe caption-top" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header" style="text-align: right;">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Market</th>
+<th data-quarto-table-cell-role="th">Asset A</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Market</td>
+<td>1.203121</td>
+<td>1.369888</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Asset A</td>
+<td>1.369888</td>
+<td>2.614486</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<aside class="notes">
+<p>Positive covariance means paired deviations tend to share sign. Covariance depends on measurement units, so magnitude is not directly comparable across differently scaled variables.</p>
+<p>[Sources] - https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.cov.html</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="covariance-matrix" class="slide level2">
+<h2>Covariance matrix</h2>
+<p>For a random vector <span class="math inline">\(\mathbf X\in\mathbb R^p\)</span>,</p>
+<p><span class="math display">\[
+\boldsymbol\Sigma=\mathbb E[(\mathbf X-\boldsymbol\mu)(\mathbf X-\boldsymbol\mu)^\top].
+\]</span></p>
+<p>Its diagonal contains variances; off-diagonal entries contain covariances.</p>
+<div id="529f591c" class="cell" data-execution_count="32">
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb48-1"><a href=""></a>returns_pct.cov().<span class="bu">round</span>(<span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="78">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+
+<table class="dataframe caption-top" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header" style="text-align: right;">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Market</th>
+<th data-quarto-table-cell-role="th">Asset A</th>
+<th data-quarto-table-cell-role="th">Asset B</th>
+<th data-quarto-table-cell-role="th">Asset C</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Market</td>
+<td>1.203</td>
+<td>1.370</td>
+<td>0.644</td>
+<td>-0.303</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Asset A</td>
+<td>1.370</td>
+<td>2.614</td>
+<td>0.697</td>
+<td>-0.376</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Asset B</td>
+<td>0.644</td>
+<td>0.697</td>
+<td>0.688</td>
+<td>-0.152</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Asset C</td>
+<td>-0.303</td>
+<td>-0.376</td>
+<td>-0.152</td>
+<td>1.178</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<aside class="notes">
+<p>Pandas computes pairwise covariance excluding missing pairs and uses ddof=1 by default. Pairwise missingness can create covariance matrices with undesirable mathematical properties.</p>
+<p>[Sources] - https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.cov.html</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="pearson-correlation" class="slide level2">
+<h2>Pearson correlation</h2>
+<p><span class="math display">\[
+\rho_{XY}=\frac{\operatorname{Cov}(X,Y)}{\sigma_X\sigma_Y},
+\qquad
+r_{XY}=\frac{s_{XY}}{s_Xs_Y}.
+\]</span></p>
+<p>For nonconstant variables, <span class="math inline">\(-1\le r_{XY}\le1\)</span>.</p>
+<div id="722a9074" class="cell" data-execution_count="33">
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb49-1"><a href=""></a>returns_pct.corr(method<span class="op">=</span><span class="st">"pearson"</span>).<span class="bu">round</span>(<span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="79">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+
+<table class="dataframe caption-top" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header" style="text-align: right;">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Market</th>
+<th data-quarto-table-cell-role="th">Asset A</th>
+<th data-quarto-table-cell-role="th">Asset B</th>
+<th data-quarto-table-cell-role="th">Asset C</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Market</td>
+<td>1.000</td>
+<td>0.772</td>
+<td>0.707</td>
+<td>-0.255</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Asset A</td>
+<td>0.772</td>
+<td>1.000</td>
+<td>0.520</td>
+<td>-0.214</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Asset B</td>
+<td>0.707</td>
+<td>0.520</td>
+<td>1.000</td>
+<td>-0.169</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Asset C</td>
+<td>-0.255</td>
+<td>-0.214</td>
+<td>-0.169</td>
+<td>1.000</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<aside class="notes">
+<p>Pearson correlation measures linear association. Zero correlation does not imply independence except under additional distributional conditions. Correlation does not imply causation.</p>
+<p>[Sources] - https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.corr.html</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="scatterplot-first-coefficient-second" class="slide level2">
+<h2>Scatterplot first, coefficient second</h2>
+<div id="7ccb9fd9" class="cell" data-fig-height="5" data-fig-width="8.5" data-execution_count="34">
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb50-1"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
+<span id="cb50-2"><a href=""></a>sns.scatterplot(data<span class="op">=</span>returns_pct, x<span class="op">=</span><span class="st">"Market"</span>, y<span class="op">=</span><span class="st">"Asset A"</span>, alpha<span class="op">=</span><span class="fl">.4</span>, s<span class="op">=</span><span class="dv">22</span>, ax<span class="op">=</span>ax)</span>
+<span id="cb50-3"><a href=""></a>sns.regplot(data<span class="op">=</span>returns_pct, x<span class="op">=</span><span class="st">"Market"</span>, y<span class="op">=</span><span class="st">"Asset A"</span>, scatter<span class="op">=</span><span class="va">False</span>, ci<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb50-4"><a href=""></a>            color<span class="op">=</span><span class="st">"#D55E00"</span>, ax<span class="op">=</span>ax)</span>
+<span id="cb50-5"><a href=""></a>r <span class="op">=</span> returns_pct[<span class="st">"Market"</span>].corr(returns_pct[<span class="st">"Asset A"</span>])</span>
+<span id="cb50-6"><a href=""></a>ax.<span class="bu">set</span>(title<span class="op">=</span><span class="ss">f"Market and Asset A: Pearson r = </span><span class="sc">{</span>r<span class="sc">:.2f}</span><span class="ss">"</span>, xlabel<span class="op">=</span><span class="st">"Market return (%)"</span>, ylabel<span class="op">=</span><span class="st">"Asset A return (%)"</span>)</span>
+<span id="cb50-7"><a href=""></a>plt.tight_layout()</span>
+<span id="cb50-8"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+</div>
+<img data-src="lecture_03_eda_files/figure-revealjs/cell-35-output-1.png" class="r-stretch"><aside class="notes">
+<p>Inspect linearity, heteroscedasticity, subgroups, and influential observations. A fitted line is a model summary, not decoration.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="correlation-is-invariant-to-positive-rescaling" class="slide level2">
+<h2>Correlation is invariant to positive rescaling</h2>
+<div id="999c85a2" class="cell" data-execution_count="35">
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb51-1"><a href=""></a>x <span class="op">=</span> returns_pct[<span class="st">"Market"</span>]</span>
+<span id="cb51-2"><a href=""></a>y <span class="op">=</span> returns_pct[<span class="st">"Asset A"</span>]</span>
+<span id="cb51-3"><a href=""></a>pd.Series({</span>
+<span id="cb51-4"><a href=""></a>    <span class="st">"corr(x, y)"</span>: x.corr(y),</span>
+<span id="cb51-5"><a href=""></a>    <span class="st">"corr(100x, y)"</span>: (<span class="dv">100</span> <span class="op">*</span> x).corr(y),</span>
+<span id="cb51-6"><a href=""></a>    <span class="st">"cov(x, y)"</span>: x.cov(y),</span>
+<span id="cb51-7"><a href=""></a>    <span class="st">"cov(100x, y)"</span>: (<span class="dv">100</span> <span class="op">*</span> x).cov(y),</span>
+<span id="cb51-8"><a href=""></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="81">
+<pre><code>corr(x, y)         0.772391
+corr(100x, y)      0.772391
+cov(x, y)          1.369888
+cov(100x, y)     136.988781
+dtype: float64</code></pre>
+</div>
+</div>
+<aside class="notes">
+<p>Correlation is dimensionless and unchanged by positive linear rescaling. Covariance changes with units.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="pearson-can-miss-nonlinear-association" class="slide level2">
+<h2>Pearson can miss nonlinear association</h2>
+<div id="b0a8bab0" class="cell" data-fig-height="5" data-fig-width="8" data-execution_count="36">
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb53-1"><a href=""></a>x_nonlin <span class="op">=</span> rng.uniform(<span class="op">-</span><span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">1000</span>)</span>
+<span id="cb53-2"><a href=""></a>y_nonlin <span class="op">=</span> x_nonlin<span class="op">**</span><span class="dv">2</span> <span class="op">+</span> rng.normal(<span class="dv">0</span>, <span class="fl">.25</span>, <span class="dv">1000</span>)</span>
+<span id="cb53-3"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
+<span id="cb53-4"><a href=""></a>ax.scatter(x_nonlin, y_nonlin, alpha<span class="op">=</span><span class="fl">.35</span>, s<span class="op">=</span><span class="dv">18</span>)</span>
+<span id="cb53-5"><a href=""></a>ax.<span class="bu">set</span>(title<span class="op">=</span><span class="ss">f"Strong nonlinear structure, Pearson r = </span><span class="sc">{</span>np<span class="sc">.</span>corrcoef(x_nonlin, y_nonlin)[<span class="dv">0</span>,<span class="dv">1</span>]<span class="sc">:.2f}</span><span class="ss">"</span>,</span>
+<span id="cb53-6"><a href=""></a>       xlabel<span class="op">=</span><span class="st">"x"</span>, ylabel<span class="op">=</span><span class="st">"y"</span>)</span>
+<span id="cb53-7"><a href=""></a>plt.tight_layout()</span>
+<span id="cb53-8"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+</div>
+<img data-src="lecture_03_eda_files/figure-revealjs/cell-37-output-1.png" class="r-stretch"><aside class="notes">
+<p>Near-zero Pearson correlation does not mean no relationship. The scatterplot reveals a deterministic curved structure obscured by a linear summary.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<!-- ## Spearman rank correlation -->
+<!-- For ranks $R_i=\operatorname{rank}(x_i)$ and $S_i=\operatorname{rank}(y_i)$, -->
+<!-- $$ -->
+<!-- r_S=\operatorname{Corr}(R,S). -->
+<!-- $$ -->
+<!-- Without ties, an equivalent formula is -->
+<!-- $$ -->
+<!-- r_S=1-\frac{6\sum_{i=1}^{n}d_i^2}{n(n^2-1)},\qquad d_i=R_i-S_i. -->
+<!-- $$ -->
+<!-- ```{python} -->
+<!-- returns_pct.corr(method="spearman").round(3) -->
+<!-- ``` -->
+<!-- ::: {.notes} -->
+<!-- Spearman measures monotonic association and is invariant to strictly monotonic transformations. With ties, compute Pearson correlation of ranks rather than relying on the no-ties formula. -->
+<!-- [Sources] -->
+<!-- - https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.corr.html -->
+<!-- ::: -->
+<!-- ## Kendall's tau -->
+<!-- For pairs of observations, Kendall's tau compares concordant and discordant pairs. Without ties, -->
+<!-- $$ -->
+<!-- \tau=\frac{C-D}{\binom{n}{2}}, -->
+<!-- $$ -->
+<!-- where $C$ is the number of concordant pairs and $D$ the number of discordant pairs. -->
+<!-- ```{python} -->
+<!-- returns_pct.corr(method="kendall").round(3) -->
+<!-- ``` -->
+<!-- ::: {.notes} -->
+<!-- Software uses tie-adjusted variants when necessary. Kendall's tau has a direct pairwise ordering interpretation. -->
+<!-- [Sources] -->
+<!-- - https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.corr.html -->
+<!-- ::: -->
+<!-- ## Pearson, Spearman, and Kendall -->
+<!-- ```{python} -->
+<!-- pair = returns_pct[["Market", "Asset A"]] -->
+<!-- pd.Series({ -->
+<!--     "Pearson": pair.corr(method="pearson").iloc[0, 1], -->
+<!--     "Spearman": pair.corr(method="spearman").iloc[0, 1], -->
+<!--     "Kendall": pair.corr(method="kendall").iloc[0, 1], -->
+<!-- }).round(3) -->
+<!-- ``` -->
+<!-- ::: {.notes} -->
+<!-- The coefficients use different scales and estimands. Do not interpret their numerical differences as a contest without considering the relationship type. -->
+<!-- ::: -->
+</section>
+<section id="correlation-matrix-heatmap" class="slide level2">
+<h2>Correlation matrix heatmap</h2>
+<div id="3d5b33b9" class="cell" data-fig-height="6" data-fig-width="8" data-execution_count="37">
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb54-1"><a href=""></a>corr <span class="op">=</span> returns_pct.corr()</span>
+<span id="cb54-2"><a href=""></a>mask <span class="op">=</span> np.triu(np.ones_like(corr, dtype<span class="op">=</span><span class="bu">bool</span>), k<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb54-3"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
+<span id="cb54-4"><a href=""></a>sns.heatmap(corr, mask<span class="op">=</span>mask, annot<span class="op">=</span><span class="va">True</span>, fmt<span class="op">=</span><span class="st">".2f"</span>, cmap<span class="op">=</span><span class="st">"vlag"</span>, center<span class="op">=</span><span class="dv">0</span>,</span>
+<span id="cb54-5"><a href=""></a>            vmin<span class="op">=-</span><span class="dv">1</span>, vmax<span class="op">=</span><span class="dv">1</span>, square<span class="op">=</span><span class="va">True</span>, ax<span class="op">=</span>ax)</span>
+<span id="cb54-6"><a href=""></a>ax.<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Pearson correlation matrix"</span>)</span>
+<span id="cb54-7"><a href=""></a>plt.tight_layout()</span>
+<span id="cb54-8"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+</div>
+<img data-src="lecture_03_eda_files/figure-revealjs/cell-38-output-1.png" class="r-stretch"><aside class="notes">
+<p>Fixing the scale from -1 to 1 ensures colors retain a stable interpretation. A heatmap is useful for overview, but scatterplots are needed to inspect shape and outliers.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="pairwise-visualization" class="slide level2">
+<h2>Pairwise visualization</h2>
+<div id="29505f08" class="cell" data-fig-height="8" data-fig-width="10" data-execution_count="38">
+<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb55-1"><a href=""></a>sample_pairs <span class="op">=</span> returns_pct.sample(<span class="dv">450</span>, random_state<span class="op">=</span><span class="dv">42</span>)</span>
+<span id="cb55-2"><a href=""></a>g <span class="op">=</span> sns.pairplot(sample_pairs, corner<span class="op">=</span><span class="va">True</span>, diag_kind<span class="op">=</span><span class="st">"hist"</span>,</span>
+<span id="cb55-3"><a href=""></a>                 plot_kws<span class="op">=</span>{<span class="st">"alpha"</span>: <span class="fl">.35</span>, <span class="st">"s"</span>: <span class="dv">18</span>, <span class="st">"color"</span>: <span class="st">"#0072B2"</span>},</span>
+<span id="cb55-4"><a href=""></a>                 diag_kws<span class="op">=</span>{<span class="st">"color"</span>: <span class="st">"#56B4E9"</span>})</span>
+<span id="cb55-5"><a href=""></a>g.figure.suptitle(<span class="st">"Pairwise distributions and relationships"</span>, y<span class="op">=</span><span class="fl">1.02</span>)</span>
+<span id="cb55-6"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+</div>
+<img data-src="lecture_03_eda_files/figure-revealjs/cell-39-output-1.png" class="r-stretch"><aside class="notes">
+<p>The diagonal shows marginal distributions; off-diagonal panels show joint structure. Sampling improves readability but should be reproducible.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="overplotting-use-density-or-hexagonal-bins" class="slide level2">
+<h2>Overplotting: use density or hexagonal bins</h2>
+<div id="a4f5fb28" class="cell" data-fig-height="4.5" data-fig-width="10" data-execution_count="39">
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb56-1"><a href=""></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>)</span>
+<span id="cb56-2"><a href=""></a>axes[<span class="dv">0</span>].scatter(returns_pct[<span class="st">"Market"</span>], returns_pct[<span class="st">"Asset A"</span>], alpha<span class="op">=</span><span class="fl">.15</span>, s<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb56-3"><a href=""></a>axes[<span class="dv">0</span>].<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Transparent points"</span>, xlabel<span class="op">=</span><span class="st">"Market (%)"</span>, ylabel<span class="op">=</span><span class="st">"Asset A (%)"</span>)</span>
+<span id="cb56-4"><a href=""></a>hb <span class="op">=</span> axes[<span class="dv">1</span>].hexbin(returns_pct[<span class="st">"Market"</span>], returns_pct[<span class="st">"Asset A"</span>], gridsize<span class="op">=</span><span class="dv">35</span>, cmap<span class="op">=</span><span class="st">"viridis"</span>, mincnt<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb56-5"><a href=""></a>axes[<span class="dv">1</span>].<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Hexagonal counts"</span>, xlabel<span class="op">=</span><span class="st">"Market (%)"</span>, ylabel<span class="op">=</span><span class="st">"Asset A (%)"</span>)</span>
+<span id="cb56-6"><a href=""></a>fig.colorbar(hb, ax<span class="op">=</span>axes[<span class="dv">1</span>], label<span class="op">=</span><span class="st">"Count"</span>)</span>
+<span id="cb56-7"><a href=""></a>plt.tight_layout()</span>
+<span id="cb56-8"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+</div>
+<img data-src="lecture_03_eda_files/figure-revealjs/cell-40-output-1.png" class="r-stretch"><aside class="notes">
+<p>Transparency helps but can depend on rendering. Hexbin makes local counts explicit and is useful for dense bivariate data.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="group-structure-can-distort-aggregate-relationships" class="slide level2">
+<h2>Group structure can distort aggregate relationships</h2>
+<div id="d3d7a9d8" class="cell" data-fig-height="5" data-fig-width="9" data-execution_count="40">
+<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb57-1"><a href=""></a>n_group <span class="op">=</span> <span class="dv">120</span></span>
+<span id="cb57-2"><a href=""></a>x1 <span class="op">=</span> rng.normal(<span class="dv">2</span>, <span class="fl">.7</span>, n_group)<span class="op">;</span> y1 <span class="op">=</span> <span class="op">-</span>x1 <span class="op">+</span> <span class="dv">6</span> <span class="op">+</span> rng.normal(<span class="dv">0</span>, <span class="fl">.35</span>, n_group)</span>
+<span id="cb57-3"><a href=""></a>x2 <span class="op">=</span> rng.normal(<span class="dv">6</span>, <span class="fl">.7</span>, n_group)<span class="op">;</span> y2 <span class="op">=</span> <span class="op">-</span>x2 <span class="op">+</span> <span class="dv">14</span> <span class="op">+</span> rng.normal(<span class="dv">0</span>, <span class="fl">.35</span>, n_group)</span>
+<span id="cb57-4"><a href=""></a>groups <span class="op">=</span> pd.DataFrame({<span class="st">"x"</span>: np.r_[x1, x2], <span class="st">"y"</span>: np.r_[y1, y2],</span>
+<span id="cb57-5"><a href=""></a>                       <span class="st">"group"</span>: [<span class="st">"Group 1"</span>]<span class="op">*</span>n_group <span class="op">+</span> [<span class="st">"Group 2"</span>]<span class="op">*</span>n_group})</span>
+<span id="cb57-6"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
+<span id="cb57-7"><a href=""></a>sns.scatterplot(data<span class="op">=</span>groups, x<span class="op">=</span><span class="st">"x"</span>, y<span class="op">=</span><span class="st">"y"</span>, hue<span class="op">=</span><span class="st">"group"</span>, ax<span class="op">=</span>ax)</span>
+<span id="cb57-8"><a href=""></a>sns.regplot(data<span class="op">=</span>groups, x<span class="op">=</span><span class="st">"x"</span>, y<span class="op">=</span><span class="st">"y"</span>, scatter<span class="op">=</span><span class="va">False</span>, ci<span class="op">=</span><span class="va">None</span>, color<span class="op">=</span><span class="st">"black"</span>, ax<span class="op">=</span>ax)</span>
+<span id="cb57-9"><a href=""></a>ax.<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Aggregate and within-group relationships can differ"</span>)</span>
+<span id="cb57-10"><a href=""></a>plt.tight_layout()</span>
+<span id="cb57-11"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+</div>
+<img data-src="lecture_03_eda_files/figure-revealjs/cell-41-output-1.png" class="r-stretch"><aside class="notes">
+<p>This constructed example illustrates confounding and Simpson-like reversals. Always inspect meaningful groups before interpreting an aggregate coefficient.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section></section>
+<section>
+<section id="integrated-eda" class="title-slide slide level1 center">
+<h1>Integrated EDA</h1>
+
+</section>
+<section id="a-descriptive-statistics-table" class="slide level2">
+<h2>A descriptive-statistics table</h2>
+<div id="dee51be9" class="cell" data-execution_count="41">
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb58-1"><a href=""></a><span class="kw">def</span> descriptive_table(df):</span>
+<span id="cb58-2"><a href=""></a>    out <span class="op">=</span> pd.DataFrame(index<span class="op">=</span>df.columns)</span>
+<span id="cb58-3"><a href=""></a>    out[<span class="st">"n"</span>] <span class="op">=</span> df.count()</span>
+<span id="cb58-4"><a href=""></a>    out[<span class="st">"missing"</span>] <span class="op">=</span> df.isna().<span class="bu">sum</span>()</span>
+<span id="cb58-5"><a href=""></a>    out[<span class="st">"mean"</span>] <span class="op">=</span> df.mean()</span>
+<span id="cb58-6"><a href=""></a>    out[<span class="st">"median"</span>] <span class="op">=</span> df.median()</span>
+<span id="cb58-7"><a href=""></a>    out[<span class="st">"std"</span>] <span class="op">=</span> df.std(ddof<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb58-8"><a href=""></a>    out[<span class="st">"Q1"</span>] <span class="op">=</span> df.quantile(<span class="fl">.25</span>)</span>
+<span id="cb58-9"><a href=""></a>    out[<span class="st">"Q3"</span>] <span class="op">=</span> df.quantile(<span class="fl">.75</span>)</span>
+<span id="cb58-10"><a href=""></a>    out[<span class="st">"IQR"</span>] <span class="op">=</span> out[<span class="st">"Q3"</span>] <span class="op">-</span> out[<span class="st">"Q1"</span>]</span>
+<span id="cb58-11"><a href=""></a>    out[<span class="st">"min"</span>] <span class="op">=</span> df.<span class="bu">min</span>()</span>
+<span id="cb58-12"><a href=""></a>    out[<span class="st">"max"</span>] <span class="op">=</span> df.<span class="bu">max</span>()</span>
+<span id="cb58-13"><a href=""></a>    out[<span class="st">"skew"</span>] <span class="op">=</span> df.<span class="bu">apply</span>(<span class="kw">lambda</span> s: stats.skew(s.dropna(), bias<span class="op">=</span><span class="va">False</span>))</span>
+<span id="cb58-14"><a href=""></a>    out[<span class="st">"excess_kurtosis"</span>] <span class="op">=</span> df.<span class="bu">apply</span>(<span class="kw">lambda</span> s: stats.kurtosis(s.dropna(), fisher<span class="op">=</span><span class="va">True</span>, bias<span class="op">=</span><span class="va">False</span>))</span>
+<span id="cb58-15"><a href=""></a>    <span class="cf">return</span> out</span>
+<span id="cb58-16"><a href=""></a></span>
+<span id="cb58-17"><a href=""></a>descriptive_table(returns_pct).<span class="bu">round</span>(<span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="87">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+
+<table class="dataframe caption-top" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header" style="text-align: right;">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">n</th>
+<th data-quarto-table-cell-role="th">missing</th>
+<th data-quarto-table-cell-role="th">mean</th>
+<th data-quarto-table-cell-role="th">median</th>
+<th data-quarto-table-cell-role="th">std</th>
+<th data-quarto-table-cell-role="th">Q1</th>
+<th data-quarto-table-cell-role="th">Q3</th>
+<th data-quarto-table-cell-role="th">IQR</th>
+<th data-quarto-table-cell-role="th">min</th>
+<th data-quarto-table-cell-role="th">max</th>
+<th data-quarto-table-cell-role="th">skew</th>
+<th data-quarto-table-cell-role="th">excess_kurtosis</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Market</td>
+<td>1250</td>
+<td>0</td>
+<td>-0.034</td>
+<td>0.003</td>
+<td>1.097</td>
+<td>-0.652</td>
+<td>0.576</td>
+<td>1.228</td>
+<td>-4.603</td>
+<td>4.891</td>
+<td>-0.116</td>
+<td>1.805</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Asset A</td>
+<td>1250</td>
+<td>0</td>
+<td>0.002</td>
+<td>0.096</td>
+<td>1.617</td>
+<td>-0.946</td>
+<td>0.917</td>
+<td>1.864</td>
+<td>-6.476</td>
+<td>7.587</td>
+<td>-0.100</td>
+<td>1.366</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Asset B</td>
+<td>1250</td>
+<td>0</td>
+<td>-0.008</td>
+<td>-0.005</td>
+<td>0.830</td>
+<td>-0.543</td>
+<td>0.523</td>
+<td>1.066</td>
+<td>-3.234</td>
+<td>2.584</td>
+<td>-0.066</td>
+<td>0.550</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Asset C</td>
+<td>1250</td>
+<td>0</td>
+<td>-0.044</td>
+<td>-0.028</td>
+<td>1.085</td>
+<td>-0.779</td>
+<td>0.690</td>
+<td>1.468</td>
+<td>-3.355</td>
+<td>3.644</td>
+<td>-0.011</td>
+<td>0.042</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<aside class="notes">
+<p>This table documents conventions explicitly: sample SD uses ddof=1, skewness is bias-adjusted, and kurtosis is excess kurtosis. A table should not replace graphics.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="one-variable-four-complementary-views" class="slide level2">
+<h2>One variable, four complementary views</h2>
+<div id="b98e00f9" class="cell" data-fig-height="7" data-fig-width="11" data-execution_count="42">
+<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb59-1"><a href=""></a>x <span class="op">=</span> returns_pct[<span class="st">"Market"</span>]</span>
+<span id="cb59-2"><a href=""></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">2</span>)</span>
+<span id="cb59-3"><a href=""></a>sns.histplot(x, bins<span class="op">=</span><span class="dv">40</span>, kde<span class="op">=</span><span class="va">True</span>, color<span class="op">=</span><span class="st">"#56B4E9"</span>, ax<span class="op">=</span>axes[<span class="dv">0</span>,<span class="dv">0</span>])</span>
+<span id="cb59-4"><a href=""></a>axes[<span class="dv">0</span>,<span class="dv">0</span>].<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Histogram + KDE"</span>, xlabel<span class="op">=</span><span class="st">"Return (%)"</span>)</span>
+<span id="cb59-5"><a href=""></a>sns.boxplot(x<span class="op">=</span>x, orient<span class="op">=</span><span class="st">"h"</span>, color<span class="op">=</span><span class="st">"#56B4E9"</span>, ax<span class="op">=</span>axes[<span class="dv">0</span>,<span class="dv">1</span>])</span>
+<span id="cb59-6"><a href=""></a>axes[<span class="dv">0</span>,<span class="dv">1</span>].<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Boxplot"</span>, xlabel<span class="op">=</span><span class="st">"Return (%)"</span>)</span>
+<span id="cb59-7"><a href=""></a>sns.ecdfplot(x<span class="op">=</span>x, color<span class="op">=</span><span class="st">"#0072B2"</span>, ax<span class="op">=</span>axes[<span class="dv">1</span>,<span class="dv">0</span>])</span>
+<span id="cb59-8"><a href=""></a>axes[<span class="dv">1</span>,<span class="dv">0</span>].<span class="bu">set</span>(title<span class="op">=</span><span class="st">"ECDF"</span>, xlabel<span class="op">=</span><span class="st">"Return (%)"</span>, ylabel<span class="op">=</span><span class="st">"Cumulative proportion"</span>)</span>
+<span id="cb59-9"><a href=""></a>qqplot(x, line<span class="op">=</span><span class="st">"45"</span>, ax<span class="op">=</span>axes[<span class="dv">1</span>,<span class="dv">1</span>])</span>
+<span id="cb59-10"><a href=""></a>axes[<span class="dv">1</span>,<span class="dv">1</span>].set_title(<span class="st">"Normal Q-Q plot"</span>)</span>
+<span id="cb59-11"><a href=""></a>plt.tight_layout()</span>
+<span id="cb59-12"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+</div>
+<img data-src="lecture_03_eda_files/figure-revealjs/cell-43-output-1.png" class="r-stretch"><aside class="notes">
+<p>Histogram reveals local mass, boxplot provides robust positional landmarks, ECDF exposes all thresholds, and Q-Q reveals departures from a normal reference.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="outlier-sensitivity-experiment" class="slide level2">
+<h2>Outlier sensitivity experiment</h2>
+<div id="3cb62f16" class="cell" data-execution_count="43">
+<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb60-1"><a href=""></a>clean <span class="op">=</span> rng.normal(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">300</span>)</span>
+<span id="cb60-2"><a href=""></a>contaminated <span class="op">=</span> np.r_[clean, <span class="dv">12</span>]</span>
+<span id="cb60-3"><a href=""></a>comparison <span class="op">=</span> pd.DataFrame({</span>
+<span id="cb60-4"><a href=""></a>    <span class="st">"Statistic"</span>: [<span class="st">"Mean"</span>, <span class="st">"Median"</span>, <span class="st">"SD"</span>, <span class="st">"IQR"</span>, <span class="st">"Skewness"</span>, <span class="st">"Excess kurtosis"</span>],</span>
+<span id="cb60-5"><a href=""></a>    <span class="st">"Clean"</span>: [np.mean(clean), np.median(clean), np.std(clean, ddof<span class="op">=</span><span class="dv">1</span>), stats.iqr(clean),</span>
+<span id="cb60-6"><a href=""></a>              stats.skew(clean, bias<span class="op">=</span><span class="va">False</span>), stats.kurtosis(clean, bias<span class="op">=</span><span class="va">False</span>)],</span>
+<span id="cb60-7"><a href=""></a>    <span class="st">"Contaminated"</span>: [np.mean(contaminated), np.median(contaminated), np.std(contaminated, ddof<span class="op">=</span><span class="dv">1</span>),</span>
+<span id="cb60-8"><a href=""></a>                     stats.iqr(contaminated), stats.skew(contaminated, bias<span class="op">=</span><span class="va">False</span>),</span>
+<span id="cb60-9"><a href=""></a>                     stats.kurtosis(contaminated, bias<span class="op">=</span><span class="va">False</span>)],</span>
+<span id="cb60-10"><a href=""></a>})</span>
+<span id="cb60-11"><a href=""></a>comparison.<span class="bu">round</span>(<span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="89">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+
+<table class="dataframe caption-top" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header" style="text-align: right;">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Statistic</th>
+<th data-quarto-table-cell-role="th">Clean</th>
+<th data-quarto-table-cell-role="th">Contaminated</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>Mean</td>
+<td>-0.039</td>
+<td>0.001</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>Median</td>
+<td>-0.039</td>
+<td>-0.031</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>SD</td>
+<td>1.033</td>
+<td>1.243</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>IQR</td>
+<td>1.434</td>
+<td>1.439</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>Skewness</td>
+<td>0.227</td>
+<td>3.080</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">5</td>
+<td>Excess kurtosis</td>
+<td>0.247</td>
+<td>28.033</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<aside class="notes">
+<p>The experiment shows differential sensitivity. Median and IQR are resistant; skewness and kurtosis can change dramatically.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="missing-values-and-denominators" class="slide level2">
+<h2>Missing values and denominators</h2>
+<div id="cce4a164" class="cell" data-execution_count="44">
+<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb61-1"><a href=""></a>missing_demo <span class="op">=</span> returns_pct[[<span class="st">"Market"</span>, <span class="st">"Asset A"</span>]].copy()</span>
+<span id="cb61-2"><a href=""></a>missing_demo.loc[missing_demo.sample(<span class="dv">100</span>, random_state<span class="op">=</span><span class="dv">1</span>).index, <span class="st">"Asset A"</span>] <span class="op">=</span> np.nan</span>
+<span id="cb61-3"><a href=""></a>pd.DataFrame({</span>
+<span id="cb61-4"><a href=""></a>    <span class="st">"count"</span>: missing_demo.count(),</span>
+<span id="cb61-5"><a href=""></a>    <span class="st">"mean"</span>: missing_demo.mean(),</span>
+<span id="cb61-6"><a href=""></a>    <span class="st">"std"</span>: missing_demo.std(),</span>
+<span id="cb61-7"><a href=""></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="90">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+
+<table class="dataframe caption-top" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header" style="text-align: right;">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">count</th>
+<th data-quarto-table-cell-role="th">mean</th>
+<th data-quarto-table-cell-role="th">std</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Market</td>
+<td>1250</td>
+<td>-0.034259</td>
+<td>1.096869</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Asset A</td>
+<td>1150</td>
+<td>-0.004932</td>
+<td>1.620854</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<div id="5bd578dd" class="cell" data-execution_count="45">
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb62-1"><a href=""></a>missing_demo.corr(min_periods<span class="op">=</span><span class="dv">1200</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="91">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+
+<table class="dataframe caption-top" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header" style="text-align: right;">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Market</th>
+<th data-quarto-table-cell-role="th">Asset A</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Market</td>
+<td>1.0</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Asset A</td>
+<td>NaN</td>
+<td>NaN</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<aside class="notes">
+<p>Pandas descriptive methods commonly omit missing values. Pairwise covariance and correlation can use different observation sets for different pairs. Report counts and use min_periods when appropriate.</p>
+<p>[Sources] - https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.corr.html - https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.cov.html</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="transformations-change-interpretation" class="slide level2">
+<h2>Transformations change interpretation</h2>
+<div id="d6b52f95" class="cell" data-fig-height="4.5" data-fig-width="10" data-execution_count="46">
+<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb63-1"><a href=""></a>raw_volume <span class="op">=</span> returns[<span class="st">"Volume"</span>]</span>
+<span id="cb63-2"><a href=""></a>log_volume <span class="op">=</span> np.log(raw_volume)</span>
+<span id="cb63-3"><a href=""></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>)</span>
+<span id="cb63-4"><a href=""></a>sns.histplot(raw_volume, bins<span class="op">=</span><span class="dv">40</span>, color<span class="op">=</span><span class="st">"#56B4E9"</span>, ax<span class="op">=</span>axes[<span class="dv">0</span>])</span>
+<span id="cb63-5"><a href=""></a>axes[<span class="dv">0</span>].<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Volume"</span>, xlabel<span class="op">=</span><span class="st">"Raw units"</span>)</span>
+<span id="cb63-6"><a href=""></a>sns.histplot(log_volume, bins<span class="op">=</span><span class="dv">40</span>, color<span class="op">=</span><span class="st">"#009E73"</span>, ax<span class="op">=</span>axes[<span class="dv">1</span>])</span>
+<span id="cb63-7"><a href=""></a>axes[<span class="dv">1</span>].<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Log volume"</span>, xlabel<span class="op">=</span><span class="st">"log(Volume)"</span>)</span>
+<span id="cb63-8"><a href=""></a>plt.tight_layout()</span>
+<span id="cb63-9"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+</div>
+<img data-src="lecture_03_eda_files/figure-revealjs/cell-47-output-1.png" class="r-stretch"><aside class="notes">
+<p>A log transformation changes the scale, distances, skewness, and meaning of differences. Do not describe the transformed variable as if it were still in raw units.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="eda-is-iterative" class="slide level2">
+<h2>EDA is iterative</h2>
+<p>After each graph or statistic, ask:</p>
+<ul>
+<li>What feature did the display reveal?</li>
+<li>Is the feature real, constructed, or an artifact of scale or method?</li>
+<li>Which subgroup, time window, or variable should be inspected next?</li>
+<li>What assumption became questionable?</li>
+<li>Which alternative summary would challenge the current interpretation?</li>
+</ul>
+<aside class="notes">
+<p>This is the transition from descriptive output to analytical reasoning.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section></section>
+<section>
+<section id="common-errors" class="title-slide slide level1 center">
+<h1>Common Errors</h1>
+
+</section>
+<section id="descriptive-statistics-failure-modes" class="slide level2">
+<h2>Descriptive-statistics failure modes</h2>
+<ul>
+<li>reporting mean without shape or sample size;</li>
+<li>calling every extreme observation an error;</li>
+<li>omitting quantile estimator conventions when exact replication matters;</li>
+<li>confusing population and sample denominators;</li>
+<li>reporting kurtosis without saying Pearson or excess;</li>
+<li>treating correlation as causation or independence;</li>
+<li>trusting a correlation matrix without scatterplots;</li>
+<li>comparing histograms with different bins or scales;</li>
+<li>ignoring missing-data denominators;</li>
+<li>presenting smoothed density as raw observation frequency.</li>
+</ul>
+<aside class="notes">
+<p>Use this as a quality-control checklist for reports and dashboards.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="graph-selection-guide" class="slide level2">
+<h2>Graph selection guide</h2>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Question</th>
+<th>Primary display</th>
+<th>Complement</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Where is the center?</td>
+<td>histogram/ECDF</td>
+<td>mean and median</td>
+</tr>
+<tr class="even">
+<td>How dispersed?</td>
+<td>box/violin</td>
+<td>SD, IQR, MAD</td>
+</tr>
+<tr class="odd">
+<td>Tail behavior?</td>
+<td>ECDF/Q-Q</td>
+<td>quantiles, kurtosis</td>
+</tr>
+<tr class="even">
+<td>Multiple modes?</td>
+<td>histogram/KDE</td>
+<td>subgroup analysis</td>
+</tr>
+<tr class="odd">
+<td>Group comparison?</td>
+<td>shared-scale box/violin</td>
+<td>grouped table</td>
+</tr>
+<tr class="even">
+<td>Linear association?</td>
+<td>scatterplot</td>
+<td>Pearson correlation</td>
+</tr>
+<tr class="odd">
+<td>Monotonic association?</td>
+<td>scatterplot of ranks</td>
+<td>Spearman/Kendall</td>
+</tr>
+<tr class="even">
+<td>Many variables?</td>
+<td>pairplot/heatmap</td>
+<td>selected scatterplots</td>
+</tr>
+</tbody>
+</table>
+<aside class="notes">
+<p>This is a heuristic, not an absolute rule. The graph must still respect variable type, sample size, and measurement design.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section></section>
+<section>
+<section id="practice" class="title-slide slide level1 center">
+<h1>Practice</h1>
+
+</section>
+<section id="capstone-exercise" class="slide level2">
+<h2>Capstone exercise</h2>
+<p>Using <code>returns</code>, create an EDA report that:</p>
+<ol type="1">
+<li>defines the unit of observation and units;</li>
+<li>audits completeness and validity;</li>
+<li>compares mean, median, and selected quantiles;</li>
+<li>compares range, IQR, SD, and MAD;</li>
+<li>reports adjusted skewness and excess kurtosis;</li>
+<li>produces histogram, ECDF, boxplot, and Q-Q plot;</li>
+<li>compares assets using shared scales;</li>
+<li>examines covariance and three forms of correlation;</li>
+<li>uses scatterplots to challenge the coefficients;</li>
+<li>states limitations and next analytical questions.</li>
+</ol>
+<aside class="notes">
+<p>Grade reasoning and reproducibility rather than visual decoration.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="suggested-assessment-rubric" class="slide level2">
+<h2>Suggested assessment rubric</h2>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Dimension</th>
+<th>Evidence</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Definitions</td>
+<td>formulas and conventions are precise</td>
+</tr>
+<tr class="even">
+<td>Computation</td>
+<td>code matches the stated estimand</td>
+</tr>
+<tr class="odd">
+<td>Visualization</td>
+<td>graph answers a defined question</td>
+</tr>
+<tr class="even">
+<td>Interpretation</td>
+<td>claims stay within descriptive evidence</td>
+</tr>
+<tr class="odd">
+<td>Robustness</td>
+<td>sensitivity to extremes and methods is examined</td>
+</tr>
+<tr class="even">
+<td>Bivariate reasoning</td>
+<td>shape is inspected before coefficients</td>
+</tr>
+<tr class="odd">
+<td>Reproducibility</td>
+<td>data, seed, units, and parameters are explicit</td>
+</tr>
+</tbody>
+</table>
+<aside class="notes">
+<p>A postgraduate submission should show why each statistic and each plot was selected.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section></section>
+<section>
+<section id="key-takeaways" class="title-slide slide level1 center">
+<h1>Key Takeaways</h1>
+
+</section>
+<section id="descriptive-statistics-are-a-system" class="slide level2">
+<h2>Descriptive statistics are a system</h2>
+<ul>
+<li>Position locates the distribution.</li>
+<li>Dispersion quantifies heterogeneity or scale.</li>
+<li>Shape describes asymmetry, modes, and tails.</li>
+<li>Bivariate measures summarize joint variation.</li>
+<li>Graphics reveal structure that scalar summaries can conceal.</li>
+<li>Robust and classical measures answer different questions.</li>
+<li>Software defaults are methodological choices.</li>
+<li>EDA generates better questions before it generates models.</li>
+</ul>
+<aside class="notes">
+<p>End by asking students to name one statistic that changed meaning when a software convention changed.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="final-checklist" class="slide level2">
+<h2>Final checklist</h2>
+<ul class="task-list">
+<li><label><input type="checkbox">What is one row?</label></li>
+<li><label><input type="checkbox">Are units and denominators explicit?</label></li>
+<li><label><input type="checkbox">Which center is substantively meaningful?</label></li>
+<li><label><input type="checkbox">Is spread reported in interpretable units?</label></li>
+<li><label><input type="checkbox">Are shape and tails visualized?</label></li>
+<li><label><input type="checkbox">Are estimator conventions documented?</label></li>
+<li><label><input type="checkbox">Are group structures inspected?</label></li>
+<li><label><input type="checkbox">Is every correlation accompanied by a joint display?</label></li>
+<li><label><input type="checkbox">Were missingness and extreme observations investigated?</label></li>
+<li><label><input type="checkbox">Are limitations and next questions stated?</label></li>
+</ul>
+<aside class="notes">
+<p>This checklist is reusable for assignments, research, and professional analysis.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section></section>
+<section>
+<section id="references" class="title-slide slide level1 center">
+<h1>References</h1>
+
+</section>
+<section id="core-references" class="slide level2">
+<h2>Core references</h2>
+<ul>
+<li>Tukey, J. W. <em>Exploratory Data Analysis</em>. Addison-Wesley, 1977.</li>
+<li>NIST/SEMATECH, <em>Exploratory Data Analysis</em>, Engineering Statistics Handbook.</li>
+<li>NumPy documentation, <code>numpy.quantile</code>.</li>
+<li>SciPy documentation, <code>scipy.stats.skew</code> and <code>scipy.stats.kurtosis</code>.</li>
+<li>pandas documentation, <code>DataFrame.cov</code> and <code>DataFrame.corr</code>.</li>
+<li>Wilke, C. O. <em>Fundamentals of Data Visualization</em>. O’Reilly, 2019.</li>
+<li>Cleveland, W. S. <em>Visualizing Data</em>. Hobart Press, 1993.</li>
+</ul>
+<aside class="notes">
+<p>The lecture text and synthetic examples were created for this course. Mathematical definitions follow the references listed here, with software conventions explicitly stated.</p>
+<p>[Sources] - https://www.itl.nist.gov/div898/handbook/eda/eda.htm - https://numpy.org/doc/stable/reference/generated/numpy.quantile.html - https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.skew.html - https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.kurtosis.html - https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.cov.html - https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.corr.html</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<div class="quarto-auto-generated-content">
+<p><img src="logo.svg" class="slide-logo"></p>
+<div class="footer footer-default">
+<p>Data Analytics &amp; Visualization</p>
+</div>
+</div>
+</section></section>
+    </div>
+  </div>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script>
+  <script src="lecture_03_eda_files/libs/revealjs/dist/reveal.js"></script>
+  <!-- reveal.js plugins -->
+  <script src="lecture_03_eda_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
+  <script src="lecture_03_eda_files/libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
+  <script src="lecture_03_eda_files/libs/revealjs/plugin/reveal-menu/menu.js"></script>
+  <script src="lecture_03_eda_files/libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="lecture_03_eda_files/libs/revealjs/plugin/reveal-chalkboard/plugin.js"></script>
+  <script src="lecture_03_eda_files/libs/revealjs/plugin/quarto-support/support.js"></script>
+  
+
+  <script src="lecture_03_eda_files/libs/revealjs/plugin/notes/notes.js"></script>
+  <script src="lecture_03_eda_files/libs/revealjs/plugin/search/search.js"></script>
+  <script src="lecture_03_eda_files/libs/revealjs/plugin/zoom/zoom.js"></script>
+  <script src="lecture_03_eda_files/libs/revealjs/plugin/math/math.js"></script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://revealjs.com/config/
+      Reveal.initialize({
+'controlsAuto': true,
+'previewLinksAuto': true,
+'pdfSeparateFragments': false,
+'autoAnimateEasing': "ease",
+'autoAnimateDuration': 1,
+'autoAnimateUnmatched': true,
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleChalkboard(event)\"><kbd>b</kbd> Toggle Chalkboard</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleNotesCanvas(event)\"><kbd>c</kbd> Toggle Notes Canvas</a></li>\n<li class=\"slide-tool-item\" data-item=\"6\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.downloadDrawings(event)\"><kbd>d</kbd> Download Drawings</a></li>\n<li class=\"slide-tool-item\" data-item=\"7\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'chalkboard': {"buttons":true},
+'smaller': true,
+ 
+        // Display controls in the bottom right corner
+        controls: false,
+
+        // Help the user learn the controls by providing hints, for example by
+        // bouncing the down arrow when they first encounter a vertical slide
+        controlsTutorial: false,
+
+        // Determines where controls appear, "edges" or "bottom-right"
+        controlsLayout: 'edges',
+
+        // Visibility rule for backwards navigation arrows; "faded", "hidden"
+        // or "visible"
+        controlsBackArrows: 'faded',
+
+        // Display a presentation progress bar
+        progress: true,
+
+        // Display the page number of the current slide
+        slideNumber: 'c/t',
+
+        // 'all', 'print', or 'speaker'
+        showSlideNumber: 'all',
+
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+        hash: true,
+
+        // Start with 1 for the hash rather than 0
+        hashOneBasedIndex: false,
+
+        // Flags if we should monitor the hash and change slides accordingly
+        respondToHashChanges: true,
+
+        // Push each slide change to the browser history
+        history: true,
+
+        // Enable keyboard shortcuts for navigation
+        keyboard: true,
+
+        // Enable the slide overview mode
+        overview: true,
+
+        // Disables the default reveal.js slide layout (scaling and centering)
+        // so that you can use custom CSS layout
+        disableLayout: false,
+
+        // Vertical centering of slides
+        center: false,
+
+        // Enables touch navigation on devices with touch input
+        touch: true,
+
+        // Loop the presentation
+        loop: false,
+
+        // Change the presentation direction to be RTL
+        rtl: false,
+
+        // see https://revealjs.com/vertical-slides/#navigation-mode
+        navigationMode: 'linear',
+
+        // Randomizes the order of slides each time the presentation loads
+        shuffle: false,
+
+        // Turns fragments on and off globally
+        fragments: true,
+
+        // Flags whether to include the current fragment in the URL,
+        // so that reloading brings you to the same fragment position
+        fragmentInURL: false,
+
+        // Flags if the presentation is running in an embedded mode,
+        // i.e. contained within a limited portion of the screen
+        embedded: false,
+
+        // Flags if we should show a help overlay when the questionmark
+        // key is pressed
+        help: true,
+
+        // Flags if it should be possible to pause the presentation (blackout)
+        pause: true,
+
+        // Flags if speaker notes should be visible to all viewers
+        showNotes: false,
+
+        // Global override for autoplaying embedded media (null/true/false)
+        autoPlayMedia: null,
+
+        // Global override for preloading lazy-loaded iframes (null/true/false)
+        preloadIframes: null,
+
+        // Number of milliseconds between automatically proceeding to the
+        // next slide, disabled when set to 0, this value can be overwritten
+        // by using a data-autoslide attribute on your slides
+        autoSlide: 0,
+
+        // Stop auto-sliding after user input
+        autoSlideStoppable: true,
+
+        // Use this method for navigation when auto-sliding
+        autoSlideMethod: null,
+
+        // Specify the average time in seconds that you think you will spend
+        // presenting each slide. This is used to show a pacing timer in the
+        // speaker view
+        defaultTiming: null,
+
+        // Enable slide navigation via mouse wheel
+        mouseWheel: false,
+
+        // The display mode that will be used to show slides
+        display: 'block',
+
+        // Hide cursor if inactive
+        hideInactiveCursor: true,
+
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: 5000,
+
+        // Opens links in an iframe preview overlay
+        previewLinks: false,
+
+        // Transition style (none/fade/slide/convex/concave/zoom)
+        transition: 'fade',
+
+        // Transition speed (default/fast/slow)
+        transitionSpeed: 'default',
+
+        // Transition style for full page slide backgrounds
+        // (none/fade/slide/convex/concave/zoom)
+        backgroundTransition: 'none',
+
+        // Number of slides away from the current that are visible
+        viewDistance: 3,
+
+        // Number of slides away from the current that are visible on mobile
+        // devices. It is advisable to set this to a lower number than
+        // viewDistance in order to save resources.
+        mobileViewDistance: 2,
+
+        // The "normal" size of the presentation, aspect ratio will be preserved
+        // when the presentation is scaled to fit different resolutions. Can be
+        // specified using percentage units.
+        width: 1600,
+
+        height: 900,
+
+        // Factor of the display size that should remain empty around the content
+        margin: 6.0e-2,
+
+        math: {
+          mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js',
+          config: 'TeX-AMS_HTML-full',
+          tex2jax: {
+            inlineMath: [['\\(','\\)']],
+            displayMath: [['\\[','\\]']],
+            balanceBraces: true,
+            processEscapes: false,
+            processRefs: true,
+            processEnvironments: true,
+            preview: 'TeX',
+            skipTags: ['script','noscript','style','textarea','pre','code'],
+            ignoreClass: 'tex2jax_ignore',
+            processClass: 'tex2jax_process'
+          },
+        },
+
+        // reveal.js plugins
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, RevealChalkboard, QuartoSupport,
+
+          RevealMath,
+          RevealNotes,
+          RevealSearch,
+          RevealZoom
+        ]
+      });
+    </script>
+    <script id="quarto-html-after-body" type="application/javascript">
+    window.document.addEventListener("DOMContentLoaded", function (event) {
+      const toggleBodyColorMode = (bsSheetEl) => {
+        const mode = bsSheetEl.getAttribute("data-mode");
+        const bodyEl = window.document.querySelector("body");
+        if (mode === "dark") {
+          bodyEl.classList.add("quarto-dark");
+          bodyEl.classList.remove("quarto-light");
+        } else {
+          bodyEl.classList.add("quarto-light");
+          bodyEl.classList.remove("quarto-dark");
+        }
+      }
+      const toggleBodyColorPrimary = () => {
+        const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+        if (bsSheetEl) {
+          toggleBodyColorMode(bsSheetEl);
+        }
+      }
+      toggleBodyColorPrimary();  
+      const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
+      tabsets.forEach(function(tabset) {
+        const tabby = new Tabby('#' + tabset.id);
+      });
+      const isCodeAnnotation = (el) => {
+        for (const clz of el.classList) {
+          if (clz.startsWith('code-annotation-')) {                     
+            return true;
+          }
+        }
+        return false;
+      }
+      const onCopySuccess = function(e) {
+        // button target
+        const button = e.trigger;
+        // don't keep focus
+        button.blur();
+        // flash "checked"
+        button.classList.add('code-copy-button-checked');
+        var currentTitle = button.getAttribute("title");
+        button.setAttribute("title", "Copied!");
+        let tooltip;
+        if (window.bootstrap) {
+          button.setAttribute("data-bs-toggle", "tooltip");
+          button.setAttribute("data-bs-placement", "left");
+          button.setAttribute("data-bs-title", "Copied!");
+          tooltip = new bootstrap.Tooltip(button, 
+            { trigger: "manual", 
+              customClass: "code-copy-button-tooltip",
+              offset: [0, -8]});
+          tooltip.show();    
+        }
+        setTimeout(function() {
+          if (tooltip) {
+            tooltip.hide();
+            button.removeAttribute("data-bs-title");
+            button.removeAttribute("data-bs-toggle");
+            button.removeAttribute("data-bs-placement");
+          }
+          button.setAttribute("title", currentTitle);
+          button.classList.remove('code-copy-button-checked');
+        }, 1000);
+        // clear code selection
+        e.clearSelection();
+      }
+      const getTextToCopy = function(trigger) {
+          const codeEl = trigger.previousElementSibling.cloneNode(true);
+          for (const childEl of codeEl.children) {
+            if (isCodeAnnotation(childEl)) {
+              childEl.remove();
+            }
+          }
+          return codeEl.innerText;
+      }
+      const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+        text: getTextToCopy
+      });
+      clipboard.on('success', onCopySuccess);
+      if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+        // For code content inside modals, clipBoardJS needs to be initialized with a container option
+        // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+        const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+          text: getTextToCopy,
+          container: window.document.getElementById('quarto-embedded-source-code-modal')
+        });
+        clipboardModal.on('success', onCopySuccess);
+      }
+        var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+        var mailtoRegex = new RegExp(/^mailto:/);
+          var filterRegex = new RegExp('/' + window.location.host + '/');
+        var isInternal = (href) => {
+            return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+        }
+        // Inspect non-navigation links and adorn them if external
+     	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+        for (var i=0; i<links.length; i++) {
+          const link = links[i];
+          if (!isInternal(link.href)) {
+            // undo the damage that might have been done by quarto-nav.js in the case of
+            // links that we want to consider external
+            if (link.dataset.originalHref !== undefined) {
+              link.href = link.dataset.originalHref;
+            }
+          }
+        }
+      function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+        const config = {
+          allowHTML: true,
+          maxWidth: 500,
+          delay: 100,
+          arrow: false,
+          appendTo: function(el) {
+              return el.closest('section.slide') || el.parentElement;
+          },
+          interactive: true,
+          interactiveBorder: 10,
+          theme: 'light-border',
+          placement: 'bottom-start',
+        };
+        if (contentFn) {
+          config.content = contentFn;
+        }
+        if (onTriggerFn) {
+          config.onTrigger = onTriggerFn;
+        }
+        if (onUntriggerFn) {
+          config.onUntrigger = onUntriggerFn;
+        }
+          config['offset'] = [0,0];
+          config['maxWidth'] = 700;
+        window.tippy(el, config); 
+      }
+      const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+      for (var i=0; i<noterefs.length; i++) {
+        const ref = noterefs[i];
+        tippyHover(ref, function() {
+          // use id or data attribute instead here
+          let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+          try { href = new URL(href).hash; } catch {}
+          const id = href.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note) {
+            return note.innerHTML;
+          } else {
+            return "";
+          }
+        });
+      }
+      const findCites = (el) => {
+        const parentEl = el.parentElement;
+        if (parentEl) {
+          const cites = parentEl.dataset.cites;
+          if (cites) {
+            return {
+              el,
+              cites: cites.split(' ')
+            };
+          } else {
+            return findCites(el.parentElement)
+          }
+        } else {
+          return undefined;
+        }
+      };
+      var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+      for (var i=0; i<bibliorefs.length; i++) {
+        const ref = bibliorefs[i];
+        const citeInfo = findCites(ref);
+        if (citeInfo) {
+          tippyHover(citeInfo.el, function() {
+            var popup = window.document.createElement('div');
+            citeInfo.cites.forEach(function(cite) {
+              var citeDiv = window.document.createElement('div');
+              citeDiv.classList.add('hanging-indent');
+              citeDiv.classList.add('csl-entry');
+              var biblioDiv = window.document.getElementById('ref-' + cite);
+              if (biblioDiv) {
+                citeDiv.innerHTML = biblioDiv.innerHTML;
+              }
+              popup.appendChild(citeDiv);
+            });
+            return popup.innerHTML;
+          });
+        }
+      }
+    });
+    </script>
+    
+
+</body></html>
