@@ -416,7 +416,7 @@ Victor Henriques, Ph.D.
 <li><a href="#/missing-values" id="/toc-missing-values">Missing Values</a></li>
 <li><a href="#/imputation" id="/toc-imputation">Imputation</a></li>
 <li><a href="#/visual-diagnostics-after-cleaning" id="/toc-visual-diagnostics-after-cleaning">Visual Diagnostics After Cleaning</a></li>
-<li><a href="#/decision-framework" id="/toc-decision-framework">Decision Framework</a></li>
+<li><a href="#/structural-change" id="/toc-structural-change">Structural Change</a></li>
 <li><a href="#/practice" id="/toc-practice">Practice</a></li>
 <li><a href="#/key-takeaways" id="/toc-key-takeaways">Key Takeaways</a></li>
 <li><a href="#/references" id="/toc-references">References</a></li>
@@ -561,7 +561,7 @@ Victor Henriques, Ph.D.
 </section>
 <section id="adelaide-hills-tourism-data" class="slide level2">
 <h2>Adelaide Hills tourism data</h2>
-<div id="89778e6a" class="cell" data-execution_count="2">
+<div id="08dd09cd" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href=""></a>tourism_raw <span class="op">=</span> pd.read_csv(DATA_PATH <span class="op">/</span> <span class="st">"tourism.csv"</span>, parse_dates<span class="op">=</span>[<span class="st">"ds"</span>])</span>
 <span id="cb3-2"><a href=""></a>tourism <span class="op">=</span> (</span>
 <span id="cb3-3"><a href=""></a>    tourism_raw</span>
@@ -572,7 +572,7 @@ Victor Henriques, Ph.D.
 <span id="cb3-8"><a href=""></a>    [[<span class="st">"unique_id"</span>, <span class="st">"ds"</span>, <span class="st">"y"</span>]]</span>
 <span id="cb3-9"><a href=""></a>)</span>
 <span id="cb3-10"><a href=""></a>tourism.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="26">
+<div class="cell-output cell-output-display" data-execution_count="2">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -651,7 +651,7 @@ Victor Henriques, Ph.D.
 </section>
 <section id="figure-13.9-inspect-the-original-series" class="slide level2">
 <h2>Figure 13.9: Inspect the original series</h2>
-<div id="5fcdc801" class="cell" data-execution_count="3">
+<div id="1cb11b06" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href=""></a>fig, ax <span class="op">=</span> plot_series_matplotlib(</span>
 <span id="cb4-2"><a href=""></a>    tourism,</span>
 <span id="cb4-3"><a href=""></a>    title<span class="op">=</span><span class="st">"Quarterly overnight trips to Adelaide Hills"</span>,</span>
@@ -678,7 +678,7 @@ Victor Henriques, Ph.D.
 </section>
 <section id="annotate-suspected-observations" class="slide level2">
 <h2>Annotate suspected observations</h2>
-<div id="f591f858" class="cell" data-execution_count="4">
+<div id="05cf1412" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href=""></a>suspected_date <span class="op">=</span> pd.Timestamp(<span class="st">"2002-10-01"</span>)</span>
 <span id="cb5-2"><a href=""></a>suspected <span class="op">=</span> tourism.loc[tourism[<span class="st">"ds"</span>] <span class="op">==</span> suspected_date]</span>
 <span id="cb5-3"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
@@ -729,7 +729,7 @@ y_t = T_t + S_t + R_t.
 </section>
 <section id="robust-stl-decomposition" class="slide level2">
 <h2>Robust STL decomposition</h2>
-<div id="495b18a8" class="cell" data-execution_count="5">
+<div id="2fff981c" class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href=""></a>stl <span class="op">=</span> STL(tourism[<span class="st">"y"</span>], period<span class="op">=</span><span class="dv">4</span>, robust<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb6-2"><a href=""></a>stl_result <span class="op">=</span> stl.fit()</span>
 <span id="cb6-3"><a href=""></a>dcmp <span class="op">=</span> pd.DataFrame({</span>
@@ -740,7 +740,7 @@ y_t = T_t + S_t + R_t.
 <span id="cb6-8"><a href=""></a>    <span class="st">"remainder"</span>: stl_result.resid,</span>
 <span id="cb6-9"><a href=""></a>})</span>
 <span id="cb6-10"><a href=""></a>dcmp.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="29">
+<div class="cell-output cell-output-display" data-execution_count="5">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -830,7 +830,7 @@ y_t = T_t + S_t + R_t.
 </section>
 <section id="figure-13.10-components-and-remainder" class="slide level2">
 <h2>Figure 13.10: Components and remainder</h2>
-<div id="9623a0b2" class="cell" data-execution_count="6">
+<div id="f5ea01aa" class="cell" data-execution_count="6">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href=""></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">4</span>, <span class="dv">1</span>, sharex<span class="op">=</span><span class="va">True</span>, figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="dv">7</span>))</span>
 <span id="cb7-2"><a href=""></a><span class="cf">for</span> ax, column, label, color <span class="kw">in</span> <span class="bu">zip</span>(</span>
 <span id="cb7-3"><a href=""></a>    axes,</span>
@@ -862,7 +862,7 @@ y_t = T_t + S_t + R_t.
 </section>
 <section id="remainder-in-time" class="slide level2">
 <h2>Remainder in time</h2>
-<div id="af8940f7" class="cell" data-execution_count="7">
+<div id="af569f6f" class="cell" data-execution_count="7">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
 <span id="cb8-2"><a href=""></a>ax.plot(dcmp[<span class="st">"ds"</span>], dcmp[<span class="st">"remainder"</span>], color<span class="op">=</span>COLORS[<span class="st">"remainder"</span>])</span>
 <span id="cb8-3"><a href=""></a>ax.axhline(<span class="dv">0</span>, color<span class="op">=</span><span class="st">"0.35"</span>, linewidth<span class="op">=</span><span class="dv">1</span>)</span>
@@ -918,7 +918,7 @@ U=Q_3+k\operatorname{IQR}.
 </section>
 <section id="implement-the-chapters-3-iqr-rule" class="slide level2">
 <h2>Implement the chapter’s 3-IQR rule</h2>
-<div id="406f5188" class="cell" data-execution_count="8">
+<div id="8b194cbc" class="cell" data-execution_count="8">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href=""></a>q1 <span class="op">=</span> dcmp[<span class="st">"remainder"</span>].quantile(<span class="fl">.25</span>)</span>
 <span id="cb9-2"><a href=""></a>q3 <span class="op">=</span> dcmp[<span class="st">"remainder"</span>].quantile(<span class="fl">.75</span>)</span>
 <span id="cb9-3"><a href=""></a>iqr <span class="op">=</span> q3 <span class="op">-</span> q1</span>
@@ -926,7 +926,7 @@ U=Q_3+k\operatorname{IQR}.
 <span id="cb9-5"><a href=""></a>upper <span class="op">=</span> q3 <span class="op">+</span> <span class="dv">3</span> <span class="op">*</span> iqr</span>
 <span id="cb9-6"><a href=""></a>outliers <span class="op">=</span> dcmp.loc[<span class="op">~</span>dcmp[<span class="st">"remainder"</span>].between(lower, upper)].copy()</span>
 <span id="cb9-7"><a href=""></a>outliers</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="32">
+<div class="cell-output cell-output-display" data-execution_count="8">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -1033,7 +1033,7 @@ U=Q_3+k\operatorname{IQR}.
 </section>
 <section id="visualize-the-fences-and-flags" class="slide level2">
 <h2>Visualize the fences and flags</h2>
-<div id="f63cab12" class="cell" data-execution_count="9">
+<div id="f0509adb" class="cell" data-execution_count="9">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
 <span id="cb10-2"><a href=""></a>ax.plot(dcmp[<span class="st">"ds"</span>], dcmp[<span class="st">"remainder"</span>], color<span class="op">=</span>COLORS[<span class="st">"remainder"</span>], label<span class="op">=</span><span class="st">"Remainder"</span>)</span>
 <span id="cb10-3"><a href=""></a>ax.axhline(lower, color<span class="op">=</span>COLORS[<span class="st">"outlier"</span>], linestyle<span class="op">=</span><span class="st">"--"</span>, label<span class="op">=</span><span class="st">"3-IQR fences"</span>)</span>
@@ -1062,7 +1062,7 @@ U=Q_3+k\operatorname{IQR}.
 </section>
 <section id="boxplot-of-the-remainder" class="slide level2">
 <h2>Boxplot of the remainder</h2>
-<div id="19b7cd37" class="cell" data-execution_count="10">
+<div id="220d807a" class="cell" data-execution_count="10">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
 <span id="cb11-2"><a href=""></a>sns.boxplot(x<span class="op">=</span>dcmp[<span class="st">"remainder"</span>], color<span class="op">=</span><span class="st">"#56B4E9"</span>, whis<span class="op">=</span><span class="dv">3</span>, ax<span class="op">=</span>ax)</span>
 <span id="cb11-3"><a href=""></a>ax.<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Remainder boxplot with 3-IQR whisker rule"</span>,</span>
@@ -1112,7 +1112,7 @@ U=Q_3+k\operatorname{IQR}.
 </section>
 <section id="isolated-outlier-versus-level-shift" class="slide level2">
 <h2>Isolated outlier versus level shift</h2>
-<div id="bfc9b99b" class="cell" data-fig-height="4" data-fig-width="11" data-execution_count="11">
+<div id="e1046962" class="cell" data-fig-height="4" data-fig-width="11" data-execution_count="11">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href=""></a>idx <span class="op">=</span> pd.date_range(<span class="st">"2020-01-01"</span>, periods<span class="op">=</span><span class="dv">80</span>, freq<span class="op">=</span><span class="st">"D"</span>)</span>
 <span id="cb12-2"><a href=""></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">42</span>)</span>
 <span id="cb12-3"><a href=""></a>base <span class="op">=</span> rng.normal(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">80</span>)</span>
@@ -1217,12 +1217,12 @@ U=Q_3+k\operatorname{IQR}.
 </section>
 <section id="create-missing-value-scenarios" class="slide level2">
 <h2>Create missing-value scenarios</h2>
-<div id="2385c8ee" class="cell" data-execution_count="12">
+<div id="3b5fd9a4" class="cell" data-execution_count="12">
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href=""></a>tourism_missing <span class="op">=</span> tourism.copy()</span>
 <span id="cb14-2"><a href=""></a>tourism_missing.loc[[<span class="dv">8</span>, <span class="dv">9</span>, <span class="dv">25</span>], <span class="st">"y"</span>] <span class="op">=</span> np.nan</span>
 <span id="cb14-3"><a href=""></a>missing_dates <span class="op">=</span> tourism_missing.loc[tourism_missing[<span class="st">"y"</span>].isna(), <span class="st">"ds"</span>]</span>
 <span id="cb14-4"><a href=""></a>tourism_missing.head(<span class="dv">12</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="36">
+<div class="cell-output cell-output-display" data-execution_count="12">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -1342,7 +1342,7 @@ U=Q_3+k\operatorname{IQR}.
 </section>
 <section id="show-gaps-honestly" class="slide level2">
 <h2>Show gaps honestly</h2>
-<div id="e95cb357" class="cell" data-execution_count="13">
+<div id="56312f26" class="cell" data-execution_count="13">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
 <span id="cb15-2"><a href=""></a>ax.plot(tourism_missing[<span class="st">"ds"</span>], tourism_missing[<span class="st">"y"</span>], color<span class="op">=</span>COLORS[<span class="st">"observed"</span>], marker<span class="op">=</span><span class="st">"o"</span>)</span>
 <span id="cb15-3"><a href=""></a><span class="cf">for</span> date <span class="kw">in</span> missing_dates:</span>
@@ -1368,7 +1368,7 @@ U=Q_3+k\operatorname{IQR}.
 </section>
 <section id="missingness-map" class="slide level2">
 <h2>Missingness map</h2>
-<div id="f832d172" class="cell" data-execution_count="14">
+<div id="7ba1a926" class="cell" data-execution_count="14">
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href=""></a>missing_indicator <span class="op">=</span> tourism_missing[<span class="st">"y"</span>].isna().astype(<span class="bu">int</span>).to_numpy()[<span class="va">None</span>, :]</span>
 <span id="cb16-2"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="fl">2.4</span>))</span>
 <span id="cb16-3"><a href=""></a>sns.heatmap(missing_indicator, cmap<span class="op">=</span>[<span class="st">"#E5E7EB"</span>, COLORS[<span class="st">"missing"</span>]], cbar<span class="op">=</span><span class="va">False</span>,</span>
@@ -1394,7 +1394,7 @@ U=Q_3+k\operatorname{IQR}.
 </section>
 <section id="count-and-locate-missing-observations" class="slide level2">
 <h2>Count and locate missing observations</h2>
-<div id="d694384c" class="cell" data-execution_count="15">
+<div id="562cdd03" class="cell" data-execution_count="15">
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href=""></a>missing_summary <span class="op">=</span> pd.Series({</span>
 <span id="cb17-2"><a href=""></a>    <span class="st">"observations"</span>: <span class="bu">len</span>(tourism_missing),</span>
 <span id="cb17-3"><a href=""></a>    <span class="st">"missing"</span>: tourism_missing[<span class="st">"y"</span>].isna().<span class="bu">sum</span>(),</span>
@@ -1403,7 +1403,7 @@ U=Q_3+k\operatorname{IQR}.
 <span id="cb17-6"><a href=""></a>    <span class="st">"last_missing"</span>: tourism_missing.loc[tourism_missing[<span class="st">"y"</span>].isna(), <span class="st">"ds"</span>].<span class="bu">max</span>(),</span>
 <span id="cb17-7"><a href=""></a>})</span>
 <span id="cb17-8"><a href=""></a>missing_summary</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="39">
+<div class="cell-output cell-output-display" data-execution_count="15">
 <pre><code>observations                      80
 missing                            3
 missing_share                 0.0375
@@ -1481,7 +1481,7 @@ y_a+
 </section>
 <section id="reproduce-the-sources-interpolation-approach" class="slide level2">
 <h2>Reproduce the source’s interpolation approach</h2>
-<div id="8e1db527" class="cell" data-execution_count="16">
+<div id="64e94c43" class="cell" data-execution_count="16">
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href=""></a>outlier_dates <span class="op">=</span> outliers[<span class="st">"ds"</span>]</span>
 <span id="cb19-2"><a href=""></a>tourism_cleaned <span class="op">=</span> tourism.copy()</span>
 <span id="cb19-3"><a href=""></a>tourism_cleaned[<span class="st">"was_replaced"</span>] <span class="op">=</span> tourism_cleaned[<span class="st">"ds"</span>].isin(outlier_dates)</span>
@@ -1489,7 +1489,7 @@ y_a+
 <span id="cb19-5"><a href=""></a>tourism_cleaned.loc[tourism_cleaned[<span class="st">"was_replaced"</span>], <span class="st">"y"</span>] <span class="op">=</span> np.nan</span>
 <span id="cb19-6"><a href=""></a>tourism_cleaned[<span class="st">"y"</span>] <span class="op">=</span> tourism_cleaned[<span class="st">"y"</span>].interpolate(method<span class="op">=</span><span class="st">"linear"</span>)</span>
 <span id="cb19-7"><a href=""></a>tourism_cleaned.loc[tourism_cleaned[<span class="st">"was_replaced"</span>]].head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="40">
+<div class="cell-output cell-output-display" data-execution_count="16">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -1580,7 +1580,7 @@ y_a+
 </section>
 <section id="figure-13.11-original-and-cleaned-series" class="slide level2">
 <h2>Figure 13.11: Original and cleaned series</h2>
-<div id="cd17ceac" class="cell" data-execution_count="17">
+<div id="c277f079" class="cell" data-execution_count="17">
 <div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
 <span id="cb20-2"><a href=""></a>ax.plot(tourism_cleaned[<span class="st">"ds"</span>], tourism_cleaned[<span class="st">"y_original"</span>],</span>
 <span id="cb20-3"><a href=""></a>        color<span class="op">=</span><span class="st">"0.75"</span>, label<span class="op">=</span><span class="st">"Original"</span>)</span>
@@ -1612,13 +1612,13 @@ y_a+
 </section>
 <section id="compare-common-imputation-strategies" class="slide level2">
 <h2>Compare common imputation strategies</h2>
-<div id="a5e51bd2" class="cell" data-execution_count="18">
+<div id="00125403" class="cell" data-execution_count="18">
 <div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href=""></a>comparison <span class="op">=</span> tourism_missing[[<span class="st">"ds"</span>, <span class="st">"y"</span>]].copy()</span>
 <span id="cb21-2"><a href=""></a>comparison[<span class="st">"linear"</span>] <span class="op">=</span> comparison[<span class="st">"y"</span>].interpolate(<span class="st">"linear"</span>)</span>
 <span id="cb21-3"><a href=""></a>comparison[<span class="st">"forward_fill"</span>] <span class="op">=</span> comparison[<span class="st">"y"</span>].ffill()</span>
 <span id="cb21-4"><a href=""></a>comparison[<span class="st">"seasonal_lag4"</span>] <span class="op">=</span> comparison[<span class="st">"y"</span>].fillna(comparison[<span class="st">"y"</span>].shift(<span class="dv">4</span>))</span>
 <span id="cb21-5"><a href=""></a>comparison.loc[comparison[<span class="st">"y"</span>].isna()]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="42">
+<div class="cell-output cell-output-display" data-execution_count="18">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -1692,7 +1692,7 @@ y_a+
 </section>
 <section id="visual-comparison-of-imputations" class="slide level2">
 <h2>Visual comparison of imputations</h2>
-<div id="269187c6" class="cell" data-execution_count="19">
+<div id="96427b74" class="cell" data-execution_count="19">
 <div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
 <span id="cb22-2"><a href=""></a>ax.plot(comparison[<span class="st">"ds"</span>], comparison[<span class="st">"y"</span>], color<span class="op">=</span><span class="st">"0.75"</span>, marker<span class="op">=</span><span class="st">"o"</span>, label<span class="op">=</span><span class="st">"Observed"</span>)</span>
 <span id="cb22-3"><a href=""></a><span class="cf">for</span> column, color <span class="kw">in</span> <span class="bu">zip</span>([<span class="st">"linear"</span>, <span class="st">"forward_fill"</span>, <span class="st">"seasonal_lag4"</span>],</span>
@@ -1720,7 +1720,7 @@ y_a+
 </section>
 <section id="gap-length-matters" class="slide level2">
 <h2>Gap length matters</h2>
-<div id="f96eed8b" class="cell" data-execution_count="20">
+<div id="d5111734" class="cell" data-execution_count="20">
 <div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href=""></a>missing_mask <span class="op">=</span> tourism_missing[<span class="st">"y"</span>].isna()</span>
 <span id="cb23-2"><a href=""></a>run_id <span class="op">=</span> missing_mask.ne(missing_mask.shift()).cumsum()</span>
 <span id="cb23-3"><a href=""></a>missing_runs <span class="op">=</span> (</span>
@@ -1730,7 +1730,7 @@ y_a+
 <span id="cb23-7"><a href=""></a>    .agg(start<span class="op">=</span>(<span class="st">"ds"</span>, <span class="st">"min"</span>), end<span class="op">=</span>(<span class="st">"ds"</span>, <span class="st">"max"</span>), length<span class="op">=</span>(<span class="st">"missing"</span>, <span class="st">"size"</span>))</span>
 <span id="cb23-8"><a href=""></a>)</span>
 <span id="cb23-9"><a href=""></a>missing_runs</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="44">
+<div class="cell-output cell-output-display" data-execution_count="20">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -1822,7 +1822,7 @@ y_a+
 </section>
 <section id="an-auditable-cleaning-table" class="slide level2">
 <h2>An auditable cleaning table</h2>
-<div id="75bb1ecf" class="cell" data-execution_count="21">
+<div id="7282188d" class="cell" data-execution_count="21">
 <div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href=""></a>audit <span class="op">=</span> tourism_cleaned.loc[tourism_cleaned[<span class="st">"was_replaced"</span>],</span>
 <span id="cb24-2"><a href=""></a>                            [<span class="st">"ds"</span>, <span class="st">"y_original"</span>, <span class="st">"y"</span>]].rename(</span>
 <span id="cb24-3"><a href=""></a>    columns<span class="op">=</span>{<span class="st">"y"</span>: <span class="st">"replacement"</span>}</span>
@@ -1830,7 +1830,7 @@ y_a+
 <span id="cb24-5"><a href=""></a>audit[<span class="st">"reason"</span>] <span class="op">=</span> <span class="st">"3-IQR flag on robust STL remainder"</span></span>
 <span id="cb24-6"><a href=""></a>audit[<span class="st">"method"</span>] <span class="op">=</span> <span class="st">"linear interpolation"</span></span>
 <span id="cb24-7"><a href=""></a>audit</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="45">
+<div class="cell-output cell-output-display" data-execution_count="21">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -1941,7 +1941,7 @@ y_a+
 </section>
 <section id="compare-decomposition-before-and-after" class="slide level2">
 <h2>Compare decomposition before and after</h2>
-<div id="2e336266" class="cell" data-execution_count="22">
+<div id="ec094fc7" class="cell" data-execution_count="22">
 <div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href=""></a>original_fit <span class="op">=</span> STL(tourism[<span class="st">"y"</span>], period<span class="op">=</span><span class="dv">4</span>, robust<span class="op">=</span><span class="va">True</span>).fit()</span>
 <span id="cb25-2"><a href=""></a>clean_fit <span class="op">=</span> STL(tourism_cleaned[<span class="st">"y"</span>], period<span class="op">=</span><span class="dv">4</span>, robust<span class="op">=</span><span class="va">True</span>).fit()</span>
 <span id="cb25-3"><a href=""></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">1</span>, sharex<span class="op">=</span><span class="va">True</span>, figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="dv">6</span>))</span>
@@ -1971,7 +1971,7 @@ y_a+
 </section>
 <section id="remainder-acf-before-and-after" class="slide level2">
 <h2>Remainder ACF before and after</h2>
-<div id="1b4ae0d5" class="cell" data-execution_count="23">
+<div id="4a178a02" class="cell" data-execution_count="23">
 <div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href=""></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="fl">4.5</span>))</span>
 <span id="cb26-2"><a href=""></a>plot_acf(original_fit.resid, lags<span class="op">=</span><span class="dv">16</span>, zero<span class="op">=</span><span class="va">False</span>, ax<span class="op">=</span>axes[<span class="dv">0</span>])</span>
 <span id="cb26-3"><a href=""></a>axes[<span class="dv">0</span>].set_title(<span class="st">"Original remainder ACF"</span>)</span>
@@ -2021,27 +2021,26 @@ y_a+
       }</style></aside>
 </section></section>
 <section>
-<section id="decision-framework" class="title-slide slide level1 center">
-<h1>Decision Framework</h1>
+<section id="structural-change" class="title-slide slide level1 center">
+<h1>Structural Change</h1>
 
 </section>
-<section id="outlier-decision-tree" class="slide level2">
-<h2>Outlier decision tree</h2>
-<div class="sourceCode" id="cb27"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb27-1"><a href=""></a>FLAGGED OBSERVATION</span>
-<span id="cb27-2"><a href=""></a>        ↓</span>
-<span id="cb27-3"><a href=""></a>VERIFY SOURCE AND UNITS</span>
-<span id="cb27-4"><a href=""></a>        ↓</span>
-<span id="cb27-5"><a href=""></a>ERROR? ── YES → REPLACE / CORRECT + AUDIT</span>
-<span id="cb27-6"><a href=""></a>  │</span>
-<span id="cb27-7"><a href=""></a>  NO</span>
-<span id="cb27-8"><a href=""></a>  ↓</span>
-<span id="cb27-9"><a href=""></a>RECURRING OR FORECAST-RELEVANT EVENT?</span>
-<span id="cb27-10"><a href=""></a>  ├─ YES → RETAIN + MODEL EVENT</span>
-<span id="cb27-11"><a href=""></a>  └─ NO  → RETAIN OR ROBUSTLY DOWNWEIGHT,</span>
-<span id="cb27-12"><a href=""></a>           BASED ON FORECAST PURPOSE</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="structural-change-versus-outlier" class="slide level2">
+<h2>Structural change versus outlier</h2>
+<div class="columns">
+<div class="column" style="width:50%;">
+<h3 id="outlier">Outlier</h3>
+<p>An isolated observation that is unusual relative to the prevailing structure.</p>
+</div><div class="column" style="width:50%;">
+<h3 id="structural-change-1">Structural change</h3>
+<p>A persistent change in the underlying distribution or model relationship.</p>
+</div></div>
+<blockquote>
+<p>A large observation can be an outlier without creating a new regime.</p>
+</blockquote>
 <aside class="notes">
-<p>The source says replacement is more defensible if the value is genuinely erroneous or if the event will not occur during the forecast period.</p>
-<p>[Sources] - https://otexts.com/fpppy/13-practical.html#sec-missing-outliers</p>
+<p>The supplied article explicitly distinguishes outliers from change points: an outlier differs from normal behavior, while a change point alters the structure to a different distribution.</p>
+<p>[Sources] - https://towardsdatascience.com/understanding-time-series-structural-changes-f6a4c44cb13c/</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -2054,18 +2053,474 @@ y_a+
           display:block!important;
       }</style></aside>
 </section>
-<section id="missing-value-decision-tree" class="slide level2">
-<h2>Missing-value decision tree</h2>
-<div class="sourceCode" id="cb28"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb28-1"><a href=""></a>MISSING OBSERVATION</span>
-<span id="cb28-2"><a href=""></a>        ↓</span>
-<span id="cb28-3"><a href=""></a>WHAT DOES MISSING MEAN?</span>
-<span id="cb28-4"><a href=""></a>  ├─ TRUE ZERO / CLOSURE → ENCODE ZERO + EVENT VARIABLES</span>
-<span id="cb28-5"><a href=""></a>  ├─ RANDOM RECORDING FAILURE → ESTIMATE IF NEEDED</span>
-<span id="cb28-6"><a href=""></a>  ├─ STRUCTURAL NON-APPLICABILITY → RETAIN AS MISSING</span>
-<span id="cb28-7"><a href=""></a>  └─ UNKNOWN → INVESTIGATE BEFORE IMPUTING</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="types-of-structural-change" class="slide level2">
+<h2>Types of structural change</h2>
+<ul>
+<li>permanent change in mean;</li>
+<li>transitory change in mean;</li>
+<li>permanent change in variance;</li>
+<li>transitory change in variance;</li>
+<li>volatility clustering;</li>
+<li>changing regression coefficients;</li>
+<li>changing autoregressive dynamics.</li>
+</ul>
 <aside class="notes">
-<p>The source emphasizes that treatment depends on forecasting context and that automated methods cannot infer contextual effects such as public holidays.</p>
-<p>[Sources] - https://otexts.com/fpppy/13-practical.html#sec-missing-outliers</p>
+<p>The supplied article discusses permanent and transitory mean changes, variance changes, and volatility clustering. Regression-parameter instability is the focus of the strucchange framework.</p>
+<p>[Sources] - https://towardsdatascience.com/understanding-time-series-structural-changes-f6a4c44cb13c/ - https://cran.r-project.org/web/packages/strucchange/strucchange.pdf</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="nile-river-dataset" class="slide level2">
+<h2>Nile River dataset</h2>
+<p>The dataset records annual Nile River discharge at Aswan:</p>
+<ul>
+<li>years: 1871–1970;</li>
+<li>observations: 100;</li>
+<li>measurement units: billions of cubic metres;</li>
+<li>a widely documented apparent change near 1898.</li>
+</ul>
+<div id="0323af2a" class="cell" data-execution_count="24">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href=""></a><span class="co"># Public, built-in dataset from statsmodels.</span></span>
+<span id="cb27-2"><a href=""></a>nile <span class="op">=</span> sm.datasets.nile.load_pandas().data.copy()</span>
+<span id="cb27-3"><a href=""></a>nile[<span class="st">"year"</span>] <span class="op">=</span> nile[<span class="st">"year"</span>].astype(<span class="bu">int</span>)</span>
+<span id="cb27-4"><a href=""></a>nile[<span class="st">"time"</span>] <span class="op">=</span> np.arange(<span class="bu">len</span>(nile))</span>
+<span id="cb27-5"><a href=""></a>signal <span class="op">=</span> nile[<span class="st">"volume"</span>].to_numpy()</span>
+<span id="cb27-6"><a href=""></a></span>
+<span id="cb27-7"><a href=""></a>nile.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="24">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+
+<table class="dataframe caption-top" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header" style="text-align: right;">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">year</th>
+<th data-quarto-table-cell-role="th">volume</th>
+<th data-quarto-table-cell-role="th">time</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>1871</td>
+<td>1120.0</td>
+<td>0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>1872</td>
+<td>1160.0</td>
+<td>1</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>1873</td>
+<td>963.0</td>
+<td>2</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>1874</td>
+<td>1210.0</td>
+<td>3</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>1875</td>
+<td>1160.0</td>
+<td>4</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<aside class="notes">
+<p>Statsmodels documents the Nile dataset as annual river volume at Aswan from 1871 to 1970, with 100 observations and an apparent change point near 1898.</p>
+<p>[Sources] - https://www.statsmodels.org/stable/dev/dataset_notes.html</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="visual-inspection" class="slide level2">
+<h2>Visual inspection</h2>
+<div id="900bc8ee" class="cell" data-execution_count="25">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
+<span id="cb28-2"><a href=""></a>ax.plot(nile[<span class="st">"year"</span>], nile[<span class="st">"volume"</span>], marker<span class="op">=</span><span class="st">"o"</span>, markersize<span class="op">=</span><span class="dv">3</span>, color<span class="op">=</span>COLORS[<span class="st">"primary"</span>])</span>
+<span id="cb28-3"><a href=""></a>ax.<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Annual Nile River volume at Aswan"</span>, xlabel<span class="op">=</span><span class="st">"Year"</span>, ylabel<span class="op">=</span><span class="vs">r"Volume ($10^9$ m³)"</span>)</span>
+<span id="cb28-4"><a href=""></a>fig.tight_layout()</span>
+<span id="cb28-5"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+</div>
+<img data-src="lecture_05_files/figure-revealjs/cell-26-output-1.png" class="r-stretch"><aside class="notes">
+<p>The raw chart suggests a change in the average level, but visual inspection alone does not determine the method, number of breaks, or uncertainty.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="before-and-after-summaries-are-descriptive" class="slide level2">
+<h2>Before-and-after summaries are descriptive</h2>
+<div id="2dd40544" class="cell" data-execution_count="26">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href=""></a>summary_1898 <span class="op">=</span> (</span>
+<span id="cb29-2"><a href=""></a>    nile.assign(period<span class="op">=</span>np.where(nile[<span class="st">"year"</span>] <span class="op">&lt;</span> <span class="dv">1898</span>, <span class="st">"Before 1898"</span>, <span class="st">"1898 onward"</span>))</span>
+<span id="cb29-3"><a href=""></a>    .groupby(<span class="st">"period"</span>)[<span class="st">"volume"</span>]</span>
+<span id="cb29-4"><a href=""></a>    .agg([<span class="st">"count"</span>, <span class="st">"mean"</span>, <span class="st">"std"</span>, <span class="st">"median"</span>])</span>
+<span id="cb29-5"><a href=""></a>)</span>
+<span id="cb29-6"><a href=""></a>summary_1898</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="26">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+
+<table class="dataframe caption-top" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header" style="text-align: right;">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">count</th>
+<th data-quarto-table-cell-role="th">mean</th>
+<th data-quarto-table-cell-role="th">std</th>
+<th data-quarto-table-cell-role="th">median</th>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">period</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">1898 onward</td>
+<td>73</td>
+<td>853.397260</td>
+<td>127.315634</td>
+<td>845.0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Before 1898</td>
+<td>27</td>
+<td>1097.666667</td>
+<td>137.567047</td>
+<td>1140.0</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</section>
+<section id="distribution-view-by-period" class="slide level2">
+<h2>Distribution view by period</h2>
+<div id="c4208578" class="cell" data-execution_count="27">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href=""></a>plot_data <span class="op">=</span> nile.assign(</span>
+<span id="cb30-2"><a href=""></a>    period<span class="op">=</span>np.where(nile[<span class="st">"year"</span>] <span class="op">&lt;</span> <span class="dv">1898</span>, <span class="st">"Before 1898"</span>, <span class="st">"1898 onward"</span>)</span>
+<span id="cb30-3"><a href=""></a>)</span>
+<span id="cb30-4"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
+<span id="cb30-5"><a href=""></a>sns.boxplot(data<span class="op">=</span>plot_data, x<span class="op">=</span><span class="st">"period"</span>, y<span class="op">=</span><span class="st">"volume"</span>, hue<span class="op">=</span><span class="st">"period"</span>, legend<span class="op">=</span><span class="va">False</span>, ax<span class="op">=</span>ax)</span>
+<span id="cb30-6"><a href=""></a>ax.<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Distribution before and after the documented reference year"</span>, xlabel<span class="op">=</span><span class="st">""</span>, ylabel<span class="op">=</span><span class="vs">r"Volume ($10^9$ m³)"</span>)</span>
+<span id="cb30-7"><a href=""></a>fig.tight_layout()</span>
+<span id="cb30-8"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+</div>
+<img data-src="lecture_05_files/figure-revealjs/cell-28-output-1.png" class="r-stretch"><aside class="notes">
+<p>Grouping by a known historical reference is useful for description, but package-based change-point methods should estimate break locations without assuming the answer.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="stable-mean-as-an-intercept-only-model" class="slide level2">
+<h2>Stable mean as an intercept-only model</h2>
+<p><span class="math display">\[
+y_t=\beta_0+u_t.
+\]</span></p>
+<div id="0a025f81" class="cell" data-execution_count="28">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href=""></a><span class="co"># Stable intercept-only reference model used for parameter-stability tests.</span></span>
+<span id="cb31-2"><a href=""></a>X_level <span class="op">=</span> np.ones((<span class="bu">len</span>(nile), <span class="dv">1</span>))</span>
+<span id="cb31-3"><a href=""></a>level_model <span class="op">=</span> sm.OLS(nile[<span class="st">"volume"</span>], X_level).fit()</span>
+<span id="cb31-4"><a href=""></a>level_model.summary().tables[<span class="dv">1</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="28">
+<table class="simpletable caption-top" data-quarto-postprocess="true">
+<tbody>
+<tr class="odd">
+<td></td>
+<td data-quarto-table-cell-role="th">coef</td>
+<td data-quarto-table-cell-role="th">std err</td>
+<td data-quarto-table-cell-role="th">t</td>
+<td data-quarto-table-cell-role="th">P&gt;|t|</td>
+<td data-quarto-table-cell-role="th">[0.025</td>
+<td data-quarto-table-cell-role="th">0.975]</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">const</td>
+<td>919.3500</td>
+<td>16.923</td>
+<td>54.326</td>
+<td>0.000</td>
+<td>885.772</td>
+<td>952.928</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>This model asks whether one mean level describes the entire sample.</p>
+<aside class="notes">
+<p>Using an intercept-only model translates level stability into parameter stability. More complex regressions can be assessed using the same testing logic.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="ols-cusum-with-statsmodels" class="slide level2">
+<h2>OLS-CUSUM with <code>statsmodels</code></h2>
+<div id="060ffcfc" class="cell" data-execution_count="29">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href=""></a>cusum_stat, cusum_pvalue, cusum_critical <span class="op">=</span> breaks_cusumolsresid(</span>
+<span id="cb32-2"><a href=""></a>    level_model.resid,</span>
+<span id="cb32-3"><a href=""></a>    ddof<span class="op">=</span><span class="bu">len</span>(level_model.params),</span>
+<span id="cb32-4"><a href=""></a>)</span>
+<span id="cb32-5"><a href=""></a></span>
+<span id="cb32-6"><a href=""></a>pd.Series({</span>
+<span id="cb32-7"><a href=""></a>    <span class="st">"CUSUM statistic"</span>: cusum_stat,</span>
+<span id="cb32-8"><a href=""></a>    <span class="st">"p-value"</span>: cusum_pvalue,</span>
+<span id="cb32-9"><a href=""></a>    <span class="st">"critical values"</span>: cusum_critical,</span>
+<span id="cb32-10"><a href=""></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="29">
+<pre><code>CUSUM statistic                              2.951766
+p-value                                           0.0
+critical values    [(1, 1.63), (5, 1.36), (10, 1.22)]
+dtype: object</code></pre>
+</div>
+</div>
+<aside class="notes">
+<p>The calculation uses the statsmodels diagnostic function rather than a handwritten CUSUM test.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<aside class="notes">
+<p>The year 1898 is used as a documented reference point from the statsmodels dataset description. This summary is descriptive, not a formal test.</p>
+<p>[Sources] - https://www.statsmodels.org/stable/dev/dataset_notes.html</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="recursive-ols-diagnostics" class="slide level2">
+<h2>Recursive OLS diagnostics</h2>
+<div id="1ededb11" class="cell" data-execution_count="30">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href=""></a>recursive_output <span class="op">=</span> recursive_olsresiduals(</span>
+<span id="cb34-2"><a href=""></a>    level_model,</span>
+<span id="cb34-3"><a href=""></a>    skip<span class="op">=</span><span class="dv">3</span>,</span>
+<span id="cb34-4"><a href=""></a>    alpha<span class="op">=</span><span class="fl">0.95</span>,</span>
+<span id="cb34-5"><a href=""></a>)</span>
+<span id="cb34-6"><a href=""></a></span>
+<span id="cb34-7"><a href=""></a>recursive_resid <span class="op">=</span> recursive_output[<span class="dv">0</span>]</span>
+<span id="cb34-8"><a href=""></a>recursive_cusum <span class="op">=</span> recursive_output[<span class="dv">5</span>]</span>
+<span id="cb34-9"><a href=""></a>recursive_ci <span class="op">=</span> recursive_output[<span class="dv">6</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The package returns recursive residuals, a cumulative process, and confidence limits.</p>
+<aside class="notes">
+<p>The analysis uses the statsmodels recursive OLS diagnostic routine. No recursive-residual formula is implemented manually in the presentation.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="recursive-cusum-visualization" class="slide level2">
+<h2>Recursive CUSUM visualization</h2>
+<div id="f9814d35" class="cell" data-execution_count="31">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href=""></a>recursive_years <span class="op">=</span> nile[<span class="st">"year"</span>].iloc[<span class="op">-</span><span class="bu">len</span>(recursive_cusum):].to_numpy()</span>
+<span id="cb35-2"><a href=""></a>boundary_years <span class="op">=</span> recursive_years[<span class="dv">1</span>:]</span>
+<span id="cb35-3"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
+<span id="cb35-4"><a href=""></a>ax.plot(recursive_years, recursive_cusum, color<span class="op">=</span>COLORS[<span class="st">"primary"</span>], label<span class="op">=</span><span class="st">"Recursive CUSUM"</span>)</span>
+<span id="cb35-5"><a href=""></a>ax.plot(boundary_years, recursive_ci[<span class="dv">0</span>], color<span class="op">=</span>COLORS[<span class="st">"break"</span>], linestyle<span class="op">=</span><span class="st">"--"</span>, label<span class="op">=</span><span class="st">"95</span><span class="sc">% li</span><span class="st">mits"</span>)</span>
+<span id="cb35-6"><a href=""></a>ax.plot(boundary_years, recursive_ci[<span class="dv">1</span>], color<span class="op">=</span>COLORS[<span class="st">"break"</span>], linestyle<span class="op">=</span><span class="st">"--"</span>)</span>
+<span id="cb35-7"><a href=""></a>ax.<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Recursive OLS stability process"</span>, xlabel<span class="op">=</span><span class="st">"Year"</span>, ylabel<span class="op">=</span><span class="st">"CUSUM"</span>)</span>
+<span id="cb35-8"><a href=""></a>ax.legend(frameon<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb35-9"><a href=""></a>fig.tight_layout()</span>
+<span id="cb35-10"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+</div>
+<img data-src="lecture_05_files/figure-revealjs/cell-32-output-1.png" class="r-stretch"><aside class="notes">
+<p>The process and confidence limits are returned by statsmodels. A crossing indicates that the recursive process is inconsistent with stability at the selected confidence level.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="plot-segment-means" class="slide level2">
+<h2>Plot segment means</h2>
+<div id="079a0c44" class="cell" data-execution_count="32">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href=""></a>dynp_breaks <span class="op">=</span> (</span>
+<span id="cb36-2"><a href=""></a>    rpt.Dynp(</span>
+<span id="cb36-3"><a href=""></a>        model<span class="op">=</span><span class="st">"l2"</span>,</span>
+<span id="cb36-4"><a href=""></a>        min_size<span class="op">=</span><span class="dv">10</span>,</span>
+<span id="cb36-5"><a href=""></a>        jump<span class="op">=</span><span class="dv">1</span>,</span>
+<span id="cb36-6"><a href=""></a>    )</span>
+<span id="cb36-7"><a href=""></a>    .fit(signal)</span>
+<span id="cb36-8"><a href=""></a>    .predict(n_bkps<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb36-9"><a href=""></a>)</span>
+<span id="cb36-10"><a href=""></a></span>
+<span id="cb36-11"><a href=""></a>chosen_breaks <span class="op">=</span> dynp_breaks</span>
+<span id="cb36-12"><a href=""></a>segment_starts <span class="op">=</span> [<span class="dv">0</span>] <span class="op">+</span> chosen_breaks[:<span class="op">-</span><span class="dv">1</span>]</span>
+<span id="cb36-13"><a href=""></a>segment_ends <span class="op">=</span> chosen_breaks</span>
+<span id="cb36-14"><a href=""></a></span>
+<span id="cb36-15"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
+<span id="cb36-16"><a href=""></a>ax.plot(nile[<span class="st">"year"</span>], nile[<span class="st">"volume"</span>], color<span class="op">=</span><span class="st">"0.75"</span>, label<span class="op">=</span><span class="st">"Observed"</span>)</span>
+<span id="cb36-17"><a href=""></a><span class="cf">for</span> number, (start, end) <span class="kw">in</span> <span class="bu">enumerate</span>(<span class="bu">zip</span>(segment_starts, segment_ends), start<span class="op">=</span><span class="dv">1</span>):</span>
+<span id="cb36-18"><a href=""></a>    subset <span class="op">=</span> nile.iloc[start:end]</span>
+<span id="cb36-19"><a href=""></a>    ax.hlines(subset[<span class="st">"volume"</span>].mean(), subset[<span class="st">"year"</span>].iloc[<span class="dv">0</span>], subset[<span class="st">"year"</span>].iloc[<span class="op">-</span><span class="dv">1</span>],</span>
+<span id="cb36-20"><a href=""></a>              color<span class="op">=</span>sns.color_palette(<span class="st">"Set1"</span>)[number <span class="op">-</span> <span class="dv">1</span>], linewidth<span class="op">=</span><span class="dv">3</span>,</span>
+<span id="cb36-21"><a href=""></a>              label<span class="op">=</span><span class="ss">f"Regime </span><span class="sc">{</span>number<span class="sc">}</span><span class="ss"> mean"</span>)</span>
+<span id="cb36-22"><a href=""></a><span class="cf">for</span> index <span class="kw">in</span> chosen_breaks[:<span class="op">-</span><span class="dv">1</span>]:</span>
+<span id="cb36-23"><a href=""></a>    ax.axvline(nile.iloc[index][<span class="st">"year"</span>], color<span class="op">=</span>COLORS[<span class="st">"break"</span>], linestyle<span class="op">=</span><span class="st">"--"</span>)</span>
+<span id="cb36-24"><a href=""></a>ax.<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Observed series and estimated regime means"</span>, xlabel<span class="op">=</span><span class="st">"Year"</span>, ylabel<span class="op">=</span><span class="vs">r"Volume ($10^9$ m³)"</span>)</span>
+<span id="cb36-25"><a href=""></a>ax.legend(frameon<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb36-26"><a href=""></a>fig.tight_layout()</span>
+<span id="cb36-27"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+</div>
+<img data-src="lecture_05_files/figure-revealjs/cell-33-output-1.png" class="r-stretch"></section>
+<section id="what-can-be-done-after-a-detected-change" class="slide level2">
+<h2>What can be done after a detected change?</h2>
+<p>Possible responses include:</p>
+<ul>
+<li>retrain models on recent regimes;</li>
+<li>add intervention or regime indicators;</li>
+<li>use differencing for level instability;</li>
+<li>transform variance;</li>
+<li>fit regime-switching models;</li>
+<li>monitor for future changes;</li>
+<li>investigate operational or measurement events.</li>
+</ul>
+<aside class="notes">
+<p>The supplied article mentions differencing, dummy variables, preprocessing for variance changes, and regime-switching models as possible responses. The appropriate response depends on the change type and business context.</p>
+<p>[Sources] - https://towardsdatascience.com/understanding-time-series-structural-changes-f6a4c44cb13c/</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="differencing-changes-the-question" class="slide level2">
+<h2>Differencing changes the question</h2>
+<div id="8da6240b" class="cell" data-execution_count="33">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href=""></a>nile[<span class="st">"difference"</span>] <span class="op">=</span> nile[<span class="st">"volume"</span>].diff()</span>
+<span id="cb37-2"><a href=""></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">1</span>, sharex<span class="op">=</span><span class="va">True</span>, figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="dv">6</span>))</span>
+<span id="cb37-3"><a href=""></a>axes[<span class="dv">0</span>].plot(nile[<span class="st">"year"</span>], nile[<span class="st">"volume"</span>], color<span class="op">=</span>COLORS[<span class="st">"primary"</span>])</span>
+<span id="cb37-4"><a href=""></a>axes[<span class="dv">0</span>].set_ylabel(<span class="st">"Level"</span>)</span>
+<span id="cb37-5"><a href=""></a>axes[<span class="dv">1</span>].plot(nile[<span class="st">"year"</span>], nile[<span class="st">"difference"</span>], color<span class="op">=</span>COLORS[<span class="st">"monitor"</span>])</span>
+<span id="cb37-6"><a href=""></a>axes[<span class="dv">1</span>].axhline(<span class="dv">0</span>, color<span class="op">=</span><span class="st">"0.4"</span>, linewidth<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb37-7"><a href=""></a>axes[<span class="dv">1</span>].<span class="bu">set</span>(xlabel<span class="op">=</span><span class="st">"Year"</span>, ylabel<span class="op">=</span><span class="st">"First difference"</span>)</span>
+<span id="cb37-8"><a href=""></a>fig.suptitle(<span class="st">"Levels and first differences"</span>)</span>
+<span id="cb37-9"><a href=""></a>fig.tight_layout()</span>
+<span id="cb37-10"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+</div>
+<img data-src="lecture_05_files/figure-revealjs/cell-34-output-1.png" class="r-stretch"><aside class="notes">
+<p>The supplied article notes that differencing can stabilize mean-level changes. Differencing also changes the analytical target from levels to increments.</p>
+<p>[Sources] - https://towardsdatascience.com/understanding-time-series-structural-changes-f6a4c44cb13c/</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -2290,7 +2745,7 @@ y_a+
       }</style></aside>
 <div class="quarto-auto-generated-content">
 <div class="footer footer-default">
-<p>Data Visualization | Time Series Decomposition</p>
+<p>Data Visualization</p>
 </div>
 </div>
 </section></section>

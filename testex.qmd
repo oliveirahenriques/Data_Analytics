@@ -1,0 +1,36 @@
+---
+title: "Data Analytics & Visualization"
+subtitle: "Exploratory Data Analysis"
+author: "Victor Henriques, Ph.D."
+format:
+  revealjs:
+    theme: white
+    smaller: true
+    toc: true
+    toc-depth: 1
+    slide-number: c/t
+    incremental: false
+    code-fold: false
+    code-overflow: wrap
+    center: false
+    width: 1600
+    height: 900
+    margin: 0.06
+    transition: fade
+    chalkboard: true
+    preview-links: auto
+    footer: "Data Analytics & Visualization"
+    logo: logo.svg
+execute:
+  echo: true
+  warning: false
+  error: false
+  cache: false
+  fig-align: center
+jupyter: python3
+---
+## teste
+
+
+
+

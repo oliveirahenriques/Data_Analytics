@@ -397,7 +397,7 @@
 
 <section id="title-slide" class="quarto-title-block center">
   <h1 class="title">Data Analytics &amp; Visualization</h1>
-  <p class="subtitle">Time Series Features</p>
+  <p class="subtitle">Time Series Exploratory Data Analysis</p>
 
 <div class="quarto-title-authors">
 <div class="quarto-title-author">
@@ -422,15 +422,6 @@ Victor Henriques, Ph.D.
 <li><a href="#/practice" id="/toc-practice">Practice</a></li>
 <li><a href="#/key-takeaways" id="/toc-key-takeaways">Key Takeaways</a></li>
 <li><a href="#/references" id="/toc-references">References</a></li>
-<li><a href="#/introduction-1" id="/toc-introduction-1">Introduction</a></li>
-<li><a href="#/outliers" id="/toc-outliers">Outliers</a></li>
-<li><a href="#/missing-values" id="/toc-missing-values">Missing Values</a></li>
-<li><a href="#/imputation" id="/toc-imputation">Imputation</a></li>
-<li><a href="#/visual-diagnostics-after-cleaning" id="/toc-visual-diagnostics-after-cleaning">Visual Diagnostics After Cleaning</a></li>
-<li><a href="#/decision-framework" id="/toc-decision-framework">Decision Framework</a></li>
-<li><a href="#/practice-1" id="/toc-practice-1">Practice</a></li>
-<li><a href="#/key-takeaways-1" id="/toc-key-takeaways-1">Key Takeaways</a></li>
-<li><a href="#/references-1" id="/toc-references-1">References</a></li>
 </ul>
 </nav>
 </section>
@@ -580,7 +571,7 @@ y_t = \text{trend-cycle} + \text{seasonal} + \text{remainder}.
 <p><span class="math display">\[
 \text{sales per trading day}_t = \frac{\text{monthly sales}_t}{\text{trading days}_t}.
 \]</span></p>
-<div id="08636289" class="cell" data-execution_count="2">
+<div id="0495b07c" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href=""></a>calendar_demo <span class="op">=</span> pd.DataFrame({</span>
 <span id="cb2-2"><a href=""></a>    <span class="st">"month"</span>: pd.period_range(<span class="st">"2026-01"</span>, periods<span class="op">=</span><span class="dv">6</span>, freq<span class="op">=</span><span class="st">"M"</span>).astype(<span class="bu">str</span>),</span>
 <span id="cb2-3"><a href=""></a>    <span class="st">"total_sales"</span>: [<span class="dv">220</span>, <span class="dv">190</span>, <span class="dv">235</span>, <span class="dv">228</span>, <span class="dv">242</span>, <span class="dv">215</span>],</span>
@@ -590,7 +581,7 @@ y_t = \text{trend-cycle} + \text{seasonal} + \text{remainder}.
 <span id="cb2-7"><a href=""></a>    calendar_demo[<span class="st">"total_sales"</span>] <span class="op">/</span> calendar_demo[<span class="st">"trading_days"</span>]</span>
 <span id="cb2-8"><a href=""></a>)</span>
 <span id="cb2-9"><a href=""></a>calendar_demo</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="56">
+<div class="cell-output cell-output-display" data-execution_count="2">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -682,7 +673,7 @@ y_t = \text{trend-cycle} + \text{seasonal} + \text{remainder}.
 </section>
 <section id="totals-and-rates-tell-different-stories" class="slide level2">
 <h2>Totals and rates tell different stories</h2>
-<div id="45cb708d" class="cell" data-fig-height="4.5" data-fig-width="10" data-execution_count="3">
+<div id="eda4b1c2" class="cell" data-fig-height="4.5" data-fig-width="10" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href=""></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>)</span>
 <span id="cb3-2"><a href=""></a>axes[<span class="dv">0</span>].bar(calendar_demo[<span class="st">"month"</span>], calendar_demo[<span class="st">"total_sales"</span>], color<span class="op">=</span><span class="st">"#56B4E9"</span>)</span>
 <span id="cb3-3"><a href=""></a>axes[<span class="dv">0</span>].<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Monthly total"</span>, ylabel<span class="op">=</span><span class="st">"Sales"</span>)</span>
@@ -716,14 +707,14 @@ y_t = \text{trend-cycle} + \text{seasonal} + \text{remainder}.
 =
 \frac{\text{total quantity}_t}{\text{population}_t}.
 \]</span></p>
-<div id="4c88049a" class="cell" data-execution_count="4">
+<div id="3b43c39b" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href=""></a>global_economy <span class="op">=</span> pd.read_csv(DATA_PATH <span class="op">/</span> <span class="st">"global_economy.csv"</span>)</span>
 <span id="cb4-2"><a href=""></a>australia <span class="op">=</span> (</span>
 <span id="cb4-3"><a href=""></a>    global_economy.loc[<span class="kw">lambda</span> x: x[<span class="st">"unique_id"</span>] <span class="op">==</span> <span class="st">"Australia"</span>]</span>
 <span id="cb4-4"><a href=""></a>    .assign(GDP_per_capita<span class="op">=</span><span class="kw">lambda</span> x: x[<span class="st">"GDP"</span>] <span class="op">/</span> x[<span class="st">"Population"</span>])</span>
 <span id="cb4-5"><a href=""></a>)</span>
 <span id="cb4-6"><a href=""></a>australia[[<span class="st">"ds"</span>, <span class="st">"GDP"</span>, <span class="st">"Population"</span>, <span class="st">"GDP_per_capita"</span>]].head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="58">
+<div class="cell-output cell-output-display" data-execution_count="4">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -808,7 +799,7 @@ y_t = \text{trend-cycle} + \text{seasonal} + \text{remainder}.
 </section>
 <section id="australian-gdp-per-capita" class="slide level2">
 <h2>Australian GDP per capita</h2>
-<div id="bf77a4e6" class="cell" data-execution_count="5">
+<div id="dad2b58e" class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href=""></a>fig, ax <span class="op">=</span> time_plot(</span>
 <span id="cb5-2"><a href=""></a>    australia, <span class="st">"ds"</span>, <span class="st">"GDP_per_capita"</span>,</span>
 <span id="cb5-3"><a href=""></a>    title<span class="op">=</span><span class="st">"GDP per capita: Australia"</span>,</span>
@@ -859,7 +850,7 @@ x_t = y_t\frac{100}{z_t}.
 </section>
 <section id="nominal-versus-real-visualization" class="slide level2">
 <h2>Nominal versus real visualization</h2>
-<div id="e0798566" class="cell" data-execution_count="6">
+<div id="74612cb2" class="cell" data-execution_count="6">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href=""></a>inflation_demo <span class="op">=</span> pd.DataFrame({</span>
 <span id="cb6-2"><a href=""></a>    <span class="st">"year"</span>: np.arange(<span class="dv">2010</span>, <span class="dv">2026</span>),</span>
 <span id="cb6-3"><a href=""></a>    <span class="st">"nominal"</span>: <span class="dv">100</span> <span class="op">*</span> <span class="fl">1.055</span> <span class="op">**</span> np.arange(<span class="dv">16</span>),</span>
@@ -918,7 +909,7 @@ w_t = \log(y_t), \qquad y_t&gt;0.
 </section>
 <section id="original-scale-versus-log-scale" class="slide level2">
 <h2>Original scale versus log scale</h2>
-<div id="577f4a4a" class="cell" data-execution_count="7">
+<div id="f096d892" class="cell" data-execution_count="7">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href=""></a>aus_production <span class="op">=</span> pd.read_csv(DATA_PATH <span class="op">/</span> <span class="st">"aus_production.csv"</span>, parse_dates<span class="op">=</span>[<span class="st">"ds"</span>])</span>
 <span id="cb7-2"><a href=""></a>gas <span class="op">=</span> aus_production[[<span class="st">"ds"</span>, <span class="st">"Gas"</span>]].dropna().copy()</span>
 <span id="cb7-3"><a href=""></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="fl">4.5</span>))</span>
@@ -973,7 +964,7 @@ w_t=
 </section>
 <section id="visual-effect-of-lambda" class="slide level2">
 <h2>Visual effect of lambda</h2>
-<div id="a6ca2fa1" class="cell" data-execution_count="8">
+<div id="4be2a187" class="cell" data-execution_count="8">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href=""></a>lambdas <span class="op">=</span> [<span class="fl">1.0</span>, <span class="fl">0.5</span>, <span class="fl">0.0</span>, <span class="op">-</span><span class="fl">0.5</span>]</span>
 <span id="cb8-2"><a href=""></a>positive_gas <span class="op">=</span> gas.loc[gas[<span class="st">"Gas"</span>] <span class="op">&gt;</span> <span class="dv">0</span>].copy()</span>
 <span id="cb8-3"><a href=""></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="dv">7</span>), sharex<span class="op">=</span><span class="va">True</span>)</span>
@@ -1003,10 +994,10 @@ w_t=
 </section>
 <section id="data-driven-lambda-document-the-criterion" class="slide level2">
 <h2>Data-driven lambda: document the criterion</h2>
-<div id="58ca4b53" class="cell" data-execution_count="9">
+<div id="2879998e" class="cell" data-execution_count="9">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href=""></a>lambda_mle <span class="op">=</span> stats.boxcox_normmax(positive_gas[<span class="st">"Gas"</span>], method<span class="op">=</span><span class="st">"mle"</span>)</span>
 <span id="cb9-2"><a href=""></a>lambda_mle</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="63">
+<div class="cell-output cell-output-display" data-execution_count="9">
 <pre><code>np.float64(0.4374315661751587)</code></pre>
 </div>
 </div>
@@ -1078,7 +1069,7 @@ y_t = T_t\times S_t\times R_t.
 </section>
 <section id="additive-or-multiplicative-look-at-amplitude" class="slide level2">
 <h2>Additive or multiplicative? Look at amplitude</h2>
-<div id="fbb7a7ad" class="cell" data-fig-height="4.5" data-fig-width="11" data-execution_count="10">
+<div id="ee649794" class="cell" data-fig-height="4.5" data-fig-width="11" data-execution_count="10">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href=""></a>idx <span class="op">=</span> pd.date_range(<span class="st">"2010-01-01"</span>, periods<span class="op">=</span><span class="dv">120</span>, freq<span class="op">=</span><span class="st">"MS"</span>)</span>
 <span id="cb11-2"><a href=""></a>t <span class="op">=</span> np.arange(<span class="dv">120</span>)</span>
 <span id="cb11-3"><a href=""></a>additive <span class="op">=</span> <span class="dv">100</span> <span class="op">+</span> <span class="fl">.3</span><span class="op">*</span>t <span class="op">+</span> <span class="dv">10</span><span class="op">*</span>np.sin(<span class="dv">2</span><span class="op">*</span>np.pi<span class="op">*</span>t<span class="op">/</span><span class="dv">12</span>)</span>
@@ -1105,13 +1096,13 @@ y_t = T_t\times S_t\times R_t.
 </section>
 <section id="us-retail-employment" class="slide level2">
 <h2>US retail employment</h2>
-<div id="0ef92b09" class="cell" data-execution_count="11">
+<div id="3fd288e2" class="cell" data-execution_count="11">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href=""></a>us_employment <span class="op">=</span> pd.read_csv(DATA_PATH <span class="op">/</span> <span class="st">"us_employment.csv"</span>, parse_dates<span class="op">=</span>[<span class="st">"ds"</span>])</span>
 <span id="cb12-2"><a href=""></a>us_retail_employment <span class="op">=</span> us_employment.loc[</span>
 <span id="cb12-3"><a href=""></a>    <span class="kw">lambda</span> x: (x[<span class="st">"unique_id"</span>] <span class="op">==</span> <span class="st">"Retail Trade"</span>) <span class="op">&amp;</span> (x[<span class="st">"ds"</span>] <span class="op">&gt;=</span> <span class="st">"1990"</span>)</span>
 <span id="cb12-4"><a href=""></a>].copy()</span>
 <span id="cb12-5"><a href=""></a>us_retail_employment.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="65">
+<div class="cell-output cell-output-display" data-execution_count="11">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -1190,7 +1181,7 @@ y_t = T_t\times S_t\times R_t.
 </section>
 <section id="total-employment-in-us-retail" class="slide level2">
 <h2>Total employment in US retail</h2>
-<div id="b94e6267" class="cell" data-execution_count="12">
+<div id="5301af45" class="cell" data-execution_count="12">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href=""></a>fig, ax <span class="op">=</span> time_plot(</span>
 <span id="cb13-2"><a href=""></a>    us_retail_employment, <span class="st">"ds"</span>, <span class="st">"y"</span>,</span>
 <span id="cb13-3"><a href=""></a>    title<span class="op">=</span><span class="st">"Total employment in US retail"</span>,</span>
@@ -1216,7 +1207,7 @@ y_t = T_t\times S_t\times R_t.
 </section>
 <section id="stl-decomposition-object" class="slide level2">
 <h2>STL decomposition object</h2>
-<div id="687bae4e" class="cell" data-execution_count="13">
+<div id="90272929" class="cell" data-execution_count="13">
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href=""></a>stl_default <span class="op">=</span> STL(us_retail_employment[<span class="st">"y"</span>], period<span class="op">=</span><span class="dv">12</span>)</span>
 <span id="cb14-2"><a href=""></a>res_default <span class="op">=</span> stl_default.fit()</span>
 <span id="cb14-3"><a href=""></a>dcmp <span class="op">=</span> pd.DataFrame({</span>
@@ -1227,7 +1218,7 @@ y_t = T_t\times S_t\times R_t.
 <span id="cb14-8"><a href=""></a>    <span class="st">"remainder"</span>: res_default.resid,</span>
 <span id="cb14-9"><a href=""></a>})</span>
 <span id="cb14-10"><a href=""></a>dcmp.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="67">
+<div class="cell-output cell-output-display" data-execution_count="13">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -1317,7 +1308,7 @@ y_t = T_t\times S_t\times R_t.
 </section>
 <section id="data-and-trend-cycle" class="slide level2">
 <h2>Data and trend-cycle</h2>
-<div id="76e755e2" class="cell" data-execution_count="14">
+<div id="fc6e5117" class="cell" data-execution_count="14">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
 <span id="cb15-2"><a href=""></a>ax.plot(dcmp[<span class="st">"ds"</span>], dcmp[<span class="st">"data"</span>], color<span class="op">=</span>COLORS[<span class="st">"data"</span>], label<span class="op">=</span><span class="st">"Data"</span>, linewidth<span class="op">=</span><span class="dv">1</span>)</span>
 <span id="cb15-3"><a href=""></a>ax.plot(dcmp[<span class="st">"ds"</span>], dcmp[<span class="st">"trend"</span>], color<span class="op">=</span>COLORS[<span class="st">"trend"</span>], label<span class="op">=</span><span class="st">"Trend-cycle"</span>, linewidth<span class="op">=</span><span class="dv">2</span>)</span>
@@ -1343,7 +1334,7 @@ y_t = T_t\times S_t\times R_t.
 </section>
 <section id="stl-components" class="slide level2">
 <h2>STL components</h2>
-<div id="32c59bdb" class="cell" data-execution_count="15">
+<div id="c6d4207d" class="cell" data-execution_count="15">
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href=""></a>fig, axes <span class="op">=</span> component_plot(dcmp, title<span class="op">=</span><span class="st">"STL decomposition of US retail employment"</span>)</span>
 <span id="cb16-2"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
@@ -1391,7 +1382,7 @@ y_t^{\mathrm{SA}}=\frac{y_t}{\widehat S_t}.
 </section>
 <section id="seasonally-adjusted-versus-trend-cycle" class="slide level2">
 <h2>Seasonally adjusted versus trend-cycle</h2>
-<div id="25eb3511" class="cell" data-execution_count="16">
+<div id="309b9114" class="cell" data-execution_count="16">
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href=""></a>dcmp[<span class="st">"seasonally_adjusted"</span>] <span class="op">=</span> dcmp[<span class="st">"data"</span>] <span class="op">-</span> dcmp[<span class="st">"seasonal"</span>]</span>
 <span id="cb17-2"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
 <span id="cb17-3"><a href=""></a>ax.plot(dcmp[<span class="st">"ds"</span>], dcmp[<span class="st">"seasonally_adjusted"</span>], color<span class="op">=</span>COLORS[<span class="st">"adjusted"</span>],</span>
@@ -1449,13 +1440,13 @@ y_t^{\mathrm{SA}}=\frac{y_t}{\widehat S_t}.
 </section>
 <section id="australian-exports" class="slide level2">
 <h2>Australian exports</h2>
-<div id="69f0a5af" class="cell" data-execution_count="17">
+<div id="a25e0373" class="cell" data-execution_count="17">
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href=""></a>aus_exports <span class="op">=</span> (</span>
 <span id="cb18-2"><a href=""></a>    global_economy.loc[<span class="kw">lambda</span> x: x[<span class="st">"unique_id"</span>] <span class="op">==</span> <span class="st">"Australia"</span>]</span>
 <span id="cb18-3"><a href=""></a>    .assign(MA_5<span class="op">=</span><span class="kw">lambda</span> x: x[<span class="st">"Exports"</span>].rolling(<span class="dv">5</span>, center<span class="op">=</span><span class="va">True</span>).mean())</span>
 <span id="cb18-4"><a href=""></a>)</span>
 <span id="cb18-5"><a href=""></a>aus_exports[[<span class="st">"ds"</span>, <span class="st">"Exports"</span>, <span class="st">"MA_5"</span>]].head(<span class="dv">8</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="71">
+<div class="cell-output cell-output-display" data-execution_count="17">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -1552,7 +1543,7 @@ y_t^{\mathrm{SA}}=\frac{y_t}{\widehat S_t}.
 </section>
 <section id="exports-and-5-ma" class="slide level2">
 <h2>Exports and 5-MA</h2>
-<div id="0c4ee2a7" class="cell" data-execution_count="18">
+<div id="ec1c2d5b" class="cell" data-execution_count="18">
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
 <span id="cb19-2"><a href=""></a>ax.plot(aus_exports[<span class="st">"ds"</span>], aus_exports[<span class="st">"Exports"</span>], color<span class="op">=</span><span class="st">"black"</span>, label<span class="op">=</span><span class="st">"Exports"</span>)</span>
 <span id="cb19-3"><a href=""></a>ax.plot(aus_exports[<span class="st">"ds"</span>], aus_exports[<span class="st">"MA_5"</span>], color<span class="op">=</span>COLORS[<span class="st">"trend"</span>], label<span class="op">=</span><span class="st">"5-MA"</span>, linewidth<span class="op">=</span><span class="dv">2</span>)</span>
@@ -1578,7 +1569,7 @@ y_t^{\mathrm{SA}}=\frac{y_t}{\widehat S_t}.
 </section>
 <section id="smoothness-depends-on-order" class="slide level2">
 <h2>Smoothness depends on order</h2>
-<div id="5f0e1c4e" class="cell" data-execution_count="19">
+<div id="db958c12" class="cell" data-execution_count="19">
 <div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href=""></a><span class="cf">for</span> window <span class="kw">in</span> [<span class="dv">3</span>, <span class="dv">5</span>, <span class="dv">9</span>, <span class="dv">15</span>]:</span>
 <span id="cb20-2"><a href=""></a>    aus_exports[<span class="ss">f"MA_</span><span class="sc">{</span>window<span class="sc">}</span><span class="ss">"</span>] <span class="op">=</span> aus_exports[<span class="st">"Exports"</span>].rolling(window, center<span class="op">=</span><span class="va">True</span>).mean()</span>
 <span id="cb20-3"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
@@ -1607,7 +1598,7 @@ y_t^{\mathrm{SA}}=\frac{y_t}{\widehat S_t}.
 <section id="moving-average-of-moving-averages" class="slide level2">
 <h2>Moving average of moving averages</h2>
 <p>Quarterly seasonality has even period <span class="math inline">\(m=4\)</span>. A centered <span class="math inline">\(2\times4\)</span> moving average is obtained by applying a 2-MA after a 4-MA.</p>
-<div id="b0190ed4" class="cell" data-execution_count="20">
+<div id="00f1c387" class="cell" data-execution_count="20">
 <div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href=""></a>beer <span class="op">=</span> (</span>
 <span id="cb21-2"><a href=""></a>    aus_production[[<span class="st">"ds"</span>, <span class="st">"Beer"</span>]]</span>
 <span id="cb21-3"><a href=""></a>    .loc[<span class="kw">lambda</span> x: x[<span class="st">"ds"</span>] <span class="op">&gt;=</span> <span class="st">"1992"</span>]</span>
@@ -1616,7 +1607,7 @@ y_t^{\mathrm{SA}}=\frac{y_t}{\widehat S_t}.
 <span id="cb21-6"><a href=""></a>beer[<span class="st">"4-MA"</span>] <span class="op">=</span> beer[<span class="st">"Beer"</span>].rolling(<span class="dv">4</span>, center<span class="op">=</span><span class="va">True</span>).mean().shift(<span class="op">-</span><span class="dv">1</span>)</span>
 <span id="cb21-7"><a href=""></a>beer[<span class="st">"2x4-MA"</span>] <span class="op">=</span> beer[<span class="st">"4-MA"</span>].rolling(<span class="dv">2</span>, center<span class="op">=</span><span class="va">True</span>).mean()</span>
 <span id="cb21-8"><a href=""></a>beer.head(<span class="dv">8</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="74">
+<div class="cell-output cell-output-display" data-execution_count="20">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -1777,7 +1768,7 @@ y_t^{\mathrm{SA}}=\frac{y_t}{\widehat S_t}.
 </section>
 <section id="x12-ma-for-retail-employment" class="slide level2">
 <h2>2x12-MA for retail employment</h2>
-<div id="09e5857d" class="cell" data-execution_count="21">
+<div id="ec5ab44d" class="cell" data-execution_count="21">
 <div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href=""></a>ma_employment <span class="op">=</span> us_retail_employment.copy()</span>
 <span id="cb22-2"><a href=""></a>ma_employment[<span class="st">"12-MA"</span>] <span class="op">=</span> ma_employment[<span class="st">"y"</span>].rolling(<span class="dv">12</span>, center<span class="op">=</span><span class="va">True</span>).mean().shift(<span class="op">-</span><span class="dv">1</span>)</span>
 <span id="cb22-3"><a href=""></a>ma_employment[<span class="st">"2x12-MA"</span>] <span class="op">=</span> ma_employment[<span class="st">"12-MA"</span>].rolling(<span class="dv">2</span>, center<span class="op">=</span><span class="va">True</span>).mean()</span>
@@ -1838,7 +1829,7 @@ y_t^{\mathrm{SA}}=\frac{y_t}{\widehat S_t}.
 </section>
 <section id="classical-additive-decomposition-in-python" class="slide level2">
 <h2>Classical additive decomposition in Python</h2>
-<div id="0b73294c" class="cell" data-execution_count="22">
+<div id="1d056f53" class="cell" data-execution_count="22">
 <div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href=""></a>classical_add <span class="op">=</span> seasonal_decompose(</span>
 <span id="cb23-2"><a href=""></a>    us_retail_employment.set_index(<span class="st">"ds"</span>)[<span class="st">"y"</span>],</span>
 <span id="cb23-3"><a href=""></a>    model<span class="op">=</span><span class="st">"additive"</span>, period<span class="op">=</span><span class="dv">12</span>, extrapolate_trend<span class="op">=</span><span class="dv">0</span>,</span>
@@ -1867,7 +1858,7 @@ y_t^{\mathrm{SA}}=\frac{y_t}{\widehat S_t}.
 </section>
 <section id="classical-additive-components" class="slide level2">
 <h2>Classical additive components</h2>
-<div id="be4b4055" class="cell" data-execution_count="23">
+<div id="aae18d25" class="cell" data-execution_count="23">
 <div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href=""></a>fig, axes <span class="op">=</span> component_plot(classical_frame, title<span class="op">=</span><span class="st">"Classical additive decomposition"</span>)</span>
 <span id="cb24-2"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
@@ -1917,7 +1908,7 @@ y_t^{\mathrm{SA}}=\frac{y_t}{\widehat S_t}.
 </section>
 <section id="multiplicative-decomposition-of-gas" class="slide level2">
 <h2>Multiplicative decomposition of gas</h2>
-<div id="c312ca37" class="cell" data-execution_count="24">
+<div id="324722c0" class="cell" data-execution_count="24">
 <div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href=""></a>recent_gas <span class="op">=</span> gas.tail(<span class="dv">5</span> <span class="op">*</span> <span class="dv">4</span>).set_index(<span class="st">"ds"</span>)[<span class="st">"Gas"</span>]</span>
 <span id="cb25-2"><a href=""></a>classical_mult <span class="op">=</span> seasonal_decompose(recent_gas, model<span class="op">=</span><span class="st">"multiplicative"</span>, period<span class="op">=</span><span class="dv">4</span>)</span>
 <span id="cb25-3"><a href=""></a>mult_frame <span class="op">=</span> pd.DataFrame({</span>
@@ -1971,7 +1962,7 @@ y_t^{\mathrm{SA}}=\frac{y_t}{\widehat S_t}.
 </section>
 <section id="outlier-contamination-experiment" class="slide level2">
 <h2>Outlier contamination experiment</h2>
-<div id="3092a8d8" class="cell" data-execution_count="25">
+<div id="754d1017" class="cell" data-execution_count="25">
 <div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href=""></a>gas_outlier <span class="op">=</span> recent_gas.copy()</span>
 <span id="cb26-2"><a href=""></a>gas_outlier.iloc[<span class="bu">len</span>(gas_outlier)<span class="op">//</span><span class="dv">2</span>] <span class="op">+=</span> <span class="dv">300</span></span>
 <span id="cb26-3"><a href=""></a>base_dec <span class="op">=</span> seasonal_decompose(recent_gas, model<span class="op">=</span><span class="st">"multiplicative"</span>, period<span class="op">=</span><span class="dv">4</span>)</span>
@@ -2114,7 +2105,7 @@ y_t^{\mathrm{SA}}=\frac{y_t}{\widehat S_t}.
 </section>
 <section id="robust-stl" class="slide level2">
 <h2>Robust STL</h2>
-<div id="2752ba44" class="cell" data-execution_count="26">
+<div id="ef3ae17a" class="cell" data-execution_count="26">
 <div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href=""></a>stl_robust <span class="op">=</span> STL(</span>
 <span id="cb27-2"><a href=""></a>    us_retail_employment[<span class="st">"y"</span>],</span>
 <span id="cb27-3"><a href=""></a>    period<span class="op">=</span><span class="dv">12</span>,</span>
@@ -2148,7 +2139,7 @@ y_t^{\mathrm{SA}}=\frac{y_t}{\widehat S_t}.
 </section>
 <section id="robust-stl-components" class="slide level2">
 <h2>Robust STL components</h2>
-<div id="bb7f4cb0" class="cell" data-execution_count="27">
+<div id="54e063d4" class="cell" data-execution_count="27">
 <div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href=""></a>fig, axes <span class="op">=</span> component_plot(robust_frame, title<span class="op">=</span><span class="st">"Robust STL decomposition with flexible trend"</span>)</span>
 <span id="cb28-2"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
@@ -2170,7 +2161,7 @@ y_t^{\mathrm{SA}}=\frac{y_t}{\widehat S_t}.
 </section>
 <section id="trend-window-sensitivity" class="slide level2">
 <h2>Trend-window sensitivity</h2>
-<div id="fcdd7ac9" class="cell" data-execution_count="28">
+<div id="000944bb" class="cell" data-execution_count="28">
 <div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href=""></a>trend_windows <span class="op">=</span> [<span class="dv">21</span>, <span class="dv">37</span>, <span class="dv">61</span>]</span>
 <span id="cb29-2"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
 <span id="cb29-3"><a href=""></a>ax.plot(us_retail_employment[<span class="st">"ds"</span>], us_retail_employment[<span class="st">"y"</span>], color<span class="op">=</span><span class="st">"0.85"</span>, label<span class="op">=</span><span class="st">"Data"</span>)</span>
@@ -2199,7 +2190,7 @@ y_t^{\mathrm{SA}}=\frac{y_t}{\widehat S_t}.
 </section>
 <section id="seasonal-window-sensitivity" class="slide level2">
 <h2>Seasonal-window sensitivity</h2>
-<div id="4c2d4678" class="cell" data-execution_count="29">
+<div id="2ad24c6f" class="cell" data-execution_count="29">
 <div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href=""></a>seasonal_windows <span class="op">=</span> [<span class="dv">7</span>, <span class="dv">13</span>, <span class="dv">25</span>]</span>
 <span id="cb30-2"><a href=""></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">3</span>, <span class="dv">1</span>, sharex<span class="op">=</span><span class="va">True</span>, figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="dv">7</span>))</span>
 <span id="cb30-3"><a href=""></a><span class="cf">for</span> ax, window, color <span class="kw">in</span> <span class="bu">zip</span>(axes, seasonal_windows, sns.color_palette(<span class="st">"viridis"</span>, <span class="dv">3</span>)):</span>
@@ -2228,7 +2219,7 @@ y_t^{\mathrm{SA}}=\frac{y_t}{\widehat S_t}.
 </section>
 <section id="robust-versus-non-robust-stl" class="slide level2">
 <h2>Robust versus non-robust STL</h2>
-<div id="a6de0622" class="cell" data-execution_count="30">
+<div id="cb141148" class="cell" data-execution_count="30">
 <div class="sourceCode cell-code" id="cb31"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href=""></a>series_outlier <span class="op">=</span> us_retail_employment[<span class="st">"y"</span>].copy()</span>
 <span id="cb31-2"><a href=""></a>position <span class="op">=</span> <span class="bu">len</span>(series_outlier) <span class="op">//</span> <span class="dv">2</span></span>
 <span id="cb31-3"><a href=""></a>series_outlier.iloc[position] <span class="op">+=</span> <span class="dv">2500</span></span>
@@ -2260,7 +2251,7 @@ y_t^{\mathrm{SA}}=\frac{y_t}{\widehat S_t}.
 </section>
 <section id="remainder-diagnostics" class="slide level2">
 <h2>Remainder diagnostics</h2>
-<div id="10736037" class="cell" data-execution_count="31">
+<div id="8e830f3e" class="cell" data-execution_count="31">
 <div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href=""></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="fl">4.5</span>))</span>
 <span id="cb32-2"><a href=""></a>axes[<span class="dv">0</span>].plot(robust_frame[<span class="st">"ds"</span>], robust_frame[<span class="st">"remainder"</span>], color<span class="op">=</span>COLORS[<span class="st">"remainder"</span>])</span>
 <span id="cb32-3"><a href=""></a>axes[<span class="dv">0</span>].axhline(<span class="dv">0</span>, color<span class="op">=</span><span class="st">"0.4"</span>, linewidth<span class="op">=</span><span class="dv">1</span>)</span>
@@ -2310,7 +2301,7 @@ y_t^{\mathrm{SA}}=\frac{y_t}{\widehat S_t}.
 </section>
 <section id="overlay-components-on-a-common-scale" class="slide level2">
 <h2>Overlay components on a common scale</h2>
-<div id="01cc10b5" class="cell" data-execution_count="32">
+<div id="66f7fa17" class="cell" data-execution_count="32">
 <div class="sourceCode cell-code" id="cb33"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
 <span id="cb33-2"><a href=""></a>ax.plot(robust_frame[<span class="st">"ds"</span>], robust_frame[<span class="st">"data"</span>], color<span class="op">=</span>COLORS[<span class="st">"data"</span>], label<span class="op">=</span><span class="st">"Data"</span>)</span>
 <span id="cb33-3"><a href=""></a>ax.plot(robust_frame[<span class="st">"ds"</span>], robust_frame[<span class="st">"trend"</span>], color<span class="op">=</span>COLORS[<span class="st">"trend"</span>], label<span class="op">=</span><span class="st">"Trend"</span>)</span>
@@ -2659,1867 +2650,9 @@ y_t^{\mathrm{SA}}=\frac{y_t}{\widehat S_t}.
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
-</section></section>
-<section>
-<section id="introduction-1" class="title-slide slide level1 center">
-<h1>Introduction</h1>
-
-</section>
-<section id="real-time-series-data-are-messy" class="slide level2">
-<h2>Real time-series data are messy</h2>
-<p>A recorded series may contain:</p>
-<ul>
-<li>observations that are unusually large or small;</li>
-<li>values that are absent;</li>
-<li>zeros whose meaning is ambiguous;</li>
-<li>data-entry or sensor failures;</li>
-<li>genuine shocks and structural changes.</li>
-</ul>
-<p>The first task is not automatic correction. It is <strong>diagnosis</strong>.</p>
-<aside class="notes">
-<p>The source section states that real data often contain missing values, outlying observations, and other messy features. This lecture focuses only on that subsection.</p>
-<p>[Sources] - https://otexts.com/fpppy/13-practical.html#sec-missing-outliers</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="learning-objectives-1" class="slide level2">
-<h2>Learning objectives</h2>
-<p>Students will be able to:</p>
-<ul>
-<li>distinguish an unusual observation from an error;</li>
-<li>visualize outliers in temporal context;</li>
-<li>use robust STL to isolate unusual remainders;</li>
-<li>apply and critique IQR-based detection rules;</li>
-<li>map missingness through time;</li>
-<li>distinguish missing values from structural zeros;</li>
-<li>compare deletion and imputation strategies;</li>
-<li>visualize uncertainty introduced by data cleaning;</li>
-<li>preserve an auditable trail of modifications.</li>
-</ul>
-<aside class="notes">
-<p>The emphasis is visualization-led reasoning. Numerical rules support investigation but do not replace context.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="a-responsible-workflow" class="slide level2">
-<h2>A responsible workflow</h2>
-<div class="sourceCode" id="cb34"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb34-1"><a href=""></a>DETECT → VERIFY → CLASSIFY → DECIDE → MODIFY → COMPARE → DOCUMENT</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Never begin with:</p>
-<div class="sourceCode" id="cb35"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb35-1"><a href=""></a>DETECT → DELETE</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<aside class="notes">
-<p>The book warns that simply replacing outliers without thinking about why they occurred is dangerous because unusual values may contain useful information about the process.</p>
-<p>[Sources] - https://otexts.com/fpppy/13-practical.html#sec-missing-outliers</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section></section>
-<section>
-<section id="outliers" class="title-slide slide level1 center">
-<h1>Outliers</h1>
-
-</section>
-<section id="what-is-an-outlier" class="slide level2">
-<h2>What is an outlier?</h2>
-<p>An outlier is an observation that is very different from most observations in the time series.</p>
-<p>An outlier may be:</p>
-<ul>
-<li>a recording or processing error;</li>
-<li>a valid but unusual event;</li>
-<li>evidence of model misspecification;</li>
-<li>evidence of a level shift or structural change.</li>
-</ul>
-<aside class="notes">
-<p>The chapter explicitly states that outliers may be errors or may simply be unusual. The additional classifications are teaching categories for investigation.</p>
-<p>[Sources] - https://otexts.com/fpppy/13-practical.html#sec-missing-outliers</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="why-time-context-matters" class="slide level2">
-<h2>Why time context matters</h2>
-<p>A value can appear ordinary marginally but be unusual for:</p>
-<ul>
-<li>its season;</li>
-<li>its neighboring observations;</li>
-<li>the current trend level;</li>
-<li>its day of week or quarter;</li>
-<li>the variance regime at that time.</li>
-</ul>
-<blockquote>
-<p>Outlier detection for time series should respect temporal structure.</p>
-</blockquote>
-<aside class="notes">
-<p>This is a teaching recommendation. A global boxplot of the raw data may flag regular seasonal peaks rather than anomalies.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="adelaide-hills-tourism-data" class="slide level2">
-<h2>Adelaide Hills tourism data</h2>
-<div id="c172a648" class="cell" data-execution_count="33">
-<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href=""></a>tourism_raw <span class="op">=</span> pd.read_csv(DATA_PATH <span class="op">/</span> <span class="st">"tourism.csv"</span>, parse_dates<span class="op">=</span>[<span class="st">"ds"</span>])</span>
-<span id="cb36-2"><a href=""></a>tourism <span class="op">=</span> (</span>
-<span id="cb36-3"><a href=""></a>    tourism_raw</span>
-<span id="cb36-4"><a href=""></a>    .loc[<span class="kw">lambda</span> x: (x[<span class="st">"Region"</span>] <span class="op">==</span> <span class="st">"Adelaide Hills"</span>) <span class="op">&amp;</span></span>
-<span id="cb36-5"><a href=""></a>                   (x[<span class="st">"Purpose"</span>] <span class="op">==</span> <span class="st">"Visiting"</span>)]</span>
-<span id="cb36-6"><a href=""></a>    .assign(unique_id<span class="op">=</span><span class="st">"trips"</span>)</span>
-<span id="cb36-7"><a href=""></a>    .reset_index(drop<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb36-8"><a href=""></a>    [[<span class="st">"unique_id"</span>, <span class="st">"ds"</span>, <span class="st">"y"</span>]]</span>
-<span id="cb36-9"><a href=""></a>)</span>
-<span id="cb36-10"><a href=""></a>tourism.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="87">
-<div>
-<style scoped="">
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-
-<table class="dataframe caption-top" data-quarto-postprocess="true" data-border="1">
-<thead>
-<tr class="header" style="text-align: right;">
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th">unique_id</th>
-<th data-quarto-table-cell-role="th">ds</th>
-<th data-quarto-table-cell-role="th">y</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">0</td>
-<td>trips</td>
-<td>1998-01-01</td>
-<td>2.988178</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">1</td>
-<td>trips</td>
-<td>1998-04-01</td>
-<td>7.753242</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">2</td>
-<td>trips</td>
-<td>1998-07-01</td>
-<td>3.597186</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">3</td>
-<td>trips</td>
-<td>1998-10-01</td>
-<td>8.345244</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">4</td>
-<td>trips</td>
-<td>1999-01-01</td>
-<td>2.198009</td>
-</tr>
-</tbody>
-</table>
-
-</div>
-</div>
-</div>
-<aside class="notes">
-<p>This reproduces the series used in the source subsection: quarterly overnight trips to Adelaide Hills for the Visiting purpose.</p>
-<p>[Sources] - https://otexts.com/fpppy/13-practical.html#sec-missing-outliers</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="figure-13.9-inspect-the-original-series" class="slide level2">
-<h2>Figure 13.9: Inspect the original series</h2>
-<div id="22b2ded4" class="cell" data-execution_count="34">
-<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href=""></a>fig, ax <span class="op">=</span> plot_series_matplotlib(</span>
-<span id="cb37-2"><a href=""></a>    tourism,</span>
-<span id="cb37-3"><a href=""></a>    title<span class="op">=</span><span class="st">"Quarterly overnight trips to Adelaide Hills"</span>,</span>
-<span id="cb37-4"><a href=""></a>    xlabel<span class="op">=</span><span class="st">"Quarter [1Q]"</span>,</span>
-<span id="cb37-5"><a href=""></a>    ylabel<span class="op">=</span><span class="st">"Number of trips"</span>,</span>
-<span id="cb37-6"><a href=""></a>)</span>
-<span id="cb37-7"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-
-</div>
-<img data-src="lecture_04_files/figure-revealjs/cell-35-output-1.png" class="r-stretch"><aside class="notes">
-<p>The chapter identifies an apparently unusual observation in 2002 Q4. Ask students to describe the observation before labeling or replacing it.</p>
-<p>[Sources] - https://otexts.com/fpppy/13-practical.html#sec-missing-outliers</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="annotate-suspected-observations" class="slide level2">
-<h2>Annotate suspected observations</h2>
-<div id="86b9269f" class="cell" data-execution_count="35">
-<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href=""></a>suspected_date <span class="op">=</span> pd.Timestamp(<span class="st">"2002-10-01"</span>)</span>
-<span id="cb38-2"><a href=""></a>suspected <span class="op">=</span> tourism.loc[tourism[<span class="st">"ds"</span>] <span class="op">==</span> suspected_date]</span>
-<span id="cb38-3"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
-<span id="cb38-4"><a href=""></a>ax.plot(tourism[<span class="st">"ds"</span>], tourism[<span class="st">"y"</span>], color<span class="op">=</span>COLORS[<span class="st">"observed"</span>], linewidth<span class="op">=</span><span class="fl">1.2</span>)</span>
-<span id="cb38-5"><a href=""></a>ax.scatter(suspected[<span class="st">"ds"</span>], suspected[<span class="st">"y"</span>], color<span class="op">=</span>COLORS[<span class="st">"outlier"</span>], s<span class="op">=</span><span class="dv">90</span>,</span>
-<span id="cb38-6"><a href=""></a>           zorder<span class="op">=</span><span class="dv">3</span>, label<span class="op">=</span><span class="st">"Candidate: 2002 Q4"</span>)</span>
-<span id="cb38-7"><a href=""></a>ax.<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Candidate outlier shown in temporal context"</span>,</span>
-<span id="cb38-8"><a href=""></a>       xlabel<span class="op">=</span><span class="st">"Quarter [1Q]"</span>, ylabel<span class="op">=</span><span class="st">"Number of trips"</span>)</span>
-<span id="cb38-9"><a href=""></a>ax.legend(frameon<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb38-10"><a href=""></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-
-</div>
-<img data-src="lecture_04_files/figure-revealjs/cell-36-output-1.png" class="r-stretch"><aside class="notes">
-<p>Use the label candidate outlier until the observation has been verified. Annotation makes the analytical focus visible without silently editing the data.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="why-decompose-before-detecting" class="slide level2">
-<h2>Why decompose before detecting?</h2>
-<p>Raw observations combine:</p>
-<div class="sourceCode" id="cb39"><pre class="sourceCode numberSource math number-lines code-with-copy"><code class="sourceCode"><span id="cb39-1"><a href=""></a>y_t = T_t + S_t + R_t.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>A seasonally high value may be normal. An unusual remainder is unusual <strong>after accounting for estimated trend and seasonality</strong>.</p>
-<aside class="notes">
-<p>The chapter recommends STL decomposition as a useful way to reveal outliers in the remainder series.</p>
-<p>[Sources] - https://otexts.com/fpppy/13-practical.html#sec-missing-outliers</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="robust-stl-decomposition" class="slide level2">
-<h2>Robust STL decomposition</h2>
-<div id="6ef1c010" class="cell" data-execution_count="36">
-<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href=""></a>stl <span class="op">=</span> STL(tourism[<span class="st">"y"</span>], period<span class="op">=</span><span class="dv">4</span>, robust<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb40-2"><a href=""></a>stl_result <span class="op">=</span> stl.fit()</span>
-<span id="cb40-3"><a href=""></a>dcmp <span class="op">=</span> pd.DataFrame({</span>
-<span id="cb40-4"><a href=""></a>    <span class="st">"ds"</span>: tourism[<span class="st">"ds"</span>].to_numpy(),</span>
-<span id="cb40-5"><a href=""></a>    <span class="st">"data"</span>: tourism[<span class="st">"y"</span>].to_numpy(),</span>
-<span id="cb40-6"><a href=""></a>    <span class="st">"trend"</span>: stl_result.trend,</span>
-<span id="cb40-7"><a href=""></a>    <span class="st">"seasonal"</span>: stl_result.seasonal,</span>
-<span id="cb40-8"><a href=""></a>    <span class="st">"remainder"</span>: stl_result.resid,</span>
-<span id="cb40-9"><a href=""></a>})</span>
-<span id="cb40-10"><a href=""></a>dcmp.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="90">
-<div>
-<style scoped="">
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-
-<table class="dataframe caption-top" data-quarto-postprocess="true" data-border="1">
-<thead>
-<tr class="header" style="text-align: right;">
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th">ds</th>
-<th data-quarto-table-cell-role="th">data</th>
-<th data-quarto-table-cell-role="th">trend</th>
-<th data-quarto-table-cell-role="th">seasonal</th>
-<th data-quarto-table-cell-role="th">remainder</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">0</td>
-<td>1998-01-01</td>
-<td>2.988178</td>
-<td>5.228337</td>
-<td>-2.597712</td>
-<td>0.357553</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">1</td>
-<td>1998-04-01</td>
-<td>7.753242</td>
-<td>5.393564</td>
-<td>2.933062</td>
-<td>-0.573384</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">2</td>
-<td>1998-07-01</td>
-<td>3.597186</td>
-<td>5.545664</td>
-<td>-1.586550</td>
-<td>-0.361929</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">3</td>
-<td>1998-10-01</td>
-<td>8.345244</td>
-<td>5.683584</td>
-<td>1.190896</td>
-<td>1.470764</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">4</td>
-<td>1999-01-01</td>
-<td>2.198009</td>
-<td>5.858814</td>
-<td>-1.999555</td>
-<td>-1.661249</td>
-</tr>
-</tbody>
-</table>
-
-</div>
-</div>
-</div>
-<aside class="notes">
-<p>The book implements robust STL through MSTL with one seasonal period. Here, statsmodels STL gives the corresponding single-season robust decomposition directly.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="figure-13.10-components-and-remainder" class="slide level2">
-<h2>Figure 13.10: Components and remainder</h2>
-<div id="fd2863e9" class="cell" data-execution_count="37">
-<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb41-1"><a href=""></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">4</span>, <span class="dv">1</span>, sharex<span class="op">=</span><span class="va">True</span>, figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="dv">7</span>))</span>
-<span id="cb41-2"><a href=""></a><span class="cf">for</span> ax, column, label, color <span class="kw">in</span> <span class="bu">zip</span>(</span>
-<span id="cb41-3"><a href=""></a>    axes,</span>
-<span id="cb41-4"><a href=""></a>    [<span class="st">"data"</span>, <span class="st">"trend"</span>, <span class="st">"seasonal"</span>, <span class="st">"remainder"</span>],</span>
-<span id="cb41-5"><a href=""></a>    [<span class="st">"Observed"</span>, <span class="st">"Trend"</span>, <span class="st">"Seasonal"</span>, <span class="st">"Remainder"</span>],</span>
-<span id="cb41-6"><a href=""></a>    [COLORS[<span class="st">"observed"</span>], COLORS[<span class="st">"trend"</span>], COLORS[<span class="st">"seasonal"</span>], COLORS[<span class="st">"remainder"</span>]],</span>
-<span id="cb41-7"><a href=""></a>):</span>
-<span id="cb41-8"><a href=""></a>    ax.plot(dcmp[<span class="st">"ds"</span>], dcmp[column], color<span class="op">=</span>color)</span>
-<span id="cb41-9"><a href=""></a>    ax.set_ylabel(label)</span>
-<span id="cb41-10"><a href=""></a>axes[<span class="op">-</span><span class="dv">1</span>].set_xlabel(<span class="st">"Quarter"</span>)</span>
-<span id="cb41-11"><a href=""></a>fig.suptitle(<span class="st">"Robust STL decomposition"</span>)</span>
-<span id="cb41-12"><a href=""></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-
-</div>
-<img data-src="lecture_04_files/figure-revealjs/cell-38-output-1.png" class="r-stretch"><aside class="notes">
-<p>The source figure uses data, trend, and remainder panels. The seasonal panel is retained here because this is a visualization class and seasonal magnitude is diagnostically useful.</p>
-<p>[Sources] - https://otexts.com/fpppy/13-practical.html#sec-missing-outliers</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="remainder-in-time" class="slide level2">
-<h2>Remainder in time</h2>
-<div id="5a38a433" class="cell" data-execution_count="38">
-<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
-<span id="cb42-2"><a href=""></a>ax.plot(dcmp[<span class="st">"ds"</span>], dcmp[<span class="st">"remainder"</span>], color<span class="op">=</span>COLORS[<span class="st">"remainder"</span>])</span>
-<span id="cb42-3"><a href=""></a>ax.axhline(<span class="dv">0</span>, color<span class="op">=</span><span class="st">"0.35"</span>, linewidth<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb42-4"><a href=""></a>ax.scatter(suspected_date,</span>
-<span id="cb42-5"><a href=""></a>           dcmp.loc[dcmp[<span class="st">"ds"</span>] <span class="op">==</span> suspected_date, <span class="st">"remainder"</span>],</span>
-<span id="cb42-6"><a href=""></a>           color<span class="op">=</span>COLORS[<span class="st">"outlier"</span>], s<span class="op">=</span><span class="dv">90</span>, zorder<span class="op">=</span><span class="dv">3</span>)</span>
-<span id="cb42-7"><a href=""></a>ax.<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Outliers should be judged against the remainder"</span>,</span>
-<span id="cb42-8"><a href=""></a>       xlabel<span class="op">=</span><span class="st">"Quarter"</span>, ylabel<span class="op">=</span><span class="st">"Remainder"</span>)</span>
-<span id="cb42-9"><a href=""></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-
-</div>
-<img data-src="lecture_04_files/figure-revealjs/cell-39-output-1.png" class="r-stretch"><aside class="notes">
-<p>The remainder plot preserves time ordering, allowing detection of isolated spikes, clusters, and changes in variance.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="iqr-rule-on-the-remainder" class="slide level2">
-<h2>IQR rule on the remainder</h2>
-<p>Let</p>
-<div class="sourceCode" id="cb43"><pre class="sourceCode numberSource math number-lines code-with-copy"><code class="sourceCode"><span id="cb43-1"><a href=""></a>\operatorname{IQR}=Q_3-Q_1.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>A general fence with multiplier <span class="math inline">\(k\)</span> is</p>
-<div class="sourceCode" id="cb44"><pre class="sourceCode numberSource math number-lines code-with-copy"><code class="sourceCode"><span id="cb44-1"><a href=""></a>L=Q_1-k\operatorname{IQR},</span>
-<span id="cb44-2"><a href=""></a>\qquad</span>
-<span id="cb44-3"><a href=""></a>U=Q_3+k\operatorname{IQR}.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Flag observations for which <span class="math inline">\(R_t&lt;L\)</span> or <span class="math inline">\(R_t&gt;U\)</span>.</p>
-<aside class="notes">
-<p>The book discusses k equal to 1.5 and prefers a stricter k equal to 3 for this context.</p>
-<p>[Sources] - https://otexts.com/fpppy/13-practical.html#sec-missing-outliers</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="implement-the-chapters-3-iqr-rule" class="slide level2">
-<h2>Implement the chapter’s 3-IQR rule</h2>
-<div id="a144696a" class="cell" data-execution_count="39">
-<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb45-1"><a href=""></a>q1 <span class="op">=</span> dcmp[<span class="st">"remainder"</span>].quantile(<span class="fl">.25</span>)</span>
-<span id="cb45-2"><a href=""></a>q3 <span class="op">=</span> dcmp[<span class="st">"remainder"</span>].quantile(<span class="fl">.75</span>)</span>
-<span id="cb45-3"><a href=""></a>iqr <span class="op">=</span> q3 <span class="op">-</span> q1</span>
-<span id="cb45-4"><a href=""></a>lower <span class="op">=</span> q1 <span class="op">-</span> <span class="dv">3</span> <span class="op">*</span> iqr</span>
-<span id="cb45-5"><a href=""></a>upper <span class="op">=</span> q3 <span class="op">+</span> <span class="dv">3</span> <span class="op">*</span> iqr</span>
-<span id="cb45-6"><a href=""></a>outliers <span class="op">=</span> dcmp.loc[<span class="op">~</span>dcmp[<span class="st">"remainder"</span>].between(lower, upper)].copy()</span>
-<span id="cb45-7"><a href=""></a>outliers</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="93">
-<div>
-<style scoped="">
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-
-<table class="dataframe caption-top" data-quarto-postprocess="true" data-border="1">
-<thead>
-<tr class="header" style="text-align: right;">
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th">ds</th>
-<th data-quarto-table-cell-role="th">data</th>
-<th data-quarto-table-cell-role="th">trend</th>
-<th data-quarto-table-cell-role="th">seasonal</th>
-<th data-quarto-table-cell-role="th">remainder</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">19</td>
-<td>2002-10-01</td>
-<td>81.102109</td>
-<td>11.102477</td>
-<td>4.731871</td>
-<td>65.267761</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">27</td>
-<td>2004-10-01</td>
-<td>7.815662</td>
-<td>13.427640</td>
-<td>6.573944</td>
-<td>-12.185923</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">44</td>
-<td>2009-01-01</td>
-<td>21.583685</td>
-<td>13.517504</td>
-<td>-2.093914</td>
-<td>10.160095</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">60</td>
-<td>2013-01-01</td>
-<td>36.718419</td>
-<td>15.690866</td>
-<td>-2.252535</td>
-<td>23.280088</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">71</td>
-<td>2015-10-01</td>
-<td>15.797783</td>
-<td>23.492794</td>
-<td>1.767355</td>
-<td>-9.462366</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">73</td>
-<td>2016-04-01</td>
-<td>2.371720</td>
-<td>26.084378</td>
-<td>6.317244</td>
-<td>-30.029903</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">75</td>
-<td>2016-10-01</td>
-<td>37.565829</td>
-<td>25.111692</td>
-<td>2.825369</td>
-<td>9.628767</td>
-</tr>
-</tbody>
-</table>
-
-</div>
-</div>
-</div>
-<aside class="notes">
-<p>The source section reports that this rule identifies the suspected observation plus three additional observations in the example.</p>
-<p>[Sources] - https://otexts.com/fpppy/13-practical.html#sec-missing-outliers</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="visualize-the-fences-and-flags" class="slide level2">
-<h2>Visualize the fences and flags</h2>
-<div id="ce315443" class="cell" data-execution_count="40">
-<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb46-1"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
-<span id="cb46-2"><a href=""></a>ax.plot(dcmp[<span class="st">"ds"</span>], dcmp[<span class="st">"remainder"</span>], color<span class="op">=</span>COLORS[<span class="st">"remainder"</span>], label<span class="op">=</span><span class="st">"Remainder"</span>)</span>
-<span id="cb46-3"><a href=""></a>ax.axhline(lower, color<span class="op">=</span>COLORS[<span class="st">"outlier"</span>], linestyle<span class="op">=</span><span class="st">"--"</span>, label<span class="op">=</span><span class="st">"3-IQR fences"</span>)</span>
-<span id="cb46-4"><a href=""></a>ax.axhline(upper, color<span class="op">=</span>COLORS[<span class="st">"outlier"</span>], linestyle<span class="op">=</span><span class="st">"--"</span>)</span>
-<span id="cb46-5"><a href=""></a>ax.scatter(outliers[<span class="st">"ds"</span>], outliers[<span class="st">"remainder"</span>], color<span class="op">=</span>COLORS[<span class="st">"outlier"</span>],</span>
-<span id="cb46-6"><a href=""></a>           s<span class="op">=</span><span class="dv">75</span>, zorder<span class="op">=</span><span class="dv">3</span>, label<span class="op">=</span><span class="st">"Flagged"</span>)</span>
-<span id="cb46-7"><a href=""></a>ax.<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Remainder-based candidate outliers"</span>,</span>
-<span id="cb46-8"><a href=""></a>       xlabel<span class="op">=</span><span class="st">"Quarter"</span>, ylabel<span class="op">=</span><span class="st">"Remainder"</span>)</span>
-<span id="cb46-9"><a href=""></a>ax.legend(frameon<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb46-10"><a href=""></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-
-</div>
-<img data-src="lecture_04_files/figure-revealjs/cell-41-output-1.png" class="r-stretch"><aside class="notes">
-<p>Plotting the fences makes the rule auditable. The points are flags for investigation, not proof of error.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="boxplot-of-the-remainder" class="slide level2">
-<h2>Boxplot of the remainder</h2>
-<div id="3a265d79" class="cell" data-execution_count="41">
-<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb47-1"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
-<span id="cb47-2"><a href=""></a>sns.boxplot(x<span class="op">=</span>dcmp[<span class="st">"remainder"</span>], color<span class="op">=</span><span class="st">"#56B4E9"</span>, whis<span class="op">=</span><span class="dv">3</span>, ax<span class="op">=</span>ax)</span>
-<span id="cb47-3"><a href=""></a>ax.<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Remainder boxplot with 3-IQR whisker rule"</span>,</span>
-<span id="cb47-4"><a href=""></a>       xlabel<span class="op">=</span><span class="st">"Remainder"</span>)</span>
-<span id="cb47-5"><a href=""></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-
-</div>
-<img data-src="lecture_04_files/figure-revealjs/cell-42-output-1.png" class="r-stretch"><aside class="notes">
-<p>The chapter recommends a boxplot of the remainder in more difficult cases. The horizontal time plot and boxplot answer complementary questions.</p>
-<p>[Sources] - https://otexts.com/fpppy/13-practical.html#sec-missing-outliers</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="a-rule-is-not-a-diagnosis" class="slide level2">
-<h2>A rule is not a diagnosis</h2>
-<p>Before replacing a flag, ask:</p>
-<ul>
-<li>Is the raw source correct?</li>
-<li>Did units or definitions change?</li>
-<li>Was there a one-off real event?</li>
-<li>Is the seasonal period correctly specified?</li>
-<li>Did the decomposition leave systematic structure?</li>
-<li>Is the value part of a level shift rather than an isolated outlier?</li>
-</ul>
-<aside class="notes">
-<p>These are recommended diagnostic questions. The source warns against replacement without understanding why the observation occurred.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="isolated-outlier-versus-level-shift" class="slide level2">
-<h2>Isolated outlier versus level shift</h2>
-<div id="89b615e4" class="cell" data-fig-height="4" data-fig-width="11" data-execution_count="42">
-<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb48-1"><a href=""></a>idx <span class="op">=</span> pd.date_range(<span class="st">"2020-01-01"</span>, periods<span class="op">=</span><span class="dv">80</span>, freq<span class="op">=</span><span class="st">"D"</span>)</span>
-<span id="cb48-2"><a href=""></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">42</span>)</span>
-<span id="cb48-3"><a href=""></a>base <span class="op">=</span> rng.normal(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">80</span>)</span>
-<span id="cb48-4"><a href=""></a>isolated <span class="op">=</span> base.copy()<span class="op">;</span> isolated[<span class="dv">40</span>] <span class="op">+=</span> <span class="dv">8</span></span>
-<span id="cb48-5"><a href=""></a>level_shift <span class="op">=</span> base.copy()<span class="op">;</span> level_shift[<span class="dv">40</span>:] <span class="op">+=</span> <span class="dv">4</span></span>
-<span id="cb48-6"><a href=""></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, sharey<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb48-7"><a href=""></a>axes[<span class="dv">0</span>].plot(idx, isolated)<span class="op">;</span> axes[<span class="dv">0</span>].set_title(<span class="st">"Isolated observation"</span>)</span>
-<span id="cb48-8"><a href=""></a>axes[<span class="dv">1</span>].plot(idx, level_shift)<span class="op">;</span> axes[<span class="dv">1</span>].set_title(<span class="st">"Persistent level shift"</span>)</span>
-<span id="cb48-9"><a href=""></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-
-</div>
-<img data-src="lecture_04_files/figure-revealjs/cell-43-output-1.png" class="r-stretch"><aside class="notes">
-<p>This is a teaching illustration. Replacing one point may be reasonable for a verified measurement error, but it would conceal a persistent regime change.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section></section>
-<section>
-<section id="missing-values" class="title-slide slide level1 center">
-<h1>Missing Values</h1>
-
-</section>
-<section id="missing-is-not-a-value" class="slide level2">
-<h2>Missing is not a value</h2>
-<p>A missing observation may mean:</p>
-<ul>
-<li>the event was not recorded;</li>
-<li>the device failed;</li>
-<li>the reporting process was delayed;</li>
-<li>the activity did not occur;</li>
-<li>the business was closed;</li>
-<li>the record is structurally inapplicable.</li>
-</ul>
-<p>These meanings require different treatments.</p>
-<aside class="notes">
-<p>The source distinguishes context-driven missingness, such as public-holiday closures, from essentially random recording failures.</p>
-<p>[Sources] - https://otexts.com/fpppy/13-practical.html#sec-missing-outliers</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="zero-versus-missing" class="slide level2">
-<h2>Zero versus missing</h2>
-<div class="sourceCode" id="cb49"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb49-1"><a href=""></a>0       = observed absence or true zero quantity</span>
-<span id="cb49-2"><a href=""></a>NaN     = no usable observation is recorded</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Never convert <code>NaN</code> to zero unless zero accurately represents the data-generating process.</p>
-<aside class="notes">
-<p>The source gives a holiday-closure example where setting a missing value to zero may be reasonable when closure means zero sales, but the model must also account for holiday and post-holiday effects.</p>
-<p>[Sources] - https://otexts.com/fpppy/13-practical.html#sec-missing-outliers</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="missingness-can-be-informative" class="slide level2">
-<h2>Missingness can be informative</h2>
-<p>The source example:</p>
-<ul>
-<li>a store is closed on a public holiday;</li>
-<li>sales are zero on the holiday;</li>
-<li>sales may increase on the following day;</li>
-<li>ignoring the mechanism can bias forecasts around the holiday.</li>
-</ul>
-<p>No automated method can infer this business context on its own.</p>
-<aside class="notes">
-<p>The chapter suggests setting holiday closure values to zero and using dummy variables for the holiday and the following day in an AutoARIMA model.</p>
-<p>[Sources] - https://otexts.com/fpppy/13-practical.html#sec-missing-outliers</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="create-missing-value-scenarios" class="slide level2">
-<h2>Create missing-value scenarios</h2>
-<div id="472343bf" class="cell" data-execution_count="43">
-<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb50-1"><a href=""></a>tourism_missing <span class="op">=</span> tourism.copy()</span>
-<span id="cb50-2"><a href=""></a>tourism_missing.loc[[<span class="dv">8</span>, <span class="dv">9</span>, <span class="dv">25</span>], <span class="st">"y"</span>] <span class="op">=</span> np.nan</span>
-<span id="cb50-3"><a href=""></a>missing_dates <span class="op">=</span> tourism_missing.loc[tourism_missing[<span class="st">"y"</span>].isna(), <span class="st">"ds"</span>]</span>
-<span id="cb50-4"><a href=""></a>tourism_missing.head(<span class="dv">12</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="97">
-<div>
-<style scoped="">
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-
-<table class="dataframe caption-top" data-quarto-postprocess="true" data-border="1">
-<thead>
-<tr class="header" style="text-align: right;">
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th">unique_id</th>
-<th data-quarto-table-cell-role="th">ds</th>
-<th data-quarto-table-cell-role="th">y</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">0</td>
-<td>trips</td>
-<td>1998-01-01</td>
-<td>2.988178</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">1</td>
-<td>trips</td>
-<td>1998-04-01</td>
-<td>7.753242</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">2</td>
-<td>trips</td>
-<td>1998-07-01</td>
-<td>3.597186</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">3</td>
-<td>trips</td>
-<td>1998-10-01</td>
-<td>8.345244</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">4</td>
-<td>trips</td>
-<td>1999-01-01</td>
-<td>2.198009</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">5</td>
-<td>trips</td>
-<td>1999-04-01</td>
-<td>9.293416</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">6</td>
-<td>trips</td>
-<td>1999-07-01</td>
-<td>5.137458</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">7</td>
-<td>trips</td>
-<td>1999-10-01</td>
-<td>3.695841</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">8</td>
-<td>trips</td>
-<td>2000-01-01</td>
-<td>NaN</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">9</td>
-<td>trips</td>
-<td>2000-04-01</td>
-<td>NaN</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">10</td>
-<td>trips</td>
-<td>2000-07-01</td>
-<td>0.777638</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">11</td>
-<td>trips</td>
-<td>2000-10-01</td>
-<td>6.515741</td>
-</tr>
-</tbody>
-</table>
-
-</div>
-</div>
-</div>
-<aside class="notes">
-<p>These missing observations are synthetic for teaching. Two are consecutive and one is isolated, allowing different visual and interpolation behavior to be discussed.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="show-gaps-honestly" class="slide level2">
-<h2>Show gaps honestly</h2>
-<div id="09179fc6" class="cell" data-execution_count="44">
-<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb51-1"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
-<span id="cb51-2"><a href=""></a>ax.plot(tourism_missing[<span class="st">"ds"</span>], tourism_missing[<span class="st">"y"</span>], color<span class="op">=</span>COLORS[<span class="st">"observed"</span>], marker<span class="op">=</span><span class="st">"o"</span>)</span>
-<span id="cb51-3"><a href=""></a><span class="cf">for</span> date <span class="kw">in</span> missing_dates:</span>
-<span id="cb51-4"><a href=""></a>    ax.axvline(date, color<span class="op">=</span>COLORS[<span class="st">"missing"</span>], alpha<span class="op">=</span><span class="fl">.35</span>)</span>
-<span id="cb51-5"><a href=""></a>ax.<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Missing observations should appear as gaps"</span>,</span>
-<span id="cb51-6"><a href=""></a>       xlabel<span class="op">=</span><span class="st">"Quarter"</span>, ylabel<span class="op">=</span><span class="st">"Number of trips"</span>)</span>
-<span id="cb51-7"><a href=""></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-
-</div>
-<img data-src="lecture_04_files/figure-revealjs/cell-45-output-1.png" class="r-stretch"><aside class="notes">
-<p>Do not connect across gaps without an explicit visual indication. Otherwise, the line suggests observed continuity.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="missingness-map" class="slide level2">
-<h2>Missingness map</h2>
-<div id="51af2307" class="cell" data-execution_count="45">
-<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb52-1"><a href=""></a>missing_indicator <span class="op">=</span> tourism_missing[<span class="st">"y"</span>].isna().astype(<span class="bu">int</span>).to_numpy()[<span class="va">None</span>, :]</span>
-<span id="cb52-2"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="fl">2.4</span>))</span>
-<span id="cb52-3"><a href=""></a>sns.heatmap(missing_indicator, cmap<span class="op">=</span>[<span class="st">"#E5E7EB"</span>, COLORS[<span class="st">"missing"</span>]], cbar<span class="op">=</span><span class="va">False</span>,</span>
-<span id="cb52-4"><a href=""></a>            xticklabels<span class="op">=</span>tourism_missing[<span class="st">"ds"</span>].dt.strftime(<span class="st">"%Y Q%q"</span>) <span class="cf">if</span> <span class="va">False</span> <span class="cf">else</span> <span class="va">False</span>,</span>
-<span id="cb52-5"><a href=""></a>            yticklabels<span class="op">=</span>[<span class="st">"y missing"</span>], ax<span class="op">=</span>ax)</span>
-<span id="cb52-6"><a href=""></a>ax.<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Temporal location of missing observations"</span>, xlabel<span class="op">=</span><span class="st">"Observation order"</span>)</span>
-<span id="cb52-7"><a href=""></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-
-</div>
-<img data-src="lecture_04_files/figure-revealjs/cell-46-output-1.png" class="r-stretch"><aside class="notes">
-<p>A missingness map reveals isolated gaps, blocks, and alignment across variables. The code intentionally uses observation order to avoid unsupported quarter formatting.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="count-and-locate-missing-observations" class="slide level2">
-<h2>Count and locate missing observations</h2>
-<div id="2a32eae5" class="cell" data-execution_count="46">
-<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb53-1"><a href=""></a>missing_summary <span class="op">=</span> pd.Series({</span>
-<span id="cb53-2"><a href=""></a>    <span class="st">"observations"</span>: <span class="bu">len</span>(tourism_missing),</span>
-<span id="cb53-3"><a href=""></a>    <span class="st">"missing"</span>: tourism_missing[<span class="st">"y"</span>].isna().<span class="bu">sum</span>(),</span>
-<span id="cb53-4"><a href=""></a>    <span class="st">"missing_share"</span>: tourism_missing[<span class="st">"y"</span>].isna().mean(),</span>
-<span id="cb53-5"><a href=""></a>    <span class="st">"first_missing"</span>: tourism_missing.loc[tourism_missing[<span class="st">"y"</span>].isna(), <span class="st">"ds"</span>].<span class="bu">min</span>(),</span>
-<span id="cb53-6"><a href=""></a>    <span class="st">"last_missing"</span>: tourism_missing.loc[tourism_missing[<span class="st">"y"</span>].isna(), <span class="st">"ds"</span>].<span class="bu">max</span>(),</span>
-<span id="cb53-7"><a href=""></a>})</span>
-<span id="cb53-8"><a href=""></a>missing_summary</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="100">
-<pre><code>observations                      80
-missing                            3
-missing_share                 0.0375
-first_missing    2000-01-01 00:00:00
-last_missing     2004-04-01 00:00:00
-dtype: object</code></pre>
-</div>
-</div>
-<aside class="notes">
-<p>A count alone is insufficient. Temporal location and run length determine whether a gap disrupts trend, seasonality, or the forecast origin.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="two-options-stated-in-the-source" class="slide level2">
-<h2>Two options stated in the source</h2>
-<p>When a forecasting implementation does not accept missing observations:</p>
-<ol type="1">
-<li>use the section after the last missing value, if enough data remain;</li>
-<li>replace missing values with estimates.</li>
-</ol>
-<p>The choice depends on the context and forecasting purpose.</p>
-<aside class="notes">
-<p>The source specifically states these two options in relation to StatsForecast not allowing missing values in the time-series data.</p>
-<p>[Sources] - https://otexts.com/fpppy/13-practical.html#sec-missing-outliers</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section></section>
-<section>
-<section id="imputation" class="title-slide slide level1 center">
-<h1>Imputation</h1>
-
-</section>
-<section id="interpolation-is-an-estimate" class="slide level2">
-<h2>Interpolation is an estimate</h2>
-<p>Linear interpolation between observed endpoints <span class="math inline">\(y_a\)</span> and <span class="math inline">\(y_b\)</span> is</p>
-<div class="sourceCode" id="cb55"><pre class="sourceCode numberSource math number-lines code-with-copy"><code class="sourceCode"><span id="cb55-1"><a href=""></a>\widehat y_t</span>
-<span id="cb55-2"><a href=""></a>=</span>
-<span id="cb55-3"><a href=""></a>y_a+</span>
-<span id="cb55-4"><a href=""></a>\frac{t-a}{b-a}(y_b-y_a),</span>
-<span id="cb55-5"><a href=""></a>\qquad a&lt;t&lt;b.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>It assumes smooth movement between neighboring observations.</p>
-<aside class="notes">
-<p>Interpolation creates estimated values, not recovered truths. Long gaps and seasonal series make the assumption less plausible.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="reproduce-the-sources-interpolation-approach" class="slide level2">
-<h2>Reproduce the source’s interpolation approach</h2>
-<div id="15034163" class="cell" data-execution_count="47">
-<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb56-1"><a href=""></a>outlier_dates <span class="op">=</span> outliers[<span class="st">"ds"</span>]</span>
-<span id="cb56-2"><a href=""></a>tourism_cleaned <span class="op">=</span> tourism.copy()</span>
-<span id="cb56-3"><a href=""></a>tourism_cleaned[<span class="st">"was_replaced"</span>] <span class="op">=</span> tourism_cleaned[<span class="st">"ds"</span>].isin(outlier_dates)</span>
-<span id="cb56-4"><a href=""></a>tourism_cleaned[<span class="st">"y_original"</span>] <span class="op">=</span> tourism_cleaned[<span class="st">"y"</span>]</span>
-<span id="cb56-5"><a href=""></a>tourism_cleaned.loc[tourism_cleaned[<span class="st">"was_replaced"</span>], <span class="st">"y"</span>] <span class="op">=</span> np.nan</span>
-<span id="cb56-6"><a href=""></a>tourism_cleaned[<span class="st">"y"</span>] <span class="op">=</span> tourism_cleaned[<span class="st">"y"</span>].interpolate(method<span class="op">=</span><span class="st">"linear"</span>)</span>
-<span id="cb56-7"><a href=""></a>tourism_cleaned.loc[tourism_cleaned[<span class="st">"was_replaced"</span>]].head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="101">
-<div>
-<style scoped="">
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-
-<table class="dataframe caption-top" data-quarto-postprocess="true" data-border="1">
-<thead>
-<tr class="header" style="text-align: right;">
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th">unique_id</th>
-<th data-quarto-table-cell-role="th">ds</th>
-<th data-quarto-table-cell-role="th">y</th>
-<th data-quarto-table-cell-role="th">was_replaced</th>
-<th data-quarto-table-cell-role="th">y_original</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">19</td>
-<td>trips</td>
-<td>2002-10-01</td>
-<td>9.051686</td>
-<td>True</td>
-<td>81.102109</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">27</td>
-<td>trips</td>
-<td>2004-10-01</td>
-<td>11.849632</td>
-<td>True</td>
-<td>7.815662</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">44</td>
-<td>trips</td>
-<td>2009-01-01</td>
-<td>14.979876</td>
-<td>True</td>
-<td>21.583685</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">60</td>
-<td>trips</td>
-<td>2013-01-01</td>
-<td>21.112345</td>
-<td>True</td>
-<td>36.718419</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">71</td>
-<td>trips</td>
-<td>2015-10-01</td>
-<td>19.667070</td>
-<td>True</td>
-<td>15.797783</td>
-</tr>
-</tbody>
-</table>
-
-</div>
-</div>
-</div>
-<aside class="notes">
-<p>The source replaces detected outlier values with missing values and then applies pandas interpolate. This version matches by date rather than value, avoiding accidental replacement of legitimate duplicate values.</p>
-<p>[Sources] - https://otexts.com/fpppy/13-practical.html#sec-missing-outliers</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="figure-13.11-original-and-cleaned-series" class="slide level2">
-<h2>Figure 13.11: Original and cleaned series</h2>
-<div id="94d9a065" class="cell" data-execution_count="48">
-<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb57-1"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
-<span id="cb57-2"><a href=""></a>ax.plot(tourism_cleaned[<span class="st">"ds"</span>], tourism_cleaned[<span class="st">"y_original"</span>],</span>
-<span id="cb57-3"><a href=""></a>        color<span class="op">=</span><span class="st">"0.75"</span>, label<span class="op">=</span><span class="st">"Original"</span>)</span>
-<span id="cb57-4"><a href=""></a>ax.plot(tourism_cleaned[<span class="st">"ds"</span>], tourism_cleaned[<span class="st">"y"</span>],</span>
-<span id="cb57-5"><a href=""></a>        color<span class="op">=</span><span class="st">"#0072B2"</span>, label<span class="op">=</span><span class="st">"Cleaned"</span>)</span>
-<span id="cb57-6"><a href=""></a>replaced <span class="op">=</span> tourism_cleaned.loc[tourism_cleaned[<span class="st">"was_replaced"</span>]]</span>
-<span id="cb57-7"><a href=""></a>ax.scatter(replaced[<span class="st">"ds"</span>], replaced[<span class="st">"y"</span>], color<span class="op">=</span>COLORS[<span class="st">"imputed"</span>],</span>
-<span id="cb57-8"><a href=""></a>           s<span class="op">=</span><span class="dv">80</span>, zorder<span class="op">=</span><span class="dv">3</span>, label<span class="op">=</span><span class="st">"Interpolated replacement"</span>)</span>
-<span id="cb57-9"><a href=""></a>ax.<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Quarterly overnight trips to Adelaide Hills"</span>,</span>
-<span id="cb57-10"><a href=""></a>       xlabel<span class="op">=</span><span class="st">"Quarter [1Q]"</span>, ylabel<span class="op">=</span><span class="st">"Number of trips"</span>)</span>
-<span id="cb57-11"><a href=""></a>ax.legend(frameon<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb57-12"><a href=""></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-
-</div>
-<img data-src="lecture_04_files/figure-revealjs/cell-49-output-1.png" class="r-stretch"><aside class="notes">
-<p>Displaying original and cleaned values together preserves transparency. The source figure shows the cleaned series after interpolation.</p>
-<p>[Sources] - https://otexts.com/fpppy/13-practical.html#sec-missing-outliers</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="compare-common-imputation-strategies" class="slide level2">
-<h2>Compare common imputation strategies</h2>
-<div id="17e6c244" class="cell" data-execution_count="49">
-<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb58-1"><a href=""></a>comparison <span class="op">=</span> tourism_missing[[<span class="st">"ds"</span>, <span class="st">"y"</span>]].copy()</span>
-<span id="cb58-2"><a href=""></a>comparison[<span class="st">"linear"</span>] <span class="op">=</span> comparison[<span class="st">"y"</span>].interpolate(<span class="st">"linear"</span>)</span>
-<span id="cb58-3"><a href=""></a>comparison[<span class="st">"forward_fill"</span>] <span class="op">=</span> comparison[<span class="st">"y"</span>].ffill()</span>
-<span id="cb58-4"><a href=""></a>comparison[<span class="st">"seasonal_lag4"</span>] <span class="op">=</span> comparison[<span class="st">"y"</span>].fillna(comparison[<span class="st">"y"</span>].shift(<span class="dv">4</span>))</span>
-<span id="cb58-5"><a href=""></a>comparison.loc[comparison[<span class="st">"y"</span>].isna()]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="103">
-<div>
-<style scoped="">
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-
-<table class="dataframe caption-top" data-quarto-postprocess="true" data-border="1">
-<thead>
-<tr class="header" style="text-align: right;">
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th">ds</th>
-<th data-quarto-table-cell-role="th">y</th>
-<th data-quarto-table-cell-role="th">linear</th>
-<th data-quarto-table-cell-role="th">forward_fill</th>
-<th data-quarto-table-cell-role="th">seasonal_lag4</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">8</td>
-<td>2000-01-01</td>
-<td>NaN</td>
-<td>2.723107</td>
-<td>3.695841</td>
-<td>2.198009</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">9</td>
-<td>2000-04-01</td>
-<td>NaN</td>
-<td>1.750373</td>
-<td>3.695841</td>
-<td>9.293416</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">25</td>
-<td>2004-04-01</td>
-<td>NaN</td>
-<td>13.263657</td>
-<td>12.484281</td>
-<td>9.511389</td>
-</tr>
-</tbody>
-</table>
-
-</div>
-</div>
-</div>
-<aside class="notes">
-<p>These are teaching alternatives, not methods prescribed by the source. Linear interpolation assumes local smoothness, forward fill assumes persistence, and seasonal lag substitution assumes seasonal repetition.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="visual-comparison-of-imputations" class="slide level2">
-<h2>Visual comparison of imputations</h2>
-<div id="ee437561" class="cell" data-execution_count="50">
-<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb59-1"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
-<span id="cb59-2"><a href=""></a>ax.plot(comparison[<span class="st">"ds"</span>], comparison[<span class="st">"y"</span>], color<span class="op">=</span><span class="st">"0.75"</span>, marker<span class="op">=</span><span class="st">"o"</span>, label<span class="op">=</span><span class="st">"Observed"</span>)</span>
-<span id="cb59-3"><a href=""></a><span class="cf">for</span> column, color <span class="kw">in</span> <span class="bu">zip</span>([<span class="st">"linear"</span>, <span class="st">"forward_fill"</span>, <span class="st">"seasonal_lag4"</span>],</span>
-<span id="cb59-4"><a href=""></a>                         [<span class="st">"#0072B2"</span>, <span class="st">"#D55E00"</span>, <span class="st">"#009E73"</span>]):</span>
-<span id="cb59-5"><a href=""></a>    ax.plot(comparison[<span class="st">"ds"</span>], comparison[column], color<span class="op">=</span>color, alpha<span class="op">=</span><span class="fl">.85</span>, label<span class="op">=</span>column)</span>
-<span id="cb59-6"><a href=""></a>ax.<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Imputation methods encode different assumptions"</span>,</span>
-<span id="cb59-7"><a href=""></a>       xlabel<span class="op">=</span><span class="st">"Quarter"</span>, ylabel<span class="op">=</span><span class="st">"Number of trips"</span>)</span>
-<span id="cb59-8"><a href=""></a>ax.legend(frameon<span class="op">=</span><span class="va">False</span>, ncol<span class="op">=</span><span class="dv">2</span>)</span>
-<span id="cb59-9"><a href=""></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-
-</div>
-<img data-src="lecture_04_files/figure-revealjs/cell-51-output-1.png" class="r-stretch"><aside class="notes">
-<p>The disagreement between methods is a visual representation of imputation uncertainty. Do not select a method solely because it produces the smoothest line.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="gap-length-matters" class="slide level2">
-<h2>Gap length matters</h2>
-<div id="2bb91b18" class="cell" data-execution_count="51">
-<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb60-1"><a href=""></a>missing_mask <span class="op">=</span> tourism_missing[<span class="st">"y"</span>].isna()</span>
-<span id="cb60-2"><a href=""></a>run_id <span class="op">=</span> missing_mask.ne(missing_mask.shift()).cumsum()</span>
-<span id="cb60-3"><a href=""></a>missing_runs <span class="op">=</span> (</span>
-<span id="cb60-4"><a href=""></a>    tourism_missing.assign(missing<span class="op">=</span>missing_mask, run_id<span class="op">=</span>run_id)</span>
-<span id="cb60-5"><a href=""></a>    .loc[<span class="kw">lambda</span> x: x[<span class="st">"missing"</span>]]</span>
-<span id="cb60-6"><a href=""></a>    .groupby(<span class="st">"run_id"</span>)</span>
-<span id="cb60-7"><a href=""></a>    .agg(start<span class="op">=</span>(<span class="st">"ds"</span>, <span class="st">"min"</span>), end<span class="op">=</span>(<span class="st">"ds"</span>, <span class="st">"max"</span>), length<span class="op">=</span>(<span class="st">"missing"</span>, <span class="st">"size"</span>))</span>
-<span id="cb60-8"><a href=""></a>)</span>
-<span id="cb60-9"><a href=""></a>missing_runs</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="105">
-<div>
-<style scoped="">
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-
-<table class="dataframe caption-top" data-quarto-postprocess="true" data-border="1">
-<thead>
-<tr class="header" style="text-align: right;">
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th">start</th>
-<th data-quarto-table-cell-role="th">end</th>
-<th data-quarto-table-cell-role="th">length</th>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">run_id</th>
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th"></th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">2</td>
-<td>2000-01-01</td>
-<td>2000-04-01</td>
-<td>2</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">4</td>
-<td>2004-04-01</td>
-<td>2004-04-01</td>
-<td>1</td>
-</tr>
-</tbody>
-</table>
-
-</div>
-</div>
-</div>
-<aside class="notes">
-<p>An isolated gap and a long missing block should not automatically receive the same treatment. Long gaps weaken local interpolation and may span structural changes.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="do-not-overwrite-the-raw-data" class="slide level2">
-<h2>Do not overwrite the raw data</h2>
-<p>Keep at least:</p>
-<ul>
-<li>original value;</li>
-<li>cleaned or imputed value;</li>
-<li>modification flag;</li>
-<li>reason for modification;</li>
-<li>method used;</li>
-<li>parameters or window;</li>
-<li>analyst review status.</li>
-</ul>
-<aside class="notes">
-<p>This is a recommended governance pattern. It supports reproducibility and auditability.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="an-auditable-cleaning-table" class="slide level2">
-<h2>An auditable cleaning table</h2>
-<div id="a42b9f8a" class="cell" data-execution_count="52">
-<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb61-1"><a href=""></a>audit <span class="op">=</span> tourism_cleaned.loc[tourism_cleaned[<span class="st">"was_replaced"</span>],</span>
-<span id="cb61-2"><a href=""></a>                            [<span class="st">"ds"</span>, <span class="st">"y_original"</span>, <span class="st">"y"</span>]].rename(</span>
-<span id="cb61-3"><a href=""></a>    columns<span class="op">=</span>{<span class="st">"y"</span>: <span class="st">"replacement"</span>}</span>
-<span id="cb61-4"><a href=""></a>)</span>
-<span id="cb61-5"><a href=""></a>audit[<span class="st">"reason"</span>] <span class="op">=</span> <span class="st">"3-IQR flag on robust STL remainder"</span></span>
-<span id="cb61-6"><a href=""></a>audit[<span class="st">"method"</span>] <span class="op">=</span> <span class="st">"linear interpolation"</span></span>
-<span id="cb61-7"><a href=""></a>audit</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="106">
-<div>
-<style scoped="">
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-
-<table class="dataframe caption-top" data-quarto-postprocess="true" data-border="1">
-<thead>
-<tr class="header" style="text-align: right;">
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th">ds</th>
-<th data-quarto-table-cell-role="th">y_original</th>
-<th data-quarto-table-cell-role="th">replacement</th>
-<th data-quarto-table-cell-role="th">reason</th>
-<th data-quarto-table-cell-role="th">method</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">19</td>
-<td>2002-10-01</td>
-<td>81.102109</td>
-<td>9.051686</td>
-<td>3-IQR flag on robust STL remainder</td>
-<td>linear interpolation</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">27</td>
-<td>2004-10-01</td>
-<td>7.815662</td>
-<td>11.849632</td>
-<td>3-IQR flag on robust STL remainder</td>
-<td>linear interpolation</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">44</td>
-<td>2009-01-01</td>
-<td>21.583685</td>
-<td>14.979876</td>
-<td>3-IQR flag on robust STL remainder</td>
-<td>linear interpolation</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">60</td>
-<td>2013-01-01</td>
-<td>36.718419</td>
-<td>21.112345</td>
-<td>3-IQR flag on robust STL remainder</td>
-<td>linear interpolation</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">71</td>
-<td>2015-10-01</td>
-<td>15.797783</td>
-<td>19.667070</td>
-<td>3-IQR flag on robust STL remainder</td>
-<td>linear interpolation</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">73</td>
-<td>2016-04-01</td>
-<td>2.371720</td>
-<td>22.597939</td>
-<td>3-IQR flag on robust STL remainder</td>
-<td>linear interpolation</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">75</td>
-<td>2016-10-01</td>
-<td>37.565829</td>
-<td>19.916989</td>
-<td>3-IQR flag on robust STL remainder</td>
-<td>linear interpolation</td>
-</tr>
-</tbody>
-</table>
-
-</div>
-</div>
-</div>
-<aside class="notes">
-<p>The detection rule is recorded separately from the replacement method. A flag does not establish that an observation is erroneous.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section></section>
-<section>
-<section id="visual-diagnostics-after-cleaning" class="title-slide slide level1 center">
-<h1>Visual Diagnostics After Cleaning</h1>
-
-</section>
-<section id="compare-decomposition-before-and-after" class="slide level2">
-<h2>Compare decomposition before and after</h2>
-<div id="91b5eab8" class="cell" data-execution_count="53">
-<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb62-1"><a href=""></a>original_fit <span class="op">=</span> STL(tourism[<span class="st">"y"</span>], period<span class="op">=</span><span class="dv">4</span>, robust<span class="op">=</span><span class="va">True</span>).fit()</span>
-<span id="cb62-2"><a href=""></a>clean_fit <span class="op">=</span> STL(tourism_cleaned[<span class="st">"y"</span>], period<span class="op">=</span><span class="dv">4</span>, robust<span class="op">=</span><span class="va">True</span>).fit()</span>
-<span id="cb62-3"><a href=""></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">1</span>, sharex<span class="op">=</span><span class="va">True</span>, figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="dv">6</span>))</span>
-<span id="cb62-4"><a href=""></a>axes[<span class="dv">0</span>].plot(tourism[<span class="st">"ds"</span>], original_fit.trend, label<span class="op">=</span><span class="st">"Original trend"</span>, color<span class="op">=</span><span class="st">"0.5"</span>)</span>
-<span id="cb62-5"><a href=""></a>axes[<span class="dv">0</span>].plot(tourism[<span class="st">"ds"</span>], clean_fit.trend, label<span class="op">=</span><span class="st">"Cleaned trend"</span>, color<span class="op">=</span>COLORS[<span class="st">"trend"</span>])</span>
-<span id="cb62-6"><a href=""></a>axes[<span class="dv">0</span>].set_ylabel(<span class="st">"Trend"</span>)<span class="op">;</span> axes[<span class="dv">0</span>].legend(frameon<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb62-7"><a href=""></a>axes[<span class="dv">1</span>].plot(tourism[<span class="st">"ds"</span>], original_fit.resid, label<span class="op">=</span><span class="st">"Original remainder"</span>, color<span class="op">=</span><span class="st">"0.5"</span>)</span>
-<span id="cb62-8"><a href=""></a>axes[<span class="dv">1</span>].plot(tourism[<span class="st">"ds"</span>], clean_fit.resid, label<span class="op">=</span><span class="st">"Cleaned remainder"</span>, color<span class="op">=</span>COLORS[<span class="st">"remainder"</span>])</span>
-<span id="cb62-9"><a href=""></a>axes[<span class="dv">1</span>].<span class="bu">set</span>(xlabel<span class="op">=</span><span class="st">"Quarter"</span>, ylabel<span class="op">=</span><span class="st">"Remainder"</span>)<span class="op">;</span> axes[<span class="dv">1</span>].legend(frameon<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb62-10"><a href=""></a>fig.suptitle(<span class="st">"Cleaning changes estimated components"</span>)</span>
-<span id="cb62-11"><a href=""></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-
-</div>
-<img data-src="lecture_04_files/figure-revealjs/cell-54-output-1.png" class="r-stretch"><aside class="notes">
-<p>Cleaning is not neutral. It can change the trend, seasonal component, remainder, and subsequent forecasts. Compare before and after explicitly.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="remainder-acf-before-and-after" class="slide level2">
-<h2>Remainder ACF before and after</h2>
-<div id="dcb7dd61" class="cell" data-execution_count="54">
-<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb63-1"><a href=""></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="fl">4.5</span>))</span>
-<span id="cb63-2"><a href=""></a>plot_acf(original_fit.resid, lags<span class="op">=</span><span class="dv">16</span>, zero<span class="op">=</span><span class="va">False</span>, ax<span class="op">=</span>axes[<span class="dv">0</span>])</span>
-<span id="cb63-3"><a href=""></a>axes[<span class="dv">0</span>].set_title(<span class="st">"Original remainder ACF"</span>)</span>
-<span id="cb63-4"><a href=""></a>plot_acf(clean_fit.resid, lags<span class="op">=</span><span class="dv">16</span>, zero<span class="op">=</span><span class="va">False</span>, ax<span class="op">=</span>axes[<span class="dv">1</span>])</span>
-<span id="cb63-5"><a href=""></a>axes[<span class="dv">1</span>].set_title(<span class="st">"Cleaned remainder ACF"</span>)</span>
-<span id="cb63-6"><a href=""></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-
-</div>
-<img data-src="lecture_04_files/figure-revealjs/cell-55-output-1.png" class="r-stretch"><aside class="notes">
-<p>A cleaner-looking ACF is not proof that replacement was correct. It only shows how the modeling residual structure changed.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="visual-honesty-checklist" class="slide level2">
-<h2>Visual honesty checklist</h2>
-<ul>
-<li>show gaps rather than silently connecting them;</li>
-<li>use a distinct marker for imputed values;</li>
-<li>retain the original series for comparison;</li>
-<li>disclose the detection rule;</li>
-<li>disclose the replacement method;</li>
-<li>avoid calling flags confirmed errors;</li>
-<li>report how many observations were modified;</li>
-<li>inspect whether cleaning changes substantive conclusions.</li>
-</ul>
-<aside class="notes">
-<p>This checklist translates the source warning into visualization practice.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section></section>
-<section>
-<section id="decision-framework" class="title-slide slide level1 center">
-<h1>Decision Framework</h1>
-
-</section>
-<section id="outlier-decision-tree" class="slide level2">
-<h2>Outlier decision tree</h2>
-<div class="sourceCode" id="cb64"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb64-1"><a href=""></a>FLAGGED OBSERVATION</span>
-<span id="cb64-2"><a href=""></a>        ↓</span>
-<span id="cb64-3"><a href=""></a>VERIFY SOURCE AND UNITS</span>
-<span id="cb64-4"><a href=""></a>        ↓</span>
-<span id="cb64-5"><a href=""></a>ERROR? ── YES → REPLACE / CORRECT + AUDIT</span>
-<span id="cb64-6"><a href=""></a>  │</span>
-<span id="cb64-7"><a href=""></a>  NO</span>
-<span id="cb64-8"><a href=""></a>  ↓</span>
-<span id="cb64-9"><a href=""></a>RECURRING OR FORECAST-RELEVANT EVENT?</span>
-<span id="cb64-10"><a href=""></a>  ├─ YES → RETAIN + MODEL EVENT</span>
-<span id="cb64-11"><a href=""></a>  └─ NO  → RETAIN OR ROBUSTLY DOWNWEIGHT,</span>
-<span id="cb64-12"><a href=""></a>           BASED ON FORECAST PURPOSE</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<aside class="notes">
-<p>The source says replacement is more defensible if the value is genuinely erroneous or if the event will not occur during the forecast period.</p>
-<p>[Sources] - https://otexts.com/fpppy/13-practical.html#sec-missing-outliers</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="missing-value-decision-tree" class="slide level2">
-<h2>Missing-value decision tree</h2>
-<div class="sourceCode" id="cb65"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb65-1"><a href=""></a>MISSING OBSERVATION</span>
-<span id="cb65-2"><a href=""></a>        ↓</span>
-<span id="cb65-3"><a href=""></a>WHAT DOES MISSING MEAN?</span>
-<span id="cb65-4"><a href=""></a>  ├─ TRUE ZERO / CLOSURE → ENCODE ZERO + EVENT VARIABLES</span>
-<span id="cb65-5"><a href=""></a>  ├─ RANDOM RECORDING FAILURE → ESTIMATE IF NEEDED</span>
-<span id="cb65-6"><a href=""></a>  ├─ STRUCTURAL NON-APPLICABILITY → RETAIN AS MISSING</span>
-<span id="cb65-7"><a href=""></a>  └─ UNKNOWN → INVESTIGATE BEFORE IMPUTING</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<aside class="notes">
-<p>The source emphasizes that treatment depends on forecasting context and that automated methods cannot infer contextual effects such as public holidays.</p>
-<p>[Sources] - https://otexts.com/fpppy/13-practical.html#sec-missing-outliers</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section></section>
-<section>
-<section id="practice-1" class="title-slide slide level1 center">
-<h1>Practice</h1>
-
-</section>
-<section id="classroom-exercise" class="slide level2">
-<h2>Classroom exercise</h2>
-<p>Using the Adelaide Hills series:</p>
-<ol type="1">
-<li>plot the raw series and annotate 2002 Q4;</li>
-<li>perform robust STL with period 4;</li>
-<li>calculate 1.5-IQR and 3-IQR remainder fences;</li>
-<li>compare the flagged sets;</li>
-<li>investigate whether flags form isolated points or clusters;</li>
-<li>replace only one selected candidate by interpolation;</li>
-<li>compare trend and remainder before and after;</li>
-<li>create an audit table;</li>
-<li>explain why the chosen treatment is defensible;</li>
-<li>state what evidence remains unavailable.</li>
-</ol>
-<aside class="notes">
-<p>Assessment should reward reasoning, transparency, and visual comparison rather than maximizing the number of detected outliers.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="missingness-experiment" class="slide level2">
-<h2>Missingness experiment</h2>
-<p>Create three versions of the series:</p>
-<ul>
-<li>one isolated missing quarter;</li>
-<li>four consecutive missing quarters;</li>
-<li>one missing seasonal peak every year.</li>
-</ul>
-<p>For each version:</p>
-<ul>
-<li>visualize the pattern of missingness;</li>
-<li>compare linear, forward-fill, and seasonal-lag imputation;</li>
-<li>explain which strategy is least implausible;</li>
-<li>identify possible forecast bias.</li>
-</ul>
-<aside class="notes">
-<p>This extension illustrates that the temporal mechanism and gap pattern matter more than a universal imputation rule.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="assessment-rubric-1" class="slide level2">
-<h2>Assessment rubric</h2>
-<table class="caption-top">
-<colgroup>
-<col style="width: 50%">
-<col style="width: 50%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Dimension</th>
-<th>Evidence</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Temporal reasoning</td>
-<td>seasonality and trend are removed before flagging</td>
-</tr>
-<tr class="even">
-<td>Visualization</td>
-<td>candidates, gaps, and replacements are visible</td>
-</tr>
-<tr class="odd">
-<td>Context</td>
-<td>error, event, zero, and missing are distinguished</td>
-</tr>
-<tr class="even">
-<td>Method</td>
-<td>detection and replacement procedures are explicit</td>
-</tr>
-<tr class="odd">
-<td>Sensitivity</td>
-<td>alternative thresholds or imputations are compared</td>
-</tr>
-<tr class="even">
-<td>Transparency</td>
-<td>original values and audit flags are retained</td>
-</tr>
-<tr class="odd">
-<td>Interpretation</td>
-<td>cleaning consequences are assessed, not hidden</td>
-</tr>
-</tbody>
-</table>
-<aside class="notes">
-<p>A strong submission treats cleaning as a model choice with consequences.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section></section>
-<section>
-<section id="key-takeaways-1" class="title-slide slide level1 center">
-<h1>Key Takeaways</h1>
-
-</section>
-<section id="main-conclusions-1" class="slide level2">
-<h2>Main conclusions</h2>
-<ol type="1">
-<li>An outlier can be an error or a genuine event.</li>
-<li>Time-series outliers should be judged relative to temporal structure.</li>
-<li>Robust STL can isolate unusual values in the remainder.</li>
-<li>IQR fences produce candidates, not confirmed errors.</li>
-<li>Missing values and zeros are not interchangeable.</li>
-<li>Missingness mechanisms can affect forecast bias.</li>
-<li>Interpolation is an assumption-based estimate.</li>
-<li>Different imputations can produce different stories.</li>
-<li>Cleaning can alter trends, seasonality, remainders, and forecasts.</li>
-<li>Every modification should remain visible and auditable.</li>
-</ol>
-<aside class="notes">
-<p>End by asking students whether a smoother series is necessarily a more truthful series. The correct answer is no.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="final-checklist-1" class="slide level2">
-<h2>Final checklist</h2>
-<ul class="task-list">
-<li><label><input type="checkbox">Was the original series plotted first?</label></li>
-<li><label><input type="checkbox">Was trend and seasonality considered before flagging?</label></li>
-<li><label><input type="checkbox">Are flags described as candidates?</label></li>
-<li><label><input type="checkbox">Was the source or event context investigated?</label></li>
-<li><label><input type="checkbox">Is missing distinguished from zero?</label></li>
-<li><label><input type="checkbox">Are missing runs and locations shown?</label></li>
-<li><label><input type="checkbox">Is the imputation assumption explicit?</label></li>
-<li><label><input type="checkbox">Are imputed points visually distinct?</label></li>
-<li><label><input type="checkbox">Are original and cleaned results compared?</label></li>
-<li><label><input type="checkbox">Is there an audit table?</label></li>
-</ul>
-<aside class="notes">
-<p>This checklist is suitable for forecasting reports, dashboards, and production data-quality workflows.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section></section>
-<section>
-<section id="references-1" class="title-slide slide level1 center">
-<h1>References</h1>
-
-</section>
-<section id="core-reference" class="slide level2">
-<h2>Core reference</h2>
-<ul>
-<li>Hyndman, R. J., Athanasopoulos, G., Garza, A., Challu, C., &amp; Mergenthaler, M. <em>Forecasting: Principles and Practice, the Pythonic Way</em>, Section 13.7, “Dealing with outliers and missing values”.</li>
-<li>Tukey, J. W. <em>Exploratory Data Analysis</em>. Addison-Wesley, 1977.</li>
-<li>Cleveland, R. B., Cleveland, W. S., McRae, J. E., &amp; Terpenning, I. <em>STL: A Seasonal-Trend Decomposition Procedure Based on Loess</em>. 1990.</li>
-<li>pandas documentation: interpolation and missing-data handling.</li>
-<li>statsmodels documentation: <code>STL</code>.</li>
-</ul>
-<aside class="notes">
-<p>The lecture follows the source subsection’s examples and recommendations while adding visual diagnostics, comparison methods, and reproducibility structures for postgraduate teaching.</p>
-<p>[Sources] - https://otexts.com/fpppy/13-practical.html#sec-missing-outliers</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
 <div class="quarto-auto-generated-content">
 <div class="footer footer-default">
-<p>Data Visualization | Time Series Decomposition</p>
+<p>Data Visualization</p>
 </div>
 </div>
 </section></section>

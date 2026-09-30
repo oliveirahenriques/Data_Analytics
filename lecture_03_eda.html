@@ -397,7 +397,7 @@
 
 <section id="title-slide" class="quarto-title-block center">
   <h1 class="title">Data Analytics &amp; Visualization</h1>
-  <p class="subtitle">Exploratory Data Analysis and Descriptive Statistics</p>
+  <p class="subtitle">Exploratory Data Analysis</p>
 
 <div class="quarto-title-authors">
 <div class="quarto-title-author">
@@ -544,31 +544,11 @@ Victor Henriques, Ph.D.
           display:block!important;
       }</style></aside>
 </section>
-<section id="the-eda-workflow" class="slide level2">
-<h2>The EDA workflow</h2>
-<div class="sourceCode" id="cb1"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb1-1"><a href=""></a>QUESTION → UNIT OF OBSERVATION → DATA QUALITY → UNIVARIATE STRUCTURE</span>
-<span id="cb1-2"><a href=""></a>        → GROUP COMPARISON → BIVARIATE STRUCTURE → ITERATE</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>At each step:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb2-1"><a href=""></a>COMPUTE → VISUALIZE → INTERPRET → CHALLENGE</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<aside class="notes">
-<p>Ask students to state the unit of observation before producing any statistic. For this lecture, one row is one synthetic business-day observation.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
 <section id="a-self-contained-financial-dataset" class="slide level2">
 <h2>A self-contained financial dataset</h2>
-<div id="1709dd46" class="cell" data-execution_count="2">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href=""></a>returns.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="48">
+<div id="199bd36d" class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href=""></a>returns.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="2">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -650,8 +630,8 @@ Victor Henriques, Ph.D.
 </div>
 </div>
 </div>
-<div id="4af15062" class="cell" data-execution_count="3">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href=""></a>returns.info()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="fa327ffc" class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href=""></a>returns.info()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>&lt;class 'pandas.core.frame.DataFrame'&gt;
 DatetimeIndex: 1250 entries, 2021-01-01 to 2025-10-16
@@ -684,14 +664,14 @@ memory usage: 58.6 KB</code></pre>
 </section>
 <section id="first-visual-inspection" class="slide level2">
 <h2>First visual inspection</h2>
-<div id="8fa5e386" class="cell" data-fig-height="5" data-fig-width="11" data-execution_count="4">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href=""></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">1</span>, sharex<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb6-2"><a href=""></a>axes[<span class="dv">0</span>].plot(returns_pct.index, returns_pct[<span class="st">"Market"</span>], linewidth<span class="op">=</span><span class="fl">.7</span>, color<span class="op">=</span><span class="st">"#0072B2"</span>)</span>
-<span id="cb6-3"><a href=""></a>axes[<span class="dv">0</span>].<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Synthetic market returns"</span>, ylabel<span class="op">=</span><span class="st">"Return (%)"</span>)</span>
-<span id="cb6-4"><a href=""></a>axes[<span class="dv">1</span>].plot(returns.index, returns[<span class="st">"Volume"</span>], linewidth<span class="op">=</span><span class="fl">.7</span>, color<span class="op">=</span><span class="st">"#D55E00"</span>)</span>
-<span id="cb6-5"><a href=""></a>axes[<span class="dv">1</span>].<span class="bu">set</span>(xlabel<span class="op">=</span><span class="st">"Date"</span>, ylabel<span class="op">=</span><span class="st">"Volume"</span>)</span>
-<span id="cb6-6"><a href=""></a>plt.tight_layout()</span>
-<span id="cb6-7"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="84bd54dc" class="cell" data-fig-height="5" data-fig-width="11" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href=""></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">1</span>, sharex<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb4-2"><a href=""></a>axes[<span class="dv">0</span>].plot(returns_pct.index, returns_pct[<span class="st">"Market"</span>], linewidth<span class="op">=</span><span class="fl">.7</span>, color<span class="op">=</span><span class="st">"#0072B2"</span>)</span>
+<span id="cb4-3"><a href=""></a>axes[<span class="dv">0</span>].<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Synthetic market returns"</span>, ylabel<span class="op">=</span><span class="st">"Return (%)"</span>)</span>
+<span id="cb4-4"><a href=""></a>axes[<span class="dv">1</span>].plot(returns.index, returns[<span class="st">"Volume"</span>], linewidth<span class="op">=</span><span class="fl">.7</span>, color<span class="op">=</span><span class="st">"#D55E00"</span>)</span>
+<span id="cb4-5"><a href=""></a>axes[<span class="dv">1</span>].<span class="bu">set</span>(xlabel<span class="op">=</span><span class="st">"Date"</span>, ylabel<span class="op">=</span><span class="st">"Volume"</span>)</span>
+<span id="cb4-6"><a href=""></a>plt.tight_layout()</span>
+<span id="cb4-7"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
 </div>
 <img data-src="lecture_03_eda_files/figure-revealjs/cell-5-output-1.png" class="r-stretch"><aside class="notes">
@@ -767,10 +747,10 @@ memory usage: 58.6 KB</code></pre>
 <h2>Arithmetic mean</h2>
 <p>For observations <span class="math inline">\(x_1,\ldots,x_n\)</span>, the sample mean is</p>
 <p><span class="math display">\[\bar{x}=\frac{1}{n}\sum_{i=1}^{n}x_i.\]</span></p>
-<div id="558b0582" class="cell" data-execution_count="5">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href=""></a>market_mean <span class="op">=</span> returns_pct[<span class="st">"Market"</span>].mean()</span>
-<span id="cb7-2"><a href=""></a>market_mean</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="51">
+<div id="643947e2" class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href=""></a>market_mean <span class="op">=</span> returns_pct[<span class="st">"Market"</span>].mean()</span>
+<span id="cb5-2"><a href=""></a>market_mean</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="5">
 <pre><code>np.float64(-0.03425928909721227)</code></pre>
 </div>
 </div>
@@ -790,15 +770,15 @@ memory usage: 58.6 KB</code></pre>
 </section>
 <section id="mean-and-outlier-sensitivity" class="slide level2">
 <h2>Mean and outlier sensitivity</h2>
-<div id="dd338f9f" class="cell" data-execution_count="6">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href=""></a>base <span class="op">=</span> np.array([<span class="dv">8</span>, <span class="dv">9</span>, <span class="dv">10</span>, <span class="dv">10</span>, <span class="dv">11</span>, <span class="dv">12</span>], dtype<span class="op">=</span><span class="bu">float</span>)</span>
-<span id="cb9-2"><a href=""></a>contaminated <span class="op">=</span> np.append(base, <span class="dv">60</span>)</span>
-<span id="cb9-3"><a href=""></a>pd.DataFrame({</span>
-<span id="cb9-4"><a href=""></a>    <span class="st">"sample"</span>: [<span class="st">"base"</span>, <span class="st">"with extreme value"</span>],</span>
-<span id="cb9-5"><a href=""></a>    <span class="st">"mean"</span>: [base.mean(), contaminated.mean()],</span>
-<span id="cb9-6"><a href=""></a>    <span class="st">"median"</span>: [np.median(base), np.median(contaminated)],</span>
-<span id="cb9-7"><a href=""></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="52">
+<div id="289aea85" class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href=""></a>base <span class="op">=</span> np.array([<span class="dv">8</span>, <span class="dv">9</span>, <span class="dv">10</span>, <span class="dv">10</span>, <span class="dv">11</span>, <span class="dv">12</span>], dtype<span class="op">=</span><span class="bu">float</span>)</span>
+<span id="cb7-2"><a href=""></a>contaminated <span class="op">=</span> np.append(base, <span class="dv">60</span>)</span>
+<span id="cb7-3"><a href=""></a>pd.DataFrame({</span>
+<span id="cb7-4"><a href=""></a>    <span class="st">"sample"</span>: [<span class="st">"base"</span>, <span class="st">"with extreme value"</span>],</span>
+<span id="cb7-5"><a href=""></a>    <span class="st">"mean"</span>: [base.mean(), contaminated.mean()],</span>
+<span id="cb7-6"><a href=""></a>    <span class="st">"median"</span>: [np.median(base), np.median(contaminated)],</span>
+<span id="cb7-7"><a href=""></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="6">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -863,9 +843,9 @@ memory usage: 58.6 KB</code></pre>
 x_{((n+1)/2)}, &amp; n\text{ odd},\\
 \frac{x_{(n/2)}+x_{(n/2+1)}}{2}, &amp; n\text{ even}.
 \end{cases}\]</span></p>
-<div id="30cfb17d" class="cell" data-execution_count="7">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href=""></a>returns_pct[<span class="st">"Market"</span>].median()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="53">
+<div id="28950d0a" class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href=""></a>returns_pct[<span class="st">"Market"</span>].median()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="7">
 <pre><code>np.float64(0.002752422683212025)</code></pre>
 </div>
 </div>
@@ -897,10 +877,10 @@ x_{((n+1)/2)}, &amp; n\text{ odd},\\
 <h2>Mode</h2>
 <p>For a discrete variable with probability mass function <span class="math inline">\(p(x)=P(X=x)\)</span>, a population mode is</p>
 <p><span class="math display">\[\operatorname{Mode}(X)\in\arg\max_x p(x)\]</span></p>
-<div id="5f883f1b" class="cell" data-execution_count="8">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href=""></a>ratings <span class="op">=</span> pd.Series([<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">3</span>, <span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">4</span>, <span class="dv">5</span>])</span>
-<span id="cb12-2"><a href=""></a>ratings.mode().tolist()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="54">
+<div id="319b2b66" class="cell" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href=""></a>ratings <span class="op">=</span> pd.Series([<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">3</span>, <span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">4</span>, <span class="dv">5</span>])</span>
+<span id="cb10-2"><a href=""></a>ratings.mode().tolist()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="8">
 <pre><code>[3]</code></pre>
 </div>
 </div>
@@ -942,10 +922,10 @@ x_{((n+1)/2)}, &amp; n\text{ odd},\\
 </section>
 <section id="quantiles-in-python" class="slide level2">
 <h2>Quantiles in Python</h2>
-<div id="9d874334" class="cell" data-execution_count="9">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href=""></a>q <span class="op">=</span> returns_pct[<span class="st">"Market"</span>].quantile([<span class="fl">.01</span>, <span class="fl">.05</span>, <span class="fl">.25</span>, <span class="fl">.5</span>, <span class="fl">.75</span>, <span class="fl">.95</span>, <span class="fl">.99</span>])</span>
-<span id="cb14-2"><a href=""></a>q.rename(<span class="st">"Market return (%)"</span>).to_frame()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="55">
+<div id="d1494002" class="cell" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href=""></a>q <span class="op">=</span> returns_pct[<span class="st">"Market"</span>].quantile([<span class="fl">.01</span>, <span class="fl">.05</span>, <span class="fl">.25</span>, <span class="fl">.5</span>, <span class="fl">.75</span>, <span class="fl">.95</span>, <span class="fl">.99</span>])</span>
+<span id="cb12-2"><a href=""></a>q.rename(<span class="st">"Market return (%)"</span>).to_frame()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="9">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -1003,9 +983,9 @@ x_{((n+1)/2)}, &amp; n\text{ odd},\\
 </div>
 </div>
 </div>
-<div id="b72c67f8" class="cell" data-execution_count="10">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href=""></a>np.quantile(returns_pct[<span class="st">"Market"</span>], [<span class="fl">.25</span>, <span class="fl">.5</span>, <span class="fl">.75</span>], method<span class="op">=</span><span class="st">"linear"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="56">
+<div id="16c27cc7" class="cell" data-execution_count="10">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href=""></a>np.quantile(returns_pct[<span class="st">"Market"</span>], [<span class="fl">.25</span>, <span class="fl">.5</span>, <span class="fl">.75</span>], method<span class="op">=</span><span class="st">"linear"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="10">
 <pre><code>array([-0.65192525,  0.00275242,  0.57577457])</code></pre>
 </div>
 </div>
@@ -1026,11 +1006,11 @@ x_{((n+1)/2)}, &amp; n\text{ odd},\\
 </section>
 <section id="quantile-estimator-conventions" class="slide level2">
 <h2>Quantile estimator conventions</h2>
-<div id="f95cff1a" class="cell" data-execution_count="11">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href=""></a>small <span class="op">=</span> np.array([<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">4</span>, <span class="dv">8</span>, <span class="dv">16</span>])</span>
-<span id="cb17-2"><a href=""></a>methods <span class="op">=</span> [<span class="st">"inverted_cdf"</span>, <span class="st">"closest_observation"</span>, <span class="st">"linear"</span>, <span class="st">"median_unbiased"</span>]</span>
-<span id="cb17-3"><a href=""></a>pd.Series({m: np.quantile(small, <span class="fl">.25</span>, method<span class="op">=</span>m) <span class="cf">for</span> m <span class="kw">in</span> methods}, name<span class="op">=</span><span class="st">"Q1"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="57">
+<div id="4cf7a237" class="cell" data-execution_count="11">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href=""></a>small <span class="op">=</span> np.array([<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">4</span>, <span class="dv">8</span>, <span class="dv">16</span>])</span>
+<span id="cb15-2"><a href=""></a>methods <span class="op">=</span> [<span class="st">"inverted_cdf"</span>, <span class="st">"closest_observation"</span>, <span class="st">"linear"</span>, <span class="st">"median_unbiased"</span>]</span>
+<span id="cb15-3"><a href=""></a>pd.Series({m: np.quantile(small, <span class="fl">.25</span>, method<span class="op">=</span>m) <span class="cf">for</span> m <span class="kw">in</span> methods}, name<span class="op">=</span><span class="st">"Q1"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="11">
 <pre><code>inverted_cdf           2.000000
 closest_observation    1.000000
 linear                 2.000000
@@ -1060,11 +1040,11 @@ Name: Q1, dtype: float64</code></pre>
 =\exp\left(\frac{1}{n}\sum_{i=1}^{n}\log x_i\right)\]</span></p>
 <p>For simple returns <span class="math inline">\(r_i&gt;-1\)</span>, the constant compounded return is</p>
 <p><span class="math display">\[\bar r_G=\left(\prod_{i=1}^{n}(1+r_i)\right)^{1/n}-1\]</span></p>
-<div id="0732078f" class="cell" data-execution_count="12">
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href=""></a>arithmetic_daily <span class="op">=</span> returns[<span class="st">"Asset A"</span>].mean()</span>
-<span id="cb19-2"><a href=""></a>geometric_daily <span class="op">=</span> stats.gmean(<span class="dv">1</span> <span class="op">+</span> returns[<span class="st">"Asset A"</span>]) <span class="op">-</span> <span class="dv">1</span></span>
-<span id="cb19-3"><a href=""></a>arithmetic_daily, geometric_daily</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="58">
+<div id="85f71825" class="cell" data-execution_count="12">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href=""></a>arithmetic_daily <span class="op">=</span> returns[<span class="st">"Asset A"</span>].mean()</span>
+<span id="cb17-2"><a href=""></a>geometric_daily <span class="op">=</span> stats.gmean(<span class="dv">1</span> <span class="op">+</span> returns[<span class="st">"Asset A"</span>]) <span class="op">-</span> <span class="dv">1</span></span>
+<span id="cb17-3"><a href=""></a>arithmetic_daily, geometric_daily</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="12">
 <pre><code>(np.float64(2.0346450299774686e-05), np.float64(-0.00011047693172605566))</code></pre>
 </div>
 </div>
@@ -1084,17 +1064,17 @@ Name: Q1, dtype: float64</code></pre>
 </section>
 <section id="position-visual-comparison" class="slide level2">
 <h2>Position: visual comparison</h2>
-<div id="0e72e14a" class="cell" data-fig-height="5" data-fig-width="10" data-execution_count="13">
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href=""></a>x <span class="op">=</span> returns_pct[<span class="st">"Asset A"</span>]</span>
-<span id="cb21-2"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
-<span id="cb21-3"><a href=""></a>sns.histplot(x, bins<span class="op">=</span><span class="dv">45</span>, stat<span class="op">=</span><span class="st">"density"</span>, color<span class="op">=</span><span class="st">"#56B4E9"</span>, alpha<span class="op">=</span><span class="fl">.5</span>, ax<span class="op">=</span>ax)</span>
-<span id="cb21-4"><a href=""></a>sns.kdeplot(x, color<span class="op">=</span><span class="st">"#0072B2"</span>, linewidth<span class="op">=</span><span class="dv">2</span>, ax<span class="op">=</span>ax)</span>
-<span id="cb21-5"><a href=""></a>ax.axvline(x.mean(), color<span class="op">=</span><span class="st">"#D55E00"</span>, linewidth<span class="op">=</span><span class="dv">2</span>, label<span class="op">=</span><span class="ss">f"Mean = </span><span class="sc">{</span>x<span class="sc">.</span>mean()<span class="sc">:.2f}</span><span class="ss">"</span>)</span>
-<span id="cb21-6"><a href=""></a>ax.axvline(x.median(), color<span class="op">=</span><span class="st">"#009E73"</span>, linewidth<span class="op">=</span><span class="dv">2</span>, label<span class="op">=</span><span class="ss">f"Median = </span><span class="sc">{</span>x<span class="sc">.</span>median()<span class="sc">:.2f}</span><span class="ss">"</span>)</span>
-<span id="cb21-7"><a href=""></a>ax.<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Position depends on the chosen notion of center"</span>, xlabel<span class="op">=</span><span class="st">"Daily return (%)"</span>, ylabel<span class="op">=</span><span class="st">"Density"</span>)</span>
-<span id="cb21-8"><a href=""></a>ax.legend(frameon<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb21-9"><a href=""></a>plt.tight_layout()</span>
-<span id="cb21-10"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="2644a629" class="cell" data-fig-height="5" data-fig-width="10" data-execution_count="13">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href=""></a>x <span class="op">=</span> returns_pct[<span class="st">"Asset A"</span>]</span>
+<span id="cb19-2"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
+<span id="cb19-3"><a href=""></a>sns.histplot(x, bins<span class="op">=</span><span class="dv">45</span>, stat<span class="op">=</span><span class="st">"density"</span>, color<span class="op">=</span><span class="st">"#56B4E9"</span>, alpha<span class="op">=</span><span class="fl">.5</span>, ax<span class="op">=</span>ax)</span>
+<span id="cb19-4"><a href=""></a>sns.kdeplot(x, color<span class="op">=</span><span class="st">"#0072B2"</span>, linewidth<span class="op">=</span><span class="dv">2</span>, ax<span class="op">=</span>ax)</span>
+<span id="cb19-5"><a href=""></a>ax.axvline(x.mean(), color<span class="op">=</span><span class="st">"#D55E00"</span>, linewidth<span class="op">=</span><span class="dv">2</span>, label<span class="op">=</span><span class="ss">f"Mean = </span><span class="sc">{</span>x<span class="sc">.</span>mean()<span class="sc">:.2f}</span><span class="ss">"</span>)</span>
+<span id="cb19-6"><a href=""></a>ax.axvline(x.median(), color<span class="op">=</span><span class="st">"#009E73"</span>, linewidth<span class="op">=</span><span class="dv">2</span>, label<span class="op">=</span><span class="ss">f"Median = </span><span class="sc">{</span>x<span class="sc">.</span>median()<span class="sc">:.2f}</span><span class="ss">"</span>)</span>
+<span id="cb19-7"><a href=""></a>ax.<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Position depends on the chosen notion of center"</span>, xlabel<span class="op">=</span><span class="st">"Daily return (%)"</span>, ylabel<span class="op">=</span><span class="st">"Density"</span>)</span>
+<span id="cb19-8"><a href=""></a>ax.legend(frameon<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb19-9"><a href=""></a>plt.tight_layout()</span>
+<span id="cb19-10"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
 </div>
 <img data-src="lecture_03_eda_files/figure-revealjs/cell-14-output-1.png" class="r-stretch"><aside class="notes">
@@ -1143,10 +1123,10 @@ Name: Q1, dtype: float64</code></pre>
 <section id="range" class="slide level2">
 <h2>Range</h2>
 <p><span class="math display">\[R=x_{(n)}-x_{(1)}=\max_i x_i-\min_i x_i\]</span></p>
-<div id="b0a65023" class="cell" data-execution_count="14">
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href=""></a>market_range <span class="op">=</span> returns_pct[<span class="st">"Market"</span>].<span class="bu">max</span>() <span class="op">-</span> returns_pct[<span class="st">"Market"</span>].<span class="bu">min</span>()</span>
-<span id="cb22-2"><a href=""></a>market_range</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="60">
+<div id="a6485ed3" class="cell" data-execution_count="14">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href=""></a>market_range <span class="op">=</span> returns_pct[<span class="st">"Market"</span>].<span class="bu">max</span>() <span class="op">-</span> returns_pct[<span class="st">"Market"</span>].<span class="bu">min</span>()</span>
+<span id="cb20-2"><a href=""></a>market_range</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="14">
 <pre><code>np.float64(9.493759675543203)</code></pre>
 </div>
 </div>
@@ -1167,11 +1147,11 @@ Name: Q1, dtype: float64</code></pre>
 <section id="interquartile-range" class="slide level2">
 <h2>Interquartile range</h2>
 <p><span class="math display">\[\operatorname{IQR}=Q(0.75)-Q(0.25)=Q_3-Q_1\]</span></p>
-<div id="c9cbb1cc" class="cell" data-execution_count="15">
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href=""></a>q1, q3 <span class="op">=</span> returns_pct[<span class="st">"Market"</span>].quantile([<span class="fl">.25</span>, <span class="fl">.75</span>])</span>
-<span id="cb24-2"><a href=""></a>iqr <span class="op">=</span> q3 <span class="op">-</span> q1</span>
-<span id="cb24-3"><a href=""></a>iqr</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="61">
+<div id="a17faf5c" class="cell" data-execution_count="15">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href=""></a>q1, q3 <span class="op">=</span> returns_pct[<span class="st">"Market"</span>].quantile([<span class="fl">.25</span>, <span class="fl">.75</span>])</span>
+<span id="cb22-2"><a href=""></a>iqr <span class="op">=</span> q3 <span class="op">-</span> q1</span>
+<span id="cb22-3"><a href=""></a>iqr</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="15">
 <pre><code>1.2276998196004094</code></pre>
 </div>
 </div>
@@ -1197,10 +1177,10 @@ Name: Q1, dtype: float64</code></pre>
 L=Q_1-1.5\operatorname{IQR},\qquad U=Q_3+1.5\operatorname{IQR}.
 \]</span></p>
 <p>Values beyond the fences are <strong>flagged observations</strong>, not automatically errors.</p>
-<div id="cc6281c8" class="cell" data-execution_count="16">
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href=""></a>lower, upper <span class="op">=</span> q1 <span class="op">-</span> <span class="fl">1.5</span> <span class="op">*</span> iqr, q3 <span class="op">+</span> <span class="fl">1.5</span> <span class="op">*</span> iqr</span>
-<span id="cb26-2"><a href=""></a>returns_pct.loc[(returns_pct[<span class="st">"Market"</span>] <span class="op">&lt;</span> lower) <span class="op">|</span> (returns_pct[<span class="st">"Market"</span>] <span class="op">&gt;</span> upper), <span class="st">"Market"</span>].describe()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="62">
+<div id="bf15257d" class="cell" data-execution_count="16">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href=""></a>lower, upper <span class="op">=</span> q1 <span class="op">-</span> <span class="fl">1.5</span> <span class="op">*</span> iqr, q3 <span class="op">+</span> <span class="fl">1.5</span> <span class="op">*</span> iqr</span>
+<span id="cb24-2"><a href=""></a>returns_pct.loc[(returns_pct[<span class="st">"Market"</span>] <span class="op">&lt;</span> lower) <span class="op">|</span> (returns_pct[<span class="st">"Market"</span>] <span class="op">&gt;</span> upper), <span class="st">"Market"</span>].describe()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="16">
 <pre><code>count    47.000000
 mean     -0.173931
 std       3.298818
@@ -1236,11 +1216,11 @@ Name: Market, dtype: float64</code></pre>
 <p><span class="math display">\[
 s^2=\frac{1}{n-1}\sum_{i=1}^{n}(x_i-\bar{x})^2.
 \]</span></p>
-<div id="3c97151b" class="cell" data-execution_count="17">
-<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href=""></a>pop_var <span class="op">=</span> returns_pct[<span class="st">"Market"</span>].var(ddof<span class="op">=</span><span class="dv">0</span>)</span>
-<span id="cb28-2"><a href=""></a>sample_var <span class="op">=</span> returns_pct[<span class="st">"Market"</span>].var(ddof<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb28-3"><a href=""></a>pop_var, sample_var</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="63">
+<div id="b207dabf" class="cell" data-execution_count="17">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href=""></a>pop_var <span class="op">=</span> returns_pct[<span class="st">"Market"</span>].var(ddof<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb26-2"><a href=""></a>sample_var <span class="op">=</span> returns_pct[<span class="st">"Market"</span>].var(ddof<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb26-3"><a href=""></a>pop_var, sample_var</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="17">
 <pre><code>(np.float64(1.20215864759486), np.float64(1.2031211445104686))</code></pre>
 </div>
 </div>
@@ -1288,9 +1268,9 @@ s^2=\frac{1}{n-1}\sum_{i=1}^{n}(x_i-\bar{x})^2.
 <p><span class="math display">\[
 s=\sqrt{s^2}=\sqrt{\frac{1}{n-1}\sum_{i=1}^{n}(x_i-\bar{x})^2}.
 \]</span></p>
-<div id="04bce130" class="cell" data-execution_count="18">
-<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href=""></a>returns_pct[<span class="st">"Market"</span>].std(ddof<span class="op">=</span><span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="64">
+<div id="bcf45ee5" class="cell" data-execution_count="18">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href=""></a>returns_pct[<span class="st">"Market"</span>].std(ddof<span class="op">=</span><span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="18">
 <pre><code>np.float64(1.096868790927369)</code></pre>
 </div>
 </div>
@@ -1317,13 +1297,13 @@ s=\sqrt{s^2}=\sqrt{\frac{1}{n-1}\sum_{i=1}^{n}(x_i-\bar{x})^2}.
 \]</span></p>
 <p>Median absolute deviation:</p>
 <p><span class="math display">\[\operatorname{MAD}=\operatorname{median}_i\left|x_i-\widetilde{x}\right|\]</span></p>
-<div id="4f8dbb1b" class="cell" data-execution_count="19">
-<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href=""></a>x <span class="op">=</span> returns_pct[<span class="st">"Market"</span>]</span>
-<span id="cb32-2"><a href=""></a>mean_ad <span class="op">=</span> np.mean(np.<span class="bu">abs</span>(x <span class="op">-</span> x.mean()))</span>
-<span id="cb32-3"><a href=""></a>median_ad <span class="op">=</span> stats.median_abs_deviation(x, scale<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb32-4"><a href=""></a>normal_consistent_mad <span class="op">=</span> stats.median_abs_deviation(x, scale<span class="op">=</span><span class="st">"normal"</span>)</span>
-<span id="cb32-5"><a href=""></a>mean_ad, median_ad, normal_consistent_mad</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="65">
+<div id="c4b746b6" class="cell" data-execution_count="19">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href=""></a>x <span class="op">=</span> returns_pct[<span class="st">"Market"</span>]</span>
+<span id="cb30-2"><a href=""></a>mean_ad <span class="op">=</span> np.mean(np.<span class="bu">abs</span>(x <span class="op">-</span> x.mean()))</span>
+<span id="cb30-3"><a href=""></a>median_ad <span class="op">=</span> stats.median_abs_deviation(x, scale<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb30-4"><a href=""></a>normal_consistent_mad <span class="op">=</span> stats.median_abs_deviation(x, scale<span class="op">=</span><span class="st">"normal"</span>)</span>
+<span id="cb30-5"><a href=""></a>mean_ad, median_ad, normal_consistent_mad</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="19">
 <pre><code>(np.float64(0.8137265955371538),
  np.float64(0.6239238299835972),
  np.float64(0.9250308545121932))</code></pre>
@@ -1371,19 +1351,19 @@ s=\sqrt{s^2}=\sqrt{\frac{1}{n-1}\sum_{i=1}^{n}(x_i-\bar{x})^2}.
 </section>
 <section id="comparing-dispersion-measures" class="slide level2">
 <h2>Comparing dispersion measures</h2>
-<div id="d080f806" class="cell" data-execution_count="20">
-<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href=""></a><span class="kw">def</span> dispersion_summary(s):</span>
-<span id="cb34-2"><a href=""></a>    q1, q3 <span class="op">=</span> s.quantile([<span class="fl">.25</span>, <span class="fl">.75</span>])</span>
-<span id="cb34-3"><a href=""></a>    <span class="cf">return</span> pd.Series({</span>
-<span id="cb34-4"><a href=""></a>        <span class="st">"range"</span>: s.<span class="bu">max</span>() <span class="op">-</span> s.<span class="bu">min</span>(),</span>
-<span id="cb34-5"><a href=""></a>        <span class="st">"IQR"</span>: q3 <span class="op">-</span> q1,</span>
-<span id="cb34-6"><a href=""></a>        <span class="st">"variance"</span>: s.var(ddof<span class="op">=</span><span class="dv">1</span>),</span>
-<span id="cb34-7"><a href=""></a>        <span class="st">"std"</span>: s.std(ddof<span class="op">=</span><span class="dv">1</span>),</span>
-<span id="cb34-8"><a href=""></a>        <span class="st">"MAD"</span>: stats.median_abs_deviation(s, scale<span class="op">=</span><span class="st">"normal"</span>),</span>
-<span id="cb34-9"><a href=""></a>    })</span>
-<span id="cb34-10"><a href=""></a></span>
-<span id="cb34-11"><a href=""></a>returns_pct.<span class="bu">apply</span>(dispersion_summary).T.<span class="bu">round</span>(<span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="66">
+<div id="6fd11d41" class="cell" data-execution_count="20">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href=""></a><span class="kw">def</span> dispersion_summary(s):</span>
+<span id="cb32-2"><a href=""></a>    q1, q3 <span class="op">=</span> s.quantile([<span class="fl">.25</span>, <span class="fl">.75</span>])</span>
+<span id="cb32-3"><a href=""></a>    <span class="cf">return</span> pd.Series({</span>
+<span id="cb32-4"><a href=""></a>        <span class="st">"range"</span>: s.<span class="bu">max</span>() <span class="op">-</span> s.<span class="bu">min</span>(),</span>
+<span id="cb32-5"><a href=""></a>        <span class="st">"IQR"</span>: q3 <span class="op">-</span> q1,</span>
+<span id="cb32-6"><a href=""></a>        <span class="st">"variance"</span>: s.var(ddof<span class="op">=</span><span class="dv">1</span>),</span>
+<span id="cb32-7"><a href=""></a>        <span class="st">"std"</span>: s.std(ddof<span class="op">=</span><span class="dv">1</span>),</span>
+<span id="cb32-8"><a href=""></a>        <span class="st">"MAD"</span>: stats.median_abs_deviation(s, scale<span class="op">=</span><span class="st">"normal"</span>),</span>
+<span id="cb32-9"><a href=""></a>    })</span>
+<span id="cb32-10"><a href=""></a></span>
+<span id="cb32-11"><a href=""></a>returns_pct.<span class="bu">apply</span>(dispersion_summary).T.<span class="bu">round</span>(<span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="20">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -1465,13 +1445,13 @@ s=\sqrt{s^2}=\sqrt{\frac{1}{n-1}\sum_{i=1}^{n}(x_i-\bar{x})^2}.
 </section>
 <section id="boxplot-anatomy" class="slide level2">
 <h2>Boxplot anatomy</h2>
-<div id="11055ca4" class="cell" data-fig-height="4.8" data-fig-width="10" data-execution_count="21">
-<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href=""></a>long_returns <span class="op">=</span> returns_pct.melt(var_name<span class="op">=</span><span class="st">"Series"</span>, value_name<span class="op">=</span><span class="st">"Return"</span>)</span>
-<span id="cb35-2"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
-<span id="cb35-3"><a href=""></a>sns.boxplot(data<span class="op">=</span>long_returns, x<span class="op">=</span><span class="st">"Series"</span>, y<span class="op">=</span><span class="st">"Return"</span>, hue<span class="op">=</span><span class="st">"Series"</span>, palette<span class="op">=</span><span class="st">"colorblind"</span>, legend<span class="op">=</span><span class="va">False</span>, ax<span class="op">=</span>ax)</span>
-<span id="cb35-4"><a href=""></a>ax.<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Comparative boxplots"</span>, xlabel<span class="op">=</span><span class="st">""</span>, ylabel<span class="op">=</span><span class="st">"Daily return (%)"</span>)</span>
-<span id="cb35-5"><a href=""></a>plt.tight_layout()</span>
-<span id="cb35-6"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="f9b92276" class="cell" data-fig-height="4.8" data-fig-width="10" data-execution_count="21">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href=""></a>long_returns <span class="op">=</span> returns_pct.melt(var_name<span class="op">=</span><span class="st">"Series"</span>, value_name<span class="op">=</span><span class="st">"Return"</span>)</span>
+<span id="cb33-2"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
+<span id="cb33-3"><a href=""></a>sns.boxplot(data<span class="op">=</span>long_returns, x<span class="op">=</span><span class="st">"Series"</span>, y<span class="op">=</span><span class="st">"Return"</span>, hue<span class="op">=</span><span class="st">"Series"</span>, palette<span class="op">=</span><span class="st">"colorblind"</span>, legend<span class="op">=</span><span class="va">False</span>, ax<span class="op">=</span>ax)</span>
+<span id="cb33-4"><a href=""></a>ax.<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Comparative boxplots"</span>, xlabel<span class="op">=</span><span class="st">""</span>, ylabel<span class="op">=</span><span class="st">"Daily return (%)"</span>)</span>
+<span id="cb33-5"><a href=""></a>plt.tight_layout()</span>
+<span id="cb33-6"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
 </div>
 <img data-src="lecture_03_eda_files/figure-revealjs/cell-22-output-1.png" class="r-stretch"><aside class="notes">
@@ -1491,14 +1471,14 @@ s=\sqrt{s^2}=\sqrt{\frac{1}{n-1}\sum_{i=1}^{n}(x_i-\bar{x})^2}.
 </section>
 <section id="violin-plus-boxplot" class="slide level2">
 <h2>Violin plus boxplot</h2>
-<div id="1937a0e6" class="cell" data-fig-height="5" data-fig-width="10" data-execution_count="22">
-<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
-<span id="cb36-2"><a href=""></a>sns.violinplot(data<span class="op">=</span>long_returns, x<span class="op">=</span><span class="st">"Series"</span>, y<span class="op">=</span><span class="st">"Return"</span>, inner<span class="op">=</span><span class="va">None</span>, cut<span class="op">=</span><span class="dv">0</span>, color<span class="op">=</span><span class="st">"#A6CEE3"</span>, ax<span class="op">=</span>ax)</span>
-<span id="cb36-3"><a href=""></a>sns.boxplot(data<span class="op">=</span>long_returns, x<span class="op">=</span><span class="st">"Series"</span>, y<span class="op">=</span><span class="st">"Return"</span>, width<span class="op">=</span><span class="fl">.18</span>, showfliers<span class="op">=</span><span class="va">False</span>,</span>
-<span id="cb36-4"><a href=""></a>            color<span class="op">=</span><span class="st">"white"</span>, ax<span class="op">=</span>ax)</span>
-<span id="cb36-5"><a href=""></a>ax.<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Density shape plus robust positional summary"</span>, xlabel<span class="op">=</span><span class="st">""</span>, ylabel<span class="op">=</span><span class="st">"Daily return (%)"</span>)</span>
-<span id="cb36-6"><a href=""></a>plt.tight_layout()</span>
-<span id="cb36-7"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="5346089b" class="cell" data-fig-height="5" data-fig-width="10" data-execution_count="22">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
+<span id="cb34-2"><a href=""></a>sns.violinplot(data<span class="op">=</span>long_returns, x<span class="op">=</span><span class="st">"Series"</span>, y<span class="op">=</span><span class="st">"Return"</span>, inner<span class="op">=</span><span class="va">None</span>, cut<span class="op">=</span><span class="dv">0</span>, color<span class="op">=</span><span class="st">"#A6CEE3"</span>, ax<span class="op">=</span>ax)</span>
+<span id="cb34-3"><a href=""></a>sns.boxplot(data<span class="op">=</span>long_returns, x<span class="op">=</span><span class="st">"Series"</span>, y<span class="op">=</span><span class="st">"Return"</span>, width<span class="op">=</span><span class="fl">.18</span>, showfliers<span class="op">=</span><span class="va">False</span>,</span>
+<span id="cb34-4"><a href=""></a>            color<span class="op">=</span><span class="st">"white"</span>, ax<span class="op">=</span>ax)</span>
+<span id="cb34-5"><a href=""></a>ax.<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Density shape plus robust positional summary"</span>, xlabel<span class="op">=</span><span class="st">""</span>, ylabel<span class="op">=</span><span class="st">"Daily return (%)"</span>)</span>
+<span id="cb34-6"><a href=""></a>plt.tight_layout()</span>
+<span id="cb34-7"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
 </div>
 <img data-src="lecture_03_eda_files/figure-revealjs/cell-23-output-1.png" class="r-stretch"><aside class="notes">
@@ -1584,9 +1564,9 @@ g_1=\frac{m_3}{m_2^{3/2}}.
 <p><span class="math display">\[
 G_1=\frac{\sqrt{n(n-1)}}{n-2}g_1,\qquad n&gt;2.
 \]</span></p>
-<div id="b892d8e3" class="cell" data-execution_count="23">
-<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href=""></a>stats.skew(returns_pct[<span class="st">"Asset A"</span>], bias<span class="op">=</span><span class="va">True</span>), stats.skew(returns_pct[<span class="st">"Asset A"</span>], bias<span class="op">=</span><span class="va">False</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="69">
+<div id="923d36df" class="cell" data-execution_count="23">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href=""></a>stats.skew(returns_pct[<span class="st">"Asset A"</span>], bias<span class="op">=</span><span class="va">True</span>), stats.skew(returns_pct[<span class="st">"Asset A"</span>], bias<span class="op">=</span><span class="va">False</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="23">
 <pre><code>(np.float64(-0.09986793156345523), np.float64(-0.09998795712960533))</code></pre>
 </div>
 </div>
@@ -1607,19 +1587,19 @@ G_1=\frac{\sqrt{n(n-1)}}{n-2}g_1,\qquad n&gt;2.
 </section>
 <section id="skewness-visual-examples" class="slide level2">
 <h2>Skewness: visual examples</h2>
-<div id="d8d1f343" class="cell" data-fig-height="4" data-fig-width="11" data-execution_count="24">
-<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href=""></a>samples <span class="op">=</span> {</span>
-<span id="cb39-2"><a href=""></a>    <span class="st">"Left-skewed"</span>: <span class="op">-</span>rng.lognormal(<span class="dv">0</span>, <span class="fl">.55</span>, <span class="dv">3000</span>),</span>
-<span id="cb39-3"><a href=""></a>    <span class="st">"Symmetric"</span>: rng.normal(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">3000</span>),</span>
-<span id="cb39-4"><a href=""></a>    <span class="st">"Right-skewed"</span>: rng.lognormal(<span class="dv">0</span>, <span class="fl">.55</span>, <span class="dv">3000</span>),</span>
-<span id="cb39-5"><a href=""></a>}</span>
-<span id="cb39-6"><a href=""></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">3</span>, sharey<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb39-7"><a href=""></a><span class="cf">for</span> ax, (label, values) <span class="kw">in</span> <span class="bu">zip</span>(axes, samples.items()):</span>
-<span id="cb39-8"><a href=""></a>    sns.histplot(values, bins<span class="op">=</span><span class="dv">45</span>, stat<span class="op">=</span><span class="st">"density"</span>, color<span class="op">=</span><span class="st">"#56B4E9"</span>, ax<span class="op">=</span>ax)</span>
-<span id="cb39-9"><a href=""></a>    ax.set_title(<span class="ss">f"</span><span class="sc">{</span>label<span class="sc">}</span><span class="ch">\n</span><span class="ss">skew = </span><span class="sc">{</span>stats<span class="sc">.</span>skew(values, bias<span class="op">=</span><span class="va">False</span>)<span class="sc">:.2f}</span><span class="ss">"</span>)</span>
-<span id="cb39-10"><a href=""></a>    ax.set_xlabel(<span class="st">""</span>)</span>
-<span id="cb39-11"><a href=""></a>plt.tight_layout()</span>
-<span id="cb39-12"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="79bdf8d1" class="cell" data-fig-height="4" data-fig-width="11" data-execution_count="24">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href=""></a>samples <span class="op">=</span> {</span>
+<span id="cb37-2"><a href=""></a>    <span class="st">"Left-skewed"</span>: <span class="op">-</span>rng.lognormal(<span class="dv">0</span>, <span class="fl">.55</span>, <span class="dv">3000</span>),</span>
+<span id="cb37-3"><a href=""></a>    <span class="st">"Symmetric"</span>: rng.normal(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">3000</span>),</span>
+<span id="cb37-4"><a href=""></a>    <span class="st">"Right-skewed"</span>: rng.lognormal(<span class="dv">0</span>, <span class="fl">.55</span>, <span class="dv">3000</span>),</span>
+<span id="cb37-5"><a href=""></a>}</span>
+<span id="cb37-6"><a href=""></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">3</span>, sharey<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb37-7"><a href=""></a><span class="cf">for</span> ax, (label, values) <span class="kw">in</span> <span class="bu">zip</span>(axes, samples.items()):</span>
+<span id="cb37-8"><a href=""></a>    sns.histplot(values, bins<span class="op">=</span><span class="dv">45</span>, stat<span class="op">=</span><span class="st">"density"</span>, color<span class="op">=</span><span class="st">"#56B4E9"</span>, ax<span class="op">=</span>ax)</span>
+<span id="cb37-9"><a href=""></a>    ax.set_title(<span class="ss">f"</span><span class="sc">{</span>label<span class="sc">}</span><span class="ch">\n</span><span class="ss">skew = </span><span class="sc">{</span>stats<span class="sc">.</span>skew(values, bias<span class="op">=</span><span class="va">False</span>)<span class="sc">:.2f}</span><span class="ss">"</span>)</span>
+<span id="cb37-10"><a href=""></a>    ax.set_xlabel(<span class="st">""</span>)</span>
+<span id="cb37-11"><a href=""></a>plt.tight_layout()</span>
+<span id="cb37-12"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
 </div>
 <img data-src="lecture_03_eda_files/figure-revealjs/cell-25-output-1.png" class="r-stretch"><aside class="notes">
@@ -1647,11 +1627,11 @@ G_1=\frac{\sqrt{n(n-1)}}{n-2}g_1,\qquad n&gt;2.
 \gamma_2=\beta_2-3.
 \]</span></p>
 <p>Thus a normal distribution has Pearson kurtosis 3 and excess kurtosis 0.</p>
-<div id="0233e5b2" class="cell" data-execution_count="25">
-<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href=""></a>pearson_k <span class="op">=</span> stats.kurtosis(returns_pct[<span class="st">"Market"</span>], fisher<span class="op">=</span><span class="va">False</span>, bias<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb40-2"><a href=""></a>excess_k <span class="op">=</span> stats.kurtosis(returns_pct[<span class="st">"Market"</span>], fisher<span class="op">=</span><span class="va">True</span>, bias<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb40-3"><a href=""></a>pearson_k, excess_k</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="71">
+<div id="bf15ac2a" class="cell" data-execution_count="25">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href=""></a>pearson_k <span class="op">=</span> stats.kurtosis(returns_pct[<span class="st">"Market"</span>], fisher<span class="op">=</span><span class="va">False</span>, bias<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb38-2"><a href=""></a>excess_k <span class="op">=</span> stats.kurtosis(returns_pct[<span class="st">"Market"</span>], fisher<span class="op">=</span><span class="va">True</span>, bias<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb38-3"><a href=""></a>pearson_k, excess_k</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="25">
 <pre><code>(np.float64(4.805249386766962), np.float64(1.8052493867669623))</code></pre>
 </div>
 </div>
@@ -1672,19 +1652,19 @@ G_1=\frac{\sqrt{n(n-1)}}{n-2}g_1,\qquad n&gt;2.
 </section>
 <section id="kurtosis-is-tail-sensitive" class="slide level2">
 <h2>Kurtosis is tail-sensitive</h2>
-<div id="e671ac68" class="cell" data-fig-height="4" data-fig-width="11" data-execution_count="26">
-<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href=""></a>shape_samples <span class="op">=</span> {</span>
-<span id="cb42-2"><a href=""></a>    <span class="st">"Uniform"</span>: rng.uniform(<span class="op">-</span>np.sqrt(<span class="dv">3</span>), np.sqrt(<span class="dv">3</span>), <span class="dv">5000</span>),</span>
-<span id="cb42-3"><a href=""></a>    <span class="st">"Normal"</span>: rng.normal(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">5000</span>),</span>
-<span id="cb42-4"><a href=""></a>    <span class="st">"Student t (df=5)"</span>: rng.standard_t(<span class="dv">5</span>, <span class="dv">5000</span>) <span class="op">/</span> np.sqrt(<span class="dv">5</span><span class="op">/</span><span class="dv">3</span>),</span>
-<span id="cb42-5"><a href=""></a>}</span>
-<span id="cb42-6"><a href=""></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">3</span>, sharex<span class="op">=</span><span class="va">True</span>, sharey<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb42-7"><a href=""></a><span class="cf">for</span> ax, (label, values) <span class="kw">in</span> <span class="bu">zip</span>(axes, shape_samples.items()):</span>
-<span id="cb42-8"><a href=""></a>    sns.kdeplot(values, fill<span class="op">=</span><span class="va">False</span>, cut<span class="op">=</span><span class="dv">0</span>, color<span class="op">=</span><span class="st">"#0072B2"</span>, ax<span class="op">=</span>ax)</span>
-<span id="cb42-9"><a href=""></a>    ax.set_title(<span class="ss">f"</span><span class="sc">{</span>label<span class="sc">}</span><span class="ch">\n</span><span class="ss">excess k = </span><span class="sc">{</span>stats<span class="sc">.</span>kurtosis(values, bias<span class="op">=</span><span class="va">False</span>)<span class="sc">:.2f}</span><span class="ss">"</span>)</span>
-<span id="cb42-10"><a href=""></a>    ax.set_xlim(<span class="op">-</span><span class="dv">5</span>, <span class="dv">5</span>)</span>
-<span id="cb42-11"><a href=""></a>plt.tight_layout()</span>
-<span id="cb42-12"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="392da4db" class="cell" data-fig-height="4" data-fig-width="11" data-execution_count="26">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href=""></a>shape_samples <span class="op">=</span> {</span>
+<span id="cb40-2"><a href=""></a>    <span class="st">"Uniform"</span>: rng.uniform(<span class="op">-</span>np.sqrt(<span class="dv">3</span>), np.sqrt(<span class="dv">3</span>), <span class="dv">5000</span>),</span>
+<span id="cb40-3"><a href=""></a>    <span class="st">"Normal"</span>: rng.normal(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">5000</span>),</span>
+<span id="cb40-4"><a href=""></a>    <span class="st">"Student t (df=5)"</span>: rng.standard_t(<span class="dv">5</span>, <span class="dv">5000</span>) <span class="op">/</span> np.sqrt(<span class="dv">5</span><span class="op">/</span><span class="dv">3</span>),</span>
+<span id="cb40-5"><a href=""></a>}</span>
+<span id="cb40-6"><a href=""></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">3</span>, sharex<span class="op">=</span><span class="va">True</span>, sharey<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb40-7"><a href=""></a><span class="cf">for</span> ax, (label, values) <span class="kw">in</span> <span class="bu">zip</span>(axes, shape_samples.items()):</span>
+<span id="cb40-8"><a href=""></a>    sns.kdeplot(values, fill<span class="op">=</span><span class="va">False</span>, cut<span class="op">=</span><span class="dv">0</span>, color<span class="op">=</span><span class="st">"#0072B2"</span>, ax<span class="op">=</span>ax)</span>
+<span id="cb40-9"><a href=""></a>    ax.set_title(<span class="ss">f"</span><span class="sc">{</span>label<span class="sc">}</span><span class="ch">\n</span><span class="ss">excess k = </span><span class="sc">{</span>stats<span class="sc">.</span>kurtosis(values, bias<span class="op">=</span><span class="va">False</span>)<span class="sc">:.2f}</span><span class="ss">"</span>)</span>
+<span id="cb40-10"><a href=""></a>    ax.set_xlim(<span class="op">-</span><span class="dv">5</span>, <span class="dv">5</span>)</span>
+<span id="cb40-11"><a href=""></a>plt.tight_layout()</span>
+<span id="cb40-12"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
 </div>
 <img data-src="lecture_03_eda_files/figure-revealjs/cell-27-output-1.png" class="r-stretch"><aside class="notes">
@@ -1703,16 +1683,16 @@ G_1=\frac{\sqrt{n(n-1)}}{n-2}g_1,\qquad n&gt;2.
 </section>
 <section id="histogram-useful-and-fragile" class="slide level2">
 <h2>Histogram: useful and fragile</h2>
-<div id="f62e955c" class="cell" data-fig-height="4" data-fig-width="11" data-execution_count="27">
-<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a href=""></a>x <span class="op">=</span> returns_pct[<span class="st">"Market"</span>]</span>
-<span id="cb43-2"><a href=""></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">3</span>, sharey<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb43-3"><a href=""></a><span class="cf">for</span> ax, bins <span class="kw">in</span> <span class="bu">zip</span>(axes, [<span class="dv">15</span>, <span class="dv">40</span>, <span class="dv">100</span>]):</span>
-<span id="cb43-4"><a href=""></a>    ax.hist(x, bins<span class="op">=</span>bins, color<span class="op">=</span><span class="st">"#56B4E9"</span>, edgecolor<span class="op">=</span><span class="st">"white"</span>)</span>
-<span id="cb43-5"><a href=""></a>    ax.set_title(<span class="ss">f"</span><span class="sc">{</span>bins<span class="sc">}</span><span class="ss"> bins"</span>)</span>
-<span id="cb43-6"><a href=""></a>    ax.set_xlabel(<span class="st">"Return (%)"</span>)</span>
-<span id="cb43-7"><a href=""></a>axes[<span class="dv">0</span>].set_ylabel(<span class="st">"Frequency"</span>)</span>
-<span id="cb43-8"><a href=""></a>plt.tight_layout()</span>
-<span id="cb43-9"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="48b475df" class="cell" data-fig-height="4" data-fig-width="11" data-execution_count="27">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb41-1"><a href=""></a>x <span class="op">=</span> returns_pct[<span class="st">"Market"</span>]</span>
+<span id="cb41-2"><a href=""></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">3</span>, sharey<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb41-3"><a href=""></a><span class="cf">for</span> ax, bins <span class="kw">in</span> <span class="bu">zip</span>(axes, [<span class="dv">15</span>, <span class="dv">40</span>, <span class="dv">100</span>]):</span>
+<span id="cb41-4"><a href=""></a>    ax.hist(x, bins<span class="op">=</span>bins, color<span class="op">=</span><span class="st">"#56B4E9"</span>, edgecolor<span class="op">=</span><span class="st">"white"</span>)</span>
+<span id="cb41-5"><a href=""></a>    ax.set_title(<span class="ss">f"</span><span class="sc">{</span>bins<span class="sc">}</span><span class="ss"> bins"</span>)</span>
+<span id="cb41-6"><a href=""></a>    ax.set_xlabel(<span class="st">"Return (%)"</span>)</span>
+<span id="cb41-7"><a href=""></a>axes[<span class="dv">0</span>].set_ylabel(<span class="st">"Frequency"</span>)</span>
+<span id="cb41-8"><a href=""></a>plt.tight_layout()</span>
+<span id="cb41-9"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
 </div>
 <img data-src="lecture_03_eda_files/figure-revealjs/cell-28-output-1.png" class="r-stretch"><aside class="notes">
@@ -1734,12 +1714,12 @@ G_1=\frac{\sqrt{n(n-1)}}{n-2}g_1,\qquad n&gt;2.
 <p><span class="math display">\[
 \widehat F_n(x)=\frac{1}{n}\sum_{i=1}^{n}\mathbf{1}\{x_i\le x\}.
 \]</span></p>
-<div id="e3e84821" class="cell" data-fig-height="5" data-fig-width="9" data-execution_count="28">
-<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb44-1"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
-<span id="cb44-2"><a href=""></a>sns.ecdfplot(data<span class="op">=</span>long_returns, x<span class="op">=</span><span class="st">"Return"</span>, hue<span class="op">=</span><span class="st">"Series"</span>, ax<span class="op">=</span>ax)</span>
-<span id="cb44-3"><a href=""></a>ax.<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Empirical CDF"</span>, xlabel<span class="op">=</span><span class="st">"Daily return (%)"</span>, ylabel<span class="op">=</span><span class="st">"Cumulative proportion"</span>)</span>
-<span id="cb44-4"><a href=""></a>plt.tight_layout()</span>
-<span id="cb44-5"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="6365161e" class="cell" data-fig-height="5" data-fig-width="9" data-execution_count="28">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
+<span id="cb42-2"><a href=""></a>sns.ecdfplot(data<span class="op">=</span>long_returns, x<span class="op">=</span><span class="st">"Return"</span>, hue<span class="op">=</span><span class="st">"Series"</span>, ax<span class="op">=</span>ax)</span>
+<span id="cb42-3"><a href=""></a>ax.<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Empirical CDF"</span>, xlabel<span class="op">=</span><span class="st">"Daily return (%)"</span>, ylabel<span class="op">=</span><span class="st">"Cumulative proportion"</span>)</span>
+<span id="cb42-4"><a href=""></a>plt.tight_layout()</span>
+<span id="cb42-5"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
 </div>
 <img data-src="lecture_03_eda_files/figure-revealjs/cell-29-output-1.png" class="r-stretch"><aside class="notes">
@@ -1758,14 +1738,14 @@ G_1=\frac{\sqrt{n(n-1)}}{n-2}g_1,\qquad n&gt;2.
 </section>
 <section id="q-q-plot" class="slide level2">
 <h2>Q-Q plot</h2>
-<div id="d1017fc9" class="cell" data-fig-height="4.8" data-fig-width="10" data-execution_count="29">
-<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb45-1"><a href=""></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>)</span>
-<span id="cb45-2"><a href=""></a>qqplot(rng.normal(size<span class="op">=</span><span class="dv">1000</span>), line<span class="op">=</span><span class="st">"45"</span>, ax<span class="op">=</span>axes[<span class="dv">0</span>])</span>
-<span id="cb45-3"><a href=""></a>axes[<span class="dv">0</span>].set_title(<span class="st">"Normal sample"</span>)</span>
-<span id="cb45-4"><a href=""></a>qqplot(returns_pct[<span class="st">"Market"</span>], line<span class="op">=</span><span class="st">"45"</span>, ax<span class="op">=</span>axes[<span class="dv">1</span>])</span>
-<span id="cb45-5"><a href=""></a>axes[<span class="dv">1</span>].set_title(<span class="st">"Synthetic market returns"</span>)</span>
-<span id="cb45-6"><a href=""></a>plt.tight_layout()</span>
-<span id="cb45-7"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="29b3292a" class="cell" data-fig-height="4.8" data-fig-width="10" data-execution_count="29">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a href=""></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>)</span>
+<span id="cb43-2"><a href=""></a>qqplot(rng.normal(size<span class="op">=</span><span class="dv">1000</span>), line<span class="op">=</span><span class="st">"45"</span>, ax<span class="op">=</span>axes[<span class="dv">0</span>])</span>
+<span id="cb43-3"><a href=""></a>axes[<span class="dv">0</span>].set_title(<span class="st">"Normal sample"</span>)</span>
+<span id="cb43-4"><a href=""></a>qqplot(returns_pct[<span class="st">"Market"</span>], line<span class="op">=</span><span class="st">"45"</span>, ax<span class="op">=</span>axes[<span class="dv">1</span>])</span>
+<span id="cb43-5"><a href=""></a>axes[<span class="dv">1</span>].set_title(<span class="st">"Synthetic market returns"</span>)</span>
+<span id="cb43-6"><a href=""></a>plt.tight_layout()</span>
+<span id="cb43-7"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
 </div>
 <img data-src="lecture_03_eda_files/figure-revealjs/cell-30-output-1.png" class="r-stretch"><aside class="notes">
@@ -1784,18 +1764,18 @@ G_1=\frac{\sqrt{n(n-1)}}{n-2}g_1,\qquad n&gt;2.
 </section>
 <section id="multimodality-can-defeat-moment-summaries" class="slide level2">
 <h2>Multimodality can defeat moment summaries</h2>
-<div id="67517913" class="cell" data-fig-height="4.8" data-fig-width="10" data-execution_count="30">
-<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb46-1"><a href=""></a>a <span class="op">=</span> rng.normal(<span class="op">-</span><span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">2500</span>)</span>
-<span id="cb46-2"><a href=""></a>b <span class="op">=</span> rng.normal(<span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">2500</span>)</span>
-<span id="cb46-3"><a href=""></a>mixture <span class="op">=</span> np.concatenate([a, b])</span>
-<span id="cb46-4"><a href=""></a>normal_match <span class="op">=</span> rng.normal(mixture.mean(), mixture.std(ddof<span class="op">=</span><span class="dv">1</span>), <span class="bu">len</span>(mixture))</span>
-<span id="cb46-5"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
-<span id="cb46-6"><a href=""></a>sns.kdeplot(mixture, label<span class="op">=</span><span class="st">"Bimodal mixture"</span>, linewidth<span class="op">=</span><span class="dv">2</span>, color<span class="op">=</span><span class="st">"#0072B2"</span>, ax<span class="op">=</span>ax)</span>
-<span id="cb46-7"><a href=""></a>sns.kdeplot(normal_match, label<span class="op">=</span><span class="st">"Normal with matching mean and SD"</span>, linewidth<span class="op">=</span><span class="dv">2</span>, color<span class="op">=</span><span class="st">"#D55E00"</span>, ax<span class="op">=</span>ax)</span>
-<span id="cb46-8"><a href=""></a>ax.<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Same center and scale do not imply the same shape"</span>, xlabel<span class="op">=</span><span class="st">"Value"</span>, ylabel<span class="op">=</span><span class="st">"Density"</span>)</span>
-<span id="cb46-9"><a href=""></a>ax.legend(frameon<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb46-10"><a href=""></a>plt.tight_layout()</span>
-<span id="cb46-11"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="22fb3e6a" class="cell" data-fig-height="4.8" data-fig-width="10" data-execution_count="30">
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb44-1"><a href=""></a>a <span class="op">=</span> rng.normal(<span class="op">-</span><span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">2500</span>)</span>
+<span id="cb44-2"><a href=""></a>b <span class="op">=</span> rng.normal(<span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">2500</span>)</span>
+<span id="cb44-3"><a href=""></a>mixture <span class="op">=</span> np.concatenate([a, b])</span>
+<span id="cb44-4"><a href=""></a>normal_match <span class="op">=</span> rng.normal(mixture.mean(), mixture.std(ddof<span class="op">=</span><span class="dv">1</span>), <span class="bu">len</span>(mixture))</span>
+<span id="cb44-5"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
+<span id="cb44-6"><a href=""></a>sns.kdeplot(mixture, label<span class="op">=</span><span class="st">"Bimodal mixture"</span>, linewidth<span class="op">=</span><span class="dv">2</span>, color<span class="op">=</span><span class="st">"#0072B2"</span>, ax<span class="op">=</span>ax)</span>
+<span id="cb44-7"><a href=""></a>sns.kdeplot(normal_match, label<span class="op">=</span><span class="st">"Normal with matching mean and SD"</span>, linewidth<span class="op">=</span><span class="dv">2</span>, color<span class="op">=</span><span class="st">"#D55E00"</span>, ax<span class="op">=</span>ax)</span>
+<span id="cb44-8"><a href=""></a>ax.<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Same center and scale do not imply the same shape"</span>, xlabel<span class="op">=</span><span class="st">"Value"</span>, ylabel<span class="op">=</span><span class="st">"Density"</span>)</span>
+<span id="cb44-9"><a href=""></a>ax.legend(frameon<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb44-10"><a href=""></a>plt.tight_layout()</span>
+<span id="cb44-11"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
 </div>
 <img data-src="lecture_03_eda_files/figure-revealjs/cell-31-output-1.png" class="r-stretch"><aside class="notes">
@@ -1850,9 +1830,9 @@ G_1=\frac{\sqrt{n(n-1)}}{n-2}g_1,\qquad n&gt;2.
 <p><span class="math display">\[
 s_{XY}=\frac{1}{n-1}\sum_{i=1}^{n}(x_i-\bar{x})(y_i-\bar{y}).
 \]</span></p>
-<div id="48fda97a" class="cell" data-execution_count="31">
-<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb47-1"><a href=""></a>returns_pct[[<span class="st">"Market"</span>, <span class="st">"Asset A"</span>]].cov()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="77">
+<div id="d50c6f87" class="cell" data-execution_count="31">
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb45-1"><a href=""></a>returns_pct[[<span class="st">"Market"</span>, <span class="st">"Asset A"</span>]].cov()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="31">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -1915,9 +1895,9 @@ s_{XY}=\frac{1}{n-1}\sum_{i=1}^{n}(x_i-\bar{x})(y_i-\bar{y}).
 \boldsymbol\Sigma=\mathbb E[(\mathbf X-\boldsymbol\mu)(\mathbf X-\boldsymbol\mu)^\top].
 \]</span></p>
 <p>Its diagonal contains variances; off-diagonal entries contain covariances.</p>
-<div id="529f591c" class="cell" data-execution_count="32">
-<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb48-1"><a href=""></a>returns_pct.cov().<span class="bu">round</span>(<span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="78">
+<div id="27c31b44" class="cell" data-execution_count="32">
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb46-1"><a href=""></a>returns_pct.cov().<span class="bu">round</span>(<span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="32">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -2001,9 +1981,9 @@ s_{XY}=\frac{1}{n-1}\sum_{i=1}^{n}(x_i-\bar{x})(y_i-\bar{y}).
 r_{XY}=\frac{s_{XY}}{s_Xs_Y}.
 \]</span></p>
 <p>For nonconstant variables, <span class="math inline">\(-1\le r_{XY}\le1\)</span>.</p>
-<div id="722a9074" class="cell" data-execution_count="33">
-<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb49-1"><a href=""></a>returns_pct.corr(method<span class="op">=</span><span class="st">"pearson"</span>).<span class="bu">round</span>(<span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="79">
+<div id="eb717f80" class="cell" data-execution_count="33">
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb47-1"><a href=""></a>returns_pct.corr(method<span class="op">=</span><span class="st">"pearson"</span>).<span class="bu">round</span>(<span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="33">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -2081,15 +2061,15 @@ r_{XY}=\frac{s_{XY}}{s_Xs_Y}.
 </section>
 <section id="scatterplot-first-coefficient-second" class="slide level2">
 <h2>Scatterplot first, coefficient second</h2>
-<div id="7ccb9fd9" class="cell" data-fig-height="5" data-fig-width="8.5" data-execution_count="34">
-<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb50-1"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
-<span id="cb50-2"><a href=""></a>sns.scatterplot(data<span class="op">=</span>returns_pct, x<span class="op">=</span><span class="st">"Market"</span>, y<span class="op">=</span><span class="st">"Asset A"</span>, alpha<span class="op">=</span><span class="fl">.4</span>, s<span class="op">=</span><span class="dv">22</span>, ax<span class="op">=</span>ax)</span>
-<span id="cb50-3"><a href=""></a>sns.regplot(data<span class="op">=</span>returns_pct, x<span class="op">=</span><span class="st">"Market"</span>, y<span class="op">=</span><span class="st">"Asset A"</span>, scatter<span class="op">=</span><span class="va">False</span>, ci<span class="op">=</span><span class="va">None</span>,</span>
-<span id="cb50-4"><a href=""></a>            color<span class="op">=</span><span class="st">"#D55E00"</span>, ax<span class="op">=</span>ax)</span>
-<span id="cb50-5"><a href=""></a>r <span class="op">=</span> returns_pct[<span class="st">"Market"</span>].corr(returns_pct[<span class="st">"Asset A"</span>])</span>
-<span id="cb50-6"><a href=""></a>ax.<span class="bu">set</span>(title<span class="op">=</span><span class="ss">f"Market and Asset A: Pearson r = </span><span class="sc">{</span>r<span class="sc">:.2f}</span><span class="ss">"</span>, xlabel<span class="op">=</span><span class="st">"Market return (%)"</span>, ylabel<span class="op">=</span><span class="st">"Asset A return (%)"</span>)</span>
-<span id="cb50-7"><a href=""></a>plt.tight_layout()</span>
-<span id="cb50-8"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="412ed3b3" class="cell" data-fig-height="5" data-fig-width="8.5" data-execution_count="34">
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb48-1"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
+<span id="cb48-2"><a href=""></a>sns.scatterplot(data<span class="op">=</span>returns_pct, x<span class="op">=</span><span class="st">"Market"</span>, y<span class="op">=</span><span class="st">"Asset A"</span>, alpha<span class="op">=</span><span class="fl">.4</span>, s<span class="op">=</span><span class="dv">22</span>, ax<span class="op">=</span>ax)</span>
+<span id="cb48-3"><a href=""></a>sns.regplot(data<span class="op">=</span>returns_pct, x<span class="op">=</span><span class="st">"Market"</span>, y<span class="op">=</span><span class="st">"Asset A"</span>, scatter<span class="op">=</span><span class="va">False</span>, ci<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb48-4"><a href=""></a>            color<span class="op">=</span><span class="st">"#D55E00"</span>, ax<span class="op">=</span>ax)</span>
+<span id="cb48-5"><a href=""></a>r <span class="op">=</span> returns_pct[<span class="st">"Market"</span>].corr(returns_pct[<span class="st">"Asset A"</span>])</span>
+<span id="cb48-6"><a href=""></a>ax.<span class="bu">set</span>(title<span class="op">=</span><span class="ss">f"Market and Asset A: Pearson r = </span><span class="sc">{</span>r<span class="sc">:.2f}</span><span class="ss">"</span>, xlabel<span class="op">=</span><span class="st">"Market return (%)"</span>, ylabel<span class="op">=</span><span class="st">"Asset A return (%)"</span>)</span>
+<span id="cb48-7"><a href=""></a>plt.tight_layout()</span>
+<span id="cb48-8"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
 </div>
 <img data-src="lecture_03_eda_files/figure-revealjs/cell-35-output-1.png" class="r-stretch"><aside class="notes">
@@ -2108,16 +2088,16 @@ r_{XY}=\frac{s_{XY}}{s_Xs_Y}.
 </section>
 <section id="correlation-is-invariant-to-positive-rescaling" class="slide level2">
 <h2>Correlation is invariant to positive rescaling</h2>
-<div id="999c85a2" class="cell" data-execution_count="35">
-<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb51-1"><a href=""></a>x <span class="op">=</span> returns_pct[<span class="st">"Market"</span>]</span>
-<span id="cb51-2"><a href=""></a>y <span class="op">=</span> returns_pct[<span class="st">"Asset A"</span>]</span>
-<span id="cb51-3"><a href=""></a>pd.Series({</span>
-<span id="cb51-4"><a href=""></a>    <span class="st">"corr(x, y)"</span>: x.corr(y),</span>
-<span id="cb51-5"><a href=""></a>    <span class="st">"corr(100x, y)"</span>: (<span class="dv">100</span> <span class="op">*</span> x).corr(y),</span>
-<span id="cb51-6"><a href=""></a>    <span class="st">"cov(x, y)"</span>: x.cov(y),</span>
-<span id="cb51-7"><a href=""></a>    <span class="st">"cov(100x, y)"</span>: (<span class="dv">100</span> <span class="op">*</span> x).cov(y),</span>
-<span id="cb51-8"><a href=""></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="81">
+<div id="72d90e4f" class="cell" data-execution_count="35">
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb49-1"><a href=""></a>x <span class="op">=</span> returns_pct[<span class="st">"Market"</span>]</span>
+<span id="cb49-2"><a href=""></a>y <span class="op">=</span> returns_pct[<span class="st">"Asset A"</span>]</span>
+<span id="cb49-3"><a href=""></a>pd.Series({</span>
+<span id="cb49-4"><a href=""></a>    <span class="st">"corr(x, y)"</span>: x.corr(y),</span>
+<span id="cb49-5"><a href=""></a>    <span class="st">"corr(100x, y)"</span>: (<span class="dv">100</span> <span class="op">*</span> x).corr(y),</span>
+<span id="cb49-6"><a href=""></a>    <span class="st">"cov(x, y)"</span>: x.cov(y),</span>
+<span id="cb49-7"><a href=""></a>    <span class="st">"cov(100x, y)"</span>: (<span class="dv">100</span> <span class="op">*</span> x).cov(y),</span>
+<span id="cb49-8"><a href=""></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="35">
 <pre><code>corr(x, y)         0.772391
 corr(100x, y)      0.772391
 cov(x, y)          1.369888
@@ -2141,15 +2121,15 @@ dtype: float64</code></pre>
 </section>
 <section id="pearson-can-miss-nonlinear-association" class="slide level2">
 <h2>Pearson can miss nonlinear association</h2>
-<div id="b0a8bab0" class="cell" data-fig-height="5" data-fig-width="8" data-execution_count="36">
-<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb53-1"><a href=""></a>x_nonlin <span class="op">=</span> rng.uniform(<span class="op">-</span><span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">1000</span>)</span>
-<span id="cb53-2"><a href=""></a>y_nonlin <span class="op">=</span> x_nonlin<span class="op">**</span><span class="dv">2</span> <span class="op">+</span> rng.normal(<span class="dv">0</span>, <span class="fl">.25</span>, <span class="dv">1000</span>)</span>
-<span id="cb53-3"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
-<span id="cb53-4"><a href=""></a>ax.scatter(x_nonlin, y_nonlin, alpha<span class="op">=</span><span class="fl">.35</span>, s<span class="op">=</span><span class="dv">18</span>)</span>
-<span id="cb53-5"><a href=""></a>ax.<span class="bu">set</span>(title<span class="op">=</span><span class="ss">f"Strong nonlinear structure, Pearson r = </span><span class="sc">{</span>np<span class="sc">.</span>corrcoef(x_nonlin, y_nonlin)[<span class="dv">0</span>,<span class="dv">1</span>]<span class="sc">:.2f}</span><span class="ss">"</span>,</span>
-<span id="cb53-6"><a href=""></a>       xlabel<span class="op">=</span><span class="st">"x"</span>, ylabel<span class="op">=</span><span class="st">"y"</span>)</span>
-<span id="cb53-7"><a href=""></a>plt.tight_layout()</span>
-<span id="cb53-8"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="e0383d85" class="cell" data-fig-height="5" data-fig-width="8" data-execution_count="36">
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb51-1"><a href=""></a>x_nonlin <span class="op">=</span> rng.uniform(<span class="op">-</span><span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">1000</span>)</span>
+<span id="cb51-2"><a href=""></a>y_nonlin <span class="op">=</span> x_nonlin<span class="op">**</span><span class="dv">2</span> <span class="op">+</span> rng.normal(<span class="dv">0</span>, <span class="fl">.25</span>, <span class="dv">1000</span>)</span>
+<span id="cb51-3"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
+<span id="cb51-4"><a href=""></a>ax.scatter(x_nonlin, y_nonlin, alpha<span class="op">=</span><span class="fl">.35</span>, s<span class="op">=</span><span class="dv">18</span>)</span>
+<span id="cb51-5"><a href=""></a>ax.<span class="bu">set</span>(title<span class="op">=</span><span class="ss">f"Strong nonlinear structure, Pearson r = </span><span class="sc">{</span>np<span class="sc">.</span>corrcoef(x_nonlin, y_nonlin)[<span class="dv">0</span>,<span class="dv">1</span>]<span class="sc">:.2f}</span><span class="ss">"</span>,</span>
+<span id="cb51-6"><a href=""></a>       xlabel<span class="op">=</span><span class="st">"x"</span>, ylabel<span class="op">=</span><span class="st">"y"</span>)</span>
+<span id="cb51-7"><a href=""></a>plt.tight_layout()</span>
+<span id="cb51-8"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
 </div>
 <img data-src="lecture_03_eda_files/figure-revealjs/cell-37-output-1.png" class="r-stretch"><aside class="notes">
@@ -2211,15 +2191,15 @@ dtype: float64</code></pre>
 </section>
 <section id="correlation-matrix-heatmap" class="slide level2">
 <h2>Correlation matrix heatmap</h2>
-<div id="3d5b33b9" class="cell" data-fig-height="6" data-fig-width="8" data-execution_count="37">
-<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb54-1"><a href=""></a>corr <span class="op">=</span> returns_pct.corr()</span>
-<span id="cb54-2"><a href=""></a>mask <span class="op">=</span> np.triu(np.ones_like(corr, dtype<span class="op">=</span><span class="bu">bool</span>), k<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb54-3"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
-<span id="cb54-4"><a href=""></a>sns.heatmap(corr, mask<span class="op">=</span>mask, annot<span class="op">=</span><span class="va">True</span>, fmt<span class="op">=</span><span class="st">".2f"</span>, cmap<span class="op">=</span><span class="st">"vlag"</span>, center<span class="op">=</span><span class="dv">0</span>,</span>
-<span id="cb54-5"><a href=""></a>            vmin<span class="op">=-</span><span class="dv">1</span>, vmax<span class="op">=</span><span class="dv">1</span>, square<span class="op">=</span><span class="va">True</span>, ax<span class="op">=</span>ax)</span>
-<span id="cb54-6"><a href=""></a>ax.<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Pearson correlation matrix"</span>)</span>
-<span id="cb54-7"><a href=""></a>plt.tight_layout()</span>
-<span id="cb54-8"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="7e0e75e2" class="cell" data-fig-height="6" data-fig-width="8" data-execution_count="37">
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb52-1"><a href=""></a>corr <span class="op">=</span> returns_pct.corr()</span>
+<span id="cb52-2"><a href=""></a>mask <span class="op">=</span> np.triu(np.ones_like(corr, dtype<span class="op">=</span><span class="bu">bool</span>), k<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb52-3"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
+<span id="cb52-4"><a href=""></a>sns.heatmap(corr, mask<span class="op">=</span>mask, annot<span class="op">=</span><span class="va">True</span>, fmt<span class="op">=</span><span class="st">".2f"</span>, cmap<span class="op">=</span><span class="st">"vlag"</span>, center<span class="op">=</span><span class="dv">0</span>,</span>
+<span id="cb52-5"><a href=""></a>            vmin<span class="op">=-</span><span class="dv">1</span>, vmax<span class="op">=</span><span class="dv">1</span>, square<span class="op">=</span><span class="va">True</span>, ax<span class="op">=</span>ax)</span>
+<span id="cb52-6"><a href=""></a>ax.<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Pearson correlation matrix"</span>)</span>
+<span id="cb52-7"><a href=""></a>plt.tight_layout()</span>
+<span id="cb52-8"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
 </div>
 <img data-src="lecture_03_eda_files/figure-revealjs/cell-38-output-1.png" class="r-stretch"><aside class="notes">
@@ -2238,13 +2218,13 @@ dtype: float64</code></pre>
 </section>
 <section id="pairwise-visualization" class="slide level2">
 <h2>Pairwise visualization</h2>
-<div id="29505f08" class="cell" data-fig-height="8" data-fig-width="10" data-execution_count="38">
-<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb55-1"><a href=""></a>sample_pairs <span class="op">=</span> returns_pct.sample(<span class="dv">450</span>, random_state<span class="op">=</span><span class="dv">42</span>)</span>
-<span id="cb55-2"><a href=""></a>g <span class="op">=</span> sns.pairplot(sample_pairs, corner<span class="op">=</span><span class="va">True</span>, diag_kind<span class="op">=</span><span class="st">"hist"</span>,</span>
-<span id="cb55-3"><a href=""></a>                 plot_kws<span class="op">=</span>{<span class="st">"alpha"</span>: <span class="fl">.35</span>, <span class="st">"s"</span>: <span class="dv">18</span>, <span class="st">"color"</span>: <span class="st">"#0072B2"</span>},</span>
-<span id="cb55-4"><a href=""></a>                 diag_kws<span class="op">=</span>{<span class="st">"color"</span>: <span class="st">"#56B4E9"</span>})</span>
-<span id="cb55-5"><a href=""></a>g.figure.suptitle(<span class="st">"Pairwise distributions and relationships"</span>, y<span class="op">=</span><span class="fl">1.02</span>)</span>
-<span id="cb55-6"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="66c3d95d" class="cell" data-fig-height="8" data-fig-width="10" data-execution_count="38">
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb53-1"><a href=""></a>sample_pairs <span class="op">=</span> returns_pct.sample(<span class="dv">450</span>, random_state<span class="op">=</span><span class="dv">42</span>)</span>
+<span id="cb53-2"><a href=""></a>g <span class="op">=</span> sns.pairplot(sample_pairs, corner<span class="op">=</span><span class="va">True</span>, diag_kind<span class="op">=</span><span class="st">"hist"</span>,</span>
+<span id="cb53-3"><a href=""></a>                 plot_kws<span class="op">=</span>{<span class="st">"alpha"</span>: <span class="fl">.35</span>, <span class="st">"s"</span>: <span class="dv">18</span>, <span class="st">"color"</span>: <span class="st">"#0072B2"</span>},</span>
+<span id="cb53-4"><a href=""></a>                 diag_kws<span class="op">=</span>{<span class="st">"color"</span>: <span class="st">"#56B4E9"</span>})</span>
+<span id="cb53-5"><a href=""></a>g.figure.suptitle(<span class="st">"Pairwise distributions and relationships"</span>, y<span class="op">=</span><span class="fl">1.02</span>)</span>
+<span id="cb53-6"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
 </div>
 <img data-src="lecture_03_eda_files/figure-revealjs/cell-39-output-1.png" class="r-stretch"><aside class="notes">
@@ -2263,15 +2243,15 @@ dtype: float64</code></pre>
 </section>
 <section id="overplotting-use-density-or-hexagonal-bins" class="slide level2">
 <h2>Overplotting: use density or hexagonal bins</h2>
-<div id="a4f5fb28" class="cell" data-fig-height="4.5" data-fig-width="10" data-execution_count="39">
-<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb56-1"><a href=""></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>)</span>
-<span id="cb56-2"><a href=""></a>axes[<span class="dv">0</span>].scatter(returns_pct[<span class="st">"Market"</span>], returns_pct[<span class="st">"Asset A"</span>], alpha<span class="op">=</span><span class="fl">.15</span>, s<span class="op">=</span><span class="dv">12</span>)</span>
-<span id="cb56-3"><a href=""></a>axes[<span class="dv">0</span>].<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Transparent points"</span>, xlabel<span class="op">=</span><span class="st">"Market (%)"</span>, ylabel<span class="op">=</span><span class="st">"Asset A (%)"</span>)</span>
-<span id="cb56-4"><a href=""></a>hb <span class="op">=</span> axes[<span class="dv">1</span>].hexbin(returns_pct[<span class="st">"Market"</span>], returns_pct[<span class="st">"Asset A"</span>], gridsize<span class="op">=</span><span class="dv">35</span>, cmap<span class="op">=</span><span class="st">"viridis"</span>, mincnt<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb56-5"><a href=""></a>axes[<span class="dv">1</span>].<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Hexagonal counts"</span>, xlabel<span class="op">=</span><span class="st">"Market (%)"</span>, ylabel<span class="op">=</span><span class="st">"Asset A (%)"</span>)</span>
-<span id="cb56-6"><a href=""></a>fig.colorbar(hb, ax<span class="op">=</span>axes[<span class="dv">1</span>], label<span class="op">=</span><span class="st">"Count"</span>)</span>
-<span id="cb56-7"><a href=""></a>plt.tight_layout()</span>
-<span id="cb56-8"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="83cbcac6" class="cell" data-fig-height="4.5" data-fig-width="10" data-execution_count="39">
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb54-1"><a href=""></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>)</span>
+<span id="cb54-2"><a href=""></a>axes[<span class="dv">0</span>].scatter(returns_pct[<span class="st">"Market"</span>], returns_pct[<span class="st">"Asset A"</span>], alpha<span class="op">=</span><span class="fl">.15</span>, s<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb54-3"><a href=""></a>axes[<span class="dv">0</span>].<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Transparent points"</span>, xlabel<span class="op">=</span><span class="st">"Market (%)"</span>, ylabel<span class="op">=</span><span class="st">"Asset A (%)"</span>)</span>
+<span id="cb54-4"><a href=""></a>hb <span class="op">=</span> axes[<span class="dv">1</span>].hexbin(returns_pct[<span class="st">"Market"</span>], returns_pct[<span class="st">"Asset A"</span>], gridsize<span class="op">=</span><span class="dv">35</span>, cmap<span class="op">=</span><span class="st">"viridis"</span>, mincnt<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb54-5"><a href=""></a>axes[<span class="dv">1</span>].<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Hexagonal counts"</span>, xlabel<span class="op">=</span><span class="st">"Market (%)"</span>, ylabel<span class="op">=</span><span class="st">"Asset A (%)"</span>)</span>
+<span id="cb54-6"><a href=""></a>fig.colorbar(hb, ax<span class="op">=</span>axes[<span class="dv">1</span>], label<span class="op">=</span><span class="st">"Count"</span>)</span>
+<span id="cb54-7"><a href=""></a>plt.tight_layout()</span>
+<span id="cb54-8"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
 </div>
 <img data-src="lecture_03_eda_files/figure-revealjs/cell-40-output-1.png" class="r-stretch"><aside class="notes">
@@ -2290,18 +2270,18 @@ dtype: float64</code></pre>
 </section>
 <section id="group-structure-can-distort-aggregate-relationships" class="slide level2">
 <h2>Group structure can distort aggregate relationships</h2>
-<div id="d3d7a9d8" class="cell" data-fig-height="5" data-fig-width="9" data-execution_count="40">
-<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb57-1"><a href=""></a>n_group <span class="op">=</span> <span class="dv">120</span></span>
-<span id="cb57-2"><a href=""></a>x1 <span class="op">=</span> rng.normal(<span class="dv">2</span>, <span class="fl">.7</span>, n_group)<span class="op">;</span> y1 <span class="op">=</span> <span class="op">-</span>x1 <span class="op">+</span> <span class="dv">6</span> <span class="op">+</span> rng.normal(<span class="dv">0</span>, <span class="fl">.35</span>, n_group)</span>
-<span id="cb57-3"><a href=""></a>x2 <span class="op">=</span> rng.normal(<span class="dv">6</span>, <span class="fl">.7</span>, n_group)<span class="op">;</span> y2 <span class="op">=</span> <span class="op">-</span>x2 <span class="op">+</span> <span class="dv">14</span> <span class="op">+</span> rng.normal(<span class="dv">0</span>, <span class="fl">.35</span>, n_group)</span>
-<span id="cb57-4"><a href=""></a>groups <span class="op">=</span> pd.DataFrame({<span class="st">"x"</span>: np.r_[x1, x2], <span class="st">"y"</span>: np.r_[y1, y2],</span>
-<span id="cb57-5"><a href=""></a>                       <span class="st">"group"</span>: [<span class="st">"Group 1"</span>]<span class="op">*</span>n_group <span class="op">+</span> [<span class="st">"Group 2"</span>]<span class="op">*</span>n_group})</span>
-<span id="cb57-6"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
-<span id="cb57-7"><a href=""></a>sns.scatterplot(data<span class="op">=</span>groups, x<span class="op">=</span><span class="st">"x"</span>, y<span class="op">=</span><span class="st">"y"</span>, hue<span class="op">=</span><span class="st">"group"</span>, ax<span class="op">=</span>ax)</span>
-<span id="cb57-8"><a href=""></a>sns.regplot(data<span class="op">=</span>groups, x<span class="op">=</span><span class="st">"x"</span>, y<span class="op">=</span><span class="st">"y"</span>, scatter<span class="op">=</span><span class="va">False</span>, ci<span class="op">=</span><span class="va">None</span>, color<span class="op">=</span><span class="st">"black"</span>, ax<span class="op">=</span>ax)</span>
-<span id="cb57-9"><a href=""></a>ax.<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Aggregate and within-group relationships can differ"</span>)</span>
-<span id="cb57-10"><a href=""></a>plt.tight_layout()</span>
-<span id="cb57-11"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="c765f96f" class="cell" data-fig-height="5" data-fig-width="9" data-execution_count="40">
+<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb55-1"><a href=""></a>n_group <span class="op">=</span> <span class="dv">120</span></span>
+<span id="cb55-2"><a href=""></a>x1 <span class="op">=</span> rng.normal(<span class="dv">2</span>, <span class="fl">.7</span>, n_group)<span class="op">;</span> y1 <span class="op">=</span> <span class="op">-</span>x1 <span class="op">+</span> <span class="dv">6</span> <span class="op">+</span> rng.normal(<span class="dv">0</span>, <span class="fl">.35</span>, n_group)</span>
+<span id="cb55-3"><a href=""></a>x2 <span class="op">=</span> rng.normal(<span class="dv">6</span>, <span class="fl">.7</span>, n_group)<span class="op">;</span> y2 <span class="op">=</span> <span class="op">-</span>x2 <span class="op">+</span> <span class="dv">14</span> <span class="op">+</span> rng.normal(<span class="dv">0</span>, <span class="fl">.35</span>, n_group)</span>
+<span id="cb55-4"><a href=""></a>groups <span class="op">=</span> pd.DataFrame({<span class="st">"x"</span>: np.r_[x1, x2], <span class="st">"y"</span>: np.r_[y1, y2],</span>
+<span id="cb55-5"><a href=""></a>                       <span class="st">"group"</span>: [<span class="st">"Group 1"</span>]<span class="op">*</span>n_group <span class="op">+</span> [<span class="st">"Group 2"</span>]<span class="op">*</span>n_group})</span>
+<span id="cb55-6"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
+<span id="cb55-7"><a href=""></a>sns.scatterplot(data<span class="op">=</span>groups, x<span class="op">=</span><span class="st">"x"</span>, y<span class="op">=</span><span class="st">"y"</span>, hue<span class="op">=</span><span class="st">"group"</span>, ax<span class="op">=</span>ax)</span>
+<span id="cb55-8"><a href=""></a>sns.regplot(data<span class="op">=</span>groups, x<span class="op">=</span><span class="st">"x"</span>, y<span class="op">=</span><span class="st">"y"</span>, scatter<span class="op">=</span><span class="va">False</span>, ci<span class="op">=</span><span class="va">None</span>, color<span class="op">=</span><span class="st">"black"</span>, ax<span class="op">=</span>ax)</span>
+<span id="cb55-9"><a href=""></a>ax.<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Aggregate and within-group relationships can differ"</span>)</span>
+<span id="cb55-10"><a href=""></a>plt.tight_layout()</span>
+<span id="cb55-11"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
 </div>
 <img data-src="lecture_03_eda_files/figure-revealjs/cell-41-output-1.png" class="r-stretch"><aside class="notes">
@@ -2325,25 +2305,25 @@ dtype: float64</code></pre>
 </section>
 <section id="a-descriptive-statistics-table" class="slide level2">
 <h2>A descriptive-statistics table</h2>
-<div id="dee51be9" class="cell" data-execution_count="41">
-<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb58-1"><a href=""></a><span class="kw">def</span> descriptive_table(df):</span>
-<span id="cb58-2"><a href=""></a>    out <span class="op">=</span> pd.DataFrame(index<span class="op">=</span>df.columns)</span>
-<span id="cb58-3"><a href=""></a>    out[<span class="st">"n"</span>] <span class="op">=</span> df.count()</span>
-<span id="cb58-4"><a href=""></a>    out[<span class="st">"missing"</span>] <span class="op">=</span> df.isna().<span class="bu">sum</span>()</span>
-<span id="cb58-5"><a href=""></a>    out[<span class="st">"mean"</span>] <span class="op">=</span> df.mean()</span>
-<span id="cb58-6"><a href=""></a>    out[<span class="st">"median"</span>] <span class="op">=</span> df.median()</span>
-<span id="cb58-7"><a href=""></a>    out[<span class="st">"std"</span>] <span class="op">=</span> df.std(ddof<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb58-8"><a href=""></a>    out[<span class="st">"Q1"</span>] <span class="op">=</span> df.quantile(<span class="fl">.25</span>)</span>
-<span id="cb58-9"><a href=""></a>    out[<span class="st">"Q3"</span>] <span class="op">=</span> df.quantile(<span class="fl">.75</span>)</span>
-<span id="cb58-10"><a href=""></a>    out[<span class="st">"IQR"</span>] <span class="op">=</span> out[<span class="st">"Q3"</span>] <span class="op">-</span> out[<span class="st">"Q1"</span>]</span>
-<span id="cb58-11"><a href=""></a>    out[<span class="st">"min"</span>] <span class="op">=</span> df.<span class="bu">min</span>()</span>
-<span id="cb58-12"><a href=""></a>    out[<span class="st">"max"</span>] <span class="op">=</span> df.<span class="bu">max</span>()</span>
-<span id="cb58-13"><a href=""></a>    out[<span class="st">"skew"</span>] <span class="op">=</span> df.<span class="bu">apply</span>(<span class="kw">lambda</span> s: stats.skew(s.dropna(), bias<span class="op">=</span><span class="va">False</span>))</span>
-<span id="cb58-14"><a href=""></a>    out[<span class="st">"excess_kurtosis"</span>] <span class="op">=</span> df.<span class="bu">apply</span>(<span class="kw">lambda</span> s: stats.kurtosis(s.dropna(), fisher<span class="op">=</span><span class="va">True</span>, bias<span class="op">=</span><span class="va">False</span>))</span>
-<span id="cb58-15"><a href=""></a>    <span class="cf">return</span> out</span>
-<span id="cb58-16"><a href=""></a></span>
-<span id="cb58-17"><a href=""></a>descriptive_table(returns_pct).<span class="bu">round</span>(<span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="87">
+<div id="65663adf" class="cell" data-execution_count="41">
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb56-1"><a href=""></a><span class="kw">def</span> descriptive_table(df):</span>
+<span id="cb56-2"><a href=""></a>    out <span class="op">=</span> pd.DataFrame(index<span class="op">=</span>df.columns)</span>
+<span id="cb56-3"><a href=""></a>    out[<span class="st">"n"</span>] <span class="op">=</span> df.count()</span>
+<span id="cb56-4"><a href=""></a>    out[<span class="st">"missing"</span>] <span class="op">=</span> df.isna().<span class="bu">sum</span>()</span>
+<span id="cb56-5"><a href=""></a>    out[<span class="st">"mean"</span>] <span class="op">=</span> df.mean()</span>
+<span id="cb56-6"><a href=""></a>    out[<span class="st">"median"</span>] <span class="op">=</span> df.median()</span>
+<span id="cb56-7"><a href=""></a>    out[<span class="st">"std"</span>] <span class="op">=</span> df.std(ddof<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb56-8"><a href=""></a>    out[<span class="st">"Q1"</span>] <span class="op">=</span> df.quantile(<span class="fl">.25</span>)</span>
+<span id="cb56-9"><a href=""></a>    out[<span class="st">"Q3"</span>] <span class="op">=</span> df.quantile(<span class="fl">.75</span>)</span>
+<span id="cb56-10"><a href=""></a>    out[<span class="st">"IQR"</span>] <span class="op">=</span> out[<span class="st">"Q3"</span>] <span class="op">-</span> out[<span class="st">"Q1"</span>]</span>
+<span id="cb56-11"><a href=""></a>    out[<span class="st">"min"</span>] <span class="op">=</span> df.<span class="bu">min</span>()</span>
+<span id="cb56-12"><a href=""></a>    out[<span class="st">"max"</span>] <span class="op">=</span> df.<span class="bu">max</span>()</span>
+<span id="cb56-13"><a href=""></a>    out[<span class="st">"skew"</span>] <span class="op">=</span> df.<span class="bu">apply</span>(<span class="kw">lambda</span> s: stats.skew(s.dropna(), bias<span class="op">=</span><span class="va">False</span>))</span>
+<span id="cb56-14"><a href=""></a>    out[<span class="st">"excess_kurtosis"</span>] <span class="op">=</span> df.<span class="bu">apply</span>(<span class="kw">lambda</span> s: stats.kurtosis(s.dropna(), fisher<span class="op">=</span><span class="va">True</span>, bias<span class="op">=</span><span class="va">False</span>))</span>
+<span id="cb56-15"><a href=""></a>    <span class="cf">return</span> out</span>
+<span id="cb56-16"><a href=""></a></span>
+<span id="cb56-17"><a href=""></a>descriptive_table(returns_pct).<span class="bu">round</span>(<span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="41">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -2460,19 +2440,19 @@ dtype: float64</code></pre>
 </section>
 <section id="one-variable-four-complementary-views" class="slide level2">
 <h2>One variable, four complementary views</h2>
-<div id="b98e00f9" class="cell" data-fig-height="7" data-fig-width="11" data-execution_count="42">
-<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb59-1"><a href=""></a>x <span class="op">=</span> returns_pct[<span class="st">"Market"</span>]</span>
-<span id="cb59-2"><a href=""></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">2</span>)</span>
-<span id="cb59-3"><a href=""></a>sns.histplot(x, bins<span class="op">=</span><span class="dv">40</span>, kde<span class="op">=</span><span class="va">True</span>, color<span class="op">=</span><span class="st">"#56B4E9"</span>, ax<span class="op">=</span>axes[<span class="dv">0</span>,<span class="dv">0</span>])</span>
-<span id="cb59-4"><a href=""></a>axes[<span class="dv">0</span>,<span class="dv">0</span>].<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Histogram + KDE"</span>, xlabel<span class="op">=</span><span class="st">"Return (%)"</span>)</span>
-<span id="cb59-5"><a href=""></a>sns.boxplot(x<span class="op">=</span>x, orient<span class="op">=</span><span class="st">"h"</span>, color<span class="op">=</span><span class="st">"#56B4E9"</span>, ax<span class="op">=</span>axes[<span class="dv">0</span>,<span class="dv">1</span>])</span>
-<span id="cb59-6"><a href=""></a>axes[<span class="dv">0</span>,<span class="dv">1</span>].<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Boxplot"</span>, xlabel<span class="op">=</span><span class="st">"Return (%)"</span>)</span>
-<span id="cb59-7"><a href=""></a>sns.ecdfplot(x<span class="op">=</span>x, color<span class="op">=</span><span class="st">"#0072B2"</span>, ax<span class="op">=</span>axes[<span class="dv">1</span>,<span class="dv">0</span>])</span>
-<span id="cb59-8"><a href=""></a>axes[<span class="dv">1</span>,<span class="dv">0</span>].<span class="bu">set</span>(title<span class="op">=</span><span class="st">"ECDF"</span>, xlabel<span class="op">=</span><span class="st">"Return (%)"</span>, ylabel<span class="op">=</span><span class="st">"Cumulative proportion"</span>)</span>
-<span id="cb59-9"><a href=""></a>qqplot(x, line<span class="op">=</span><span class="st">"45"</span>, ax<span class="op">=</span>axes[<span class="dv">1</span>,<span class="dv">1</span>])</span>
-<span id="cb59-10"><a href=""></a>axes[<span class="dv">1</span>,<span class="dv">1</span>].set_title(<span class="st">"Normal Q-Q plot"</span>)</span>
-<span id="cb59-11"><a href=""></a>plt.tight_layout()</span>
-<span id="cb59-12"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="6ebb6131" class="cell" data-fig-height="7" data-fig-width="11" data-execution_count="42">
+<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb57-1"><a href=""></a>x <span class="op">=</span> returns_pct[<span class="st">"Market"</span>]</span>
+<span id="cb57-2"><a href=""></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">2</span>)</span>
+<span id="cb57-3"><a href=""></a>sns.histplot(x, bins<span class="op">=</span><span class="dv">40</span>, kde<span class="op">=</span><span class="va">True</span>, color<span class="op">=</span><span class="st">"#56B4E9"</span>, ax<span class="op">=</span>axes[<span class="dv">0</span>,<span class="dv">0</span>])</span>
+<span id="cb57-4"><a href=""></a>axes[<span class="dv">0</span>,<span class="dv">0</span>].<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Histogram + KDE"</span>, xlabel<span class="op">=</span><span class="st">"Return (%)"</span>)</span>
+<span id="cb57-5"><a href=""></a>sns.boxplot(x<span class="op">=</span>x, orient<span class="op">=</span><span class="st">"h"</span>, color<span class="op">=</span><span class="st">"#56B4E9"</span>, ax<span class="op">=</span>axes[<span class="dv">0</span>,<span class="dv">1</span>])</span>
+<span id="cb57-6"><a href=""></a>axes[<span class="dv">0</span>,<span class="dv">1</span>].<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Boxplot"</span>, xlabel<span class="op">=</span><span class="st">"Return (%)"</span>)</span>
+<span id="cb57-7"><a href=""></a>sns.ecdfplot(x<span class="op">=</span>x, color<span class="op">=</span><span class="st">"#0072B2"</span>, ax<span class="op">=</span>axes[<span class="dv">1</span>,<span class="dv">0</span>])</span>
+<span id="cb57-8"><a href=""></a>axes[<span class="dv">1</span>,<span class="dv">0</span>].<span class="bu">set</span>(title<span class="op">=</span><span class="st">"ECDF"</span>, xlabel<span class="op">=</span><span class="st">"Return (%)"</span>, ylabel<span class="op">=</span><span class="st">"Cumulative proportion"</span>)</span>
+<span id="cb57-9"><a href=""></a>qqplot(x, line<span class="op">=</span><span class="st">"45"</span>, ax<span class="op">=</span>axes[<span class="dv">1</span>,<span class="dv">1</span>])</span>
+<span id="cb57-10"><a href=""></a>axes[<span class="dv">1</span>,<span class="dv">1</span>].set_title(<span class="st">"Normal Q-Q plot"</span>)</span>
+<span id="cb57-11"><a href=""></a>plt.tight_layout()</span>
+<span id="cb57-12"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
 </div>
 <img data-src="lecture_03_eda_files/figure-revealjs/cell-43-output-1.png" class="r-stretch"><aside class="notes">
@@ -2491,19 +2471,19 @@ dtype: float64</code></pre>
 </section>
 <section id="outlier-sensitivity-experiment" class="slide level2">
 <h2>Outlier sensitivity experiment</h2>
-<div id="3cb62f16" class="cell" data-execution_count="43">
-<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb60-1"><a href=""></a>clean <span class="op">=</span> rng.normal(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">300</span>)</span>
-<span id="cb60-2"><a href=""></a>contaminated <span class="op">=</span> np.r_[clean, <span class="dv">12</span>]</span>
-<span id="cb60-3"><a href=""></a>comparison <span class="op">=</span> pd.DataFrame({</span>
-<span id="cb60-4"><a href=""></a>    <span class="st">"Statistic"</span>: [<span class="st">"Mean"</span>, <span class="st">"Median"</span>, <span class="st">"SD"</span>, <span class="st">"IQR"</span>, <span class="st">"Skewness"</span>, <span class="st">"Excess kurtosis"</span>],</span>
-<span id="cb60-5"><a href=""></a>    <span class="st">"Clean"</span>: [np.mean(clean), np.median(clean), np.std(clean, ddof<span class="op">=</span><span class="dv">1</span>), stats.iqr(clean),</span>
-<span id="cb60-6"><a href=""></a>              stats.skew(clean, bias<span class="op">=</span><span class="va">False</span>), stats.kurtosis(clean, bias<span class="op">=</span><span class="va">False</span>)],</span>
-<span id="cb60-7"><a href=""></a>    <span class="st">"Contaminated"</span>: [np.mean(contaminated), np.median(contaminated), np.std(contaminated, ddof<span class="op">=</span><span class="dv">1</span>),</span>
-<span id="cb60-8"><a href=""></a>                     stats.iqr(contaminated), stats.skew(contaminated, bias<span class="op">=</span><span class="va">False</span>),</span>
-<span id="cb60-9"><a href=""></a>                     stats.kurtosis(contaminated, bias<span class="op">=</span><span class="va">False</span>)],</span>
-<span id="cb60-10"><a href=""></a>})</span>
-<span id="cb60-11"><a href=""></a>comparison.<span class="bu">round</span>(<span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="89">
+<div id="35b83f1a" class="cell" data-execution_count="43">
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb58-1"><a href=""></a>clean <span class="op">=</span> rng.normal(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">300</span>)</span>
+<span id="cb58-2"><a href=""></a>contaminated <span class="op">=</span> np.r_[clean, <span class="dv">12</span>]</span>
+<span id="cb58-3"><a href=""></a>comparison <span class="op">=</span> pd.DataFrame({</span>
+<span id="cb58-4"><a href=""></a>    <span class="st">"Statistic"</span>: [<span class="st">"Mean"</span>, <span class="st">"Median"</span>, <span class="st">"SD"</span>, <span class="st">"IQR"</span>, <span class="st">"Skewness"</span>, <span class="st">"Excess kurtosis"</span>],</span>
+<span id="cb58-5"><a href=""></a>    <span class="st">"Clean"</span>: [np.mean(clean), np.median(clean), np.std(clean, ddof<span class="op">=</span><span class="dv">1</span>), stats.iqr(clean),</span>
+<span id="cb58-6"><a href=""></a>              stats.skew(clean, bias<span class="op">=</span><span class="va">False</span>), stats.kurtosis(clean, bias<span class="op">=</span><span class="va">False</span>)],</span>
+<span id="cb58-7"><a href=""></a>    <span class="st">"Contaminated"</span>: [np.mean(contaminated), np.median(contaminated), np.std(contaminated, ddof<span class="op">=</span><span class="dv">1</span>),</span>
+<span id="cb58-8"><a href=""></a>                     stats.iqr(contaminated), stats.skew(contaminated, bias<span class="op">=</span><span class="va">False</span>),</span>
+<span id="cb58-9"><a href=""></a>                     stats.kurtosis(contaminated, bias<span class="op">=</span><span class="va">False</span>)],</span>
+<span id="cb58-10"><a href=""></a>})</span>
+<span id="cb58-11"><a href=""></a>comparison.<span class="bu">round</span>(<span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="43">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -2587,15 +2567,15 @@ dtype: float64</code></pre>
 </section>
 <section id="missing-values-and-denominators" class="slide level2">
 <h2>Missing values and denominators</h2>
-<div id="cce4a164" class="cell" data-execution_count="44">
-<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb61-1"><a href=""></a>missing_demo <span class="op">=</span> returns_pct[[<span class="st">"Market"</span>, <span class="st">"Asset A"</span>]].copy()</span>
-<span id="cb61-2"><a href=""></a>missing_demo.loc[missing_demo.sample(<span class="dv">100</span>, random_state<span class="op">=</span><span class="dv">1</span>).index, <span class="st">"Asset A"</span>] <span class="op">=</span> np.nan</span>
-<span id="cb61-3"><a href=""></a>pd.DataFrame({</span>
-<span id="cb61-4"><a href=""></a>    <span class="st">"count"</span>: missing_demo.count(),</span>
-<span id="cb61-5"><a href=""></a>    <span class="st">"mean"</span>: missing_demo.mean(),</span>
-<span id="cb61-6"><a href=""></a>    <span class="st">"std"</span>: missing_demo.std(),</span>
-<span id="cb61-7"><a href=""></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="90">
+<div id="bccb6547" class="cell" data-execution_count="44">
+<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb59-1"><a href=""></a>missing_demo <span class="op">=</span> returns_pct[[<span class="st">"Market"</span>, <span class="st">"Asset A"</span>]].copy()</span>
+<span id="cb59-2"><a href=""></a>missing_demo.loc[missing_demo.sample(<span class="dv">100</span>, random_state<span class="op">=</span><span class="dv">1</span>).index, <span class="st">"Asset A"</span>] <span class="op">=</span> np.nan</span>
+<span id="cb59-3"><a href=""></a>pd.DataFrame({</span>
+<span id="cb59-4"><a href=""></a>    <span class="st">"count"</span>: missing_demo.count(),</span>
+<span id="cb59-5"><a href=""></a>    <span class="st">"mean"</span>: missing_demo.mean(),</span>
+<span id="cb59-6"><a href=""></a>    <span class="st">"std"</span>: missing_demo.std(),</span>
+<span id="cb59-7"><a href=""></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="44">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -2639,9 +2619,9 @@ dtype: float64</code></pre>
 </div>
 </div>
 </div>
-<div id="5bd578dd" class="cell" data-execution_count="45">
-<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb62-1"><a href=""></a>missing_demo.corr(min_periods<span class="op">=</span><span class="dv">1200</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="91">
+<div id="7f0c7cbb" class="cell" data-execution_count="45">
+<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb60-1"><a href=""></a>missing_demo.corr(min_periods<span class="op">=</span><span class="dv">1200</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="45">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -2699,16 +2679,16 @@ dtype: float64</code></pre>
 </section>
 <section id="transformations-change-interpretation" class="slide level2">
 <h2>Transformations change interpretation</h2>
-<div id="d6b52f95" class="cell" data-fig-height="4.5" data-fig-width="10" data-execution_count="46">
-<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb63-1"><a href=""></a>raw_volume <span class="op">=</span> returns[<span class="st">"Volume"</span>]</span>
-<span id="cb63-2"><a href=""></a>log_volume <span class="op">=</span> np.log(raw_volume)</span>
-<span id="cb63-3"><a href=""></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>)</span>
-<span id="cb63-4"><a href=""></a>sns.histplot(raw_volume, bins<span class="op">=</span><span class="dv">40</span>, color<span class="op">=</span><span class="st">"#56B4E9"</span>, ax<span class="op">=</span>axes[<span class="dv">0</span>])</span>
-<span id="cb63-5"><a href=""></a>axes[<span class="dv">0</span>].<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Volume"</span>, xlabel<span class="op">=</span><span class="st">"Raw units"</span>)</span>
-<span id="cb63-6"><a href=""></a>sns.histplot(log_volume, bins<span class="op">=</span><span class="dv">40</span>, color<span class="op">=</span><span class="st">"#009E73"</span>, ax<span class="op">=</span>axes[<span class="dv">1</span>])</span>
-<span id="cb63-7"><a href=""></a>axes[<span class="dv">1</span>].<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Log volume"</span>, xlabel<span class="op">=</span><span class="st">"log(Volume)"</span>)</span>
-<span id="cb63-8"><a href=""></a>plt.tight_layout()</span>
-<span id="cb63-9"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="2134b2f0" class="cell" data-fig-height="4.5" data-fig-width="10" data-execution_count="46">
+<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb61-1"><a href=""></a>raw_volume <span class="op">=</span> returns[<span class="st">"Volume"</span>]</span>
+<span id="cb61-2"><a href=""></a>log_volume <span class="op">=</span> np.log(raw_volume)</span>
+<span id="cb61-3"><a href=""></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>)</span>
+<span id="cb61-4"><a href=""></a>sns.histplot(raw_volume, bins<span class="op">=</span><span class="dv">40</span>, color<span class="op">=</span><span class="st">"#56B4E9"</span>, ax<span class="op">=</span>axes[<span class="dv">0</span>])</span>
+<span id="cb61-5"><a href=""></a>axes[<span class="dv">0</span>].<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Volume"</span>, xlabel<span class="op">=</span><span class="st">"Raw units"</span>)</span>
+<span id="cb61-6"><a href=""></a>sns.histplot(log_volume, bins<span class="op">=</span><span class="dv">40</span>, color<span class="op">=</span><span class="st">"#009E73"</span>, ax<span class="op">=</span>axes[<span class="dv">1</span>])</span>
+<span id="cb61-7"><a href=""></a>axes[<span class="dv">1</span>].<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Log volume"</span>, xlabel<span class="op">=</span><span class="st">"log(Volume)"</span>)</span>
+<span id="cb61-8"><a href=""></a>plt.tight_layout()</span>
+<span id="cb61-9"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
 </div>
 <img data-src="lecture_03_eda_files/figure-revealjs/cell-47-output-1.png" class="r-stretch"><aside class="notes">

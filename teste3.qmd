@@ -1,1166 +1,566 @@
 ---
-title: "Time Series Graphics"
-subtitle: "Forecasting: Principles and Practice, the Pythonic Way | Chapter 2"
-author: "Victor Henriques de Oliveira"
+title: "Structural Changes with Python Packages"
+subtitle: "Change-Point Detection and Parameter Stability for Data Visualization"
+author: "Victor Henriques"
 format:
   revealjs:
-    theme: simple
+    theme: white
     smaller: true
+    toc: true
+    toc-depth: 1
     slide-number: c/t
-    transition: fade
+    incremental: false
+    code-fold: false
+    code-overflow: wrap
     center: false
     width: 1600
     height: 900
     margin: 0.06
-    code-overflow: wrap
+    transition: fade
     chalkboard: true
     preview-links: auto
-    footer: "Data Analytics & Visualization | Time Series Graphics"
+    footer: "Data Visualization | Structural Changes"
 execute:
   echo: true
   warning: false
   error: false
   cache: false
 jupyter: python3
-editor_options: 
-  chunk_output_type: console
 ---
 
 ```{python}
 #| label: setup
 #| include: false
-from pathlib import Path
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import statsmodels.api as sm
-from scipy.stats import pearsonr
-from statsmodels.graphics.tsaplots import plot_acf
-from utilsforecast.plotting import plot_series
+import ruptures as rpt
 
-DATA_PATH = Path.home() / "Documents/GitHub/Data_Analytics/data"
-assert DATA_PATH.exists(), f"Data directory not found: {DATA_PATH}"
+from statsmodels.stats.diagnostic import breaks_cusumolsresid, breaks_hansen
+from statsmodels.stats.diagnostic import recursive_olsresiduals
 
 sns.set_theme(style="whitegrid", context="talk")
-plt.rcParams["figure.figsize"] = (9, 4.8)
-pd.set_option("display.max_columns", 12)
-```
+plt.rcParams["figure.figsize"] = (10, 5)
+pd.set_option("display.max_columns", 30)
+pd.set_option("display.width", 140)
 
-# Time Series Graphics
+COLORS = {
+    "data": "#6B7280",
+    "primary": "#0072B2",
+    "break": "#CC3311",
+    "regime": "#D55E00",
+    "monitor": "#009E73",
+}
 
-## Why start with graphs?
+# Public, built-in dataset from statsmodels.
+nile = sm.datasets.nile.load_pandas().data.copy()
+nile["year"] = nile["year"].astype(int)
+nile["time"] = np.arange(len(nile))
+signal = nile["volume"].to_numpy()
 
-Graphs help reveal:
+# Stable intercept-only reference model used for parameter-stability tests.
+X_level = np.ones((len(nile), 1))
+level_model = sm.OLS(nile["volume"], X_level).fit()
 
-- patterns and changes through time;
-- unusual observations;
-- seasonal behavior;
-- relationships between variables;
-- temporal dependence.
+# Package-based offline change-point detection.
+pelt_l2 = rpt.Pelt(model="l2", min_size=10, jump=1).fit(signal)
+pelt_rbf = rpt.Pelt(model="rbf", min_size=10, jump=1).fit(signal)
+binseg = rpt.Binseg(model="l2", min_size=10, jump=1).fit(signal)
+dynp = rpt.Dynp(model="l2", min_size=10, jump=1).fit(signal)
+window = rpt.Window(width=20, model="l2", min_size=10, jump=1).fit(signal)
+bottomup = rpt.BottomUp(model="l2", min_size=10, jump=1).fit(signal)
 
-Visual features should inform the forecasting method considered later.
+# Breakpoint lists include the terminal sample index by ruptures convention.
+pelt_pen_5 = pelt_l2.predict(pen=5_000)
+pelt_pen_10 = pelt_l2.predict(pen=10_000)
+pelt_pen_20 = pelt_l2.predict(pen=20_000)
+pelt_rbf_breaks = pelt_rbf.predict(pen=4)
+binseg_one = binseg.predict(n_bkps=1)
+dynp_one = dynp.predict(n_bkps=1)
+window_one = window.predict(n_bkps=1)
+bottomup_one = bottomup.predict(n_bkps=1)
 
-::: {.notes}
-Este material acompanha a sequência e os exemplos gráficos do Capítulo 2, com redação própria. Os exemplos utilizam os arquivos CSV locais informados pelo usuário.
-
-[Sources]
-- https://otexts.com/fpppy/02-graphics.html
-:::
-
-# 2.1 DataFrame objects
-
-## A time series in a DataFrame
-
-```{python}
-df = pd.DataFrame({
-    "Year": list(range(2015, 2020)),
-    "Observation": [123, 39, 78, 52, 110],
+method_results = pd.DataFrame({
+    "method": ["PELT L2", "PELT RBF", "Binary segmentation", "Dynamic programming", "Window", "Bottom-up"],
+    "break_index": [pelt_pen_10[-2], pelt_rbf_breaks[-2], binseg_one[-2], dynp_one[-2], window_one[-2], bottomup_one[-2]],
 })
-df
-```
-
-A DataFrame has two labeled axes: an index for rows and columns for variables.
-
-::: {.notes}
-Introduza DataFrame, index, columns e dtypes antes dos gráficos.
-
-[Sources]
-- https://otexts.com/fpppy/02-graphics.html
-:::
-
-## Index, columns, and data types
-
-```{python}
-print(df.index)
-print(df.columns)
-print(df.dtypes)
-print(type(df["Year"]))
-```
-
-```{python}
-year_df = df.set_index("Year")
-year_df
-```
-
-::: {.notes}
-Uma coluna individual é uma Series. set_index transforma Year em eixo de identificação.
-
-[Sources]
-- https://otexts.com/fpppy/02-graphics.html
-:::
-
-## Timestamps and periods
-
-```{python}
-print(repr(pd.Timestamp("2020-01")))
-print(repr(pd.Period("2020-01", freq="M")))
-```
-
-- `Timestamp`: a specific instant.
-- `Period`: a span of time with a frequency.
-
-::: {.notes}
-A distinção entre instante e período muda a forma como observações mensais são interpretadas.
-
-[Sources]
-- https://otexts.com/fpppy/02-graphics.html
-:::
-
-## Timestamp attributes
-
-```{python}
-timestamps = pd.date_range("2020-01-01", periods=3, freq="D")
-ts_frame = pd.DataFrame(index=timestamps)
-ts_frame["date"] = ts_frame.index.date
-ts_frame["year"] = ts_frame.index.year
-ts_frame["label"] = ts_frame.index.strftime("%A, %B %-d")
-ts_frame
-```
-
-::: {.notes}
-Em Windows, substitua %-d por %#d se necessário.
-
-[Sources]
-- https://otexts.com/fpppy/02-graphics.html
-:::
-
-## Key variables identify separate series
-
-```{python}
-olympic_running = pd.read_csv(DATA_PATH / "olympic_running_unparsed.csv")
-olympic_running.head(8)
-```
-
-```{python}
-key_columns = ["Length", "Sex"]
-olympic_running.groupby(key_columns).size().rename("observations")
-```
-
-A valid multi-series table needs a unique combination of identifying keys and time.
-
-::: {.notes}
-No conjunto olímpico, Length e Sex distinguem as séries. Year é a variável temporal.
-
-[Sources]
-- https://otexts.com/fpppy/02-graphics.html
-:::
-
-## Wide and long representations
-
-```{python}
-wide_demo = olympic_running.pivot_table(
-    index="Year", columns=["Length", "Sex"], values="Time"
+method_results["break_year"] = method_results["break_index"].map(
+    lambda i: int(nile.iloc[i]["year"])
 )
-wide_demo.head()
-```
-
-Long form is convenient for grouped operations and semantic mappings; wide form is useful for matrices and some comparisons.
-
-::: {.notes}
-Conecte formato dos dados às bibliotecas de visualização.
-
-[Sources]
-- https://otexts.com/fpppy/02-graphics.html
-:::
-
-## Pharmaceutical Benefits Scheme data
-
-```{python}
-pbs = (
-    pd.read_csv(DATA_PATH / "PBS_unparsed.csv", parse_dates=["Month"])
-    [["Month", "Concession", "Type", "ATC1", "ATC2", "Scripts", "Cost"]]
-)
-pbs.head()
-```
-
-::: {.notes}
-O conjunto contém várias séries mensais identificadas por atributos de produto e concessão.
-
-[Sources]
-- https://otexts.com/fpppy/02-graphics.html
-:::
-
-## Filter and aggregate one monthly series
-
-```{python}
-total_cost_df = pd.read_csv(DATA_PATH / "total_cost_df.csv")
-
-a10 = pbs.loc[pbs["ATC2"] == "A10"]
-total_cost_df = (
-    a10.groupby("Month", as_index=False)
-    .agg(Cost=("Cost", "sum"))
-    .assign(Cost=lambda x: x["Cost"] / 1e6)
-)
-total_cost_df.head()
-```
-
-::: {.notes}
-A agregação transforma várias categorias em uma série mensal de custo total. A unidade passa a milhões de dólares.
-
-[Sources]
-- https://otexts.com/fpppy/02-graphics.html
-:::
-
-## A quarterly multi-series table
-
-```{python}
-prison = (
-    pd.read_csv(DATA_PATH / "prison_population.csv", parse_dates=["Date"])
-    .rename(columns={"Date": "Quarter"})
-    .sort_values(["State", "Gender", "Legal", "Indigenous", "Quarter"])
-)
-prison.head()
-```
-
-```{python}
-keys = ["State", "Gender", "Legal", "Indigenous", "Quarter"]
-assert not prison.duplicated(keys).any()
-```
-
-::: {.notes}
-Cada combinação de State, Gender, Legal e Indigenous identifica uma série; Quarter identifica a observação no tempo.
-
-[Sources]
-- https://otexts.com/fpppy/02-graphics.html
-:::
-
-## Seasonal period
-
-| Observation interval | Frequent seasonal period |
-|---|---:|
-| Quarter | 4 |
-| Month | 12 |
-| Week | about 52 |
-| Day | 7 and about 365.25 |
-| Hour | 24, 168, and about 8766 |
-| Minute | 60, 1440, and 10080 |
-
-A series may contain more than one seasonal pattern.
-
-::: {.notes}
-O período sazonal é o número de observações até a repetição do padrão. Calendários reais podem não ser representados exatamente por inteiros simples.
-
-[Sources]
-- https://otexts.com/fpppy/02-graphics.html
-:::
-
-# 2.2 Time plots
-
-## Figure 2.1: Ansett Airlines
-
-```{python}
-# total_cost_df = pd.read_csv(DATA_PATH / "total_cost_df.csv")
-ansett = pd.read_csv(
-    DATA_PATH / "ansett.csv",
-    parse_dates=["ds"],
-)
-
-melsyd_economy = (
-    ansett
-    .loc[
-        lambda x:
-            (x["Airports"] == "MEL-SYD")
-            & (x["Class"] == "Economy")
-    ]
-    .rename(
-        columns={
-            "Airports": "unique_id",
-        }
+dynp_breaks = (
+    rpt.Dynp(
+        model="l2",
+        min_size=10,
+        jump=1,
     )
-    .assign(
-        y=lambda x:
-            x["y"] / 1000
-    )
+    .fit(signal)
+    .predict(n_bkps=1)
 )
 ```
 
-## Figure 2.1: Ansett Airlines
+# Introduction
+
+## Why change points matter
+
+Structural changes alter the distribution or model relationship of a time series.
+
+They can make older data less representative for:
+
+- forecasting;
+- monitoring;
+- policy evaluation;
+- risk estimation;
+- anomaly detection;
+- model calibration.
+
+::: {.notes}
+The supplied Towards Data Science article defines a change point as the timestep marking the onset of a distributional change and notes that historical data may become less representative after a change.
+
+[Sources]
+- https://towardsdatascience.com/understanding-time-series-structural-changes-f6a4c44cb13c/
+:::
+
+## Learning objectives
+
+Students will be able to:
+
+- distinguish change points from outliers;
+- identify changes in mean, variance, and model parameters;
+- use built-in data from `statsmodels`;
+- apply package implementations from `ruptures`;
+- perform CUSUM and Hansen stability tests with `statsmodels`;
+- compare PELT, binary segmentation, dynamic programming, window, and bottom-up methods;
+- communicate uncertainty and tuning sensitivity visually.
+
+::: {.notes}
+This version intentionally uses established Python packages instead of implementing change-point algorithms manually.
+:::
+
+## Structural change versus outlier
+
+::: {.columns}
+::: {.column width="50%"}
+### Outlier
+
+An isolated observation that is unusual relative to the prevailing structure.
+:::
+::: {.column width="50%"}
+### Structural change
+
+A persistent change in the underlying distribution or model relationship.
+:::
+:::
+
+> A large observation can be an outlier without creating a new regime.
+
+::: {.notes}
+The supplied article explicitly distinguishes outliers from change points: an outlier differs from normal behavior, while a change point alters the structure to a different distribution.
+
+[Sources]
+- https://towardsdatascience.com/understanding-time-series-structural-changes-f6a4c44cb13c/
+:::
+
+## Types of structural change
+
+- permanent change in mean;
+- transitory change in mean;
+- permanent change in variance;
+- transitory change in variance;
+- volatility clustering;
+- changing regression coefficients;
+- changing autoregressive dynamics.
+
+::: {.notes}
+The supplied article discusses permanent and transitory mean changes, variance changes, and volatility clustering. Regression-parameter instability is the focus of the strucchange framework.
+
+[Sources]
+- https://towardsdatascience.com/understanding-time-series-structural-changes-f6a4c44cb13c/
+- https://cran.r-project.org/web/packages/strucchange/strucchange.pdf
+:::
+
+## Two complementary perspectives
+
+| Perspective | Question | Python package |
+|---|---|---|
+| Parameter stability | Did a specified model remain stable? | `statsmodels` |
+| Offline segmentation | Where does the signal divide into different regimes? | `ruptures` |
+
+::: {.notes}
+The strucchange framework considers stability of model parameters. Ruptures is designed for offline change-point detection and segmentation of non-stationary signals.
+
+[Sources]
+- https://cran.r-project.org/web/packages/strucchange/strucchange.pdf
+- https://centre-borelli.github.io/ruptures-docs/
+:::
+
+# Known and Reproducible Data
+
+## Nile River dataset
+
+The dataset records annual Nile River discharge at Aswan:
+
+- years: 1871–1970;
+- observations: 100;
+- measurement units: billions of cubic metres;
+- a widely documented apparent change near 1898.
 
 ```{python}
-fig, ax = plt.subplots(figsize=(10, 5))
-
-ax.plot(
-    melsyd_economy["ds"],
-    melsyd_economy["y"],
-)
-
-ax.set(
-    title="Ansett airlines economy class: Melbourne-Sydney",
-    xlabel="Week [1W]",
-    ylabel="Passengers ('000)",
-)
-
-fig.tight_layout()
-plt.show()
+nile.head()
 ```
 
-
 ::: {.notes}
-O time plot preserva a cronologia. Discuta períodos sem passageiros, mudanças de nível, quedas sazonais e flutuação de longo prazo observáveis no gráfico.
+Statsmodels documents the Nile dataset as annual river volume at Aswan from 1871 to 1970, with 100 observations and an apparent change point near 1898.
 
 [Sources]
-- https://otexts.com/fpppy/02-graphics.html
+- https://www.statsmodels.org/stable/dev/dataset_notes.html
 :::
 
-## Time-plot reading protocol
-
-Look for:
-
-1. level and long-run direction;
-2. fixed-period repetition;
-3. changes in variability;
-4. unusual observations and gaps;
-5. structural breaks or interventions;
-6. whether the visible patterns are stable.
-
-::: {.notes}
-Descrição visual vem antes de explicação causal.
-
-[Sources]
-- https://otexts.com/fpppy/02-graphics.html
-:::
-
-## Figure 2.2: Antidiabetic drug sales
+## Visual inspection
 
 ```{python}
-
-fig, ax = plt.subplots(figsize=(10, 5))
-
-plot_series(
-    df=total_cost_df.assign(unique_id="total_cost"),
-    id_col="unique_id",
-    time_col="Month",
-    target_col="Cost",
-    plot_random=False,
-    engine="matplotlib",
-)
-
-ax = plt.gca()
-
-ax.set(
-    title="Australian antidiabetic drug sales",
-    xlabel="Month [1M]",
-    ylabel="$ (millions)",
-)
-
+fig, ax = plt.subplots()
+ax.plot(nile["year"], nile["volume"], marker="o", markersize=3, color=COLORS["primary"])
+ax.set(title="Annual Nile River volume at Aswan", xlabel="Year", ylabel=r"Volume ($10^9$ m³)")
 fig.tight_layout()
 plt.show()
 ```
 
 ::: {.notes}
-Identifique tendência crescente, sazonalidade forte e amplitude sazonal que aumenta com o nível.
-
-[Sources]
-- https://otexts.com/fpppy/02-graphics.html
+The raw chart suggests a change in the average level, but visual inspection alone does not determine the method, number of breaks, or uncertainty.
 :::
 
-# 2.3 Time series patterns
-
-## Trend, seasonal, and cyclic behavior
-
-- **Trend:** long-term increase or decrease; it need not be linear.
-- **Seasonal:** repetition with a fixed, known, calendar-related period.
-- **Cyclic:** rises and falls without a fixed frequency.
-
-A forecasting method should be able to represent the patterns visible in the data.
-
-::: {.notes}
-O principal contraste é fixed known period versus duração variável.
-
-[Sources]
-- https://otexts.com/fpppy/02-graphics.html
-:::
-
-## Figure 2.3: Four contrasting patterns
+## Before-and-after summaries are descriptive
 
 ```{python}
-aus_production = pd.read_csv(DATA_PATH / "aus_production.csv", parse_dates=["ds"])
-gafa_stock = pd.read_csv(DATA_PATH / "gafa_stock.csv", parse_dates=["ds"])
-
-fig, axes = plt.subplots(2, 2, figsize=(11, 7))
-
-# Use chapter-compatible local datasets when present.
-if (DATA_PATH / "hsales.csv").exists():
-    housing = pd.read_csv(DATA_PATH / "hsales.csv", parse_dates=["ds"])
-    candidate = housing.select_dtypes("number").columns[0]
-    axes[0, 0].plot(housing["ds"], housing[candidate])
-    axes[0, 0].set_title("Monthly housing sales")
-else:
-    axes[0, 0].text(.5, .5, "aus_housing.csv not found", ha="center")
-    axes[0, 0].set_title("Monthly housing sales")
-
-if (DATA_PATH / "ustreas.csv").exists():
-    treasury = pd.read_csv(DATA_PATH / "ustreas.csv")
-    ycol = treasury.select_dtypes("number").columns[-1]
-    axes[0, 1].plot(treasury[ycol].head(100))
-else:
-    axes[0, 1].text(.5, .5, "us_treasury.csv not found", ha="center")
-axes[0, 1].set_title("US treasury bill contracts")
-
-axes[1, 0].plot(aus_production["ds"], aus_production["Electricity"])
-axes[1, 0].set_title("Australian electricity production")
-
-dgoog = (
-    gafa_stock.loc[lambda x: (x["unique_id"] == "GOOG_Close") & (x["ds"] >= "2018")]
-    .assign(diff=lambda x: x["y"].diff())
+summary_1898 = (
+    nile.assign(period=np.where(nile["year"] < 1898, "Before 1898", "1898 onward"))
+    .groupby("period")["volume"]
+    .agg(["count", "mean", "std", "median"])
 )
-axes[1, 1].plot(dgoog["ds"], dgoog["diff"])
-axes[1, 1].set_title("Daily change in Google closing price")
-
-fig.suptitle("Four examples of time-series patterns")
-plt.tight_layout()
-plt.show()
+summary_1898
 ```
 
 ::: {.notes}
-O capítulo contrasta sazonalidade e ciclo em housing, tendência no treasury, tendência com sazonalidade em electricity e mudanças aparentemente irregulares no preço do Google. Os dois primeiros painéis dependem dos arquivos locais correspondentes.
+The year 1898 is used as a documented reference point from the statsmodels dataset description. This summary is descriptive, not a formal test.
 
 [Sources]
-- https://otexts.com/fpppy/02-graphics.html
+- https://www.statsmodels.org/stable/dev/dataset_notes.html
 :::
 
-# 2.4 Seasonal plots
-
-## Figure 2.4: Monthly seasonal plot
+## Distribution view by period
 
 ```{python}
-season_cost = total_cost_df.assign(
-    Year=total_cost_df["Month"].dt.year,
-    Month_num=total_cost_df["Month"].dt.month,
-)
-years = np.sort(season_cost["Year"].unique())
-palette = dict(zip(years, sns.color_palette("husl", len(years))))
-fig, ax = plt.subplots()
-sns.lineplot(
-    data=season_cost, x="Month_num", y="Cost", hue="Year",
-    palette=palette, legend=False, ax=ax
-)
-ax.set(
-    title="Seasonal Plot: Antidiabetic Drug Sales", xlabel="Month",
-    ylabel="$ (millions)", xticks=range(1, 13),
-    xticklabels=["Jan", "Feb", "Mar", "Apr", "May", "Jun",
-                 "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-)
-for year, group in season_cost.groupby("Year"):
-    ax.text(group["Month_num"].iloc[-1] + .1, group["Cost"].iloc[-1], str(year),
-            fontsize=8, color=palette[year], va="center")
-plt.tight_layout()
-plt.show()
-```
-
-::: {.notes}
-Ao sobrepor anos, o padrão dentro do calendário fica mais evidente e anos incomuns podem ser identificados.
-
-[Sources]
-- https://otexts.com/fpppy/02-graphics.html
-:::
-
-## Multiple seasonal periods
-
-```{python}
-vic_elec_df = pd.read_csv(DATA_PATH / "vic_elec.csv", parse_dates=["ds"])
-vic_elec_demand = vic_elec_df.loc[vic_elec_df["unique_id"] == "Demand"].copy()
-```
-
-Half-hourly demand can show daily, weekly, and annual patterns.
-
-::: {.notes}
-A frequência de 30 minutos implica 48 observações por dia e 336 por semana.
-
-[Sources]
-- https://otexts.com/fpppy/02-graphics.html
-:::
-
-## Figure 2.5: Daily seasonal pattern
-
-```{python}
-daily_season = vic_elec_demand.assign(
-    hour_minute=lambda x: x["ds"].dt.strftime("%H:%M"),
-    day=lambda x: x["ds"].dt.date,
+plot_data = nile.assign(
+    period=np.where(nile["year"] < 1898, "Before 1898", "1898 onward")
 )
 fig, ax = plt.subplots()
-sns.lineplot(
-    data=daily_season, x="hour_minute", y="y",
-    hue="day", palette="husl", legend=False, ax=ax
-)
-unique_ticks = daily_season["hour_minute"].unique()
-step = max(1, len(unique_ticks) // 12)
-positions = range(0, len(unique_ticks), step)
-ax.set_xticks(list(positions), labels=unique_ticks[::step], rotation=45)
-ax.set(title="Electricity Demand: Victoria", xlabel="Time", ylabel="MWh")
-plt.tight_layout()
-plt.show()
-```
-
-::: {.notes}
-Cada linha representa um dia; o eixo horizontal representa a posição dentro do dia.
-
-[Sources]
-- https://otexts.com/fpppy/02-graphics.html
-:::
-
-## Figure 2.6: Weekly seasonal pattern
-
-```{python}
-weekly_season = (
-    vic_elec_demand
-    .loc[lambda x: x["ds"].between("2012-01-02", "2014-12-28 23:59")]
-    .assign(
-        day_of_week=lambda x: x["ds"].dt.day_name(),
-        week=lambda x: x["ds"].dt.to_period("W").dt.start_time,
-    )
-)
-fig, ax = plt.subplots()
-for _, group in weekly_season.groupby("week"):
-    group.plot(x="day_of_week", y="y", ax=ax, legend=False, alpha=.25)
-ax.set(title="Electricity Demand: Victoria", xlabel="Time", ylabel="MWh")
-plt.tight_layout()
-plt.show()
-```
-
-::: {.notes}
-O gráfico reorganiza observações pela posição na semana e permite comparar semanas.
-
-[Sources]
-- https://otexts.com/fpppy/02-graphics.html
-:::
-
-## Figure 2.7: Annual seasonal pattern
-
-```{python}
-yearly_season = vic_elec_demand.assign(
-    day_of_year=lambda x: x["ds"].dt.strftime("%m-%d"),
-    year=lambda x: x["ds"].dt.year,
-)
-fig, ax = plt.subplots()
-for year, group in yearly_season.groupby("year"):
-    group.plot(x="day_of_year", y="y", ax=ax, label=str(year), alpha=.7)
-ax.set(title="Electricity Demand: Victoria", xlabel="Time", ylabel="MWh")
-plt.tight_layout()
-plt.show()
-```
-
-::: {.notes}
-A sazonalidade anual é exibida sobrepondo anos. Muitos pontos e linhas exigem interpretação cuidadosa.
-
-[Sources]
-- https://otexts.com/fpppy/02-graphics.html
-:::
-
-# 2.5 Seasonal subseries plots
-
-## Figure 2.8: Monthly subseries
-
-```{python}
-subseries_cost = total_cost_df.assign(
-    year=lambda x: x["Month"].dt.year,
-    month_name=lambda x: x["Month"].dt.month_name(),
-    month_idx=lambda x: x["Month"].dt.month,
-)
-fig, axes = plt.subplots(1, 12, figsize=(12, 3.7), sharey=True)
-for ax, ((_, month_name), group) in zip(
-    axes, subseries_cost.groupby(["month_idx", "month_name"])
-):
-    ax.plot(group["year"], group["Cost"], color="k")
-    ax.axhline(group["Cost"].mean(), color="b", linewidth=1)
-    ax.set(title=month_name[:3], xlabel="")
-    ax.tick_params(axis="x", rotation=90, labelsize=7)
-fig.suptitle("Australian Antidiabetic Drug Sales")
-fig.supxlabel("Year")
-fig.supylabel("$ (millions)")
-plt.tight_layout()
-plt.show()
-```
-
-::: {.notes}
-Cada painel reúne o mesmo mês ao longo dos anos; a linha azul representa a média daquele mês.
-
-[Sources]
-- https://otexts.com/fpppy/02-graphics.html
-:::
-
-## Australian holiday tourism
-
-```{python}
-tourism = pd.read_csv(DATA_PATH / "tourism.csv", parse_dates=["ds"])
-trips = (
-    tourism.loc[lambda x: x["Purpose"] == "Holiday"]
-    .groupby(["State", "ds"], as_index=False)
-    .agg(y=("y", "sum"))
-)
-trips.head()
-```
-
-::: {.notes}
-A agregação ignora Region e soma viagens por State e quarter para Purpose igual a Holiday.
-
-[Sources]
-- https://otexts.com/fpppy/02-graphics.html
-:::
-
-## Figure 2.9: Holiday time plots by state
-
-```{python}
-fig, ax = plt.subplots()
-sns.lineplot(
-    data=trips, x="ds", y="y", hue="State",
-    palette=sns.color_palette("husl", trips["State"].nunique()), ax=ax
-)
-ax.set(title="Australian domestic holidays",
-       ylabel="Overnight trips ('000)", xlabel="Quarter [1Q]")
-ax.legend(loc="center left", bbox_to_anchor=(1.02, .5), frameon=False, title="State")
-plt.tight_layout()
-plt.show()
-```
-
-::: {.notes}
-Os estados apresentam sazonabilidade forte, mas os picos não coincidem necessariamente.
-
-[Sources]
-- https://otexts.com/fpppy/02-graphics.html
-:::
-
-## Figure 2.10: Seasonal plots by state
-
-```{python}
-season_trips = trips.assign(
-    Quarter="Q" + trips["ds"].dt.quarter.astype("string"),
-    Year=trips["ds"].dt.year,
-)
-states = season_trips["State"].unique()
-fig, axes = plt.subplots(len(states), 1, sharex=True, figsize=(9, 12))
-for ax, (state, group) in zip(axes, season_trips.groupby("State")):
-    sns.lineplot(data=group, x="Quarter", y="y", hue="Year",
-                 palette="husl", legend=False, ax=ax)
-    ax.set_ylabel("")
-    ax.text(1.01, .5, state, va="center", transform=ax.transAxes)
-fig.suptitle("Australian domestic holidays")
-fig.supylabel("Overnight trips ('000)")
-plt.tight_layout()
-plt.show()
-```
-
-::: {.notes}
-O gráfico evidencia em qual trimestre cada estado tende a atingir maior atividade turística.
-
-[Sources]
-- https://otexts.com/fpppy/02-graphics.html
-:::
-
-## Figure 2.11: Holiday subseries by state
-
-```{python}
-fig, axes = plt.subplots(len(states), 4, sharex=True, sharey="row", figsize=(11, 13))
-for ax, ((state, quarter), group) in zip(
-    axes.flat, season_trips.groupby(["State", "Quarter"])
-):
-    ax.plot(group["Year"], group["y"], color="k")
-    ax.axhline(group["y"].mean(), color="b", linewidth=1)
-    if ax in axes[0]:
-        ax.set_title(quarter)
-    if ax in axes[:, -1]:
-        ax.text(1.03, .5, state, va="center", transform=ax.transAxes)
-fig.suptitle("Australian domestic holidays")
-fig.supxlabel("Year")
-fig.supylabel("Overnight trips ('000)")
-plt.tight_layout()
-plt.show()
-```
-
-::: {.notes}
-O painel permite detectar mudanças específicas dentro de um trimestre e estado.
-
-[Sources]
-- https://otexts.com/fpppy/02-graphics.html
-:::
-
-# 2.6 Scatterplots
-
-## Electricity demand
-
-```{python}
-# plot_series(
-#     vic_elec_df, ids=["Demand"], max_insample_length=2 * 24 * 365,
-#     xlabel="Time [30m]", ylabel="GW",
-#     title="Half-hourly electricity demand: Victoria"
-# )
-
-fig, ax = plt.subplots(
-    figsize=(10, 5)
-)
-
-plot_series(
-    df=vic_elec_df,
-    ids=["Demand"],
-    plot_random=False,
-    max_insample_length=2 * 24 * 365,
-    engine="matplotlib",
-    id_col="unique_id",
-    time_col="ds",
-    target_col="y",
-    ax=ax,
-)
-
-ax.set(
-    title="Half-hourly electricity demand: Victoria",
-    xlabel="Time [30m]",
-    ylabel="GW",
-)
-
-fig.tight_layout()
-plt.show()
-```
-
-## Temperature
-
-```{python}
-plot_series(
-    vic_elec_df, ids=["Temperature"], max_insample_length=2 * 24 * 365,
-    xlabel="Time [30m]", ylabel="Degrees Celsius",
-    title="Half-hourly temperature: Melbourne, Australia"
-)
-
-fig, ax = plt.subplots(
-    figsize=(10, 5)
-)
-
-plot_series(
-    df=vic_elec_df,
-    ids=["Temperature"],
-    plot_random=False,
-    max_insample_length=2 * 24 * 365,
-    engine="matplotlib",
-    id_col="unique_id",
-    time_col="ds",
-    target_col="y",
-    ax=ax,
-)
-
-ax.set(
-    title="Half-hourly temperature: Melbourne, Australia",
-    xlabel="Time [30m]",
-    ylabel="Degrees Celsius",
-)
-
+sns.boxplot(data=plot_data, x="period", y="volume", hue="period", legend=False, ax=ax)
+ax.set(title="Distribution before and after the documented reference year", xlabel="", ylabel=r"Volume ($10^9$ m³)")
 fig.tight_layout()
 plt.show()
 ```
 
 ::: {.notes}
-Os dois time plots preservam a escala de cada variável antes de examinar a relação entre elas.
-
-[Sources]
-- https://otexts.com/fpppy/02-graphics.html
+Grouping by a known historical reference is useful for description, but package-based change-point methods should estimate break locations without assuming the answer.
 :::
 
-## Figure 2.14: Demand versus temperature
+
+## Stable mean as an intercept-only model
+
+$$
+y_t=\beta_0+u_t.
+$$
 
 ```{python}
-elec_2014 = (
-    vic_elec_df.loc[lambda x: x["ds"].dt.year == 2014]
-    .pivot(index="ds", columns="unique_id", values="y")
-    .reset_index()
+level_model.summary().tables[1]
+```
+
+This model asks whether one mean level describes the entire sample.
+
+::: {.notes}
+Using an intercept-only model translates level stability into parameter stability. More complex regressions can be assessed using the same testing logic.
+:::
+
+## OLS-CUSUM with `statsmodels`
+
+```{python}
+cusum_stat, cusum_pvalue, cusum_critical = breaks_cusumolsresid(
+    level_model.resid,
+    ddof=len(level_model.params),
 )
-fig, ax = plt.subplots()
-sns.scatterplot(data=elec_2014, x="Temperature", y="Demand",
-                linewidth=0, s=10, legend=False, ax=ax)
-ax.set(title="Scatter Plot of Demand vs. Temperature",
-       xlabel="Temperature (degrees Celsius)", ylabel="Electricity demand (GW)")
-plt.tight_layout()
-plt.show()
-```
 
-::: {.notes}
-A relação é não linear: demanda elevada pode ocorrer em temperaturas altas e também em temperaturas baixas.
-
-[Sources]
-- https://otexts.com/fpppy/02-graphics.html
-:::
-
-## Correlation measures linear association
-
-```math
-r = \frac{\sum_t (x_t-\bar{x})(y_t-\bar{y})}
-{\sqrt{\sum_t(x_t-\bar{x})^2}\sqrt{\sum_t(y_t-\bar{y})^2}}
-```
-
-- `r` lies between -1 and 1;
-- sign indicates direction;
-- magnitude describes linear association;
-- nonlinear structure can be strong even when `r` is modest.
-
-::: {.notes}
-Use o scatterplot anterior para mostrar por que um coeficiente único pode ser insuficiente.
-
-[Sources]
-- https://otexts.com/fpppy/02-graphics.html
-:::
-
-## Figure 2.15: Different correlations
-
-```{python}
-correlations = [-0.9, -0.5, 0, 0.5, 0.9]
-fig, axes = plt.subplots(1, 5, figsize=(13, 3), sharex=True, sharey=True)
-rng = np.random.default_rng(42)
-for ax, rho in zip(axes, correlations):
-    values = rng.multivariate_normal([0, 0], [[1, rho], [rho, 1]], size=120)
-    ax.scatter(values[:, 0], values[:, 1], s=10, alpha=.55)
-    ax.set_title(f"r ≈ {np.corrcoef(values.T)[0,1]:.2f}")
-plt.tight_layout()
-plt.show()
-```
-
-::: {.notes}
-Este gráfico recria o conceito da figura com dados simulados e mostra direção e intensidade da associação linear.
-
-[Sources]
-- https://otexts.com/fpppy/02-graphics.html
-:::
-
-## Figure 2.16: Anscombe's quartet
-
-```{python}
-anscombe = sns.load_dataset("anscombe")
-g = sns.FacetGrid(anscombe, col="dataset", col_wrap=2, height=2.8)
-g.map_dataframe(sns.scatterplot, x="x", y="y")
-g.map_dataframe(sns.regplot, x="x", y="y", scatter=False, ci=None, color="C1")
-g.set_titles("Dataset {col_name}")
-g.figure.suptitle("Anscombe's quartet", y=1.03)
-plt.show()
-```
-
-::: {.notes}
-Este bloco usa o dataset embutido do seaborn; se o ambiente não tiver cache e estiver offline, substitua pelos valores clássicos locais. As quatro séries possuem resumos semelhantes e relações visuais distintas.
-
-[Sources]
-- https://otexts.com/fpppy/02-graphics.html
-:::
-
-## Figures 2.17 and 2.18: Tourism relationships
-
-```{python}
-visitors = tourism.groupby(["State", "ds"], as_index=False)["y"].sum()
-visitor_wide = visitors.pivot(index="ds", columns="State", values="y")
-```
-
-```{python}
-fig, axes = plt.subplots(visitor_wide.shape[1], 1, sharex=True, figsize=(9, 12))
-for ax, state in zip(axes, visitor_wide.columns):
-    ax.plot(visitor_wide.index, visitor_wide[state])
-    ax.text(1.01, .5, state, va="center", transform=ax.transAxes)
-fig.suptitle("Australian domestic tourism")
-fig.supxlabel("Quarter")
-fig.supylabel("Overnight trips ('000)")
-plt.tight_layout()
-plt.show()
-```
-
-::: {.notes}
-Small multiples preservam a cronologia de cada estado.
-
-[Sources]
-- https://otexts.com/fpppy/02-graphics.html
-:::
-
-## Figure 2.18: Scatterplot matrix
-
-```{python}
-def corrfunc(x, y, **kws):
-    r, pvalue = pearsonr(x, y)
-    plt.gca().annotate(
-        f"Corr:\n{r:.3f}{'***' if pvalue < .05 else ''}",
-        xy=(.5, .5), xycoords="axes fraction", ha="center", va="center"
-    )
-
-g = sns.PairGrid(visitor_wide.dropna(), height=1.5)
-g.map_lower(sns.scatterplot, s=12)
-g.map_upper(corrfunc)
-g.map_diag(sns.kdeplot, lw=2)
-g.set(xlabel="", ylabel="")
-plt.show()
-```
-
-::: {.notes}
-A diagonal mostra distribuições; a metade inferior mostra relações; a metade superior resume correlação.
-
-[Sources]
-- https://otexts.com/fpppy/02-graphics.html
-:::
-
-# 2.7 Lag plots
-
-## Figure 2.19: Quarterly beer production
-
-```{python}
-beer = (
-    aus_production[["ds", "Beer"]]
-    .loc[lambda x: x["ds"] >= "2000"]
-    .assign(Season=lambda x: "Q" + x["ds"].dt.quarter.astype("string"))
-    .rename(columns={"Beer": "y"})
-)
-lims = (.95 * beer["y"].min(), 1.05 * beer["y"].max())
-colors = dict(zip(beer["Season"].unique(), sns.color_palette("viridis", 4)))
-fig, axes = plt.subplots(3, 3, figsize=(9, 7), sharex=True, sharey=True)
-for i, ax in enumerate(axes.flat, start=1):
-    lagged = beer.assign(lag=beer["y"].shift(i))
-    sns.scatterplot(data=lagged, x="lag", y="y", hue="Season",
-                    palette=colors, ax=ax, legend=(i == 6), s=28)
-    ax.plot(lims, lims, color=".5", ls="--", lw=1)
-    ax.set(title=f"lag {i}", xlabel="", ylabel="", aspect="equal")
-    if i != 6 and ax.get_legend() is not None:
-        ax.get_legend().remove()
-fig.supxlabel("lag(Beer, k)")
-fig.supylabel("Beer")
-plt.tight_layout()
-plt.show()
-```
-
-::: {.notes}
-Relações positivas nos lags 4 e 8 refletem sazonalidade trimestral; lags 2 e 6 relacionam picos a vales.
-
-[Sources]
-- https://otexts.com/fpppy/02-graphics.html
-:::
-
-# 2.8 Autocorrelation
-
-## Definition
-
-```math
-r_k = \frac{\sum_{t=k+1}^{T}(y_t-\bar{y})(y_{t-k}-\bar{y})}
-{\sum_{t=1}^{T}(y_t-\bar{y})^2}
-```
-
-Autocorrelation measures linear association between a series and its lagged values. The collection of coefficients is the ACF.
-
-::: {.notes}
-Cada coeficiente resume um dos painéis do lag plot.
-
-[Sources]
-- https://otexts.com/fpppy/02-graphics.html
-:::
-
-## Beer autocorrelation coefficients
-
-```{python}
-acf_values = sm.tsa.acf(beer["y"], nlags=9, fft=False)
-pd.Series(acf_values, name="ACF").to_frame().rename_axis("lag").iloc[1:]
-```
-
-::: {.notes}
-Compare os sinais e magnitudes com a geometria dos lag plots.
-
-[Sources]
-- https://otexts.com/fpppy/02-graphics.html
-:::
-
-## Figure 2.20: Beer ACF
-
-```{python}
-fig, ax = plt.subplots(figsize=(9, 4))
-plot_acf(beer["y"], lags=16, zero=False, bartlett_confint=False, auto_ylims=True, ax=ax)
-ax.set(title="Autocorrelation Function for Beer", xlabel="lag [1Q]", ylabel="acf")
-plt.tight_layout()
-plt.show()
-```
-
-::: {.notes}
-Lag 4 é grande e positivo por sazonalidade; lag 2 tende a ser negativo porque relaciona trimestres opostos.
-
-[Sources]
-- https://otexts.com/fpppy/02-graphics.html
-:::
-
-## Trend and seasonality in ACF plots
-
-- trend often produces large positive autocorrelations that decay slowly;
-- seasonality produces peaks at seasonal lags;
-- trend plus seasonality combines slow decay with repeated seasonal structure.
-
-::: {.notes}
-A ACF não substitui o time plot; os dois gráficos respondem perguntas complementares.
-
-[Sources]
-- https://otexts.com/fpppy/02-graphics.html
-:::
-
-## Figure 2.21: Antidiabetic sales ACF
-
-```{python}
-fig, ax = plt.subplots(figsize=(9, 4))
-plot_acf(total_cost_df["Cost"], lags=48, zero=False,
-         bartlett_confint=False, auto_ylims=True, ax=ax)
-ax.set(title="Autocorrelation Function for Antidiabetic Drug Sales",
-       xlabel="lag [1M]", ylabel="acf", ylim=(-.3, None))
-plt.tight_layout()
-plt.show()
-```
-
-::: {.notes}
-A redução lenta reflete tendência; a forma periódica reflete sazonalidade mensal.
-
-[Sources]
-- https://otexts.com/fpppy/02-graphics.html
-:::
-
-# 2.9 White noise
-
-## Figure 2.22: White-noise series
-
-```{python}
-# random = np.random.RandomState(30)
-# wn = pd.DataFrame({
-#     "y": random.normal(0, 1, 50),
-#     "ds": np.arange(1, 51),
-#     "unique_id": "wn",
-# })
-# plot_series(wn, target_col="y", xlabel="sample [1]", title="White noise")
-
-random = np.random.RandomState(30)
-
-wn = pd.DataFrame({
-    "y": random.normal(0, 1, 50),
-    "ds": np.arange(1, 51),
-    "unique_id": "wn",
+pd.Series({
+    "CUSUM statistic": cusum_stat,
+    "p-value": cusum_pvalue,
+    "critical values": cusum_critical,
 })
+```
 
-fig, ax = plt.subplots(
-    figsize=(10, 5)
+::: {.notes}
+The calculation uses the statsmodels diagnostic function rather than a handwritten CUSUM test.
+:::
+
+## Hansen stability test
+
+```{python}
+hansen_stat, hansen_critical = breaks_hansen(level_model)
+
+pd.Series({
+    "Hansen statistic": hansen_stat,
+    "critical values": hansen_critical,
+})
+```
+
+::: {.notes}
+This slide uses the statsmodels Hansen stability test on the fitted OLS model. Interpretation should follow the test output and its documented critical values.
+:::
+
+## Recursive OLS diagnostics
+
+```{python}
+recursive_output = recursive_olsresiduals(
+    level_model,
+    skip=3,
+    alpha=0.95,
 )
 
-plot_series(
-    df=wn,
-    id_col="unique_id",
-    time_col="ds",
-    target_col="y",
-    ids=["wn"],
-    plot_random=False,
-    engine="matplotlib",
-    ax=ax,
-)
+recursive_resid = recursive_output[0]
+recursive_cusum = recursive_output[5]
+recursive_ci = recursive_output[6]
+```
 
-ax.set(
-    title="White noise",
-    xlabel="Sample [1]",
-    ylabel="Value",
-)
+The package returns recursive residuals, a cumulative process, and confidence limits.
 
+::: {.notes}
+The analysis uses the statsmodels recursive OLS diagnostic routine. No recursive-residual formula is implemented manually in the presentation.
+:::
+
+## Recursive CUSUM visualization
+
+```{python}
+recursive_years = nile["year"].iloc[-len(recursive_cusum):].to_numpy()
+boundary_years = recursive_years[1:]
+fig, ax = plt.subplots()
+ax.plot(recursive_years, recursive_cusum, color=COLORS["primary"], label="Recursive CUSUM")
+ax.plot(boundary_years, recursive_ci[0], color=COLORS["break"], linestyle="--", label="95% limits")
+ax.plot(boundary_years, recursive_ci[1], color=COLORS["break"], linestyle="--")
+ax.set(title="Recursive OLS stability process", xlabel="Year", ylabel="CUSUM")
+ax.legend(frameon=False)
 fig.tight_layout()
 plt.show()
 ```
 
 ::: {.notes}
-White noise não apresenta autocorrelação sistemática; coeficientes amostrais não serão exatamente zero.
-
-[Sources]
-- https://otexts.com/fpppy/02-graphics.html
+The process and confidence limits are returned by statsmodels. A crossing indicates that the recursive process is inconsistent with stability at the selected confidence level.
 :::
 
-## Figure 2.23: White-noise ACF
+# Data Visualization Guidance
+
+## Show the raw signal and regimes together
+
+A useful chart includes:
+
+- the original signal;
+- estimated change dates;
+- regime shading or fitted segment means;
+- the method and cost model;
+- tuning parameters;
+- units and observation frequency.
+
+::: {.notes}
+Ruptures emphasizes display of signals and estimated change points. The source article also presents the detected regimes visually.
+
+[Sources]
+- https://centre-borelli.github.io/ruptures-docs/
+- https://towardsdatascience.com/understanding-time-series-structural-changes-f6a4c44cb13c/
+:::
+
+## Plot segment means
 
 ```{python}
-fig, ax = plt.subplots(figsize=(9, 4))
-plot_acf(wn["y"], lags=16, zero=False, bartlett_confint=False, auto_ylims=True, ax=ax)
-ax.set(title="Autocorrelation Function for White Noise",
-       xlabel="lag [1]", ylabel="acf")
-plt.tight_layout()
+chosen_breaks = dynp_breaks
+segment_starts = [0] + chosen_breaks[:-1]
+segment_ends = chosen_breaks
+
+fig, ax = plt.subplots()
+ax.plot(nile["year"], nile["volume"], color="0.75", label="Observed")
+for number, (start, end) in enumerate(zip(segment_starts, segment_ends), start=1):
+    subset = nile.iloc[start:end]
+    ax.hlines(subset["volume"].mean(), subset["year"].iloc[0], subset["year"].iloc[-1],
+              color=sns.color_palette("Set1")[number - 1], linewidth=3,
+              label=f"Regime {number} mean")
+for index in chosen_breaks[:-1]:
+    ax.axvline(nile.iloc[index]["year"], color=COLORS["break"], linestyle="--")
+ax.set(title="Observed series and estimated regime means", xlabel="Year", ylabel=r"Volume ($10^9$ m³)")
+ax.legend(frameon=False)
+fig.tight_layout()
 plt.show()
 ```
 
 ::: {.notes}
-Para T igual a 50, a referência aproximada 1.96/sqrt(T) é cerca de 0.28. Os limites são aproximados e pointwise.
-
-[Sources]
-- https://otexts.com/fpppy/02-graphics.html
+This chart uses package-estimated breakpoints and pandas summaries. It does not reimplement the change-point search.
 :::
 
-## Approximate white-noise bounds
+## Always label the detection target
+
+State whether the analysis targets:
+
+- mean shifts;
+- median shifts;
+- variance changes;
+- distributional changes;
+- autoregressive parameter changes;
+- regression coefficient changes.
+
+A line labeled only “structural break” is underspecified.
+
+::: {.notes}
+The supplied article distinguishes level and variance changes, while ruptures exposes different cost models for different segmentation objectives.
+
+[Sources]
+- https://towardsdatascience.com/understanding-time-series-structural-changes-f6a4c44cb13c/
+- https://centre-borelli.github.io/ruptures-docs/
+:::
+
+# Interpretation and Response
+
+## What can be done after a detected change?
+
+Possible responses include:
+
+- retrain models on recent regimes;
+- add intervention or regime indicators;
+- use differencing for level instability;
+- transform variance;
+- fit regime-switching models;
+- monitor for future changes;
+- investigate operational or measurement events.
+
+::: {.notes}
+The supplied article mentions differencing, dummy variables, preprocessing for variance changes, and regime-switching models as possible responses. The appropriate response depends on the change type and business context.
+
+[Sources]
+- https://towardsdatascience.com/understanding-time-series-structural-changes-f6a4c44cb13c/
+:::
+
+## Intervention indicator after a dated change
 
 ```{python}
-T = len(wn)
-bound = 1.96 / np.sqrt(T)
-print(f"Approximate bound: ±{bound:.2f}")
+reference_year = int(method_results["break_year"].mode().iloc[0])
+nile["post_change"] = (nile["year"] >= reference_year).astype(int)
+intervention_model = sm.OLS(
+    nile["volume"],
+    sm.add_constant(nile[["post_change"]]),
+).fit()
+intervention_model.summary().tables[1]
 ```
 
-Most sample autocorrelations should lie near zero, although random exceedances can occur.
-
 ::: {.notes}
-Não conclua previsibilidade com base em um único spike marginal.
-
-[Sources]
-- https://otexts.com/fpppy/02-graphics.html
+This uses statsmodels to estimate a simple level-shift intervention after a package-derived reference date. It describes the shift but does not establish causality.
 :::
 
-# Exercises
+## Differencing changes the question
 
-## Core exercises
-
-1. Plot `Bricks`, `Lynx`, `GOOG_Close`, and Victorian `Demand`.
-2. Identify the dates of peak closing prices in `gafa_stock`.
-3. Plot `Sales`, `AdBudget`, and `GDP` from `tute1.csv`.
-4. Explore annual US natural-gas consumption in New England.
-5. Create seasonal and subseries plots for quarterly arrivals.
-6. Diagnose a selected Australian retail series with time, seasonal, lag, and ACF plots.
+```{python}
+nile["difference"] = nile["volume"].diff()
+fig, axes = plt.subplots(2, 1, sharex=True, figsize=(11, 6))
+axes[0].plot(nile["year"], nile["volume"], color=COLORS["primary"])
+axes[0].set_ylabel("Level")
+axes[1].plot(nile["year"], nile["difference"], color=COLORS["monitor"])
+axes[1].axhline(0, color="0.4", linewidth=1)
+axes[1].set(xlabel="Year", ylabel="First difference")
+fig.suptitle("Levels and first differences")
+fig.tight_layout()
+plt.show()
+```
 
 ::: {.notes}
-Os exercícios são reformulados a partir da seção de exercícios do capítulo. Adapte o escopo aos arquivos disponíveis no diretório local.
+The supplied article notes that differencing can stabilize mean-level changes. Differencing also changes the analytical target from levels to increments.
 
 [Sources]
-- https://otexts.com/fpppy/02-graphics.html
+- https://towardsdatascience.com/understanding-time-series-structural-changes-f6a4c44cb13c/
 :::
 
-# Key takeaways
+# Common Errors
 
-## Visual diagnostic sequence
+## Change-point failure modes
 
-1. validate time, identifiers, and frequency;
-2. begin with a time plot;
-3. identify trend, seasonality, and cycles;
-4. reorganize time with seasonal and subseries plots;
-5. inspect relationships with scatterplots;
-6. inspect serial dependence with lag plots and ACF;
-7. compare residual-looking behavior with white noise;
-8. convert visual findings into forecasting requirements.
+- treating a single outlier as a new regime;
+- applying a mean-shift cost to a variance-change question;
+- choosing a penalty only because the result looks attractive;
+- hiding disagreement between algorithms;
+- forgetting that `ruptures` returns the terminal endpoint;
+- reporting an estimated date as an exact historical fact;
+- using the full sample to tune an online detector;
+- claiming causal effects from segmentation alone;
+- ignoring seasonality or autocorrelation;
+- presenting one package default as a universal answer.
 
 ::: {.notes}
-O gráfico é parte do raciocínio de forecasting, não apenas uma etapa de comunicação.
-
-[Sources]
-- https://otexts.com/fpppy/02-graphics.html
+These cautions combine the distinctions in the source article with the tuning and segmentation structure documented by ruptures.
 :::
 
-## References
+# Practice
 
-- Hyndman, R. J., Athanasopoulos, G., Garza, A., Challu, C., & Mergenthaler, M. *Forecasting: Principles and Practice, the Pythonic Way*, Chapter 2.
-- [Chapter 2: Time series graphics](https://otexts.com/fpppy/02-graphics.html)
-- [utilsforecast plotting documentation](https://nixtlaverse.nixtla.io/utilsforecast/index.html#plotting)
+## Classroom exercise
 
-**Note:** This deck follows the chapter's dataset and figure sequence, while the teaching prose is adapted and rewritten. Code examples from the online edition are published under the license stated by the authors.
+Using the built-in Nile dataset:
+
+1. plot the original series;
+2. apply OLS-CUSUM and Hansen stability tests;
+4. compare three penalty levels;
+7. visualize regime means;
+8. estimate a post-change indicator model;
+9. explain method disagreement;
+10. state what cannot be concluded causally.
 
 ::: {.notes}
-Use a edição online como referência principal e preserve a atribuição.
+The exercise is fully replicable because the series ships through statsmodels and the calculations use documented package methods.
+:::
+
+# Key Takeaways
+
+## Main conclusions
+
+1. Structural changes alter the distribution or model relationship.
+2. Outliers and change points are different concepts.
+3. `statsmodels` provides stability tests and reproducible datasets.
+4. `ruptures` provides multiple offline segmentation algorithms.
+5. The cost model defines what type of change is being detected.
+6. PELT requires an explicit penalty choice.
+7. Other algorithms can condition on a specified number of changes.
+8. Method disagreement is useful diagnostic evidence.
+9. Sensitivity analysis belongs in the visualization.
+10. Detection does not establish causality.
+
+::: {.notes}
+The package ecosystem provides tools for different but complementary structural-change questions.
 
 [Sources]
-- https://otexts.com/fpppy/02-graphics.html
+- https://towardsdatascience.com/understanding-time-series-structural-changes-f6a4c44cb13c/
+- https://centre-borelli.github.io/ruptures-docs/
+- https://www.statsmodels.org/stable/index.html
+:::
+
+
+# References
+
+## Primary resources
+
+- Cerqueira, V. *Understanding Time Series Structural Changes*.
+- Truong, C., Oudre, L., and Vayatis, N. `ruptures` documentation and review paper.
+- Statsmodels documentation and Nile River dataset notes.
+- Zeileis et al. `strucchange` manual and vignettes for parameter-stability concepts.
+
+::: {.notes}
+This revised presentation replaces handwritten change-point algorithms with established package implementations and replaces synthetic case data with the public, built-in Nile dataset.
+
+[Sources]
+- https://towardsdatascience.com/understanding-time-series-structural-changes-f6a4c44cb13c/
+- https://centre-borelli.github.io/ruptures-docs/
+- https://www.statsmodels.org/stable/dev/dataset_notes.html
+- https://www.statsmodels.org/stable/index.html
+- https://cran.r-project.org/web/packages/strucchange/strucchange.pdf
 :::

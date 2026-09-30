@@ -5,6 +5,7 @@ author: "Victor Henriques, Ph.D."
 format:
   revealjs:
     theme: white
+    smaller: true
     slide-number: c/t
     transition: fade
     center: false
@@ -50,16 +51,20 @@ pd.set_option("display.width", 120)
 
 ::: {.notes}
 Apresente o módulo como um fluxo analítico completo. A ordem pedagógica difere da ordem numérica: primeiro compreender, preparar e estruturar; depois analisar e comunicar. Todos os dados são sintéticos. Tempo sugerido: 2 min.
-:::
 
-## The central question
+1. **Chapter 5:** Understand
+2. **Chapter 7:** Prepare
+3. **Chapter 8:** Structure
 
-> How do raw observations become trustworthy visual evidence?
+**Output:** validated, tidy, analysis-ready data.
 
-**Understand → prepare → structure → analyze → communicate**
+4. **Chapter 10:** Analyze
+5. **Chapter 9:** Communicate
 
-::: {.notes}
-Explique que o gráfico é a expressão final de decisões anteriores sobre unidade de observação, tipos, qualidade, relações, granularidade e sumarização. Tempo: 2 min.
+**Output:** validated summaries and defensible graphics.
+
+RAW DATA → INSPECT → CLEAN → COMBINE → RESHAPE → GROUP → SUMMARIZE → VISUALIZE → INTERPRET
+
 :::
 
 ## Learning objectives
@@ -77,48 +82,6 @@ By the end of the module, students will be able to:
 ::: {.notes}
 Relacione cada objetivo a uma entrega observável. Tempo: 2 min.
 :::
-
-<!-- ## The two-class architecture -->
-
-<!-- ::: {.columns} -->
-<!-- ::: {.column width="50%"} -->
-<!-- ### Class 1: Build trustworthy data -->
-
-<!-- 1. **Chapter 5:** Understand -->
-<!-- 2. **Chapter 7:** Prepare -->
-<!-- 3. **Chapter 8:** Structure -->
-
-<!-- **Output:** validated, tidy, analysis-ready data. -->
-<!-- ::: -->
-<!-- ::: {.column width="50%"} -->
-<!-- ### Class 2: Build and communicate evidence -->
-
-<!-- 4. **Chapter 10:** Analyze -->
-<!-- 5. **Chapter 9:** Communicate -->
-
-<!-- **Output:** validated summaries and defensible graphics. -->
-<!-- ::: -->
-<!-- ::: -->
-
-<!-- ::: {.notes} -->
-<!-- Mostre que a primeira aula termina com um dataset confiável, enquanto a segunda termina com uma inferência descritiva e uma visualização. Tempo: 3 min. -->
-<!-- ::: -->
-
-<!-- ## A single workflow, not five disconnected chapters -->
-
-<!-- ```text -->
-<!-- RAW DATA -->
-<!--    ↓ -->
-<!-- INSPECT → CLEAN → COMBINE → RESHAPE → GROUP → SUMMARIZE → VISUALIZE → INTERPRET -->
-<!--    ↑         ↑         ↑          ↑         ↑           ↑             ↑ -->
-<!--  Ch. 5     Ch. 7     Ch. 8      Ch. 8    Ch. 10      Ch. 9        Judgment -->
-<!-- ``` -->
-
-<!-- > **The chart is not the beginning of Data Visualization.** -->
-
-<!-- ::: {.notes} -->
-<!-- Use este slide como mapa recorrente. Retorne a ele nas transições entre seções. Tempo: 2 min. -->
-<!-- ::: -->
 
 ## Synthetic market data
 
@@ -143,7 +106,7 @@ metadata = pd.DataFrame({
     "category": ["Crude oil", "Crude oil", "Natural gas"],
     "price_unit": ["USD/bbl", "USD/bbl", "EUR/MWh"]
 })
-raw.head(3)
+raw.head()
 ```
 
 ::: {.notes}
@@ -173,16 +136,6 @@ plt.show()
 ::: {.notes}
 Destaque labels fragmentados, erros de parsing, duplicatas e unidades incompatíveis. O objetivo é criar necessidade para toda a sequência. Tempo: 3 min.
 :::
-
-<!-- # Class 1 -->
-
-<!-- ## From raw observations to trustworthy data -->
-
-<!-- **Chapter 5 → Chapter 7 → Chapter 8** -->
-
-<!-- ::: {.notes} -->
-<!-- Use como divisor da primeira aula. Tempo: 30 s. -->
-<!-- ::: -->
 
 # Getting started with Pandas
 
@@ -216,7 +169,7 @@ latest.loc[["BRENT", "TTF"]]
 ```
 
 ::: {.notes}
-Mostre valores, índice, nome e dtype. Prefira loc para seleção por significado. Tempo: 3 min.
+The string representation of a Series displayed interactively shows the index on the left and the values on the right. Since we did not specify an index for the data, a default one consisting of the integers 0 through N - 1 (where N is the length of the data) is created.
 :::
 
 ## Label alignment protects meaning
@@ -232,7 +185,8 @@ previous = pd.Series(
 Order differs, but labels align correctly.
 
 ::: {.notes}
-Pergunte o que ocorreria se arrays fossem subtraídos apenas por posição. Tempo: 2 min.
+Often, you'll want to create a Series with an index identifying each data point with a label
+
 :::
 
 ## Missing labels create missing results
@@ -245,6 +199,8 @@ latest - partial
 Alignment is safer than positional matching, but unmatched labels require investigation.
 
 ::: {.notes}
+A useful Series feature for many applications is that it automatically aligns by index label in arithmetic operations. If you have experience with databases, you can think about this as being similar to a join operation.
+
 Explique que NaN pode surgir do desalinhamento, não apenas de ausência original. Tempo: 2 min.
 :::
 
@@ -264,19 +220,43 @@ snapshot
 - columns may contain different data types.
 
 ::: {.notes}
-Compare Series e DataFrame. Mostre que pandas organiza colunas potencialmente heterogêneas. Tempo: 3 min.
+A DataFrame represents a rectangular table of data and contains an ordered, named collection of columns, each of which can be a different value type (numeric, string, Boolean, etc.). The DataFrame has both a row and column index; it can be thought of as a dictionary of Series all sharing the same index.
+
+There are many ways to construct a DataFrame, though one of the most common is from a dictionary of equal-length lists or NumPy arrays:
 :::
 
 ## Inspect before transforming
 
+::: {.columns}
+
+::: {.column width="50%"}
 ```{python}
 raw.head(3)
-raw.tail(2)
-raw.sample(3, random_state=42)
-print("shape:", raw.shape)
-print(raw.dtypes)
+```
+
+```{python}
+raw.shape
+```
+
+```{python}
+raw.dtypes
+```
+
+
+
+:::
+::: {.column width="50%"}
+```{python}
+raw.tail(3)
+```
+
+```{python}
 raw.info()
 ```
+
+:::
+:::
+
 
 ::: {.notes}
 Explique por que head não basta. Sample pode revelar erros que aparecem no meio da tabela. Tempo: 3 min.
@@ -418,7 +398,9 @@ A fill value changes the data-generating assumption. Zero is not a neutral repla
 :::
 
 ::: {.notes}
-Diferencie reindex de sort. O primeiro define uma estrutura-alvo e pode criar ausências. Use fill_value=0 como contraexemplo substantivo. Tempo: 3 min.
+An important method on pandas objects is reindex, which means to create a new object with the values rearranged to align with the new index. Calling reindex on this Series rearranges the data according to the new index, introducing missing values if any index values were not already present
+
+For ordered data like time series, you may want to do some interpolation or filling of values when reindexing. The method option allows us to do this, using a method such as ffill, which forward-fills the values:
 :::
 
 ## Dropping labels does not validate them
@@ -493,7 +475,7 @@ left - right
 Rows and columns both align; only common labels have computable differences.
 
 ::: {.notes}
-Mostre a união estrutural dos eixos e onde surgem NaN. Tempo: 3 min.
+The internal data alignment introduces missing values in the label locations that don’t overlap. Missing values will then propagate in further arithmetic computations.
 :::
 
 ## Arithmetic with fill values
@@ -505,7 +487,9 @@ left.add(right, fill_value=0)
 `fill_value` is applied during alignment, but does not make zero substantively correct.
 
 ::: {.notes}
-Diferencie conveniência computacional de hipótese substantiva. Para posições ausentes em ambos os lados, o resultado continua ausente. Tempo: 2 min.
+In arithmetic operations between differently indexed objects, you might want to fill with a special value, like 0, when an axis label is found in one object but not the other. 
+
+Using the add method on left, I pass right and an argument to fill_value, which substitutes the passed value for any missing values in the operation.
 :::
 
 ## Function application and elementwise mapping
@@ -525,7 +509,7 @@ numeric_frame.map(lambda x: f"{x:.1f}")
 - prefer vectorized methods when available.
 
 ::: {.notes}
-Diferencie transformação por coluna de formatação elemento a elemento. Não use map para substituir operações numéricas vetorizadas. Tempo: 3 min.
+Another frequent operation is applying a function on one-dimensional arrays to each column or row. DataFrame’s apply method.
 :::
 
 ## Sorting data versus ranking values
@@ -538,7 +522,7 @@ print(latest.rank(ascending=False, method="dense"))
 Sorting rearranges observations; ranking assigns an order statistic.
 
 ::: {.notes}
-Conecte sort a gráficos ordenados e rank a variáveis analíticas. Não confundir ranking numérico com avaliação de pessoas. Tempo: 2 min.
+Sorting a dataset by some criterion is another important built-in operation. To sort lexicographically by row or column label, use the sort_index method, which returns a new, sorted object.
 :::
 
 ## Duplicate labels change selection behavior
@@ -573,24 +557,6 @@ Many pandas reductions skip missing values by default. The denominator still nee
 
 ::: {.notes}
 Mostre que um número pode ser produzido apesar de cobertura incompleta. Conecte ao capítulo 10. Tempo: 3 min.
-:::
-
-## Descriptive statistics, correlation, and covariance
-
-```{python}
-analysis_sample = pd.DataFrame({
-    "price": [76.4, 77.0, 78.2, 77.6],
-    "volume": [120, 133, 150, 141]
-})
-print(analysis_sample.describe().round(2))
-print("correlation:", analysis_sample["price"].corr(analysis_sample["volume"]).round(3))
-print("covariance:", analysis_sample["price"].cov(analysis_sample["volume"]).round(3))
-```
-
-Correlation summarizes linear association; it does not establish causation.
-
-::: {.notes}
-Use como ponte para scatter plots. Discuta escala da covariância e natureza adimensional da correlação. Tempo: 4 min.
 :::
 
 ## Unique values, frequencies, and membership
@@ -1908,174 +1874,7 @@ Prefer direct labels when a small number of series can be identified at their en
 Discuta custo cognitivo de mover os olhos entre linhas e legenda. Tempo: 2 min.
 :::
 
-## Export vector and raster formats intentionally
 
-```{python}
-fig, ax = plt.subplots(figsize=(8, 4.5))
-ax.plot(brent_line["date"], brent_line["price"], color="#0072B2")
-ax.set(title="Exportable analytical figure", xlabel="Date", ylabel="Price (USD/bbl)")
-fig.tight_layout()
-fig.savefig("analytical_figure.png", dpi=160, bbox_inches="tight")
-fig.savefig("analytical_figure.svg", bbox_inches="tight")
-plt.close(fig)
-```
-
-PNG is raster-based; SVG is vector-based and scales cleanly for many publication uses.
-
-::: {.notes}
-Explique escolha de formato de saída e reprodução local. Tempo: 2 min.
-:::
-
-<!-- # Integrated Case -->
-
-<!-- ## From analysis-ready data to visual evidence -->
-
-<!-- Question: -->
-
-<!-- > How did average daily movement vary by instrument and week in the synthetic sample? -->
-
-<!-- Requirements: -->
-
-<!-- - compute returns within instrument; -->
-<!-- - aggregate by instrument and week; -->
-<!-- - retain coverage and dispersion; -->
-<!-- - validate group keys and denominators; -->
-<!-- - visualize on a common percentage scale. -->
-
-<!-- ::: {.notes} -->
-<!-- Este caso integra toda a segunda aula. Tempo: 2 min. -->
-<!-- ::: -->
-
-<!-- ## Aggregate with context -->
-
-<!-- ```{python} -->
-<!-- weekly = ( -->
-<!--     chart_ready.groupby(["instrument", "week"], as_index=False) -->
-<!--     .agg( -->
-<!--         mean_return=("return_pct", "mean"), -->
-<!--         return_sd=("return_pct", "std"), -->
-<!--         observed_returns=("return_pct", "count"), -->
-<!--         total_volume=("volume", "sum") -->
-<!--     ) -->
-<!-- ) -->
-<!-- weekly = weekly.dropna(subset=["mean_return"]).reset_index(drop=True) -->
-<!-- weekly.round(2) -->
-<!-- ``` -->
-
-<!-- ::: {.notes} -->
-<!-- A média é acompanhada por cobertura, dispersão e volume. Tempo: 2 min. -->
-<!-- ::: -->
-
-<!-- ## Validate the analytical table -->
-
-<!-- ```{python} -->
-<!-- assert weekly[["instrument", "week"]].duplicated().sum() == 0 -->
-<!-- assert weekly["observed_returns"].ge(0).all() -->
-<!-- assert weekly["observed_returns"].le(7).all() -->
-<!-- assert weekly["mean_return"].notna().all() -->
-<!-- ``` -->
-
-<!-- ::: {.notes} -->
-<!-- As invariantes verificam chave única e coerência com a semana. Tempo: 2 min. -->
-<!-- ::: -->
-
-<!-- ## Communicate the result -->
-
-<!-- ```{python} -->
-<!-- #| fig-width: 10 -->
-<!-- #| fig-height: 5 -->
-<!-- fig, ax = plt.subplots() -->
-<!-- sns.lineplot(data=weekly, x="week", y="mean_return", -->
-<!--              hue="instrument", marker="o", ax=ax) -->
-<!-- ax.axhline(0, color="0.35", linewidth=1) -->
-<!-- ax.set(title="Weekly mean daily return in synthetic data", -->
-<!--        xlabel="Week", ylabel="Mean daily return (%)") -->
-<!-- ax.legend(title="Instrument", frameon=False) -->
-<!-- plt.tight_layout() -->
-<!-- plt.show() -->
-<!-- ``` -->
-
-<!-- ::: {.notes} -->
-<!-- Interprete apenas a amostra sintética. A escala percentual melhora comparabilidade de movimento, não equivalência econômica. Tempo: 3 min. -->
-<!-- ::: -->
-
-# Final Practice
-
-<!-- ## Capstone exercise -->
-
-<!-- Using `raw` and `metadata`: -->
-
-<!-- 1. define the observational unit; -->
-<!-- 2. inspect types and labels; -->
-<!-- 3. diagnose and clean quality problems; -->
-<!-- 4. preserve an audit trail; -->
-<!-- 5. perform a validated merge; -->
-<!-- 6. reshape if required; -->
-<!-- 7. formulate a grouped question; -->
-<!-- 8. aggregate and retain denominators; -->
-<!-- 9. validate at least five assumptions; -->
-<!-- 10. create and interpret one defensible visualization. -->
-
-<!-- ::: {.notes} -->
-<!-- Avalie processo, justificativas e testes, não apenas o resultado visual. Tempo sugerido: atividade integradora da segunda aula. -->
-<!-- ::: -->
-
-<!-- ## Suggested assessment rubric -->
-
-<!-- | Dimension | Evidence | -->
-<!-- |---|---| -->
-<!-- | Structure | observational unit and dtypes are explicit | -->
-<!-- | Quality | problems and treatments are documented | -->
-<!-- | Relationships | keys and cardinality are validated | -->
-<!-- | Analysis | grouping and denominator answer the question | -->
-<!-- | Visualization | encoding, units, and labels are appropriate | -->
-<!-- | Interpretation | claims remain within the evidence | -->
-<!-- | Reproducibility | code executes and assertions pass | -->
-
-<!-- ::: {.notes} -->
-<!-- Use a rubrica para feedback formativo e avaliação do projeto. Tempo: 3 min. -->
-<!-- ::: -->
-
-# Key Takeaways
-
-## The complete checklist
-
-- [ ] What does one row represent?
-- [ ] Are labels and dtypes correct?
-- [ ] Were missingness and duplicates diagnosed?
-- [ ] Are invalid and unusual values distinguished?
-- [ ] Are merge keys and cardinality validated?
-- [ ] Is the data in the required shape?
-- [ ] Does the grouped statistic match the question?
-- [ ] Are denominator and coverage explicit?
-- [ ] Are units visually comparable?
-- [ ] Does the interpretation stay within the evidence?
-
-::: {.notes}
-Use como checklist permanente da disciplina. Tempo: 3 min.
-:::
-
-<!-- ## Five chapters, five questions -->
-
-<!-- 1. **Chapter 5:** What do the observations and labels mean? -->
-<!-- 2. **Chapter 7:** Can the values be trusted and interpreted consistently? -->
-<!-- 3. **Chapter 8:** Are relationships and shapes appropriate? -->
-<!-- 4. **Chapter 10:** Which summary constitutes relevant evidence? -->
-<!-- 5. **Chapter 9:** Which visual encoding communicates that evidence accurately? -->
-
-<!-- ::: {.notes} -->
-<!-- Este é o resumo conceitual mais importante do módulo. Tempo: 2 min. -->
-<!-- ::: -->
-
-<!-- ## Final message -->
-
-<!-- > **A visualization is the final expression of a sequence of data decisions.** -->
-
-<!-- **Understand the observations → improve their quality → organize their relationships → construct evidence → communicate the evidence** -->
-
-<!-- ::: {.notes} -->
-<!-- Peça a cada aluno uma decisão anterior ao gráfico que pode alterar a interpretação final. Tempo: 2 min. -->
-<!-- ::: -->
 
 ## References
 

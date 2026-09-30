@@ -524,7 +524,7 @@ Victor Henriques, Ph.D.
 </section>
 <section id="python-date-and-time-objects" class="slide level2">
 <h2>Python date and time objects</h2>
-<div id="3d003cca" class="cell" data-execution_count="2">
+<div id="73d769ef" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href=""></a><span class="im">from</span> datetime <span class="im">import</span> date, time, datetime, timedelta</span>
 <span id="cb1-2"><a href=""></a></span>
 <span id="cb1-3"><a href=""></a>stamp <span class="op">=</span> datetime(<span class="dv">2026</span>, <span class="dv">1</span>, <span class="dv">15</span>, <span class="dv">14</span>, <span class="dv">30</span>)</span>
@@ -559,7 +559,7 @@ Victor Henriques, Ph.D.
 </section>
 <section id="parse-strings-into-temporal-data" class="slide level2">
 <h2>Parse strings into temporal data</h2>
-<div id="49994a05" class="cell" data-execution_count="3">
+<div id="7f4372df" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href=""></a>raw_dates <span class="op">=</span> pd.Series([</span>
 <span id="cb3-2"><a href=""></a>    <span class="st">"2026-01-15"</span>, <span class="st">"15/02/2026"</span>, <span class="st">"March 20, 2026"</span>, <span class="st">"invalid"</span></span>
 <span id="cb3-3"><a href=""></a>])</span>
@@ -636,7 +636,7 @@ Victor Henriques, Ph.D.
 </section>
 <section id="format-timestamps-for-communication" class="slide level2">
 <h2>Format timestamps for communication</h2>
-<div id="b2a46c90" class="cell" data-execution_count="4">
+<div id="cb6daa38" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href=""></a>stamp <span class="op">=</span> pd.Timestamp(<span class="st">"2026-01-15 14:30"</span>)</span>
 <span id="cb4-2"><a href=""></a><span class="bu">print</span>(stamp.strftime(<span class="st">"%Y-%m-</span><span class="sc">%d</span><span class="st">"</span>))</span>
 <span id="cb4-3"><a href=""></a><span class="bu">print</span>(stamp.strftime(<span class="st">"</span><span class="sc">%d</span><span class="st"> %b %Y, %H:%M"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -663,7 +663,7 @@ Victor Henriques, Ph.D.
 </section>
 <section id="datetimeindex-time-as-an-analytical-axis" class="slide level2">
 <h2><code>DatetimeIndex</code>: time as an analytical axis</h2>
-<div id="e5c729bb" class="cell" data-execution_count="5">
+<div id="f4500d3b" class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href=""></a>idx <span class="op">=</span> pd.date_range(<span class="st">"2026-01-01"</span>, periods<span class="op">=</span><span class="dv">6</span>, freq<span class="op">=</span><span class="st">"D"</span>)</span>
 <span id="cb6-2"><a href=""></a>series <span class="op">=</span> pd.Series([<span class="dv">72</span>, <span class="dv">74</span>, <span class="dv">73</span>, <span class="dv">77</span>, <span class="dv">78</span>, <span class="dv">76</span>], index<span class="op">=</span>idx, name<span class="op">=</span><span class="st">"value"</span>)</span>
 <span id="cb6-3"><a href=""></a><span class="bu">print</span>(<span class="bu">type</span>(series.index).<span class="va">__name__</span>)</span>
@@ -699,7 +699,7 @@ Freq: D, Name: value, dtype: int64</code></pre>
 </section>
 <section id="temporal-slicing" class="slide level2">
 <h2>Temporal slicing</h2>
-<div id="ed1a8d59" class="cell" data-execution_count="6">
+<div id="d1a37a7c" class="cell" data-execution_count="6">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href=""></a>series.loc[<span class="st">"2026-01-02"</span>:<span class="st">"2026-01-05"</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="6">
 <pre><code>2026-01-02    74
@@ -709,7 +709,7 @@ Freq: D, Name: value, dtype: int64</code></pre>
 Freq: D, Name: value, dtype: int64</code></pre>
 </div>
 </div>
-<div id="a3035881" class="cell" data-execution_count="7">
+<div id="59e63ec0" class="cell" data-execution_count="7">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href=""></a>daily <span class="op">=</span> pd.Series(</span>
 <span id="cb11-2"><a href=""></a>    np.arange(<span class="dv">90</span>),</span>
 <span id="cb11-3"><a href=""></a>    index<span class="op">=</span>pd.date_range(<span class="st">"2026-01-01"</span>, periods<span class="op">=</span><span class="dv">90</span>, freq<span class="op">=</span><span class="st">"D"</span>)</span>
@@ -742,7 +742,7 @@ Freq: D, dtype: int64</code></pre>
 </section>
 <section id="duplicate-timestamps-require-a-rule" class="slide level2">
 <h2>Duplicate timestamps require a rule</h2>
-<div id="91bdf18b" class="cell" data-execution_count="8">
+<div id="72becd05" class="cell" data-execution_count="8">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href=""></a>duplicate_time <span class="op">=</span> pd.Series(</span>
 <span id="cb13-2"><a href=""></a>    [<span class="dv">70</span>, <span class="dv">72</span>, <span class="dv">74</span>, <span class="dv">76</span>],</span>
 <span id="cb13-3"><a href=""></a>    index<span class="op">=</span>pd.to_datetime([</span>
@@ -818,7 +818,7 @@ Freq: D, dtype: int64</code></pre>
 </section>
 <section id="generate-regular-date-ranges" class="slide level2">
 <h2>Generate regular date ranges</h2>
-<div id="b6138657" class="cell" data-execution_count="9">
+<div id="2b278acb" class="cell" data-execution_count="9">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href=""></a><span class="bu">print</span>(pd.date_range(<span class="st">"2026-01-01"</span>, periods<span class="op">=</span><span class="dv">5</span>, freq<span class="op">=</span><span class="st">"D"</span>))</span>
 <span id="cb15-2"><a href=""></a><span class="bu">print</span>(pd.date_range(<span class="st">"2026-01-01 00:00"</span>, periods<span class="op">=</span><span class="dv">5</span>, freq<span class="op">=</span><span class="st">"15min"</span>))</span>
 <span id="cb15-3"><a href=""></a><span class="bu">print</span>(pd.date_range(<span class="st">"2026-01-01"</span>, periods<span class="op">=</span><span class="dv">5</span>, freq<span class="op">=</span><span class="st">"B"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -848,7 +848,7 @@ DatetimeIndex(['2026-01-01', '2026-01-02', '2026-01-05', '2026-01-06', '2026-01-
 </section>
 <section id="regularization-can-introduce-missing-values" class="slide level2">
 <h2>Regularization can introduce missing values</h2>
-<div id="06d15072" class="cell" data-execution_count="10">
+<div id="3ad8ebe1" class="cell" data-execution_count="10">
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href=""></a>irregular <span class="op">=</span> pd.Series(</span>
 <span id="cb17-2"><a href=""></a>    [<span class="dv">10</span>, <span class="dv">12</span>, <span class="dv">15</span>],</span>
 <span id="cb17-3"><a href=""></a>    index<span class="op">=</span>pd.to_datetime([<span class="st">"2026-01-01"</span>, <span class="st">"2026-01-03"</span>, <span class="st">"2026-01-06"</span>])</span>
@@ -882,7 +882,7 @@ Freq: D, dtype: float64</code></pre>
 </section>
 <section id="shift-values-versus-shift-timestamps" class="slide level2">
 <h2>Shift values versus shift timestamps</h2>
-<div id="79dc7ebb" class="cell" data-execution_count="11">
+<div id="5fcb43af" class="cell" data-execution_count="11">
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href=""></a>shift_demo <span class="op">=</span> pd.Series(</span>
 <span id="cb19-2"><a href=""></a>    [<span class="dv">100</span>, <span class="dv">102</span>, <span class="dv">101</span>, <span class="dv">105</span>],</span>
 <span id="cb19-3"><a href=""></a>    index<span class="op">=</span>pd.date_range(<span class="st">"2026-01-01"</span>, periods<span class="op">=</span><span class="dv">4</span>, freq<span class="op">=</span><span class="st">"D"</span>)</span>
@@ -923,7 +923,7 @@ Freq: D, dtype: int64</code></pre>
 </section>
 <section id="time-zones-localize-then-convert" class="slide level2">
 <h2>Time zones: localize, then convert</h2>
-<div id="212be3b0" class="cell" data-execution_count="12">
+<div id="90cfbc5d" class="cell" data-execution_count="12">
 <div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href=""></a>naive <span class="op">=</span> pd.date_range(<span class="st">"2026-01-15 09:00"</span>, periods<span class="op">=</span><span class="dv">3</span>, freq<span class="op">=</span><span class="st">"h"</span>)</span>
 <span id="cb21-2"><a href=""></a>dublin <span class="op">=</span> naive.tz_localize(<span class="st">"Europe/Dublin"</span>)</span>
 <span id="cb21-3"><a href=""></a>utc <span class="op">=</span> dublin.tz_convert(<span class="st">"UTC"</span>)</span>
@@ -983,7 +983,7 @@ DatetimeIndex(['2026-01-15 09:00:00+00:00', '2026-01-15 10:00:00+00:00', '2026-0
 </section>
 <section id="periods-represent-spans" class="slide level2">
 <h2>Periods represent spans</h2>
-<div id="a41eac27" class="cell" data-execution_count="13">
+<div id="474b806c" class="cell" data-execution_count="13">
 <div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href=""></a>month <span class="op">=</span> pd.Period(<span class="st">"2026-01"</span>, freq<span class="op">=</span><span class="st">"M"</span>)</span>
 <span id="cb23-2"><a href=""></a>quarter <span class="op">=</span> pd.Period(<span class="st">"2026Q1"</span>, freq<span class="op">=</span><span class="st">"Q-DEC"</span>)</span>
 <span id="cb23-3"><a href=""></a><span class="bu">print</span>(month)</span>
@@ -1013,7 +1013,7 @@ DatetimeIndex(['2026-01-15 09:00:00+00:00', '2026-01-15 10:00:00+00:00', '2026-0
 </section>
 <section id="convert-between-timestamps-and-periods" class="slide level2">
 <h2>Convert between timestamps and periods</h2>
-<div id="6ba9f142" class="cell" data-execution_count="14">
+<div id="dda0f502" class="cell" data-execution_count="14">
 <div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href=""></a>month_ends <span class="op">=</span> pd.date_range(<span class="st">"2026-01-31"</span>, periods<span class="op">=</span><span class="dv">4</span>, freq<span class="op">=</span><span class="st">"ME"</span>)</span>
 <span id="cb25-2"><a href=""></a>periods <span class="op">=</span> month_ends.to_period(<span class="st">"M"</span>)</span>
 <span id="cb25-3"><a href=""></a><span class="bu">print</span>(periods)</span>
@@ -1043,7 +1043,7 @@ DatetimeIndex(['2026-01-31 23:59:59.999999999', '2026-02-28 23:59:59.999999999',
 </section>
 <section id="resampling-changes-frequency" class="slide level2">
 <h2>Resampling changes frequency</h2>
-<div id="b42ac962" class="cell" data-execution_count="15">
+<div id="338bf757" class="cell" data-execution_count="15">
 <div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href=""></a>hourly <span class="op">=</span> pd.Series(</span>
 <span id="cb27-2"><a href=""></a>    np.arange(<span class="dv">24</span>, dtype<span class="op">=</span><span class="bu">float</span>),</span>
 <span id="cb27-3"><a href=""></a>    index<span class="op">=</span>pd.date_range(<span class="st">"2026-01-01"</span>, periods<span class="op">=</span><span class="dv">24</span>, freq<span class="op">=</span><span class="st">"h"</span>)</span>
@@ -1121,7 +1121,7 @@ DatetimeIndex(['2026-01-31 23:59:59.999999999', '2026-02-28 23:59:59.999999999',
 </section>
 <section id="interval-boundaries-matter" class="slide level2">
 <h2>Interval boundaries matter</h2>
-<div id="d2d8a80e" class="cell" data-execution_count="16">
+<div id="7696851f" class="cell" data-execution_count="16">
 <div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href=""></a>boundary <span class="op">=</span> pd.Series(</span>
 <span id="cb28-2"><a href=""></a>    [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>],</span>
 <span id="cb28-3"><a href=""></a>    index<span class="op">=</span>pd.to_datetime([</span>
@@ -1154,7 +1154,7 @@ Freq: 6h, dtype: int64</code></pre>
 </section>
 <section id="moving-windows-summarize-local-history" class="slide level2">
 <h2>Moving windows summarize local history</h2>
-<div id="9d90dc5d" class="cell" data-execution_count="17">
+<div id="34b9f9d2" class="cell" data-execution_count="17">
 <div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href=""></a>observed <span class="op">=</span> pd.Series(</span>
 <span id="cb30-2"><a href=""></a>    [<span class="dv">10</span>, <span class="dv">13</span>, <span class="dv">12</span>, <span class="dv">16</span>, <span class="dv">17</span>, <span class="dv">15</span>, <span class="dv">18</span>],</span>
 <span id="cb30-3"><a href=""></a>    index<span class="op">=</span>pd.date_range(<span class="st">"2026-01-01"</span>, periods<span class="op">=</span><span class="dv">7</span>, freq<span class="op">=</span><span class="st">"D"</span>)</span>
@@ -1346,7 +1346,7 @@ Freq: 6h, dtype: int64</code></pre>
 </section>
 <section id="a-synthetic-electricity-demand-dataset" class="slide level2">
 <h2>A synthetic electricity-demand dataset</h2>
-<div id="6c4fccbc" class="cell" data-execution_count="18">
+<div id="9386734f" class="cell" data-execution_count="18">
 <div class="sourceCode cell-code" id="cb31"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href=""></a>hours <span class="op">=</span> pd.date_range(<span class="st">"2026-01-01"</span>, periods<span class="op">=</span><span class="dv">24</span> <span class="op">*</span> <span class="dv">90</span>, freq<span class="op">=</span><span class="st">"h"</span>)</span>
 <span id="cb31-2"><a href=""></a>t <span class="op">=</span> np.arange(<span class="bu">len</span>(hours))</span>
 <span id="cb31-3"><a href=""></a>hour <span class="op">=</span> hours.hour.to_numpy()</span>
@@ -1447,7 +1447,7 @@ Freq: 6h, dtype: int64</code></pre>
 <li><strong>Calendar variable:</strong> <code>is_weekend</code>.</li>
 <li><strong>Declared frequency:</strong> hourly.</li>
 </ul>
-<div id="092343b5" class="cell" data-execution_count="19">
+<div id="1aeb8562" class="cell" data-execution_count="19">
 <div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href=""></a><span class="bu">print</span>(ts.shape)</span>
 <span id="cb32-2"><a href=""></a><span class="bu">print</span>(ts.dtypes)</span>
 <span id="cb32-3"><a href=""></a><span class="bu">print</span>(<span class="st">"unique timestamps:"</span>, ts[<span class="st">"timestamp"</span>].is_unique)</span>
@@ -1479,7 +1479,7 @@ monotonic time: True</code></pre>
 </section>
 <section id="index-and-columns" class="slide level2">
 <h2>Index and columns</h2>
-<div id="760fd803" class="cell" data-execution_count="20">
+<div id="42db70ad" class="cell" data-execution_count="20">
 <div class="sourceCode cell-code" id="cb34"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href=""></a>ts_indexed <span class="op">=</span> ts.set_index(<span class="st">"timestamp"</span>)</span>
 <span id="cb34-2"><a href=""></a><span class="bu">print</span>(ts_indexed.index)</span>
 <span id="cb34-3"><a href=""></a><span class="bu">print</span>(ts_indexed.columns)</span>
@@ -1568,7 +1568,7 @@ Index(['demand_mw', 'temperature_c', 'is_weekend'], dtype='object')</code></pre>
 </section>
 <section id="timestamp-versus-period" class="slide level2">
 <h2>Timestamp versus Period</h2>
-<div id="ea672076" class="cell" data-execution_count="21">
+<div id="3e50c6bc" class="cell" data-execution_count="21">
 <div class="sourceCode cell-code" id="cb36"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href=""></a><span class="bu">print</span>(pd.Timestamp(<span class="st">"2026-01"</span>))</span>
 <span id="cb36-2"><a href=""></a><span class="bu">print</span>(pd.Period(<span class="st">"2026-01"</span>, freq<span class="op">=</span><span class="st">"M"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -1596,7 +1596,7 @@ Index(['demand_mw', 'temperature_c', 'is_weekend'], dtype='object')</code></pre>
 </section>
 <section id="frequency-is-analytical-metadata" class="slide level2">
 <h2>Frequency is analytical metadata</h2>
-<div id="422d9373" class="cell" data-execution_count="22">
+<div id="b6f47399" class="cell" data-execution_count="22">
 <div class="sourceCode cell-code" id="cb38"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href=""></a><span class="bu">print</span>(<span class="st">"inferred frequency:"</span>, pd.infer_freq(ts_indexed.index))</span>
 <span id="cb38-2"><a href=""></a><span class="bu">print</span>(<span class="st">"expected observations:"</span>, <span class="bu">len</span>(pd.date_range(</span>
 <span id="cb38-3"><a href=""></a>    ts_indexed.index.<span class="bu">min</span>(), ts_indexed.index.<span class="bu">max</span>(), freq<span class="op">=</span><span class="st">"h"</span></span>
@@ -1623,7 +1623,7 @@ expected observations: 2160</code></pre>
 </section>
 <section id="detect-gaps-and-duplicate-timestamps" class="slide level2">
 <h2>Detect gaps and duplicate timestamps</h2>
-<div id="1177501f" class="cell" data-execution_count="23">
+<div id="6770ab10" class="cell" data-execution_count="23">
 <div class="sourceCode cell-code" id="cb40"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href=""></a>broken <span class="op">=</span> pd.concat([ts.iloc[:<span class="dv">100</span>], ts.iloc[<span class="dv">101</span>:<span class="dv">110</span>], ts.iloc[[<span class="dv">105</span>]]], ignore_index<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb40-2"><a href=""></a><span class="bu">print</span>(<span class="st">"duplicate timestamps:"</span>, broken[<span class="st">"timestamp"</span>].duplicated().<span class="bu">sum</span>())</span>
 <span id="cb40-3"><a href=""></a>expected <span class="op">=</span> pd.date_range(broken[<span class="st">"timestamp"</span>].<span class="bu">min</span>(), broken[<span class="st">"timestamp"</span>].<span class="bu">max</span>(), freq<span class="op">=</span><span class="st">"h"</span>)</span>
@@ -1650,7 +1650,7 @@ missing timestamps: [Timestamp('2026-01-05 04:00:00')]</code></pre>
 </section>
 <section id="reindex-to-expose-missing-periods" class="slide level2">
 <h2>Reindex to expose missing periods</h2>
-<div id="db31b120" class="cell" data-execution_count="24">
+<div id="00911d36" class="cell" data-execution_count="24">
 <div class="sourceCode cell-code" id="cb42"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href=""></a>regular <span class="op">=</span> (</span>
 <span id="cb42-2"><a href=""></a>    broken.set_index(<span class="st">"timestamp"</span>)</span>
 <span id="cb42-3"><a href=""></a>    .loc[<span class="kw">lambda</span> d: <span class="op">~</span>d.index.duplicated(keep<span class="op">=</span><span class="st">"first"</span>)]</span>
@@ -1748,7 +1748,7 @@ missing timestamps: [Timestamp('2026-01-05 04:00:00')]</code></pre>
 </section>
 <section id="a-time-series-in-a-dataframe" class="slide level2">
 <h2>A time series in a DataFrame</h2>
-<div id="3d1a8156" class="cell" data-execution_count="25">
+<div id="b526596a" class="cell" data-execution_count="25">
 <div class="sourceCode cell-code" id="cb43"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a href=""></a>df <span class="op">=</span> pd.DataFrame({</span>
 <span id="cb43-2"><a href=""></a>    <span class="st">"Year"</span>: <span class="bu">list</span>(<span class="bu">range</span>(<span class="dv">2015</span>, <span class="dv">2020</span>)),</span>
 <span id="cb43-3"><a href=""></a>    <span class="st">"Observation"</span>: [<span class="dv">123</span>, <span class="dv">39</span>, <span class="dv">78</span>, <span class="dv">52</span>, <span class="dv">110</span>],</span>
@@ -1828,7 +1828,7 @@ missing timestamps: [Timestamp('2026-01-05 04:00:00')]</code></pre>
 </section>
 <section id="index-columns-and-data-types" class="slide level2">
 <h2>Index, columns, and data types</h2>
-<div id="ad9c701b" class="cell" data-execution_count="26">
+<div id="34d2d571" class="cell" data-execution_count="26">
 <div class="sourceCode cell-code" id="cb44"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb44-1"><a href=""></a><span class="bu">print</span>(df.index)</span>
 <span id="cb44-2"><a href=""></a><span class="bu">print</span>(df.columns)</span>
 <span id="cb44-3"><a href=""></a><span class="bu">print</span>(df.dtypes)</span>
@@ -1842,7 +1842,7 @@ dtype: object
 &lt;class 'pandas.core.series.Series'&gt;</code></pre>
 </div>
 </div>
-<div id="70596c08" class="cell" data-execution_count="27">
+<div id="912f549b" class="cell" data-execution_count="27">
 <div class="sourceCode cell-code" id="cb46"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb46-1"><a href=""></a>year_df <span class="op">=</span> df.set_index(<span class="st">"Year"</span>)</span>
 <span id="cb46-2"><a href=""></a>year_df</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="27">
@@ -1916,7 +1916,7 @@ dtype: object
 </section>
 <section id="timestamps-and-periods" class="slide level2">
 <h2>Timestamps and periods</h2>
-<div id="af4f6a72" class="cell" data-execution_count="28">
+<div id="a823a8c5" class="cell" data-execution_count="28">
 <div class="sourceCode cell-code" id="cb47"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb47-1"><a href=""></a><span class="bu">print</span>(<span class="bu">repr</span>(pd.Timestamp(<span class="st">"2020-01"</span>)))</span>
 <span id="cb47-2"><a href=""></a><span class="bu">print</span>(<span class="bu">repr</span>(pd.Period(<span class="st">"2020-01"</span>, freq<span class="op">=</span><span class="st">"M"</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -1945,7 +1945,7 @@ Period('2020-01', 'M')</code></pre>
 </section>
 <section id="timestamp-attributes" class="slide level2">
 <h2>Timestamp attributes</h2>
-<div id="05d1ac5a" class="cell" data-execution_count="29">
+<div id="d4e68522" class="cell" data-execution_count="29">
 <div class="sourceCode cell-code" id="cb49"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb49-1"><a href=""></a>timestamps <span class="op">=</span> pd.date_range(<span class="st">"2020-01-01"</span>, periods<span class="op">=</span><span class="dv">3</span>, freq<span class="op">=</span><span class="st">"D"</span>)</span>
 <span id="cb49-2"><a href=""></a>ts_frame <span class="op">=</span> pd.DataFrame(index<span class="op">=</span>timestamps)</span>
 <span id="cb49-3"><a href=""></a>ts_frame[<span class="st">"date"</span>] <span class="op">=</span> ts_frame.index.date</span>
@@ -2019,7 +2019,7 @@ Period('2020-01', 'M')</code></pre>
 </section>
 <section id="key-variables-identify-separate-series" class="slide level2">
 <h2>Key variables identify separate series</h2>
-<div id="ddeb67dc" class="cell" data-execution_count="30">
+<div id="20693732" class="cell" data-execution_count="30">
 <div class="sourceCode cell-code" id="cb50"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb50-1"><a href=""></a>olympic_running <span class="op">=</span> pd.read_csv(DATA_PATH <span class="op">/</span> <span class="st">"olympic_running_unparsed.csv"</span>)</span>
 <span id="cb50-2"><a href=""></a>olympic_running.head(<span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="30">
@@ -2076,7 +2076,7 @@ Period('2020-01', 'M')</code></pre>
 </div>
 </div>
 </div>
-<div id="cc295540" class="cell" data-execution_count="31">
+<div id="d2d7ff47" class="cell" data-execution_count="31">
 <div class="sourceCode cell-code" id="cb51"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb51-1"><a href=""></a>key_columns <span class="op">=</span> [<span class="st">"Length"</span>, <span class="st">"Sex"</span>]</span>
 <span id="cb51-2"><a href=""></a>olympic_running.groupby(key_columns).size().rename(<span class="st">"observations"</span>).head(<span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="31">
@@ -2105,7 +2105,7 @@ Name: observations, dtype: int64</code></pre>
 </section>
 <section id="wide-and-long-representations" class="slide level2">
 <h2>Wide and long representations</h2>
-<div id="426c66e4" class="cell" data-execution_count="32">
+<div id="0069c7a8" class="cell" data-execution_count="32">
 <div class="sourceCode cell-code" id="cb53"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb53-1"><a href=""></a>wide_demo <span class="op">=</span> olympic_running.pivot_table(</span>
 <span id="cb53-2"><a href=""></a>    index<span class="op">=</span><span class="st">"Year"</span>, columns<span class="op">=</span>[<span class="st">"Length"</span>, <span class="st">"Sex"</span>], values<span class="op">=</span><span class="st">"Time"</span></span>
 <span id="cb53-3"><a href=""></a>)</span>
@@ -2249,7 +2249,7 @@ Name: observations, dtype: int64</code></pre>
 </section>
 <section id="pharmaceutical-benefits-scheme-data" class="slide level2">
 <h2>Pharmaceutical Benefits Scheme data</h2>
-<div id="7642eb50" class="cell" data-execution_count="33">
+<div id="a4032d23" class="cell" data-execution_count="33">
 <div class="sourceCode cell-code" id="cb54"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb54-1"><a href=""></a>pbs <span class="op">=</span> (</span>
 <span id="cb54-2"><a href=""></a>    pd.read_csv(DATA_PATH <span class="op">/</span> <span class="st">"PBS_unparsed.csv"</span>, parse_dates<span class="op">=</span>[<span class="st">"Month"</span>])</span>
 <span id="cb54-3"><a href=""></a>    [[<span class="st">"Month"</span>, <span class="st">"Concession"</span>, <span class="st">"Type"</span>, <span class="st">"ATC1"</span>, <span class="st">"ATC2"</span>, <span class="st">"Scripts"</span>, <span class="st">"Cost"</span>]]</span>
@@ -2358,7 +2358,7 @@ Name: observations, dtype: int64</code></pre>
 </section>
 <section id="filter-and-aggregate-one-monthly-series" class="slide level2">
 <h2>Filter and aggregate one monthly series</h2>
-<div id="e753554f" class="cell" data-execution_count="34">
+<div id="b7460cb1" class="cell" data-execution_count="34">
 <div class="sourceCode cell-code" id="cb55"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb55-1"><a href=""></a>total_cost_df <span class="op">=</span> pd.read_csv(DATA_PATH <span class="op">/</span> <span class="st">"total_cost_df.csv"</span>)</span>
 <span id="cb55-2"><a href=""></a></span>
 <span id="cb55-3"><a href=""></a>a10 <span class="op">=</span> pbs.loc[pbs[<span class="st">"ATC2"</span>] <span class="op">==</span> <span class="st">"A10"</span>]</span>
@@ -2441,7 +2441,7 @@ Name: observations, dtype: int64</code></pre>
 </section>
 <section id="a-quarterly-multi-series-table" class="slide level2">
 <h2>A quarterly multi-series table</h2>
-<div id="83b0e54b" class="cell" data-execution_count="35">
+<div id="b3eb54cf" class="cell" data-execution_count="35">
 <div class="sourceCode cell-code" id="cb56"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb56-1"><a href=""></a>prison <span class="op">=</span> (</span>
 <span id="cb56-2"><a href=""></a>    pd.read_csv(DATA_PATH <span class="op">/</span> <span class="st">"prison_population.csv"</span>, parse_dates<span class="op">=</span>[<span class="st">"Date"</span>])</span>
 <span id="cb56-3"><a href=""></a>    .rename(columns<span class="op">=</span>{<span class="st">"Date"</span>: <span class="st">"Quarter"</span>})</span>
@@ -2528,7 +2528,7 @@ Name: observations, dtype: int64</code></pre>
 </div>
 </div>
 </div>
-<div id="d783416d" class="cell" data-execution_count="36">
+<div id="5932a5ab" class="cell" data-execution_count="36">
 <div class="sourceCode cell-code" id="cb57"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb57-1"><a href=""></a>keys <span class="op">=</span> [<span class="st">"State"</span>, <span class="st">"Gender"</span>, <span class="st">"Legal"</span>, <span class="st">"Indigenous"</span>, <span class="st">"Quarter"</span>]</span>
 <span id="cb57-2"><a href=""></a><span class="cf">assert</span> <span class="kw">not</span> prison.duplicated(keys).<span class="bu">any</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
@@ -2737,7 +2737,7 @@ Name: observations, dtype: int64</code></pre>
 </section>
 <section id="multiple-seasonal-periods" class="slide level2">
 <h2>Multiple seasonal periods</h2>
-<div id="15169418" class="cell" data-execution_count="41">
+<div id="1529fca4" class="cell" data-execution_count="41">
 <div class="sourceCode cell-code" id="cb58"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb58-1"><a href=""></a>vic_elec_df <span class="op">=</span> pd.read_csv(DATA_PATH <span class="op">/</span> <span class="st">"vic_elec.csv"</span>, parse_dates<span class="op">=</span>[<span class="st">"ds"</span>])</span>
 <span id="cb58-2"><a href=""></a>vic_elec_demand <span class="op">=</span> vic_elec_df.loc[vic_elec_df[<span class="st">"unique_id"</span>] <span class="op">==</span> <span class="st">"Demand"</span>].copy()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
@@ -2836,7 +2836,7 @@ Name: observations, dtype: int64</code></pre>
 </section>
 <section id="australian-holiday-tourism" class="slide level2">
 <h2>Australian holiday tourism</h2>
-<div id="4f2c688f" class="cell" data-execution_count="46">
+<div id="d447da3d" class="cell" data-execution_count="46">
 <div class="sourceCode cell-code" id="cb59"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb59-1"><a href=""></a>tourism <span class="op">=</span> pd.read_csv(DATA_PATH <span class="op">/</span> <span class="st">"tourism.csv"</span>, parse_dates<span class="op">=</span>[<span class="st">"ds"</span>])</span>
 <span id="cb59-2"><a href=""></a>trips <span class="op">=</span> (</span>
 <span id="cb59-3"><a href=""></a>    tourism.loc[<span class="kw">lambda</span> x: x[<span class="st">"Purpose"</span>] <span class="op">==</span> <span class="st">"Holiday"</span>]</span>
@@ -3049,7 +3049,7 @@ r = \frac{\sum_t (x_t-\bar{x})(y_t-\bar{y})}
 </section>
 <section id="different-correlations" class="slide level2">
 <h2>Different correlations</h2>
-<div id="17d89f16" class="cell" data-execution_count="53">
+<div id="166ed276" class="cell" data-execution_count="53">
 <div class="sourceCode cell-code" id="cb60"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb60-1"><a href=""></a>correlations <span class="op">=</span> [<span class="op">-</span><span class="fl">0.9</span>, <span class="op">-</span><span class="fl">0.5</span>, <span class="dv">0</span>, <span class="fl">0.5</span>, <span class="fl">0.9</span>]</span>
 <span id="cb60-2"><a href=""></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">5</span>, figsize<span class="op">=</span>(<span class="dv">13</span>, <span class="dv">3</span>), sharex<span class="op">=</span><span class="va">True</span>, sharey<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb60-3"><a href=""></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">42</span>)</span>
@@ -3182,7 +3182,7 @@ r_k = \frac{\sum_{t=k+1}^{T}(y_t-\bar{y})(y_{t-k}-\bar{y})}
 </section>
 <section id="beer-autocorrelation-coefficients" class="slide level2">
 <h2>Beer autocorrelation coefficients</h2>
-<div id="a0eb3c2f" class="cell" data-execution_count="58">
+<div id="d536b756" class="cell" data-execution_count="58">
 <div class="sourceCode cell-code" id="cb61"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb61-1"><a href=""></a>acf_values <span class="op">=</span> sm.tsa.acf(beer[<span class="st">"y"</span>], nlags<span class="op">=</span><span class="dv">9</span>, fft<span class="op">=</span><span class="va">False</span>)</span>
 <span id="cb61-2"><a href=""></a>pd.Series(acf_values, name<span class="op">=</span><span class="st">"ACF"</span>).to_frame().rename_axis(<span class="st">"lag"</span>).iloc[<span class="dv">1</span>:].head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="58">
@@ -3256,7 +3256,7 @@ r_k = \frac{\sum_{t=k+1}^{T}(y_t-\bar{y})(y_{t-k}-\bar{y})}
 </section>
 <section id="beer-acf" class="slide level2">
 <h2>Beer ACF</h2>
-<div id="befe6a5a" class="cell" data-execution_count="59">
+<div id="83414f6a" class="cell" data-execution_count="59">
 <div class="sourceCode cell-code" id="cb62"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb62-1"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>, <span class="dv">4</span>))</span>
 <span id="cb62-2"><a href=""></a>plot_acf(beer[<span class="st">"y"</span>], lags<span class="op">=</span><span class="dv">16</span>, zero<span class="op">=</span><span class="va">False</span>, bartlett_confint<span class="op">=</span><span class="va">False</span>, auto_ylims<span class="op">=</span><span class="va">True</span>, ax<span class="op">=</span>ax)</span>
 <span id="cb62-3"><a href=""></a>ax.<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Autocorrelation Function for Beer"</span>, xlabel<span class="op">=</span><span class="st">"lag [1Q]"</span>, ylabel<span class="op">=</span><span class="st">"acf"</span>)</span>
@@ -3303,7 +3303,7 @@ r_k = \frac{\sum_{t=k+1}^{T}(y_t-\bar{y})(y_{t-k}-\bar{y})}
 </section>
 <section id="antidiabetic-sales-acf" class="slide level2">
 <h2>Antidiabetic sales ACF</h2>
-<div id="f66a921f" class="cell" data-execution_count="60">
+<div id="5493b6fa" class="cell" data-execution_count="60">
 <div class="sourceCode cell-code" id="cb63"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb63-1"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>, <span class="dv">4</span>))</span>
 <span id="cb63-2"><a href=""></a>plot_acf(total_cost_df[<span class="st">"Cost"</span>], lags<span class="op">=</span><span class="dv">48</span>, zero<span class="op">=</span><span class="va">False</span>,</span>
 <span id="cb63-3"><a href=""></a>         bartlett_confint<span class="op">=</span><span class="va">False</span>, auto_ylims<span class="op">=</span><span class="va">True</span>, ax<span class="op">=</span>ax)</span>

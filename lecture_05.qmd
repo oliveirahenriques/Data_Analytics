@@ -36,9 +36,14 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+import statsmodels.api as sm
+import ruptures as rpt
 from scipy import stats
 from statsmodels.tsa.seasonal import STL, seasonal_decompose
 from statsmodels.graphics.tsaplots import plot_acf
+from statsmodels.stats.diagnostic import breaks_cusumolsresid, breaks_hansen
+from statsmodels.stats.diagnostic import recursive_olsresiduals
+
 
 DATA_PATH = Path.home() / "Documents/GitHub/Data_Analytics/data"
 assert DATA_PATH.exists(), f"Data directory not found: {DATA_PATH}"
@@ -66,6 +71,10 @@ COLORS = {
     "outlier": "#CC3311",
     "missing": "#CC79A7",
     "imputed": "#E69F00",
+    "primary": "#0072B2",
+    "break": "#CC3311",
+    "regime": "#D55E00",
+    "monitor": "#009E73",
 }
 
 
@@ -792,49 +801,277 @@ A cleaner-looking ACF is not proof that replacement was correct. It only shows h
 This checklist translates the source warning into visualization practice.
 :::
 
-# Decision Framework
+# Structural Change
 
-## Outlier decision tree
+## Structural change versus outlier
 
-```text
-FLAGGED OBSERVATION
-        ↓
-VERIFY SOURCE AND UNITS
-        ↓
-ERROR? ── YES → REPLACE / CORRECT + AUDIT
-  │
-  NO
-  ↓
-RECURRING OR FORECAST-RELEVANT EVENT?
-  ├─ YES → RETAIN + MODEL EVENT
-  └─ NO  → RETAIN OR ROBUSTLY DOWNWEIGHT,
-           BASED ON FORECAST PURPOSE
-```
+::: {.columns}
+::: {.column width="50%"}
+### Outlier
 
-::: {.notes}
-The source says replacement is more defensible if the value is genuinely erroneous or if the event will not occur during the forecast period.
+An isolated observation that is unusual relative to the prevailing structure.
+:::
+::: {.column width="50%"}
+### Structural change
 
-[Sources]
-- https://otexts.com/fpppy/13-practical.html#sec-missing-outliers
+A persistent change in the underlying distribution or model relationship.
+:::
 :::
 
-## Missing-value decision tree
+> A large observation can be an outlier without creating a new regime.
 
-```text
-MISSING OBSERVATION
-        ↓
-WHAT DOES MISSING MEAN?
-  ├─ TRUE ZERO / CLOSURE → ENCODE ZERO + EVENT VARIABLES
-  ├─ RANDOM RECORDING FAILURE → ESTIMATE IF NEEDED
-  ├─ STRUCTURAL NON-APPLICABILITY → RETAIN AS MISSING
-  └─ UNKNOWN → INVESTIGATE BEFORE IMPUTING
+::: {.notes}
+The supplied article explicitly distinguishes outliers from change points: an outlier differs from normal behavior, while a change point alters the structure to a different distribution.
+
+[Sources]
+- https://towardsdatascience.com/understanding-time-series-structural-changes-f6a4c44cb13c/
+:::
+
+## Types of structural change
+
+- permanent change in mean;
+- transitory change in mean;
+- permanent change in variance;
+- transitory change in variance;
+- volatility clustering;
+- changing regression coefficients;
+- changing autoregressive dynamics.
+
+::: {.notes}
+The supplied article discusses permanent and transitory mean changes, variance changes, and volatility clustering. Regression-parameter instability is the focus of the strucchange framework.
+
+[Sources]
+- https://towardsdatascience.com/understanding-time-series-structural-changes-f6a4c44cb13c/
+- https://cran.r-project.org/web/packages/strucchange/strucchange.pdf
+:::
+
+## Nile River dataset
+
+The dataset records annual Nile River discharge at Aswan:
+
+- years: 1871–1970;
+- observations: 100;
+- measurement units: billions of cubic metres;
+- a widely documented apparent change near 1898.
+
+```{python}
+# Public, built-in dataset from statsmodels.
+nile = sm.datasets.nile.load_pandas().data.copy()
+nile["year"] = nile["year"].astype(int)
+nile["time"] = np.arange(len(nile))
+signal = nile["volume"].to_numpy()
+
+nile.head()
 ```
 
 ::: {.notes}
-The source emphasizes that treatment depends on forecasting context and that automated methods cannot infer contextual effects such as public holidays.
+Statsmodels documents the Nile dataset as annual river volume at Aswan from 1871 to 1970, with 100 observations and an apparent change point near 1898.
 
 [Sources]
-- https://otexts.com/fpppy/13-practical.html#sec-missing-outliers
+- https://www.statsmodels.org/stable/dev/dataset_notes.html
+:::
+
+## Visual inspection
+
+```{python}
+fig, ax = plt.subplots()
+ax.plot(nile["year"], nile["volume"], marker="o", markersize=3, color=COLORS["primary"])
+ax.set(title="Annual Nile River volume at Aswan", xlabel="Year", ylabel=r"Volume ($10^9$ m³)")
+fig.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+The raw chart suggests a change in the average level, but visual inspection alone does not determine the method, number of breaks, or uncertainty.
+:::
+
+## Before-and-after summaries are descriptive
+
+```{python}
+summary_1898 = (
+    nile.assign(period=np.where(nile["year"] < 1898, "Before 1898", "1898 onward"))
+    .groupby("period")["volume"]
+    .agg(["count", "mean", "std", "median"])
+)
+summary_1898
+```
+
+
+## Distribution view by period
+
+```{python}
+plot_data = nile.assign(
+    period=np.where(nile["year"] < 1898, "Before 1898", "1898 onward")
+)
+fig, ax = plt.subplots()
+sns.boxplot(data=plot_data, x="period", y="volume", hue="period", legend=False, ax=ax)
+ax.set(title="Distribution before and after the documented reference year", xlabel="", ylabel=r"Volume ($10^9$ m³)")
+fig.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+Grouping by a known historical reference is useful for description, but package-based change-point methods should estimate break locations without assuming the answer.
+:::
+
+
+## Stable mean as an intercept-only model
+
+$$
+y_t=\beta_0+u_t.
+$$
+
+```{python}
+# Stable intercept-only reference model used for parameter-stability tests.
+X_level = np.ones((len(nile), 1))
+level_model = sm.OLS(nile["volume"], X_level).fit()
+level_model.summary().tables[1]
+```
+
+This model asks whether one mean level describes the entire sample.
+
+::: {.notes}
+Using an intercept-only model translates level stability into parameter stability. More complex regressions can be assessed using the same testing logic.
+:::
+
+## OLS-CUSUM with `statsmodels`
+
+```{python}
+cusum_stat, cusum_pvalue, cusum_critical = breaks_cusumolsresid(
+    level_model.resid,
+    ddof=len(level_model.params),
+)
+
+pd.Series({
+    "CUSUM statistic": cusum_stat,
+    "p-value": cusum_pvalue,
+    "critical values": cusum_critical,
+})
+```
+
+::: {.notes}
+The calculation uses the statsmodels diagnostic function rather than a handwritten CUSUM test.
+:::
+
+::: {.notes}
+The year 1898 is used as a documented reference point from the statsmodels dataset description. This summary is descriptive, not a formal test.
+
+[Sources]
+- https://www.statsmodels.org/stable/dev/dataset_notes.html
+:::
+
+
+## Recursive OLS diagnostics
+
+```{python}
+recursive_output = recursive_olsresiduals(
+    level_model,
+    skip=3,
+    alpha=0.95,
+)
+
+recursive_resid = recursive_output[0]
+recursive_cusum = recursive_output[5]
+recursive_ci = recursive_output[6]
+```
+
+The package returns recursive residuals, a cumulative process, and confidence limits.
+
+::: {.notes}
+The analysis uses the statsmodels recursive OLS diagnostic routine. No recursive-residual formula is implemented manually in the presentation.
+:::
+
+## Recursive CUSUM visualization
+
+```{python}
+recursive_years = nile["year"].iloc[-len(recursive_cusum):].to_numpy()
+boundary_years = recursive_years[1:]
+fig, ax = plt.subplots()
+ax.plot(recursive_years, recursive_cusum, color=COLORS["primary"], label="Recursive CUSUM")
+ax.plot(boundary_years, recursive_ci[0], color=COLORS["break"], linestyle="--", label="95% limits")
+ax.plot(boundary_years, recursive_ci[1], color=COLORS["break"], linestyle="--")
+ax.set(title="Recursive OLS stability process", xlabel="Year", ylabel="CUSUM")
+ax.legend(frameon=False)
+fig.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+The process and confidence limits are returned by statsmodels. A crossing indicates that the recursive process is inconsistent with stability at the selected confidence level.
+:::
+
+## Plot segment means
+
+```{python}
+dynp_breaks = (
+    rpt.Dynp(
+        model="l2",
+        min_size=10,
+        jump=1,
+    )
+    .fit(signal)
+    .predict(n_bkps=1)
+)
+
+chosen_breaks = dynp_breaks
+segment_starts = [0] + chosen_breaks[:-1]
+segment_ends = chosen_breaks
+
+fig, ax = plt.subplots()
+ax.plot(nile["year"], nile["volume"], color="0.75", label="Observed")
+for number, (start, end) in enumerate(zip(segment_starts, segment_ends), start=1):
+    subset = nile.iloc[start:end]
+    ax.hlines(subset["volume"].mean(), subset["year"].iloc[0], subset["year"].iloc[-1],
+              color=sns.color_palette("Set1")[number - 1], linewidth=3,
+              label=f"Regime {number} mean")
+for index in chosen_breaks[:-1]:
+    ax.axvline(nile.iloc[index]["year"], color=COLORS["break"], linestyle="--")
+ax.set(title="Observed series and estimated regime means", xlabel="Year", ylabel=r"Volume ($10^9$ m³)")
+ax.legend(frameon=False)
+fig.tight_layout()
+plt.show()
+```
+
+## What can be done after a detected change?
+
+Possible responses include:
+
+- retrain models on recent regimes;
+- add intervention or regime indicators;
+- use differencing for level instability;
+- transform variance;
+- fit regime-switching models;
+- monitor for future changes;
+- investigate operational or measurement events.
+
+::: {.notes}
+The supplied article mentions differencing, dummy variables, preprocessing for variance changes, and regime-switching models as possible responses. The appropriate response depends on the change type and business context.
+
+[Sources]
+- https://towardsdatascience.com/understanding-time-series-structural-changes-f6a4c44cb13c/
+:::
+
+
+## Differencing changes the question
+
+```{python}
+nile["difference"] = nile["volume"].diff()
+fig, axes = plt.subplots(2, 1, sharex=True, figsize=(11, 6))
+axes[0].plot(nile["year"], nile["volume"], color=COLORS["primary"])
+axes[0].set_ylabel("Level")
+axes[1].plot(nile["year"], nile["difference"], color=COLORS["monitor"])
+axes[1].axhline(0, color="0.4", linewidth=1)
+axes[1].set(xlabel="Year", ylabel="First difference")
+fig.suptitle("Levels and first differences")
+fig.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+The supplied article notes that differencing can stabilize mean-level changes. Differencing also changes the analytical target from levels to increments.
+
+[Sources]
+- https://towardsdatascience.com/understanding-time-series-structural-changes-f6a4c44cb13c/
 :::
 
 # Practice

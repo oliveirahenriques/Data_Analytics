@@ -1,6 +1,6 @@
 ---
 title: "Data Analytics & Visualization"
-subtitle: "Outliers, Seasonality"
+subtitle: "Time Series Exploratory Data Analysis"
 author: "Victor Henriques, Ph.D."
 format:
   revealjs:

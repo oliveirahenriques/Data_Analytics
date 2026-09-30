@@ -149,23 +149,6 @@ By the end of the lecture, students will be able to:
 The expected standard is postgraduate: students should justify the statistic and the graph, not merely calculate them.
 :::
 
-## The EDA workflow
-
-```text
-QUESTION → UNIT OF OBSERVATION → DATA QUALITY → UNIVARIATE STRUCTURE
-        → GROUP COMPARISON → BIVARIATE STRUCTURE → ITERATE
-```
-
-At each step:
-
-```text
-COMPUTE → VISUALIZE → INTERPRET → CHALLENGE
-```
-
-::: {.notes}
-Ask students to state the unit of observation before producing any statistic. For this lecture, one row is one synthetic business-day observation.
-:::
-
 ## A self-contained financial dataset
 
 ```{python}
