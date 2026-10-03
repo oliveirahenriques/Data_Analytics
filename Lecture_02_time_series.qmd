@@ -5,6 +5,7 @@ author: "Victor Henriques, Ph.D."
 format:
   revealjs:
     theme: white
+    scrollable: true
     toc: true
     toc-depth: 1
     slide-number: c/t
@@ -57,8 +58,6 @@ plt.rcParams["figure.figsize"] = (9, 4.8)
 pd.set_option("display.max_columns", 12)
 ```
 
-# Foundations from pandas Time Series
-
 ## Learning objectives
 
 By the end of the lesson, students will be able to:
@@ -68,444 +67,11 @@ By the end of the lesson, students will be able to:
 - distinguish trend, seasonality, cycles, and irregular variation;
 - use seasonal and seasonal-subseries plots;
 - explore relationships with scatterplots and scatterplot matrices;
-- create and interpret lag plots and ACF plots;
-- distinguish structured series from white noise;
-- connect visual evidence to forecasting requirements;
+- create and interpret lag plots;
 - avoid common visual and temporal reasoning errors.
 
 ::: {.notes}
 Os objetivos são observáveis: cada estudante deverá produzir um gráfico, apontar evidências e explicitar uma implicação para previsão. Tempo: 2 min.
-:::
-
-
-## What can a time coordinate represent?
-
-- **Timestamp:** a specific instant.
-- **Fixed period:** a span such as a month or quarter.
-- **Interval:** a start and an end.
-- **Elapsed time:** distance from an origin.
-
-> The representation must match what the observation actually measures.
-
-::: {.notes}
-Use preço de fechamento como exemplo de timestamp e produção mensal como período. Explique que a escolha altera slicing, agregação e labels.
-
-[Sources]
-- https://wesmckinney.com/book/time-series
-:::
-
-## Fixed-frequency and irregular series
-
-::: {.columns}
-::: {.column width="50%"}
-### Fixed frequency
-
-- every 15 seconds;
-- hourly;
-- business daily;
-- monthly.
-:::
-::: {.column width="50%"}
-### Irregular
-
-- trades;
-- incidents;
-- publications;
-- event records.
-:::
-:::
-
-A line can display either, but **lag 1 has a stable duration only under a regular calendar**.
-
-::: {.notes}
-Em série irregular, shift(1) significa registro anterior, não necessariamente uma hora anterior.
-
-[Sources]
-- https://wesmckinney.com/book/time-series
-:::
-
-## Python date and time objects
-
-```{python}
-from datetime import date, time, datetime, timedelta
-
-stamp = datetime(2026, 1, 15, 14, 30)
-delta = timedelta(days=2, hours=3)
-print(stamp)
-print(stamp + delta)
-```
-
-- `date`: calendar date;
-- `time`: time of day;
-- `datetime`: date and time;
-- `timedelta`: elapsed duration.
-
-::: {.notes}
-Timedelta representa diferença, não uma data.
-
-[Sources]
-- https://wesmckinney.com/book/time-series
-:::
-
-## Parse strings into temporal data
-
-```{python}
-raw_dates = pd.Series([
-    "2026-01-15", "15/02/2026", "March 20, 2026", "invalid"
-])
-parsed = pd.to_datetime(
-    raw_dates, format="mixed", dayfirst=True, errors="coerce"
-)
-pd.DataFrame({"raw": raw_dates, "parsed": parsed})
-```
-
-`errors="coerce"` exposes failures as missing timestamps. It does not repair their meaning.
-
-::: {.notes}
-Discuta ambiguidade entre dia e mês. Prefira formato explícito quando a fonte for estável.
-
-[Sources]
-- https://wesmckinney.com/book/time-series
-:::
-
-## Format timestamps for communication
-
-```{python}
-stamp = pd.Timestamp("2026-01-15 14:30")
-print(stamp.strftime("%Y-%m-%d"))
-print(stamp.strftime("%d %b %Y, %H:%M"))
-```
-
-Formatting changes display, not the underlying temporal value.
-
-::: {.notes}
-Diferencie armazenamento e apresentação. Labels dependentes de locale podem variar entre ambientes.
-
-[Sources]
-- https://wesmckinney.com/book/time-series
-:::
-
-## `DatetimeIndex`: time as an analytical axis
-
-```{python}
-idx = pd.date_range("2026-01-01", periods=6, freq="D")
-series = pd.Series([72, 74, 73, 77, 78, 76], index=idx, name="value")
-print(type(series.index).__name__)
-series
-```
-
-A timestamp-indexed Series supports temporal slicing, frequency logic, shifting, and resampling.
-
-::: {.notes}
-O DatetimeIndex é a estrutura central do pandas para séries indexadas por instantes.
-
-[Sources]
-- https://wesmckinney.com/book/time-series
-:::
-
-## Temporal slicing
-
-```{python}
-series.loc["2026-01-02":"2026-01-05"]
-```
-
-```{python}
-daily = pd.Series(
-    np.arange(90),
-    index=pd.date_range("2026-01-01", periods=90, freq="D")
-)
-daily.loc["2026-02"].head()
-```
-
-Partial strings can select meaningful calendar ranges.
-
-::: {.notes}
-Reforce a necessidade de índice temporal ordenado.
-
-[Sources]
-- https://wesmckinney.com/book/time-series
-:::
-
-## Duplicate timestamps require a rule
-
-```{python}
-duplicate_time = pd.Series(
-    [70, 72, 74, 76],
-    index=pd.to_datetime([
-        "2026-01-01", "2026-01-02", "2026-01-02", "2026-01-03"
-    ])
-)
-print("unique index:", duplicate_time.index.is_unique)
-duplicate_time.groupby(level=0).agg(["mean", "count"])
-```
-
-Aggregation resolves duplicates only when the rule is analytically justified.
-
-::: {.notes}
-Em preços, mean pode não ser a regra correta. Last, VWAP ou preservação por fonte podem ser alternativas.
-
-[Sources]
-- https://wesmckinney.com/book/time-series
-:::
-
-## Generate regular date ranges
-
-```{python}
-print(pd.date_range("2026-01-01", periods=5, freq="D"))
-print(pd.date_range("2026-01-01 00:00", periods=5, freq="15min"))
-print(pd.date_range("2026-01-01", periods=5, freq="B"))
-```
-
-Frequency aliases encode calendar rules, not merely display labels.
-
-::: {.notes}
-D difer de B. Frequências de negócio não incorporam automaticamente todo calendário local de mercado.
-
-[Sources]
-- https://wesmckinney.com/book/time-series
-:::
-
-## Regularization can introduce missing values
-
-```{python}
-irregular = pd.Series(
-    [10, 12, 15],
-    index=pd.to_datetime(["2026-01-01", "2026-01-03", "2026-01-06"])
-)
-irregular.asfreq("D")
-```
-
-`asfreq` establishes a target calendar. It does not aggregate or justify filling gaps.
-
-::: {.notes}
-Compare asfreq com resample. O primeiro expressa frequência; o segundo cria grupos temporais.
-
-[Sources]
-- https://wesmckinney.com/book/time-series
-:::
-
-## Shift values versus shift timestamps
-
-```{python}
-shift_demo = pd.Series(
-    [100, 102, 101, 105],
-    index=pd.date_range("2026-01-01", periods=4, freq="D")
-)
-print(shift_demo.shift(1))
-print(shift_demo.shift(1, freq="D"))
-```
-
-- `shift(1)`: moves values relative to the existing index.
-- `shift(1, freq="D")`: moves the timestamps by a calendar offset.
-
-::: {.notes}
-Essa distinção é central para retornos, lags e alinhamento.
-
-[Sources]
-- https://wesmckinney.com/book/time-series
-:::
-
-## Time zones: localize, then convert
-
-```{python}
-naive = pd.date_range("2026-01-15 09:00", periods=3, freq="h")
-dublin = naive.tz_localize("Europe/Dublin")
-utc = dublin.tz_convert("UTC")
-print(dublin)
-print(utc)
-```
-
-- `tz_localize`: attaches a zone to naive timestamps.
-- `tz_convert`: represents the same instants in another zone.
-
-::: {.notes}
-Não confunda vincular um timezone com converter instantes já timezone-aware.
-
-[Sources]
-- https://wesmckinney.com/book/time-series
-:::
-
-## UTC and local calendar features
-
-UTC supports consistent storage and cross-region alignment. Local time remains important for:
-
-- hour-of-day behavior;
-- market sessions;
-- business operations;
-- daylight-saving transitions;
-- calendar seasonality.
-
-> Derive seasonal coordinates in the calendar relevant to the phenomenon.
-
-::: {.notes}
-A recomendação é separar alinhamento temporal de interpretação sazonal.
-
-[Sources]
-- https://wesmckinney.com/book/time-series
-:::
-
-## Periods represent spans
-
-```{python}
-month = pd.Period("2026-01", freq="M")
-quarter = pd.Period("2026Q1", freq="Q-DEC")
-print(month)
-print(month + 2)
-print(quarter)
-```
-
-Period arithmetic moves across spans according to the declared frequency.
-
-::: {.notes}
-Somar dois a uma Period mensal significa avançar dois meses, não segundos.
-
-[Sources]
-- https://wesmckinney.com/book/time-series
-:::
-
-## Convert between timestamps and periods
-
-```{python}
-month_ends = pd.date_range("2026-01-31", periods=4, freq="ME")
-periods = month_ends.to_period("M")
-print(periods)
-print(periods.to_timestamp(how="end"))
-```
-
-Converting a period to a timestamp requires a boundary convention.
-
-::: {.notes}
-Start ou end afeta labels, joins e comparação temporal.
-
-[Sources]
-- https://wesmckinney.com/book/time-series
-:::
-
-## Resampling changes frequency
-
-```{python}
-hourly = pd.Series(
-    np.arange(24, dtype=float),
-    index=pd.date_range("2026-01-01", periods=24, freq="h")
-)
-hourly.resample("6h").agg(["mean", "max"])
-```
-
-- **Downsampling:** higher to lower frequency, usually with aggregation.
-- **Upsampling:** lower to higher frequency, usually creating gaps before a filling rule.
-
-::: {.notes}
-Mean e max respondem perguntas diferentes. A função de agregação pertence à definição do gráfico.
-
-[Sources]
-- https://wesmckinney.com/book/time-series
-:::
-
-## Interval boundaries matter
-
-```{python}
-boundary = pd.Series(
-    [1, 2, 3, 4],
-    index=pd.to_datetime([
-        "2026-01-01 00:00", "2026-01-01 05:59",
-        "2026-01-01 06:00", "2026-01-01 11:59"
-    ])
-)
-boundary.resample("6h", closed="left", label="left").sum()
-```
-
-`closed` controls interval membership; `label` controls interval naming.
-
-::: {.notes}
-Limites temporais são parte da estatística, não apenas detalhe de sintaxe.
-
-[Sources]
-- https://wesmckinney.com/book/time-series
-:::
-
-## Moving windows summarize local history
-
-```{python}
-observed = pd.Series(
-    [10, 13, 12, 16, 17, 15, 18],
-    index=pd.date_range("2026-01-01", periods=7, freq="D")
-)
-windows = pd.DataFrame({
-    "observed": observed,
-    "rolling_mean_3": observed.rolling(3, min_periods=2).mean(),
-    "expanding_mean": observed.expanding(min_periods=2).mean(),
-    "ewm_mean": observed.ewm(span=3, adjust=False).mean()
-})
-windows.head()
-```
-
-::: {.notes}
-Rolling usa memória fixa; expanding acumula desde o começo; EWM reduz pesos gradualmente.
-
-[Sources]
-- https://wesmckinney.com/book/time-series
-:::
-
-<!-- ## Smoothers encode different memory -->
-
-<!-- ```{python} -->
-<!-- #| fig-width: 10 -->
-<!-- #| fig-height: 4.7 -->
-<!-- fig, ax = plt.subplots() -->
-<!-- ax.plot(windows.index, windows["observed"], marker="o", label="Observed") -->
-<!-- ax.plot(windows.index, windows["rolling_mean_3"], linewidth=2, label="Rolling mean, 3") -->
-<!-- ax.plot(windows.index, windows["ewm_mean"], linewidth=2, label="EWM, span 3") -->
-<!-- ax.set(title="Different smoothers encode different memory", -->
-<!--        xlabel="Date", ylabel="Synthetic value") -->
-<!-- ax.legend(frameon=False) -->
-<!-- plt.tight_layout() -->
-<!-- plt.show() -->
-<!-- ``` -->
-
-<!-- ::: {.notes} -->
-<!-- Não apresente linha suavizada como dado observado. Janela e span alteram ruído e atraso. -->
-
-<!-- [Sources] -->
-<!-- - https://wesmckinney.com/book/time-series -->
-<!-- ::: -->
-
-<!-- ## Foundation checkpoint -->
-
-<!-- Match the task to the concept: -->
-
-<!-- 1. attach `Europe/Dublin` to naive local timestamps; -->
-<!-- 2. represent the whole month of January; -->
-<!-- 3. calculate daily maxima from hourly data; -->
-<!-- 4. compare each observation with its predecessor; -->
-<!-- 5. expose missing dates on a daily calendar; -->
-<!-- 6. compute a three-observation local average. -->
-
-<!-- ::: {.notes} -->
-<!-- Respostas: tz_localize, Period, resample max, shift, asfreq/reindex, rolling. -->
-
-<!-- [Sources] -->
-<!-- - https://wesmckinney.com/book/time-series -->
-<!-- ::: -->
-
-## Bridge to time series graphics
-
-The pandas toolkit establishes:
-
-- what time means;
-- whether the calendar is regular;
-- how observations align;
-- how frequency changes;
-- which values belong to each interval;
-- how local summaries are constructed.
-
-Only then can time plots, seasonal plots, lag plots, and ACF plots be interpreted reliably.
-
-::: {.notes}
-Use como transição para o conteúdo principal de gráficos de séries temporais.
-
-[Sources]
-- https://wesmckinney.com/book/time-series
-- https://otexts.com/fpppy/02-graphics.html
 :::
 
 ## Why plotting comes first
@@ -533,155 +99,6 @@ Enfatize que elementos vistos nos gráficos devem ser considerados na escolha ou
 :::
 
 # Data and Time Structure
-
-## A synthetic electricity-demand dataset
-
-```{python}
-hours = pd.date_range("2026-01-01", periods=24 * 90, freq="h")
-t = np.arange(len(hours))
-hour = hours.hour.to_numpy()
-dow = hours.dayofweek.to_numpy() 
-day = np.arange(len(hours)) / 24
-
-temperature = 17 + 7 * np.sin(2 * np.pi * (hour - 14) / 24) + 3 * np.sin(2 * np.pi * day / 45)
-weekend = dow >= 5
-daily_cycle = 9 * np.sin(2 * np.pi * (hour - 7) / 24) + 4 * np.sin(4 * np.pi * (hour - 7) / 24)
-weekly_effect = np.where(weekend, -8, 0)
-trend = 0.025 * day
-noise = rng.normal(0, 2.2, len(hours))
-demand = 72 + trend + daily_cycle + weekly_effect + 0.35 * (temperature - 17) ** 2 + noise
-
-ts = pd.DataFrame({
-    "timestamp": hours,
-    "demand_mw": demand,
-    "temperature_c": temperature,
-    "is_weekend": weekend
-})
-ts.loc[450, "demand_mw"] += 28
-ts.head(3 )
-```
-
-::: {.notes}
-Explique os componentes apenas após os alunos observarem os gráficos. Há tendência leve, padrões diário e semanal, relação não linear com temperatura, ruído e uma observação incomum intencional. Tempo: 3 min.
-:::
-
-## Observational unit and temporal key
-
-- **Observation:** one hourly market measurement.
-- **Time key:** `timestamp`.
-- **Target:** `demand_mw`.
-- **Covariate:** `temperature_c`.
-- **Calendar variable:** `is_weekend`.
-- **Declared frequency:** hourly.
-
-```{python}
-print(ts.shape)
-print(ts.dtypes)
-print("unique timestamps:", ts["timestamp"].is_unique)
-print("monotonic time:", ts["timestamp"].is_monotonic_increasing)
-```
-
-::: {.notes}
-A unidade temporal deve ser explícita. Frequência, duplicação e ordenação influenciam todos os gráficos e lags. Tempo: 3 min.
-:::
-
-## Index and columns
-
-```{python}
-ts_indexed = ts.set_index("timestamp")
-print(ts_indexed.index)
-print(ts_indexed.columns)
-ts_indexed.head(3)
-```
-
-A time index makes ordering, slicing, resampling, and lag construction explicit.
-
-::: {.notes}
-Diferencie índice estrutural de uma coluna comum. O índice não substitui a necessidade de verificar frequência e unicidade. Tempo: 2 min.
-:::
-
-## Timestamp versus Period
-
-```{python}
-print(pd.Timestamp("2026-01"))
-print(pd.Period("2026-01", freq="M"))
-```
-
-- `Timestamp`: an instant in time.
-- `Period`: a span associated with a frequency.
-
-::: {.notes}
-Um mês pode representar o primeiro instante do mês ou o intervalo mensal completo. Essa distinção importa para labels, agregações e interpretação. Tempo: 3 min.
-:::
-
-## Frequency is analytical metadata
-
-```{python}
-print("inferred frequency:", pd.infer_freq(ts_indexed.index))
-print("expected observations:", len(pd.date_range(
-    ts_indexed.index.min(), ts_indexed.index.max(), freq="h"
-)))
-```
-
-A regular frequency defines what “lag 1,” “season,” and “consecutive” mean.
-
-::: {.notes}
-Lag 1 em dados horários significa uma hora apenas se o calendário estiver regular. Tempo: 3 min.
-:::
-
-## Detect gaps and duplicate timestamps
-
-```{python}
-broken = pd.concat([ts.iloc[:100], ts.iloc[101:110], ts.iloc[[105]]], ignore_index=True)
-print("duplicate timestamps:", broken["timestamp"].duplicated().sum())
-expected = pd.date_range(broken["timestamp"].min(), broken["timestamp"].max(), freq="h")
-missing_timestamps = expected.difference(pd.DatetimeIndex(broken["timestamp"]))
-print("missing timestamps:", missing_timestamps.tolist())
-```
-
-::: {.notes}
-Uma linha unida através de um intervalo ausente pode sugerir continuidade falsa. Verifique o calendário antes de plotar. Tempo: 3 min.
-:::
-
-## Reindex to expose missing periods
-
-```{python}
-regular = (
-    broken.set_index("timestamp")
-    .loc[lambda d: ~d.index.duplicated(keep="first")]
-    .reindex(expected)
-)
-regular.loc[regular["demand_mw"].isna()].head()
-```
-
-Reindexing makes missing periods explicit; it does not justify interpolation.
-
-::: {.notes}
-Diferencie criar a linha ausente no calendário de preencher o valor de demanda. Tempo: 2 min.
-:::
-
-# Time Series Graphics
-
-## Why start with graphs?
-
-Graphs help reveal:
-
-- patterns and changes through time;
-- unusual observations;
-- seasonal behavior;
-- relationships between variables;
-- temporal dependence.
-
-Visual features should inform the forecasting method considered later.
-
-::: {.notes}
-Este material acompanha a sequência e os exemplos gráficos do Capítulo 2, com redação própria. Os exemplos utilizam os arquivos CSV locais informados pelo usuário.
-
-[Sources]
-- https://otexts.com/fpppy/02-graphics.html
-:::
-
-# DataFrame objects
 
 ## A time series in a DataFrame
 
@@ -785,7 +202,7 @@ No conjunto olímpico, Length e Sex distinguem as séries. Year é a variável t
 wide_demo = olympic_running.pivot_table(
     index="Year", columns=["Length", "Sex"], values="Time"
 )
-wide_demo.head(3)
+wide_demo.head()
 ```
 
 Long form is convenient for grouped operations and semantic mappings; wide form is useful for matrices and some comparisons.
@@ -797,7 +214,7 @@ Conecte formato dos dados às bibliotecas de visualização.
 - https://otexts.com/fpppy/02-graphics.html
 :::
 
-## Pharmaceutical Benefits Scheme data
+## Working with time series dataframes
 
 ```{python}
 pbs = (
@@ -835,39 +252,16 @@ A agregação transforma várias categorias em uma série mensal de custo total.
 - https://otexts.com/fpppy/02-graphics.html
 :::
 
-## A quarterly multi-series table
-
-```{python}
-prison = (
-    pd.read_csv(DATA_PATH / "prison_population.csv", parse_dates=["Date"])
-    .rename(columns={"Date": "Quarter"})
-    .sort_values(["State", "Gender", "Legal", "Indigenous", "Quarter"])
-)
-prison.head()
-```
-
-```{python}
-keys = ["State", "Gender", "Legal", "Indigenous", "Quarter"]
-assert not prison.duplicated(keys).any()
-```
-
-::: {.notes}
-Cada combinação de State, Gender, Legal e Indigenous identifica uma série; Quarter identifica a observação no tempo.
-
-[Sources]
-- https://otexts.com/fpppy/02-graphics.html
-:::
-
 ## Seasonal period
 
-| Observation interval | Frequent seasonal period |
-|---|---:|
-| Quarter | 4 |
-| Month | 12 |
-| Week | about 52 |
-| Day | 7 and about 365.25 |
-| Hour | 24, 168, and about 8766 |
-| Minute | 60, 1440, and 10080 |
+| Interval | Hour | Day | Week | Year
+|---|---:|--- |--- |---|
+| Quarter |||| 4 |
+| Month |||| 12 |
+| Week |||| 52 |
+| Day ||| 7 | 365.25 |
+| Hour || 24|168|8766 |
+| Minute |60|1440|10080 |525960|
 
 A series may contain more than one seasonal pattern.
 
@@ -879,6 +273,24 @@ O período sazonal é o número de observações até a repetição do padrão. 
 :::
 
 # Time plots
+
+## Time-plot reading protocol
+
+Look for:
+
+1. level and long-run direction;
+2. fixed-period repetition;
+3. changes in variability;
+4. unusual observations and gaps;
+5. structural breaks or interventions;
+6. whether the visible patterns are stable.
+
+::: {.notes}
+Descrição visual vem antes de explicação causal.
+
+[Sources]
+- https://otexts.com/fpppy/02-graphics.html
+:::
 
 ## Ansett Airlines
 
@@ -927,28 +339,15 @@ plt.show()
 
 
 ::: {.notes}
-O time plot preserva a cronologia. Discuta períodos sem passageiros, mudanças de nível, quedas sazonais e flutuação de longo prazo observáveis no gráfico.
+For time series data, the obvious graph to start with is a time plot. That is, the observations are plotted against the time of observation, with consecutive observations joined by straight lines. Figure 2.1 shows the weekly economy passenger load on Ansett airlines between Australia’s two largest cities (Melbourne and Sydney).
+This plot reveals some interesting features.
 
-[Sources]
-- https://otexts.com/fpppy/02-graphics.html
-:::
+There was a period in 1989 when no passengers were carried — this was due to an industrial dispute.
+There was a period of reduced load in 1992. This was due to a trial in which some economy class seats were replaced by business class seats.
+A large increase in passenger load occurred in the second half of 1991.
+There are some large dips in load around the start of each year. These are due to holiday effects.
+There is a long-term fluctuation in the level of the series which increases during 1987, decreases in 1989, and increases again through 1990 and 1991.
 
-## Time-plot reading protocol
-
-Look for:
-
-1. level and long-run direction;
-2. fixed-period repetition;
-3. changes in variability;
-4. unusual observations and gaps;
-5. structural breaks or interventions;
-6. whether the visible patterns are stable.
-
-::: {.notes}
-Descrição visual vem antes de explicação causal.
-
-[Sources]
-- https://otexts.com/fpppy/02-graphics.html
 :::
 
 ## Antidiabetic drug sales
@@ -992,10 +391,7 @@ plt.show()
 ```
 
 ::: {.notes}
-Identifique tendência crescente, sazonalidade forte e amplitude sazonal que aumenta com o nível.
-
-[Sources]
-- https://otexts.com/fpppy/02-graphics.html
+Here, there is a clear and increasing trend. There is also a strong seasonal pattern that increases in size as the level of the series increases. The sudden drop at the start of each year is caused by a government subsidisation scheme that makes it cost-effective for patients to stockpile drugs at the end of the calendar year. Any forecasts of this series would need to capture the seasonal pattern, and the fact that the trend is changing slowly.
 :::
 
 # Time series patterns
@@ -1006,13 +402,19 @@ Identifique tendência crescente, sazonalidade forte e amplitude sazonal que aum
 - **Seasonal:** repetition with a fixed, known, calendar-related period.
 - **Cyclic:** rises and falls without a fixed frequency.
 
-A forecasting method should be able to represent the patterns visible in the data.
 
 ::: {.notes}
-O principal contraste é fixed known period versus duração variável.
+Trend
 
-[Sources]
-- https://otexts.com/fpppy/02-graphics.html
+A trend exists when there is a long-term increase or decrease in the data. It does not have to be linear. Sometimes we will refer to a trend as “changing direction”, when it might go from an increasing trend to a decreasing trend. There is a trend in the antidiabetic drug sales data shown in Figure 2.2.
+
+Seasonal
+
+A seasonal pattern occurs when a time series is affected by seasonal factors such as the time of the year, the day of the week or the hour of the day. Seasonality is always of a fixed and known period. The monthly sales of antidiabetic drugs (Figure 2.2) shows seasonality which is induced partly by the change in the cost of the drugs at the end of the calendar year. (Note that one series can have more than one seasonal pattern.)
+
+Cyclic
+
+A cycle occurs when the data exhibit rises and falls that are not of a fixed frequency. These fluctuations are usually due to economic conditions, and are often related to the “business cycle”. The duration of these fluctuations is usually at least 2 years.
 :::
 
 ## Four contrasting patterns
@@ -1059,10 +461,13 @@ plt.show()
 ```
 
 ::: {.notes}
-O capítulo contrasta sazonalidade e ciclo em housing, tendência no treasury, tendência com sazonalidade em electricity e mudanças aparentemente irregulares no preço do Google. Os dois primeiros painéis dependem dos arquivos locais correspondentes.
+1. The monthly housing sales (top left) show strong seasonality within each year, as well as some strong cyclic behaviour with a period of about 6–10 years. There is no apparent trend in the data over this period.
 
-[Sources]
-- https://otexts.com/fpppy/02-graphics.html
+2. The US treasury bill contracts (top right) show results from the Chicago market for 100 consecutive trading days in 1981. Here there is no seasonality, but an obvious downward trend. Possibly, if we had a much longer series, we would see that this downward trend is actually part of a long cycle, but when viewed over only 100 days it appears to be a trend.
+
+3. The Australian quarterly electricity production (bottom left) shows a strong increasing trend, with strong seasonality. There is no evidence of any cyclic behaviour here.
+
+4. The daily change in the Google closing stock price (bottom right) has no trend, seasonality or cyclic behaviour. 
 :::
 
 # Seasonal plots
@@ -1098,8 +503,9 @@ plt.show()
 ::: {.notes}
 Ao sobrepor anos, o padrão dentro do calendário fica mais evidente e anos incomuns podem ser identificados.
 
-[Sources]
-- https://otexts.com/fpppy/02-graphics.html
+A seasonal plot shows the underlying seasonal pattern more clearly and helps identify years when the pattern changes.
+
+There is a large jump in sales in January each year. These are probably sales in late December as customers stockpile before the end of the calendar year, but the sales are not registered with the government until a week or two later. The graph also shows an unusually small number of sales in March 2008 (most other years show an increase between February and March). The small number of sales in June 2008 is probably due to incomplete counting of sales when the data were collected.
 :::
 
 ## Multiple seasonal periods
@@ -1107,6 +513,7 @@ Ao sobrepor anos, o padrão dentro do calendário fica mais evidente e anos inco
 ```{python}
 vic_elec_df = pd.read_csv(DATA_PATH / "vic_elec.csv", parse_dates=["ds"])
 vic_elec_demand = vic_elec_df.loc[vic_elec_df["unique_id"] == "Demand"].copy()
+vic_elec_demand.tail()
 ```
 
 Half-hourly demand can show daily, weekly, and annual patterns.
@@ -1169,9 +576,6 @@ plt.show()
 
 ::: {.notes}
 O gráfico reorganiza observações pela posição na semana e permite comparar semanas.
-
-[Sources]
-- https://otexts.com/fpppy/02-graphics.html
 :::
 
 ## Annual seasonal pattern
@@ -1192,9 +596,6 @@ plt.show()
 
 ::: {.notes}
 A sazonalidade anual é exibida sobrepondo anos. Muitos pontos e linhas exigem interpretação cuidadosa.
-
-[Sources]
-- https://otexts.com/fpppy/02-graphics.html
 :::
 
 # Seasonal subseries plots
@@ -1226,8 +627,7 @@ plt.show()
 ::: {.notes}
 Cada painel reúne o mesmo mês ao longo dos anos; a linha azul representa a média daquele mês.
 
-[Sources]
-- https://otexts.com/fpppy/02-graphics.html
+The blue horizontal lines indicate the means for each month. This form of plot enables the underlying seasonal pattern to be seen clearly, and also shows the changes in seasonality over time. It is especially useful in identifying changes within particular seasons. In this example, the plot is not particularly revealing; but in some cases, this is the most useful way of viewing seasonal changes over time.
 :::
 
 ## Australian holiday tourism
@@ -1245,8 +645,7 @@ trips.head()
 ::: {.notes}
 A agregação ignora Region e soma viagens por State e quarter para Purpose igual a Holiday.
 
-[Sources]
-- https://otexts.com/fpppy/02-graphics.html
+Australian quarterly vacation data provides an interesting example of how these plots can reveal information. First we need to extract the relevant data from the tourism dataframe. All the usual pandas wrangling functions apply. To get the total visitor nights spent on Holiday by State for each quarter (i.e., ignoring Regions) we can use the following code.
 :::
 
 ## Holiday time plots by state
@@ -1269,8 +668,7 @@ plt.show()
 ::: {.notes}
 Os estados apresentam sazonabilidade forte, mas os picos não coincidem necessariamente.
 
-[Sources]
-- https://otexts.com/fpppy/02-graphics.html
+To see the timing of the seasonal peaks in each state, we can use a season plot. Figure 2.10 makes it clear that the southern states of Australia (Tasmania, Victoria and South Australia) have the strongest tourism in Q1 (their summer), while the northern states (Queensland and the Northern Territory) have the strongest tourism in Q3 (their dry season).
 :::
 
 ## Seasonal plots by state
@@ -1298,8 +696,6 @@ plt.show()
 ::: {.notes}
 O gráfico evidencia em qual trimestre cada estado tende a atingir maior atividade turística.
 
-[Sources]
-- https://otexts.com/fpppy/02-graphics.html
 :::
 
 ## Holiday subseries by state
@@ -1327,8 +723,7 @@ plt.show()
 ::: {.notes}
 O painel permite detectar mudanças específicas dentro de um trimestre e estado.
 
-[Sources]
-- https://otexts.com/fpppy/02-graphics.html
+The corresponding subseries plots are shown in Figure 2.11. This figure makes it evident that Western Australian tourism has jumped markedly in recent years, while Victorian tourism has increased in Q1 and Q4 but not in the middle of the year.
 :::
 
 # Scatterplots
@@ -1370,6 +765,10 @@ ax.grid(alpha=0.3)
 fig.tight_layout()
 plt.show()
 ```
+
+::: {.notes}
+half-hourly electricity demand (in Gigawatts)
+:::
 
 ## Temperature
 
@@ -1413,10 +812,7 @@ plt.show()
 ```
 
 ::: {.notes}
-Os dois time plots preservam a escala de cada variável antes de examinar a relação entre elas.
-
-[Sources]
-- https://otexts.com/fpppy/02-graphics.html
+temperature (in degrees Celsius), for 2014 in Victoria, Australia.
 :::
 
 ## Demand versus temperature
@@ -1439,10 +835,7 @@ plt.show()
 ```
 
 ::: {.notes}
-A relação é não linear: demanda elevada pode ocorrer em temperaturas altas e também em temperaturas baixas.
-
-[Sources]
-- https://otexts.com/fpppy/02-graphics.html
+This scatterplot helps us to visualise the relationship between the variables. It is clear that high demand occurs when temperatures are high due to the effect of air-conditioning. But there is also a heating effect, where demand increases for low temperatures.
 :::
 
 ## Correlation measures linear association
@@ -1480,27 +873,6 @@ plt.show()
 
 ::: {.notes}
 Este gráfico recria o conceito da figura com dados simulados e mostra direção e intensidade da associação linear.
-
-[Sources]
-- https://otexts.com/fpppy/02-graphics.html
-:::
-
-## Anscombe's quartet
-
-```{python}
-#| echo: false
-#| fig-align: center
-anscombe = sns.load_dataset("anscombe")
-g = sns.FacetGrid(anscombe, col="dataset", col_wrap=2, height=2.8)
-g.map_dataframe(sns.scatterplot, x="x", y="y")
-g.map_dataframe(sns.regplot, x="x", y="y", scatter=False, ci=None, color="C1")
-g.set_titles("Dataset {col_name}")
-g.figure.suptitle("Anscombe's quartet", y=1.03)
-plt.show()
-```
-
-::: {.notes}
-Este bloco usa o dataset embutido do seaborn; se o ambiente não tiver cache e estiver offline, substitua pelos valores clássicos locais. As quatro séries possuem resumos semelhantes e relações visuais distintas.
 
 [Sources]
 - https://otexts.com/fpppy/02-graphics.html
@@ -1554,8 +926,7 @@ plt.show()
 ::: {.notes}
 A diagonal mostra distribuições; a metade inferior mostra relações; a metade superior resume correlação.
 
-[Sources]
-- https://otexts.com/fpppy/02-graphics.html
+The value of the scatterplot matrix is that it enables a quick view of the relationships between all pairs of variables. In this example, mostly positive relationships are revealed, with the strongest relationships being between the neighbouring states located in the south and south-east coast of Australia, namely, New South Wales, Victoria and South Australia. Some negative relationships are also revealed between the Northern Territory and other regions. The Northern Territory is located in the north of Australia, famous for its outback desert landscapes visited mostly in winter. Hence, the peak visitation in the Northern Territory is in the July (winter) quarter in contrast to January (summer) quarter for the rest of the regions.
 :::
 
 # Lag plots
@@ -1566,26 +937,32 @@ A diagonal mostra distribuições; a metade inferior mostra relações; a metade
 #| echo: false
 #| fig-align: center
 beer = (
-    aus_production[["ds", "Beer"]]
+    pd.read_csv("data/aus_production.csv", parse_dates=["ds"])
+    [["ds", "Beer"]]
     .loc[lambda x: x["ds"] >= "2000"]
     .assign(Season=lambda x: "Q" + x["ds"].dt.quarter.astype("string"))
     .rename(columns={"Beer": "y"})
 )
-lims = (.95 * beer["y"].min(), 1.05 * beer["y"].max())
-colors = dict(zip(beer["Season"].unique(), sns.color_palette("viridis", 4)))
-fig, axes = plt.subplots(3, 3, figsize=(9, 7), sharex=True, sharey=True)
-for i, ax in enumerate(axes.flat, start=1):
-    lagged = beer.assign(lag=beer["y"].shift(i))
-    sns.scatterplot(data=lagged, x="lag", y="y", hue="Season",
-                    palette=colors, ax=ax, legend=(i == 6), s=28)
-    ax.plot(lims, lims, color=".5", ls="--", lw=1)
-    ax.set(title=f"lag {i}", xlabel="", ylabel="", aspect="equal")
-    if i != 6 and ax.get_legend() is not None:
-        ax.get_legend().remove()
+lims = .95 * beer["y"].min(), 1.05 * beer["y"].max()
+cmap = plt.get_cmap("viridis")
+colors = {
+    season: cmap(i / 3)
+    for i, season in enumerate(beer["Season"].unique())
+}
+fig, axes = plt.subplots(3, 3, figsize=(8, 6), sharex=True, sharey=True)
+for i, ax in enumerate(axes.flat):
+    lag = i + 1
+    df = beer.assign(lag=beer["y"].shift(lag))
+    sns.scatterplot(data=df, x="lag", y="y", hue="Season",
+        palette=colors, ax=ax)
+    ax.plot(lims, lims, color=".5", ls="--", lw=1, zorder=-1)
+    ax.set(title=f"lag {lag}", xlabel="", ylabel="", aspect="equal")
+    ax.get_legend().remove()
+axes[1, -1].legend(loc="center left", title="Season",
+    bbox_to_anchor=(1.05, 0.5), frameon=False, borderaxespad=0)
 fig.supxlabel("lag(Beer, k)")
 fig.supylabel("Beer")
-plt.tight_layout()
-plt.show()
+fig.show()
 ```
 
 ::: {.notes}
@@ -1606,36 +983,30 @@ $$
 
 Autocorrelation measures linear association between a series and its lagged values. The collection of coefficients is the ACF.
 
-::: {.notes}
-Cada coeficiente resume um dos painéis do lag plot.
-
-[Sources]
-- https://otexts.com/fpppy/02-graphics.html
-:::
-
-## Beer autocorrelation coefficients
-
+::: {.columns}
+::: {.column width="50%"}
+### Beer autocorrelation coefficients
 ```{python}
+#| echo: false
+#| fig-align: center
 acf_values = sm.tsa.acf(beer["y"], nlags=9, fft=False)
 pd.Series(acf_values, name="ACF").to_frame().rename_axis("lag").iloc[1:].head()
 ```
-
-::: {.notes}
-Compare os sinais e magnitudes com a geometria dos lag plots.
-
-[Sources]
-- https://otexts.com/fpppy/02-graphics.html
 :::
-
-## Beer ACF
-
+::: {.column width="50%"}
+### Beer autocorrelation function
 ```{python}
+#| echo: false
+#| fig-align: center
 fig, ax = plt.subplots(figsize=(9, 4))
 plot_acf(beer["y"], lags=16, zero=False, bartlett_confint=False, auto_ylims=True, ax=ax)
 ax.set(title="Autocorrelation Function for Beer", xlabel="lag [1Q]", ylabel="acf")
 plt.tight_layout()
 plt.show()
 ```
+
+:::
+:::
 
 ::: {.notes}
 Lag 4 é grande e positivo por sazonalidade; lag 2 tende a ser negativo porque relaciona trimestres opostos.
@@ -1644,22 +1015,17 @@ Lag 4 é grande e positivo por sazonalidade; lag 2 tende a ser negativo porque r
 - https://otexts.com/fpppy/02-graphics.html
 :::
 
+
+
 ## Trend and seasonality in ACF plots
 
 - trend often produces large positive autocorrelations that decay slowly;
 - seasonality produces peaks at seasonal lags;
 - trend plus seasonality combines slow decay with repeated seasonal structure.
 
-::: {.notes}
-A ACF não substitui o time plot; os dois gráficos respondem perguntas complementares.
-
-[Sources]
-- https://otexts.com/fpppy/02-graphics.html
-:::
-
-## Antidiabetic sales ACF
 
 ```{python}
+#| echo: false
 #| fig-align: center
 fig, ax = plt.subplots(figsize=(9, 4))
 plot_acf(total_cost_df["Cost"], lags=48, zero=False,
@@ -1782,19 +1148,70 @@ O gráfico é parte do raciocínio de forecasting, não apenas uma etapa de comu
 
 ## Core exercises
 
-1. Plot `Bricks`, `Lynx`, `GOOG_Close`, and Victorian `Demand`.
-2. Identify the dates of peak closing prices in `gafa_stock`.
-3. Plot `Sales`, `AdBudget`, and `GDP` from `tute1.csv`.
-4. Explore annual US natural-gas consumption in New England.
-5. Create seasonal and subseries plots for quarterly arrivals.
-6. Diagnose a selected Australian retail series with time, seasonal, lag, and ACF plots.
+1. Explore the following four time series: `Bricks` from `aus_production`, `Lynx` from `pelt`, `GOOG_Close` from `gafa_stock`, `Demand` from `vic_elec`.
 
-::: {.notes}
-Os exercícios são reformulados a partir da seção de exercícios do capítulo. Adapte o escopo aos arquivos disponíveis no diretório local.
+- Use `.info()` to find out about the data in each series.
+- What is the time interval of each series?
+- Produce a time plot of each series.
 
-[Sources]
-- https://otexts.com/fpppy/02-graphics.html
-:::
+
+2. Use `.loc[]` or `query()` to find what days corresponded to the peak closing price for each of the four stocks in `gafa_stock`.
+
+3. Download the file `tute1.csv`, open it in Excel (or some other spreadsheet application), and review its contents. You should find four columns of information. Columns B through D each contain a quarterly series, labelled Sales, AdBudget and GDP. Sales contains the quarterly sales for a small company over the period 1981–2005. AdBudget is the advertising budget and GDP is the gross domestic product. All series have been adjusted for inflation.
+
+- You can read the data into Python with the following script:
+
+```python
+tute1 = pd.read_csv("tute1.csv", parse_dates=["ds"])
+tute1.head()
+```
+- Construct time series plots of each of the three series
+
+3.  The us_total.csv contains data on the demand for natural gas in the US.
+
+ - Download us_total.csv from the book website read in the csv file using pd.read_csv().
+
+ - Create a dataframe from us_total with year as the index.
+ 
+ - Plot the annual natural gas consumption by state for the New England area (comprising the states of Maine, Vermont, New Hampshire, Massachusetts, Connecticut and Rhode Island).
+
+4. Download tourism.xlsx and read in it using pd.read_excel().
+
+- Create a dataframe using tourism.xlsx.
+
+- Find what combination of Region and Purpose had the maximum number of overnight trips on average.
+
+- Create a new dataframe which combines the Purposes and Regions, and just has total trips by State.
+
+6. The aus_arrivals data set comprises quarterly international arrivals to Australia from Japan, New Zealand, UK and the US.
+
+- Use plot_series() to visualise the data.
+
+- Use seaborn or matplotlib to create seasonal and subseries plots to compare the differences between the arrivals from these four countries and identify any unusual observations.
+
+7. Monthly Australian retail data is provided in aus_retail. Select one of the time series as follows (but choose your own seed value):
+
+```python
+random = np.random.RandomState(12345678)
+random_series_id = random.choice(aus_retail["Series ID"].unique())
+myseries = aus_retail.loc[aus_retail["Series ID"] == random_series_id]
+```
+
+- Explore your chosen retail time series using the following functions:
+
+```python
+plot_series(), seasonal_decompose(), lag_plot(), plot_acf()
+```
+- Can you spot any seasonality, cyclicity and trend? What do you learn about the series?
+
+8. Use the following graphics functions: `plot_series()`, `seasonal_decompose()`, `lag_plot()`, `plot_acf()` and explore features from the following time series: “Total Private” `Employed` from `us_employment`, `Bricks` from `aus_production`, `Hare` from `pelt`, “H02” `Cost` from `PBS`, and `Barrels` from `us_gasoline`.
+
+- Can you spot any seasonality, cyclicity and trend?
+- What do you learn about the series?
+- What can you say about the seasonal patterns?
+- Can you identify any unusual years?
+
+9. The aus_livestock data contains the monthly total number of pigs slaughtered in Victoria, Australia, from Jul 1972 to Dec 2018. Use `.loc[]` to extract pig slaughters in Victoria between 1990 and 1995. Use `plot_series()` and `plot_acf()` for this data. If a longer period of data is used, what difference does it make to the ACF?
 
 
 ## References

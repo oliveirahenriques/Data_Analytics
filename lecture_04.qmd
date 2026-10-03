@@ -1,11 +1,11 @@
 ---
 title: "Data Analytics & Visualization"
-subtitle: "Time Series Exploratory Data Analysis"
+subtitle: "Exploratory Data Analysis in time series: patterns, decomposition, and anomalies"
 author: "Victor Henriques, Ph.D."
 format:
   revealjs:
     theme: white
-    smaller: true
+    # smaller: true
     toc: true
     toc-depth: 1
     slide-number: c/t
@@ -19,7 +19,8 @@ format:
     transition: fade
     chalkboard: true
     preview-links: auto
-    footer: "Data Visualization"
+    footer: "Data Analytics & Visualization"
+    logo: logo.svg
 execute:
   echo: true
   warning: false
@@ -115,6 +116,158 @@ def plot_series_matplotlib(df, *, x="ds", y="y", title="", xlabel="Time",
 
 # Introduction
 
+
+## Learning objectives
+
+By the end of the lecture, students will be able to:
+
+- distinguish transformations from decomposition;
+- explain additive and multiplicative structures;
+- calculate and visualize moving averages;
+- construct classical additive and multiplicative decompositions;
+- explain seasonal adjustment;
+- identify limitations of classical decomposition;
+- apply and tune STL;
+- diagnose leakage, outliers, and unstable seasonality;
+- communicate components without misleading scales.
+
+::: {.notes}
+The emphasis is visual reasoning supported by mathematically precise definitions and executable Python.
+:::
+
+
+# Transformations and Adjustments
+
+## Why adjust before decomposing?
+
+Adjustments can remove known or interpretable sources of variation:
+
+- calendar composition;
+- population growth;
+- inflation;
+- changing variance with the level.
+
+The goal is a simpler, more stable structure.
+
+::: {.notes}
+An adjustment is justified by measurement and domain knowledge. It is not merely a cosmetic operation.
+
+[Sources]
+- https://otexts.com/fpppy/03-decomposition.html
+:::
+
+## Inflation adjustment
+
+Let $y_t$ be a nominal value and $z_t$ a price index. In base-period prices:
+
+$$
+x_t = \frac{y_t}{z_t}z_{\text{base}}.
+$$
+
+```{python}
+#| echo: false
+#| fig-align: center
+aus_retail = pd.read_csv("data/aus_retail.csv", parse_dates=["Month"])
+print_retail = (
+    aus_retail
+    .loc[lambda x: x["Industry"] == "Newspaper and book retailing"]
+    .assign(ds=lambda x: x["Month"].dt.year)
+    .groupby("ds", as_index=False)
+    ["Turnover"].sum()
+)
+global_economy = pd.read_csv("data/global_economy.csv")
+aus_economy = global_economy.loc[lambda x: x["unique_id"] == "Australia"]
+df = (
+    aus_economy
+    .merge(print_retail, on="ds", how="left")
+    .assign(adjusted_turnover=lambda x: x["Turnover"] / x["CPI"] * 100)
+    .dropna()
+)
+fig, axes = plt.subplots(2, 1, sharex=True)
+sns.lineplot(data=df, x='ds', y='Turnover', ax=axes[0],
+    color='black', label="Turnover")
+sns.lineplot(data=df, x='ds', y='adjusted_turnover', ax=axes[1],
+    color='black', label="Adjusted_turnover")
+axes[0].set(ylabel="")
+axes[1].set(ylabel="", xlabel='Year')
+fig.suptitle("Turnover: Australian print media industry")
+fig.supylabel("$AU")
+plt.show()
+```
+
+
+::: {.notes}
+The adjusted series measures values in constant purchasing-power units. The price index, base period, and currency must be reported.
+
+[Sources]
+- https://otexts.com/fpppy/03-decomposition.html
+:::
+
+## Mathematical transformation
+
+When variation grows with the level, a log transformation may stabilize relative variation:
+
+$$
+w_t = \log(y_t), \qquad y_t>0.
+$$
+
+```{python}
+#| echo: false
+#| fig-align: center
+aus_production = pd.read_csv(DATA_PATH / "aus_production.csv", parse_dates=["ds"])
+gas = aus_production[["ds", "Gas"]].dropna().copy()
+fig, axes = plt.subplots(1, 2, figsize=(11, 4.5))
+axes[0].plot(gas["ds"], gas["Gas"], color="#0072B2")
+axes[0].set(title="Australian gas production", xlabel="Quarter", ylabel="Gas")
+axes[1].plot(gas["ds"], np.log(gas["Gas"]), color="#009E73")
+axes[1].set(title="Log-transformed gas production", xlabel="Quarter", ylabel="log(Gas)")
+plt.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+Compare whether seasonal amplitude appears more stable after transformation. Do not interpret log units as original gas units.
+:::
+
+## Box-Cox transformations
+
+The family of Box-Cox transformations includes both logarithms and power transformations
+
+$$
+w_t=
+\begin{cases}
+\log(y_t), & \lambda=0,\\[4pt]
+\dfrac{\operatorname{sign}(y_t)|y_t|^\lambda-1}{\lambda},
+& \lambda\ne0.
+\end{cases}
+$$
+
+```{python}
+#| echo: false
+#| fig-align: center
+lambdas = [1.0, 0.5, 0.0, -0.5]
+positive_gas = gas.loc[gas["Gas"] > 0].copy()
+fig, axes = plt.subplots(2, 2, figsize=(11, 7), sharex=True)
+for ax, lam in zip(axes.flat, lambdas):
+    transformed = np.log(positive_gas["Gas"]) if lam == 0 else stats.boxcox(positive_gas["Gas"], lmbda=lam)
+    ax.plot(positive_gas["ds"], transformed, color="#0072B2", linewidth=1)
+    ax.set_title(f"λ = {lam:g}")
+fig.suptitle("Box-Cox transformations of Australian gas production")
+plt.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+At lambda equal to one, the transformed series is shifted by one without changing shape. Other lambda values change the shape and scale.
+
+This code uses SciPy's standard positive-data Box-Cox implementation. The selection goal is a transformation that makes seasonal variation and variance more stable.
+
+[Sources]
+- https://otexts.com/fpppy/03-decomposition.html
+:::
+
+# Time Series Components
+
 ## Why decompose a time series?
 
 A time series can combine several visual structures:
@@ -151,342 +304,23 @@ The remainder is not automatically white noise. It is what remains after the sel
 - https://otexts.com/fpppy/03-decomposition.html
 :::
 
-## Learning objectives
+## Additive and Multiplicative decomposition
 
-By the end of the lecture, students will be able to:
-
-- distinguish transformations from decomposition;
-- explain additive and multiplicative structures;
-- calculate and visualize moving averages;
-- construct classical additive and multiplicative decompositions;
-- explain seasonal adjustment;
-- identify limitations of classical decomposition;
-- apply and tune STL;
-- diagnose leakage, outliers, and unstable seasonality;
-- communicate components without misleading scales.
-
-::: {.notes}
-The emphasis is visual reasoning supported by mathematically precise definitions and executable Python.
-:::
-
-## Analytical sequence
-
-```text
-RAW SERIES
-    ↓
-KNOWN ADJUSTMENTS
-    ↓
-TRANSFORMATION / SCALE CHOICE
-    ↓
-TREND-CYCLE EXTRACTION
-    ↓
-SEASONAL EXTRACTION
-    ↓
-REMAINDER DIAGNOSTICS
-    ↓
-SEASONALLY ADJUSTED SERIES
-```
-
-::: {.notes}
-Each arrow represents a modeling choice. Different choices can produce different component estimates.
-:::
-
-# Transformations and Adjustments
-
-## Why adjust before decomposing?
-
-Adjustments can remove known or interpretable sources of variation:
-
-- calendar composition;
-- population growth;
-- inflation;
-- changing variance with the level.
-
-The goal is a simpler, more stable structure.
-
-::: {.notes}
-An adjustment is justified by measurement and domain knowledge. It is not merely a cosmetic operation.
-
-[Sources]
-- https://otexts.com/fpppy/03-decomposition.html
-:::
-
-## Calendar adjustment
-
-If monthly totals depend partly on the number of trading days, use a rate:
+If we assume an additive decomposition, then we can write
 
 $$
-\text{sales per trading day}_t = \frac{\text{monthly sales}_t}{\text{trading days}_t}.
+y_t = T_t + S_t + R_t
+$$
+
+If we assume an multiplicative decomposition, then we can write 
+
+$$
+y_t = T_t\times S_t\times R_t \ , \quad \text{or} \quad \log y_t = \log T_t + \log S_t + \log R_t
 $$
 
 ```{python}
-calendar_demo = pd.DataFrame({
-    "month": pd.period_range("2026-01", periods=6, freq="M").astype(str),
-    "total_sales": [220, 190, 235, 228, 242, 215],
-    "trading_days": [22, 19, 22, 21, 22, 20],
-})
-calendar_demo["sales_per_day"] = (
-    calendar_demo["total_sales"] / calendar_demo["trading_days"]
-)
-calendar_demo
-```
-
-::: {.notes}
-The chapter uses trading days as an example of calendar variation that can be removed before further analysis.
-
-[Sources]
-- https://otexts.com/fpppy/03-decomposition.html
-:::
-
-## Totals and rates tell different stories
-
-```{python}
-#| fig-width: 10
-#| fig-height: 4.5
-fig, axes = plt.subplots(1, 2)
-axes[0].bar(calendar_demo["month"], calendar_demo["total_sales"], color="#56B4E9")
-axes[0].set(title="Monthly total", ylabel="Sales")
-axes[1].bar(calendar_demo["month"], calendar_demo["sales_per_day"], color="#009E73")
-axes[1].set(title="Per trading day", ylabel="Sales per day")
-for ax in axes:
-    ax.tick_params(axis="x", rotation=45)
-plt.tight_layout()
-plt.show()
-```
-
-::: {.notes}
-The adjustment changes the estimand. The chart title and axis units must make that explicit.
-:::
-
-## Population adjustment
-
-For totals affected by population size:
-
-$$
-\text{per-capita quantity}_t
-=
-\frac{\text{total quantity}_t}{\text{population}_t}.
-$$
-
-
-```{python}
-global_economy = pd.read_csv(DATA_PATH / "global_economy.csv")
-australia = (
-    global_economy.loc[lambda x: x["unique_id"] == "Australia"]
-    .assign(GDP_per_capita=lambda x: x["GDP"] / x["Population"])
-)
-australia[["ds", "GDP", "Population", "GDP_per_capita"]].head()
-```
-
-::: {.notes}
-A total can increase while a per-capita quantity decreases if population grows more rapidly.
-
-[Sources]
-- https://otexts.com/fpppy/03-decomposition.html
-:::
-
-##  Australian GDP per capita
-
-```{python}
-fig, ax = time_plot(
-    australia, "ds", "GDP_per_capita",
-    title="GDP per capita: Australia",
-    xlabel="Year [1Y]", ylabel="US dollars",
-)
-plt.show()
-```
-
-::: {.notes}
-The visual question is no longer the size of the whole economy, but economic output relative to population.
-
-[Sources]
-- https://otexts.com/fpppy/03-decomposition.html
-:::
-
-## Inflation adjustment
-
-Let $y_t$ be a nominal value and $z_t$ a price index. In base-period prices:
-
-$$
-x_t = \frac{y_t}{z_t}z_{\text{base}}.
-$$
-
-If the index equals 100 in the base period:
-
-$$
-x_t = y_t\frac{100}{z_t}.
-$$
-
-::: {.notes}
-The adjusted series measures values in constant purchasing-power units. The price index, base period, and currency must be reported.
-
-[Sources]
-- https://otexts.com/fpppy/03-decomposition.html
-:::
-
-## Nominal versus real visualization
-
-```{python}
-inflation_demo = pd.DataFrame({
-    "year": np.arange(2010, 2026),
-    "nominal": 100 * 1.055 ** np.arange(16),
-    "cpi": 100 * 1.035 ** np.arange(16),
-})
-inflation_demo["real_2010"] = inflation_demo["nominal"] * 100 / inflation_demo["cpi"]
-fig, ax = plt.subplots()
-ax.plot(inflation_demo["year"], inflation_demo["nominal"], label="Nominal", linewidth=2)
-ax.plot(inflation_demo["year"], inflation_demo["real_2010"], label="Real, 2010 prices", linewidth=2)
-ax.set(title="Nominal and inflation-adjusted series", xlabel="Year", ylabel="Index")
-ax.legend(frameon=False)
-plt.tight_layout()
-plt.show()
-```
-
-::: {.notes}
-This is a synthetic illustration. Inflation adjustment can reveal weaker real growth than nominal growth.
-:::
-
-## Mathematical transformation
-
-When variation grows with the level, a log transformation may stabilize relative variation:
-
-$$
-w_t = \log(y_t), \qquad y_t>0.
-$$
-
-A change on the log scale corresponds to a relative change on the original scale:
-
-$$
-\log(y_t)-\log(y_{t-1})
-=
-\log\left(\frac{y_t}{y_{t-1}}\right).
-$$
-
-::: {.notes}
-Natural logarithms are used throughout the Box-Cox discussion. Logs require strictly positive observations.
-
-[Sources]
-- https://otexts.com/fpppy/03-decomposition.html
-:::
-
-## Original scale versus log scale
-
-```{python}
-aus_production = pd.read_csv(DATA_PATH / "aus_production.csv", parse_dates=["ds"])
-gas = aus_production[["ds", "Gas"]].dropna().copy()
-fig, axes = plt.subplots(1, 2, figsize=(11, 4.5))
-axes[0].plot(gas["ds"], gas["Gas"], color="#0072B2")
-axes[0].set(title="Australian gas production", xlabel="Quarter", ylabel="Gas")
-axes[1].plot(gas["ds"], np.log(gas["Gas"]), color="#009E73")
-axes[1].set(title="Log-transformed gas production", xlabel="Quarter", ylabel="log(Gas)")
-plt.tight_layout()
-plt.show()
-```
-
-::: {.notes}
-Compare whether seasonal amplitude appears more stable after transformation. Do not interpret log units as original gas units.
-:::
-
-## Modified Box-Cox family
-
-The chapter uses a modified Box-Cox transformation:
-
-$$
-w_t=
-\begin{cases}
-\log(y_t), & \lambda=0,\\[4pt]
-\dfrac{\operatorname{sign}(y_t)|y_t|^\lambda-1}{\lambda},
-& \lambda\ne0.
-\end{cases}
-$$
-
-For the standard positive-data Box-Cox transformation, $y_t>0$ is required.
-
-::: {.notes}
-At lambda equal to one, the transformed series is shifted by one without changing shape. Other lambda values change the shape and scale.
-
-[Sources]
-- https://otexts.com/fpppy/03-decomposition.html
-:::
-
-## Visual effect of lambda
-
-```{python}
-lambdas = [1.0, 0.5, 0.0, -0.5]
-positive_gas = gas.loc[gas["Gas"] > 0].copy()
-fig, axes = plt.subplots(2, 2, figsize=(11, 7), sharex=True)
-for ax, lam in zip(axes.flat, lambdas):
-    transformed = np.log(positive_gas["Gas"]) if lam == 0 else stats.boxcox(positive_gas["Gas"], lmbda=lam)
-    ax.plot(positive_gas["ds"], transformed, color="#0072B2", linewidth=1)
-    ax.set_title(f"λ = {lam:g}")
-fig.suptitle("Box-Cox transformations of Australian gas production")
-plt.tight_layout()
-plt.show()
-```
-
-::: {.notes}
-This code uses SciPy's standard positive-data Box-Cox implementation. The selection goal is a transformation that makes seasonal variation and variance more stable.
-
-[Sources]
-- https://otexts.com/fpppy/03-decomposition.html
-:::
-
-## Data-driven lambda: document the criterion
-
-```{python}
-lambda_mle = stats.boxcox_normmax(positive_gas["Gas"], method="mle")
-lambda_mle
-```
-
-This is a maximum-likelihood choice from SciPy, **not** the Guerrero criterion used in the chapter's `boxcox_lambda()` example.
-
-::: {.notes}
-Different selection criteria estimate lambda for different goals. The criterion must be named rather than presented as a universal optimum.
-:::
-
-# Time Series Components
-
-## Additive decomposition
-
-$$
-y_t = T_t + S_t + R_t.
-$$
-
-Appropriate when seasonal amplitude and remainder variation are roughly stable across the level of the series.
-
-::: {.notes}
-T is trend-cycle, S seasonality, and R remainder. The equality is a structural representation; estimated components are denoted with hats.
-
-[Sources]
-- https://otexts.com/fpppy/03-decomposition.html
-:::
-
-## Multiplicative decomposition
-
-$$
-y_t = T_t\times S_t\times R_t.
-$$
-
-Appropriate when seasonal or remainder variation is approximately proportional to the series level.
-
-Taking logs converts multiplication into addition:
-
-$$
-\log y_t = \log T_t + \log S_t + \log R_t.
-$$
-
-::: {.notes}
-Multiplicative components are ratios or indices, not additive quantities in the original unit.
-
-[Sources]
-- https://otexts.com/fpppy/03-decomposition.html
-:::
-
-## Additive or multiplicative? Look at amplitude
-
-```{python}
-#| fig-width: 11
-#| fig-height: 4.5
+#| echo: false
+#| fig-align: center
 idx = pd.date_range("2010-01-01", periods=120, freq="MS")
 t = np.arange(120)
 additive = 100 + .3*t + 10*np.sin(2*np.pi*t/12)
@@ -497,30 +331,33 @@ axes[1].plot(idx, multiplicative); axes[1].set_title("Seasonal amplitude grows w
 plt.tight_layout(); plt.show()
 ```
 
+
 ::: {.notes}
-These are synthetic pedagogical examples. The left suggests additive structure; the right suggests multiplicative structure or a stabilizing transformation.
+T is trend-cycle, S seasonality, and R remainder. The equality is a structural representation; estimated components are denoted with hats.
+
+Additive: Appropriate when seasonal amplitude and remainder variation are roughly stable across the level of the series.
+
+Multiplicative: Appropriate when seasonal or remainder variation is approximately proportional to the series level.
+
+Multiplicative components are ratios or indices, not additive quantities in the original unit.
 :::
 
 ## US retail employment
 
 ```{python}
+#| echo: false
+#| fig-align: center
 us_employment = pd.read_csv(DATA_PATH / "us_employment.csv", parse_dates=["ds"])
 us_retail_employment = us_employment.loc[
     lambda x: (x["unique_id"] == "Retail Trade") & (x["ds"] >= "1990")
 ].copy()
-us_retail_employment.head()
+us_retail_employment.head(2)
 ```
 
-::: {.notes}
-This monthly series is the chapter's main decomposition example.
-
-[Sources]
-- https://otexts.com/fpppy/03-decomposition.html
-:::
-
-## Total employment in US retail
 
 ```{python}
+#| echo: false
+#| fig-align: center
 fig, ax = time_plot(
     us_retail_employment, "ds", "y",
     title="Total employment in US retail",
@@ -529,16 +366,18 @@ fig, ax = time_plot(
 plt.show()
 ```
 
-::: {.notes}
-Before decomposing, ask students to identify long-run movement, repeating seasonal peaks, changing behavior, and unusual periods.
 
-[Sources]
-- https://otexts.com/fpppy/03-decomposition.html
+::: {.notes}
+This monthly series is the chapter's main decomposition example.
+
+Before decomposing, ask students to identify long-run movement, repeating seasonal peaks, changing behavior, and unusual periods.
 :::
 
-## STL decomposition object
+## US retail employment: trend-cycle
 
 ```{python}
+#| echo: false
+#| fig-align: center
 stl_default = STL(us_retail_employment["y"], period=12)
 res_default = stl_default.fit()
 dcmp = pd.DataFrame({
@@ -548,16 +387,6 @@ dcmp = pd.DataFrame({
     "seasonal": res_default.seasonal,
     "remainder": res_default.resid,
 })
-dcmp.head()
-```
-
-::: {.notes}
-The decomposition estimates components. It does not reveal uniquely observable truths; estimates depend on method and smoothing choices.
-:::
-
-## Data and trend-cycle
-
-```{python}
 fig, ax = plt.subplots()
 ax.plot(dcmp["ds"], dcmp["data"], color=COLORS["data"], label="Data", linewidth=1)
 ax.plot(dcmp["ds"], dcmp["trend"], color=COLORS["trend"], label="Trend-cycle", linewidth=2)
@@ -573,10 +402,32 @@ The trend-cycle follows broad movement while filtering seasonal and short-run fl
 - https://otexts.com/fpppy/03-decomposition.html
 :::
 
-## STL components
+## US retail employment: seasonally adjusted
 
 ```{python}
-fig, axes = component_plot(dcmp, title="STL decomposition of US retail employment")
+#| echo: false
+#| fig-align: center
+dcmp["seasonally_adjusted"] = dcmp["data"] - dcmp["seasonal"]
+fig, ax = plt.subplots()
+ax.plot(dcmp["ds"], dcmp["seasonally_adjusted"], color=COLORS["adjusted"],
+        label="Seasonally adjusted", linewidth=2)
+ax.plot(dcmp["ds"], dcmp["data"], color=COLORS["data"],
+        label="Data", linewidth=1)
+ax.set(title="Total employment in US retail", xlabel="Month [1M]", ylabel="Persons (thousands)")
+ax.legend(frameon=False)
+plt.tight_layout(); plt.show()
+```
+
+::: {.notes}
+Short-run movements in the seasonally adjusted series can come from the remainder. Do not interpret every movement as a change in trend.
+:::
+
+## US retail employment: decomposition
+
+```{python}
+#| echo: false
+#| fig-align: center
+fig, axes = component_plot(dcmp, title="Time series decomposition of US retail employment")
 plt.show()
 ```
 
@@ -587,49 +438,53 @@ Panel scales differ. A component that fills its panel is not necessarily large r
 - https://otexts.com/fpppy/03-decomposition.html
 :::
 
-## Seasonally adjusted series
 
-For an additive decomposition:
+# Classical Decomposition
+
+<!-- ## Seasonally adjusted series -->
+
+<!-- For an additive decomposition: -->
+
+<!-- $$ -->
+<!-- y_t^{\mathrm{SA}} = y_t-\widehat S_t -->
+<!-- =\widehat T_t+\widehat R_t. -->
+<!-- $$ -->
+
+<!-- For a multiplicative decomposition: -->
+
+<!-- $$ -->
+<!-- y_t^{\mathrm{SA}}=\frac{y_t}{\widehat S_t}. -->
+<!-- $$ -->
+
+<!-- ::: {.notes} -->
+<!-- Seasonally adjusted does not mean smooth because the remainder remains. For turning points, the trend-cycle is usually the clearer visual object. -->
+
+<!-- [Sources] -->
+<!-- - https://otexts.com/fpppy/03-decomposition.html -->
+<!-- ::: -->
+
+
+## Classical additive algorithm
+
+For seasonal period $m$:
+
+1. estimate $\widehat T_t$ with an $m$-MA or centered $2\times m$-MA;
+2. detrend: $d_t=y_t-\widehat T_t$;
+3. average $d_t$ by seasonal position and normalize so seasonal factors sum to zero;
+4. calculate
 
 $$
-y_t^{\mathrm{SA}} = y_t-\widehat S_t
-=\widehat T_t+\widehat R_t.
-$$
-
-For a multiplicative decomposition:
-
-$$
-y_t^{\mathrm{SA}}=\frac{y_t}{\widehat S_t}.
+\widehat R_t=y_t-\widehat T_t-\widehat S_t.
 $$
 
 ::: {.notes}
-Seasonally adjusted does not mean smooth because the remainder remains. For turning points, the trend-cycle is usually the clearer visual object.
+The seasonal pattern is assumed constant from cycle to cycle.
 
 [Sources]
 - https://otexts.com/fpppy/03-decomposition.html
 :::
 
-## Seasonally adjusted versus trend-cycle
-
-```{python}
-dcmp["seasonally_adjusted"] = dcmp["data"] - dcmp["seasonal"]
-fig, ax = plt.subplots()
-ax.plot(dcmp["ds"], dcmp["seasonally_adjusted"], color=COLORS["adjusted"],
-        label="Seasonally adjusted", linewidth=1)
-ax.plot(dcmp["ds"], dcmp["trend"], color=COLORS["trend"],
-        label="Trend-cycle", linewidth=2)
-ax.set(title="Seasonally adjusted series is not the trend", xlabel="Month", ylabel="Persons (thousands)")
-ax.legend(frameon=False)
-plt.tight_layout(); plt.show()
-```
-
-::: {.notes}
-Short-run movements in the seasonally adjusted series can come from the remainder. Do not interpret every movement as a change in trend.
-:::
-
-# 3.3 Moving Averages
-
-## Centered moving average of odd order
+## Moving Averages: Centered moving average of odd order
 
 For $m=2k+1$:
 
@@ -787,28 +642,6 @@ The centered moving average largely removes annual seasonality but has no estima
 - https://otexts.com/fpppy/03-decomposition.html
 :::
 
-# 3.4 Classical Decomposition
-
-## Classical additive algorithm
-
-For seasonal period $m$:
-
-1. estimate $\widehat T_t$ with an $m$-MA or centered $2\times m$-MA;
-2. detrend: $d_t=y_t-\widehat T_t$;
-3. average $d_t$ by seasonal position and normalize so seasonal factors sum to zero;
-4. calculate
-
-$$
-\widehat R_t=y_t-\widehat T_t-\widehat S_t.
-$$
-
-::: {.notes}
-The seasonal pattern is assumed constant from cycle to cycle.
-
-[Sources]
-- https://otexts.com/fpppy/03-decomposition.html
-:::
-
 ## Classical additive decomposition in Python
 
 ```{python}
@@ -843,45 +676,45 @@ Compare this with STL. Classical seasonality repeats exactly and endpoint estima
 - https://otexts.com/fpppy/03-decomposition.html
 :::
 
-## Classical multiplicative algorithm
+<!-- ## Classical multiplicative algorithm -->
 
-1. estimate $\widehat T_t$;
-2. detrend: $d_t=y_t/\widehat T_t$;
-3. average ratios by season and normalize so seasonal indices sum to $m$;
-4. calculate
+<!-- 1. estimate $\widehat T_t$; -->
+<!-- 2. detrend: $d_t=y_t/\widehat T_t$; -->
+<!-- 3. average ratios by season and normalize so seasonal indices sum to $m$; -->
+<!-- 4. calculate -->
 
-$$
-\widehat R_t
-=
-\frac{y_t}{\widehat T_t\widehat S_t}.
-$$
+<!-- $$ -->
+<!-- \widehat R_t -->
+<!-- = -->
+<!-- \frac{y_t}{\widehat T_t\widehat S_t}. -->
+<!-- $$ -->
 
-::: {.notes}
-Multiplicative seasonal indices average to one, equivalently sum to m across one full seasonal cycle.
+<!-- ::: {.notes} -->
+<!-- Multiplicative seasonal indices average to one, equivalently sum to m across one full seasonal cycle. -->
 
-[Sources]
-- https://otexts.com/fpppy/03-decomposition.html
-:::
+<!-- [Sources] -->
+<!-- - https://otexts.com/fpppy/03-decomposition.html -->
+<!-- ::: -->
 
-## Multiplicative decomposition of gas
+<!-- ## Multiplicative decomposition of gas -->
 
-```{python}
-recent_gas = gas.tail(5 * 4).set_index("ds")["Gas"]
-classical_mult = seasonal_decompose(recent_gas, model="multiplicative", period=4)
-mult_frame = pd.DataFrame({
-    "ds": recent_gas.index,
-    "data": recent_gas.to_numpy(),
-    "trend": classical_mult.trend.to_numpy(),
-    "seasonal": classical_mult.seasonal.to_numpy(),
-    "remainder": classical_mult.resid.to_numpy(),
-})
-fig, axes = component_plot(mult_frame, title="Classical multiplicative decomposition of gas")
-plt.show()
-```
+<!-- ```{python} -->
+<!-- recent_gas = gas.tail(5 * 4).set_index("ds")["Gas"] -->
+<!-- classical_mult = seasonal_decompose(recent_gas, model="multiplicative", period=4) -->
+<!-- mult_frame = pd.DataFrame({ -->
+<!--     "ds": recent_gas.index, -->
+<!--     "data": recent_gas.to_numpy(), -->
+<!--     "trend": classical_mult.trend.to_numpy(), -->
+<!--     "seasonal": classical_mult.seasonal.to_numpy(), -->
+<!--     "remainder": classical_mult.resid.to_numpy(), -->
+<!-- }) -->
+<!-- fig, axes = component_plot(mult_frame, title="Classical multiplicative decomposition of gas") -->
+<!-- plt.show() -->
+<!-- ``` -->
 
-::: {.notes}
-Interpret the seasonal and remainder panels as ratios around one, not quantities in the original gas unit.
-:::
+<!-- ::: {.notes} -->
+<!-- Interpret the seasonal and remainder panels as ratios around one, not quantities in the original gas unit. -->
+<!-- ::: -->
 
 ## Limitations of classical decomposition
 

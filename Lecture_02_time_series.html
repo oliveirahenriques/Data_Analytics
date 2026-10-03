@@ -311,6 +311,7 @@
     }
     .reveal .slide:not(.center) {
       height: 100%;
+      overflow-y: auto;
     }
     .reveal .slide.scrollable {
       overflow-y: auto;
@@ -411,10 +412,7 @@ Victor Henriques, Ph.D.
 <nav role="doc-toc"> 
 <h2 id="toc-title">Table of contents</h2>
 <ul>
-<li><a href="#/foundations-from-pandas-time-series" id="/toc-foundations-from-pandas-time-series">Foundations from pandas Time Series</a></li>
 <li><a href="#/data-and-time-structure" id="/toc-data-and-time-structure">Data and Time Structure</a></li>
-<li><a href="#/time-series-graphics" id="/toc-time-series-graphics">Time Series Graphics</a></li>
-<li><a href="#/dataframe-objects" id="/toc-dataframe-objects">DataFrame objects</a></li>
 <li><a href="#/time-plots" id="/toc-time-plots">Time plots</a></li>
 <li><a href="#/time-series-patterns" id="/toc-time-series-patterns">Time series patterns</a></li>
 <li><a href="#/seasonal-plots" id="/toc-seasonal-plots">Seasonal plots</a></li>
@@ -427,11 +425,6 @@ Victor Henriques, Ph.D.
 </ul>
 </nav>
 </section>
-<section>
-<section id="foundations-from-pandas-time-series" class="title-slide slide level1 center">
-<h1>Foundations from pandas Time Series</h1>
-
-</section>
 <section id="learning-objectives" class="slide level2">
 <h2>Learning objectives</h2>
 <p>By the end of the lesson, students will be able to:</p>
@@ -441,861 +434,11 @@ Victor Henriques, Ph.D.
 <li>distinguish trend, seasonality, cycles, and irregular variation;</li>
 <li>use seasonal and seasonal-subseries plots;</li>
 <li>explore relationships with scatterplots and scatterplot matrices;</li>
-<li>create and interpret lag plots and ACF plots;</li>
-<li>distinguish structured series from white noise;</li>
-<li>connect visual evidence to forecasting requirements;</li>
+<li>create and interpret lag plots;</li>
 <li>avoid common visual and temporal reasoning errors.</li>
 </ul>
 <aside class="notes">
 <p>Os objetivos são observáveis: cada estudante deverá produzir um gráfico, apontar evidências e explicitar uma implicação para previsão. Tempo: 2 min.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="what-can-a-time-coordinate-represent" class="slide level2">
-<h2>What can a time coordinate represent?</h2>
-<ul>
-<li><strong>Timestamp:</strong> a specific instant.</li>
-<li><strong>Fixed period:</strong> a span such as a month or quarter.</li>
-<li><strong>Interval:</strong> a start and an end.</li>
-<li><strong>Elapsed time:</strong> distance from an origin.</li>
-</ul>
-<blockquote>
-<p>The representation must match what the observation actually measures.</p>
-</blockquote>
-<aside class="notes">
-<p>Use preço de fechamento como exemplo de timestamp e produção mensal como período. Explique que a escolha altera slicing, agregação e labels.</p>
-<p>[Sources] - https://wesmckinney.com/book/time-series</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="fixed-frequency-and-irregular-series" class="slide level2">
-<h2>Fixed-frequency and irregular series</h2>
-<div class="columns">
-<div class="column" style="width:50%;">
-<h3 id="fixed-frequency">Fixed frequency</h3>
-<ul>
-<li>every 15 seconds;</li>
-<li>hourly;</li>
-<li>business daily;</li>
-<li>monthly.</li>
-</ul>
-</div><div class="column" style="width:50%;">
-<h3 id="irregular">Irregular</h3>
-<ul>
-<li>trades;</li>
-<li>incidents;</li>
-<li>publications;</li>
-<li>event records.</li>
-</ul>
-</div></div>
-<p>A line can display either, but <strong>lag 1 has a stable duration only under a regular calendar</strong>.</p>
-<aside class="notes">
-<p>Em série irregular, shift(1) significa registro anterior, não necessariamente uma hora anterior.</p>
-<p>[Sources] - https://wesmckinney.com/book/time-series</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="python-date-and-time-objects" class="slide level2">
-<h2>Python date and time objects</h2>
-<div id="73d769ef" class="cell" data-execution_count="2">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href=""></a><span class="im">from</span> datetime <span class="im">import</span> date, time, datetime, timedelta</span>
-<span id="cb1-2"><a href=""></a></span>
-<span id="cb1-3"><a href=""></a>stamp <span class="op">=</span> datetime(<span class="dv">2026</span>, <span class="dv">1</span>, <span class="dv">15</span>, <span class="dv">14</span>, <span class="dv">30</span>)</span>
-<span id="cb1-4"><a href=""></a>delta <span class="op">=</span> timedelta(days<span class="op">=</span><span class="dv">2</span>, hours<span class="op">=</span><span class="dv">3</span>)</span>
-<span id="cb1-5"><a href=""></a><span class="bu">print</span>(stamp)</span>
-<span id="cb1-6"><a href=""></a><span class="bu">print</span>(stamp <span class="op">+</span> delta)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>2026-01-15 14:30:00
-2026-01-17 17:30:00</code></pre>
-</div>
-</div>
-<ul>
-<li><code>date</code>: calendar date;</li>
-<li><code>time</code>: time of day;</li>
-<li><code>datetime</code>: date and time;</li>
-<li><code>timedelta</code>: elapsed duration.</li>
-</ul>
-<aside class="notes">
-<p>Timedelta representa diferença, não uma data.</p>
-<p>[Sources] - https://wesmckinney.com/book/time-series</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="parse-strings-into-temporal-data" class="slide level2">
-<h2>Parse strings into temporal data</h2>
-<div id="7f4372df" class="cell" data-execution_count="3">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href=""></a>raw_dates <span class="op">=</span> pd.Series([</span>
-<span id="cb3-2"><a href=""></a>    <span class="st">"2026-01-15"</span>, <span class="st">"15/02/2026"</span>, <span class="st">"March 20, 2026"</span>, <span class="st">"invalid"</span></span>
-<span id="cb3-3"><a href=""></a>])</span>
-<span id="cb3-4"><a href=""></a>parsed <span class="op">=</span> pd.to_datetime(</span>
-<span id="cb3-5"><a href=""></a>    raw_dates, <span class="bu">format</span><span class="op">=</span><span class="st">"mixed"</span>, dayfirst<span class="op">=</span><span class="va">True</span>, errors<span class="op">=</span><span class="st">"coerce"</span></span>
-<span id="cb3-6"><a href=""></a>)</span>
-<span id="cb3-7"><a href=""></a>pd.DataFrame({<span class="st">"raw"</span>: raw_dates, <span class="st">"parsed"</span>: parsed})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="3">
-<div>
-<style scoped="">
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-
-<table class="dataframe caption-top" data-quarto-postprocess="true" data-border="1">
-<thead>
-<tr class="header" style="text-align: right;">
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th">raw</th>
-<th data-quarto-table-cell-role="th">parsed</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">0</td>
-<td>2026-01-15</td>
-<td>2026-01-15</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">1</td>
-<td>15/02/2026</td>
-<td>2026-02-15</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">2</td>
-<td>March 20, 2026</td>
-<td>2026-03-20</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">3</td>
-<td>invalid</td>
-<td>NaT</td>
-</tr>
-</tbody>
-</table>
-
-</div>
-</div>
-</div>
-<p><code>errors="coerce"</code> exposes failures as missing timestamps. It does not repair their meaning.</p>
-<aside class="notes">
-<p>Discuta ambiguidade entre dia e mês. Prefira formato explícito quando a fonte for estável.</p>
-<p>[Sources] - https://wesmckinney.com/book/time-series</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="format-timestamps-for-communication" class="slide level2">
-<h2>Format timestamps for communication</h2>
-<div id="cb6daa38" class="cell" data-execution_count="4">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href=""></a>stamp <span class="op">=</span> pd.Timestamp(<span class="st">"2026-01-15 14:30"</span>)</span>
-<span id="cb4-2"><a href=""></a><span class="bu">print</span>(stamp.strftime(<span class="st">"%Y-%m-</span><span class="sc">%d</span><span class="st">"</span>))</span>
-<span id="cb4-3"><a href=""></a><span class="bu">print</span>(stamp.strftime(<span class="st">"</span><span class="sc">%d</span><span class="st"> %b %Y, %H:%M"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>2026-01-15
-15 Jan 2026, 14:30</code></pre>
-</div>
-</div>
-<p>Formatting changes display, not the underlying temporal value.</p>
-<aside class="notes">
-<p>Diferencie armazenamento e apresentação. Labels dependentes de locale podem variar entre ambientes.</p>
-<p>[Sources] - https://wesmckinney.com/book/time-series</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="datetimeindex-time-as-an-analytical-axis" class="slide level2">
-<h2><code>DatetimeIndex</code>: time as an analytical axis</h2>
-<div id="f4500d3b" class="cell" data-execution_count="5">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href=""></a>idx <span class="op">=</span> pd.date_range(<span class="st">"2026-01-01"</span>, periods<span class="op">=</span><span class="dv">6</span>, freq<span class="op">=</span><span class="st">"D"</span>)</span>
-<span id="cb6-2"><a href=""></a>series <span class="op">=</span> pd.Series([<span class="dv">72</span>, <span class="dv">74</span>, <span class="dv">73</span>, <span class="dv">77</span>, <span class="dv">78</span>, <span class="dv">76</span>], index<span class="op">=</span>idx, name<span class="op">=</span><span class="st">"value"</span>)</span>
-<span id="cb6-3"><a href=""></a><span class="bu">print</span>(<span class="bu">type</span>(series.index).<span class="va">__name__</span>)</span>
-<span id="cb6-4"><a href=""></a>series</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>DatetimeIndex</code></pre>
-</div>
-<div class="cell-output cell-output-display" data-execution_count="5">
-<pre><code>2026-01-01    72
-2026-01-02    74
-2026-01-03    73
-2026-01-04    77
-2026-01-05    78
-2026-01-06    76
-Freq: D, Name: value, dtype: int64</code></pre>
-</div>
-</div>
-<p>A timestamp-indexed Series supports temporal slicing, frequency logic, shifting, and resampling.</p>
-<aside class="notes">
-<p>O DatetimeIndex é a estrutura central do pandas para séries indexadas por instantes.</p>
-<p>[Sources] - https://wesmckinney.com/book/time-series</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="temporal-slicing" class="slide level2">
-<h2>Temporal slicing</h2>
-<div id="d1a37a7c" class="cell" data-execution_count="6">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href=""></a>series.loc[<span class="st">"2026-01-02"</span>:<span class="st">"2026-01-05"</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="6">
-<pre><code>2026-01-02    74
-2026-01-03    73
-2026-01-04    77
-2026-01-05    78
-Freq: D, Name: value, dtype: int64</code></pre>
-</div>
-</div>
-<div id="59e63ec0" class="cell" data-execution_count="7">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href=""></a>daily <span class="op">=</span> pd.Series(</span>
-<span id="cb11-2"><a href=""></a>    np.arange(<span class="dv">90</span>),</span>
-<span id="cb11-3"><a href=""></a>    index<span class="op">=</span>pd.date_range(<span class="st">"2026-01-01"</span>, periods<span class="op">=</span><span class="dv">90</span>, freq<span class="op">=</span><span class="st">"D"</span>)</span>
-<span id="cb11-4"><a href=""></a>)</span>
-<span id="cb11-5"><a href=""></a>daily.loc[<span class="st">"2026-02"</span>].head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="7">
-<pre><code>2026-02-01    31
-2026-02-02    32
-2026-02-03    33
-2026-02-04    34
-2026-02-05    35
-Freq: D, dtype: int64</code></pre>
-</div>
-</div>
-<p>Partial strings can select meaningful calendar ranges.</p>
-<aside class="notes">
-<p>Reforce a necessidade de índice temporal ordenado.</p>
-<p>[Sources] - https://wesmckinney.com/book/time-series</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="duplicate-timestamps-require-a-rule" class="slide level2">
-<h2>Duplicate timestamps require a rule</h2>
-<div id="72becd05" class="cell" data-execution_count="8">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href=""></a>duplicate_time <span class="op">=</span> pd.Series(</span>
-<span id="cb13-2"><a href=""></a>    [<span class="dv">70</span>, <span class="dv">72</span>, <span class="dv">74</span>, <span class="dv">76</span>],</span>
-<span id="cb13-3"><a href=""></a>    index<span class="op">=</span>pd.to_datetime([</span>
-<span id="cb13-4"><a href=""></a>        <span class="st">"2026-01-01"</span>, <span class="st">"2026-01-02"</span>, <span class="st">"2026-01-02"</span>, <span class="st">"2026-01-03"</span></span>
-<span id="cb13-5"><a href=""></a>    ])</span>
-<span id="cb13-6"><a href=""></a>)</span>
-<span id="cb13-7"><a href=""></a><span class="bu">print</span>(<span class="st">"unique index:"</span>, duplicate_time.index.is_unique)</span>
-<span id="cb13-8"><a href=""></a>duplicate_time.groupby(level<span class="op">=</span><span class="dv">0</span>).agg([<span class="st">"mean"</span>, <span class="st">"count"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>unique index: False</code></pre>
-</div>
-<div class="cell-output cell-output-display" data-execution_count="8">
-<div>
-<style scoped="">
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-
-<table class="dataframe caption-top" data-quarto-postprocess="true" data-border="1">
-<thead>
-<tr class="header" style="text-align: right;">
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th">mean</th>
-<th data-quarto-table-cell-role="th">count</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">2026-01-01</td>
-<td>70.0</td>
-<td>1</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">2026-01-02</td>
-<td>73.0</td>
-<td>2</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">2026-01-03</td>
-<td>76.0</td>
-<td>1</td>
-</tr>
-</tbody>
-</table>
-
-</div>
-</div>
-</div>
-<p>Aggregation resolves duplicates only when the rule is analytically justified.</p>
-<aside class="notes">
-<p>Em preços, mean pode não ser a regra correta. Last, VWAP ou preservação por fonte podem ser alternativas.</p>
-<p>[Sources] - https://wesmckinney.com/book/time-series</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="generate-regular-date-ranges" class="slide level2">
-<h2>Generate regular date ranges</h2>
-<div id="2b278acb" class="cell" data-execution_count="9">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href=""></a><span class="bu">print</span>(pd.date_range(<span class="st">"2026-01-01"</span>, periods<span class="op">=</span><span class="dv">5</span>, freq<span class="op">=</span><span class="st">"D"</span>))</span>
-<span id="cb15-2"><a href=""></a><span class="bu">print</span>(pd.date_range(<span class="st">"2026-01-01 00:00"</span>, periods<span class="op">=</span><span class="dv">5</span>, freq<span class="op">=</span><span class="st">"15min"</span>))</span>
-<span id="cb15-3"><a href=""></a><span class="bu">print</span>(pd.date_range(<span class="st">"2026-01-01"</span>, periods<span class="op">=</span><span class="dv">5</span>, freq<span class="op">=</span><span class="st">"B"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>DatetimeIndex(['2026-01-01', '2026-01-02', '2026-01-03', '2026-01-04', '2026-01-05'], dtype='datetime64[ns]', freq='D')
-DatetimeIndex(['2026-01-01 00:00:00', '2026-01-01 00:15:00', '2026-01-01 00:30:00', '2026-01-01 00:45:00',
-               '2026-01-01 01:00:00'],
-              dtype='datetime64[ns]', freq='15min')
-DatetimeIndex(['2026-01-01', '2026-01-02', '2026-01-05', '2026-01-06', '2026-01-07'], dtype='datetime64[ns]', freq='B')</code></pre>
-</div>
-</div>
-<p>Frequency aliases encode calendar rules, not merely display labels.</p>
-<aside class="notes">
-<p>D difer de B. Frequências de negócio não incorporam automaticamente todo calendário local de mercado.</p>
-<p>[Sources] - https://wesmckinney.com/book/time-series</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="regularization-can-introduce-missing-values" class="slide level2">
-<h2>Regularization can introduce missing values</h2>
-<div id="3ad8ebe1" class="cell" data-execution_count="10">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href=""></a>irregular <span class="op">=</span> pd.Series(</span>
-<span id="cb17-2"><a href=""></a>    [<span class="dv">10</span>, <span class="dv">12</span>, <span class="dv">15</span>],</span>
-<span id="cb17-3"><a href=""></a>    index<span class="op">=</span>pd.to_datetime([<span class="st">"2026-01-01"</span>, <span class="st">"2026-01-03"</span>, <span class="st">"2026-01-06"</span>])</span>
-<span id="cb17-4"><a href=""></a>)</span>
-<span id="cb17-5"><a href=""></a>irregular.asfreq(<span class="st">"D"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="10">
-<pre><code>2026-01-01    10.0
-2026-01-02     NaN
-2026-01-03    12.0
-2026-01-04     NaN
-2026-01-05     NaN
-2026-01-06    15.0
-Freq: D, dtype: float64</code></pre>
-</div>
-</div>
-<p><code>asfreq</code> establishes a target calendar. It does not aggregate or justify filling gaps.</p>
-<aside class="notes">
-<p>Compare asfreq com resample. O primeiro expressa frequência; o segundo cria grupos temporais.</p>
-<p>[Sources] - https://wesmckinney.com/book/time-series</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="shift-values-versus-shift-timestamps" class="slide level2">
-<h2>Shift values versus shift timestamps</h2>
-<div id="5fcb43af" class="cell" data-execution_count="11">
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href=""></a>shift_demo <span class="op">=</span> pd.Series(</span>
-<span id="cb19-2"><a href=""></a>    [<span class="dv">100</span>, <span class="dv">102</span>, <span class="dv">101</span>, <span class="dv">105</span>],</span>
-<span id="cb19-3"><a href=""></a>    index<span class="op">=</span>pd.date_range(<span class="st">"2026-01-01"</span>, periods<span class="op">=</span><span class="dv">4</span>, freq<span class="op">=</span><span class="st">"D"</span>)</span>
-<span id="cb19-4"><a href=""></a>)</span>
-<span id="cb19-5"><a href=""></a><span class="bu">print</span>(shift_demo.shift(<span class="dv">1</span>))</span>
-<span id="cb19-6"><a href=""></a><span class="bu">print</span>(shift_demo.shift(<span class="dv">1</span>, freq<span class="op">=</span><span class="st">"D"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>2026-01-01      NaN
-2026-01-02    100.0
-2026-01-03    102.0
-2026-01-04    101.0
-Freq: D, dtype: float64
-2026-01-02    100
-2026-01-03    102
-2026-01-04    101
-2026-01-05    105
-Freq: D, dtype: int64</code></pre>
-</div>
-</div>
-<ul>
-<li><code>shift(1)</code>: moves values relative to the existing index.</li>
-<li><code>shift(1, freq="D")</code>: moves the timestamps by a calendar offset.</li>
-</ul>
-<aside class="notes">
-<p>Essa distinção é central para retornos, lags e alinhamento.</p>
-<p>[Sources] - https://wesmckinney.com/book/time-series</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="time-zones-localize-then-convert" class="slide level2">
-<h2>Time zones: localize, then convert</h2>
-<div id="90cfbc5d" class="cell" data-execution_count="12">
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href=""></a>naive <span class="op">=</span> pd.date_range(<span class="st">"2026-01-15 09:00"</span>, periods<span class="op">=</span><span class="dv">3</span>, freq<span class="op">=</span><span class="st">"h"</span>)</span>
-<span id="cb21-2"><a href=""></a>dublin <span class="op">=</span> naive.tz_localize(<span class="st">"Europe/Dublin"</span>)</span>
-<span id="cb21-3"><a href=""></a>utc <span class="op">=</span> dublin.tz_convert(<span class="st">"UTC"</span>)</span>
-<span id="cb21-4"><a href=""></a><span class="bu">print</span>(dublin)</span>
-<span id="cb21-5"><a href=""></a><span class="bu">print</span>(utc)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>DatetimeIndex(['2026-01-15 09:00:00+00:00', '2026-01-15 10:00:00+00:00', '2026-01-15 11:00:00+00:00'], dtype='datetime64[ns, Europe/Dublin]', freq=None)
-DatetimeIndex(['2026-01-15 09:00:00+00:00', '2026-01-15 10:00:00+00:00', '2026-01-15 11:00:00+00:00'], dtype='datetime64[ns, UTC]', freq=None)</code></pre>
-</div>
-</div>
-<ul>
-<li><code>tz_localize</code>: attaches a zone to naive timestamps.</li>
-<li><code>tz_convert</code>: represents the same instants in another zone.</li>
-</ul>
-<aside class="notes">
-<p>Não confunda vincular um timezone com converter instantes já timezone-aware.</p>
-<p>[Sources] - https://wesmckinney.com/book/time-series</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="utc-and-local-calendar-features" class="slide level2">
-<h2>UTC and local calendar features</h2>
-<p>UTC supports consistent storage and cross-region alignment. Local time remains important for:</p>
-<ul>
-<li>hour-of-day behavior;</li>
-<li>market sessions;</li>
-<li>business operations;</li>
-<li>daylight-saving transitions;</li>
-<li>calendar seasonality.</li>
-</ul>
-<blockquote>
-<p>Derive seasonal coordinates in the calendar relevant to the phenomenon.</p>
-</blockquote>
-<aside class="notes">
-<p>A recomendação é separar alinhamento temporal de interpretação sazonal.</p>
-<p>[Sources] - https://wesmckinney.com/book/time-series</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="periods-represent-spans" class="slide level2">
-<h2>Periods represent spans</h2>
-<div id="474b806c" class="cell" data-execution_count="13">
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href=""></a>month <span class="op">=</span> pd.Period(<span class="st">"2026-01"</span>, freq<span class="op">=</span><span class="st">"M"</span>)</span>
-<span id="cb23-2"><a href=""></a>quarter <span class="op">=</span> pd.Period(<span class="st">"2026Q1"</span>, freq<span class="op">=</span><span class="st">"Q-DEC"</span>)</span>
-<span id="cb23-3"><a href=""></a><span class="bu">print</span>(month)</span>
-<span id="cb23-4"><a href=""></a><span class="bu">print</span>(month <span class="op">+</span> <span class="dv">2</span>)</span>
-<span id="cb23-5"><a href=""></a><span class="bu">print</span>(quarter)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>2026-01
-2026-03
-2026Q1</code></pre>
-</div>
-</div>
-<p>Period arithmetic moves across spans according to the declared frequency.</p>
-<aside class="notes">
-<p>Somar dois a uma Period mensal significa avançar dois meses, não segundos.</p>
-<p>[Sources] - https://wesmckinney.com/book/time-series</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="convert-between-timestamps-and-periods" class="slide level2">
-<h2>Convert between timestamps and periods</h2>
-<div id="dda0f502" class="cell" data-execution_count="14">
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href=""></a>month_ends <span class="op">=</span> pd.date_range(<span class="st">"2026-01-31"</span>, periods<span class="op">=</span><span class="dv">4</span>, freq<span class="op">=</span><span class="st">"ME"</span>)</span>
-<span id="cb25-2"><a href=""></a>periods <span class="op">=</span> month_ends.to_period(<span class="st">"M"</span>)</span>
-<span id="cb25-3"><a href=""></a><span class="bu">print</span>(periods)</span>
-<span id="cb25-4"><a href=""></a><span class="bu">print</span>(periods.to_timestamp(how<span class="op">=</span><span class="st">"end"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>PeriodIndex(['2026-01', '2026-02', '2026-03', '2026-04'], dtype='period[M]')
-DatetimeIndex(['2026-01-31 23:59:59.999999999', '2026-02-28 23:59:59.999999999', '2026-03-31 23:59:59.999999999',
-               '2026-04-30 23:59:59.999999999'],
-              dtype='datetime64[ns]', freq=None)</code></pre>
-</div>
-</div>
-<p>Converting a period to a timestamp requires a boundary convention.</p>
-<aside class="notes">
-<p>Start ou end afeta labels, joins e comparação temporal.</p>
-<p>[Sources] - https://wesmckinney.com/book/time-series</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="resampling-changes-frequency" class="slide level2">
-<h2>Resampling changes frequency</h2>
-<div id="338bf757" class="cell" data-execution_count="15">
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href=""></a>hourly <span class="op">=</span> pd.Series(</span>
-<span id="cb27-2"><a href=""></a>    np.arange(<span class="dv">24</span>, dtype<span class="op">=</span><span class="bu">float</span>),</span>
-<span id="cb27-3"><a href=""></a>    index<span class="op">=</span>pd.date_range(<span class="st">"2026-01-01"</span>, periods<span class="op">=</span><span class="dv">24</span>, freq<span class="op">=</span><span class="st">"h"</span>)</span>
-<span id="cb27-4"><a href=""></a>)</span>
-<span id="cb27-5"><a href=""></a>hourly.resample(<span class="st">"6h"</span>).agg([<span class="st">"mean"</span>, <span class="st">"max"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="15">
-<div>
-<style scoped="">
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-
-<table class="dataframe caption-top" data-quarto-postprocess="true" data-border="1">
-<thead>
-<tr class="header" style="text-align: right;">
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th">mean</th>
-<th data-quarto-table-cell-role="th">max</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">2026-01-01 00:00:00</td>
-<td>2.5</td>
-<td>5.0</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">2026-01-01 06:00:00</td>
-<td>8.5</td>
-<td>11.0</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">2026-01-01 12:00:00</td>
-<td>14.5</td>
-<td>17.0</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">2026-01-01 18:00:00</td>
-<td>20.5</td>
-<td>23.0</td>
-</tr>
-</tbody>
-</table>
-
-</div>
-</div>
-</div>
-<ul>
-<li><strong>Downsampling:</strong> higher to lower frequency, usually with aggregation.</li>
-<li><strong>Upsampling:</strong> lower to higher frequency, usually creating gaps before a filling rule.</li>
-</ul>
-<aside class="notes">
-<p>Mean e max respondem perguntas diferentes. A função de agregação pertence à definição do gráfico.</p>
-<p>[Sources] - https://wesmckinney.com/book/time-series</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="interval-boundaries-matter" class="slide level2">
-<h2>Interval boundaries matter</h2>
-<div id="7696851f" class="cell" data-execution_count="16">
-<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href=""></a>boundary <span class="op">=</span> pd.Series(</span>
-<span id="cb28-2"><a href=""></a>    [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>],</span>
-<span id="cb28-3"><a href=""></a>    index<span class="op">=</span>pd.to_datetime([</span>
-<span id="cb28-4"><a href=""></a>        <span class="st">"2026-01-01 00:00"</span>, <span class="st">"2026-01-01 05:59"</span>,</span>
-<span id="cb28-5"><a href=""></a>        <span class="st">"2026-01-01 06:00"</span>, <span class="st">"2026-01-01 11:59"</span></span>
-<span id="cb28-6"><a href=""></a>    ])</span>
-<span id="cb28-7"><a href=""></a>)</span>
-<span id="cb28-8"><a href=""></a>boundary.resample(<span class="st">"6h"</span>, closed<span class="op">=</span><span class="st">"left"</span>, label<span class="op">=</span><span class="st">"left"</span>).<span class="bu">sum</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="16">
-<pre><code>2026-01-01 00:00:00    3
-2026-01-01 06:00:00    7
-Freq: 6h, dtype: int64</code></pre>
-</div>
-</div>
-<p><code>closed</code> controls interval membership; <code>label</code> controls interval naming.</p>
-<aside class="notes">
-<p>Limites temporais são parte da estatística, não apenas detalhe de sintaxe.</p>
-<p>[Sources] - https://wesmckinney.com/book/time-series</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="moving-windows-summarize-local-history" class="slide level2">
-<h2>Moving windows summarize local history</h2>
-<div id="34b9f9d2" class="cell" data-execution_count="17">
-<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href=""></a>observed <span class="op">=</span> pd.Series(</span>
-<span id="cb30-2"><a href=""></a>    [<span class="dv">10</span>, <span class="dv">13</span>, <span class="dv">12</span>, <span class="dv">16</span>, <span class="dv">17</span>, <span class="dv">15</span>, <span class="dv">18</span>],</span>
-<span id="cb30-3"><a href=""></a>    index<span class="op">=</span>pd.date_range(<span class="st">"2026-01-01"</span>, periods<span class="op">=</span><span class="dv">7</span>, freq<span class="op">=</span><span class="st">"D"</span>)</span>
-<span id="cb30-4"><a href=""></a>)</span>
-<span id="cb30-5"><a href=""></a>windows <span class="op">=</span> pd.DataFrame({</span>
-<span id="cb30-6"><a href=""></a>    <span class="st">"observed"</span>: observed,</span>
-<span id="cb30-7"><a href=""></a>    <span class="st">"rolling_mean_3"</span>: observed.rolling(<span class="dv">3</span>, min_periods<span class="op">=</span><span class="dv">2</span>).mean(),</span>
-<span id="cb30-8"><a href=""></a>    <span class="st">"expanding_mean"</span>: observed.expanding(min_periods<span class="op">=</span><span class="dv">2</span>).mean(),</span>
-<span id="cb30-9"><a href=""></a>    <span class="st">"ewm_mean"</span>: observed.ewm(span<span class="op">=</span><span class="dv">3</span>, adjust<span class="op">=</span><span class="va">False</span>).mean()</span>
-<span id="cb30-10"><a href=""></a>})</span>
-<span id="cb30-11"><a href=""></a>windows.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="17">
-<div>
-<style scoped="">
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-
-<table class="dataframe caption-top" data-quarto-postprocess="true" data-border="1">
-<thead>
-<tr class="header" style="text-align: right;">
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th">observed</th>
-<th data-quarto-table-cell-role="th">rolling_mean_3</th>
-<th data-quarto-table-cell-role="th">expanding_mean</th>
-<th data-quarto-table-cell-role="th">ewm_mean</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">2026-01-01</td>
-<td>10</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>10.0000</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">2026-01-02</td>
-<td>13</td>
-<td>11.500000</td>
-<td>11.500000</td>
-<td>11.5000</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">2026-01-03</td>
-<td>12</td>
-<td>11.666667</td>
-<td>11.666667</td>
-<td>11.7500</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">2026-01-04</td>
-<td>16</td>
-<td>13.666667</td>
-<td>12.750000</td>
-<td>13.8750</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">2026-01-05</td>
-<td>17</td>
-<td>15.000000</td>
-<td>13.600000</td>
-<td>15.4375</td>
-</tr>
-</tbody>
-</table>
-
-</div>
-</div>
-</div>
-<aside class="notes">
-<p>Rolling usa memória fixa; expanding acumula desde o começo; EWM reduz pesos gradualmente.</p>
-<p>[Sources] - https://wesmckinney.com/book/time-series</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-<!-- ## Smoothers encode different memory -->
-<!-- ```{python} -->
-<!-- #| fig-width: 10 -->
-<!-- #| fig-height: 4.7 -->
-<!-- fig, ax = plt.subplots() -->
-<!-- ax.plot(windows.index, windows["observed"], marker="o", label="Observed") -->
-<!-- ax.plot(windows.index, windows["rolling_mean_3"], linewidth=2, label="Rolling mean, 3") -->
-<!-- ax.plot(windows.index, windows["ewm_mean"], linewidth=2, label="EWM, span 3") -->
-<!-- ax.set(title="Different smoothers encode different memory", -->
-<!--        xlabel="Date", ylabel="Synthetic value") -->
-<!-- ax.legend(frameon=False) -->
-<!-- plt.tight_layout() -->
-<!-- plt.show() -->
-<!-- ``` -->
-<!-- ::: {.notes} -->
-<!-- Não apresente linha suavizada como dado observado. Janela e span alteram ruído e atraso. -->
-<!-- [Sources] -->
-<!-- - https://wesmckinney.com/book/time-series -->
-<!-- ::: -->
-<!-- ## Foundation checkpoint -->
-<!-- Match the task to the concept: -->
-<!-- 1. attach `Europe/Dublin` to naive local timestamps; -->
-<!-- 2. represent the whole month of January; -->
-<!-- 3. calculate daily maxima from hourly data; -->
-<!-- 4. compare each observation with its predecessor; -->
-<!-- 5. expose missing dates on a daily calendar; -->
-<!-- 6. compute a three-observation local average. -->
-<!-- ::: {.notes} -->
-<!-- Respostas: tz_localize, Period, resample max, shift, asfreq/reindex, rolling. -->
-<!-- [Sources] -->
-<!-- - https://wesmckinney.com/book/time-series -->
-<!-- ::: -->
-</section>
-<section id="bridge-to-time-series-graphics" class="slide level2">
-<h2>Bridge to time series graphics</h2>
-<p>The pandas toolkit establishes:</p>
-<ul>
-<li>what time means;</li>
-<li>whether the calendar is regular;</li>
-<li>how observations align;</li>
-<li>how frequency changes;</li>
-<li>which values belong to each interval;</li>
-<li>how local summaries are constructed.</li>
-</ul>
-<p>Only then can time plots, seasonal plots, lag plots, and ACF plots be interpreted reliably.</p>
-<aside class="notes">
-<p>Use como transição para o conteúdo principal de gráficos de séries temporais.</p>
-<p>[Sources] - https://wesmckinney.com/book/time-series - https://otexts.com/fpppy/02-graphics.html</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1338,423 +481,21 @@ Freq: 6h, dtype: int64</code></pre>
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
-</section></section>
+</section>
 <section>
 <section id="data-and-time-structure" class="title-slide slide level1 center">
 <h1>Data and Time Structure</h1>
 
 </section>
-<section id="a-synthetic-electricity-demand-dataset" class="slide level2">
-<h2>A synthetic electricity-demand dataset</h2>
-<div id="9386734f" class="cell" data-execution_count="18">
-<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href=""></a>hours <span class="op">=</span> pd.date_range(<span class="st">"2026-01-01"</span>, periods<span class="op">=</span><span class="dv">24</span> <span class="op">*</span> <span class="dv">90</span>, freq<span class="op">=</span><span class="st">"h"</span>)</span>
-<span id="cb31-2"><a href=""></a>t <span class="op">=</span> np.arange(<span class="bu">len</span>(hours))</span>
-<span id="cb31-3"><a href=""></a>hour <span class="op">=</span> hours.hour.to_numpy()</span>
-<span id="cb31-4"><a href=""></a>dow <span class="op">=</span> hours.dayofweek.to_numpy() </span>
-<span id="cb31-5"><a href=""></a>day <span class="op">=</span> np.arange(<span class="bu">len</span>(hours)) <span class="op">/</span> <span class="dv">24</span></span>
-<span id="cb31-6"><a href=""></a></span>
-<span id="cb31-7"><a href=""></a>temperature <span class="op">=</span> <span class="dv">17</span> <span class="op">+</span> <span class="dv">7</span> <span class="op">*</span> np.sin(<span class="dv">2</span> <span class="op">*</span> np.pi <span class="op">*</span> (hour <span class="op">-</span> <span class="dv">14</span>) <span class="op">/</span> <span class="dv">24</span>) <span class="op">+</span> <span class="dv">3</span> <span class="op">*</span> np.sin(<span class="dv">2</span> <span class="op">*</span> np.pi <span class="op">*</span> day <span class="op">/</span> <span class="dv">45</span>)</span>
-<span id="cb31-8"><a href=""></a>weekend <span class="op">=</span> dow <span class="op">&gt;=</span> <span class="dv">5</span></span>
-<span id="cb31-9"><a href=""></a>daily_cycle <span class="op">=</span> <span class="dv">9</span> <span class="op">*</span> np.sin(<span class="dv">2</span> <span class="op">*</span> np.pi <span class="op">*</span> (hour <span class="op">-</span> <span class="dv">7</span>) <span class="op">/</span> <span class="dv">24</span>) <span class="op">+</span> <span class="dv">4</span> <span class="op">*</span> np.sin(<span class="dv">4</span> <span class="op">*</span> np.pi <span class="op">*</span> (hour <span class="op">-</span> <span class="dv">7</span>) <span class="op">/</span> <span class="dv">24</span>)</span>
-<span id="cb31-10"><a href=""></a>weekly_effect <span class="op">=</span> np.where(weekend, <span class="op">-</span><span class="dv">8</span>, <span class="dv">0</span>)</span>
-<span id="cb31-11"><a href=""></a>trend <span class="op">=</span> <span class="fl">0.025</span> <span class="op">*</span> day</span>
-<span id="cb31-12"><a href=""></a>noise <span class="op">=</span> rng.normal(<span class="dv">0</span>, <span class="fl">2.2</span>, <span class="bu">len</span>(hours))</span>
-<span id="cb31-13"><a href=""></a>demand <span class="op">=</span> <span class="dv">72</span> <span class="op">+</span> trend <span class="op">+</span> daily_cycle <span class="op">+</span> weekly_effect <span class="op">+</span> <span class="fl">0.35</span> <span class="op">*</span> (temperature <span class="op">-</span> <span class="dv">17</span>) <span class="op">**</span> <span class="dv">2</span> <span class="op">+</span> noise</span>
-<span id="cb31-14"><a href=""></a></span>
-<span id="cb31-15"><a href=""></a>ts <span class="op">=</span> pd.DataFrame({</span>
-<span id="cb31-16"><a href=""></a>    <span class="st">"timestamp"</span>: hours,</span>
-<span id="cb31-17"><a href=""></a>    <span class="st">"demand_mw"</span>: demand,</span>
-<span id="cb31-18"><a href=""></a>    <span class="st">"temperature_c"</span>: temperature,</span>
-<span id="cb31-19"><a href=""></a>    <span class="st">"is_weekend"</span>: weekend</span>
-<span id="cb31-20"><a href=""></a>})</span>
-<span id="cb31-21"><a href=""></a>ts.loc[<span class="dv">450</span>, <span class="st">"demand_mw"</span>] <span class="op">+=</span> <span class="dv">28</span></span>
-<span id="cb31-22"><a href=""></a>ts.head(<span class="dv">3</span> )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="18">
-<div>
-<style scoped="">
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-
-<table class="dataframe caption-top" data-quarto-postprocess="true" data-border="1">
-<thead>
-<tr class="header" style="text-align: right;">
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th">timestamp</th>
-<th data-quarto-table-cell-role="th">demand_mw</th>
-<th data-quarto-table-cell-role="th">temperature_c</th>
-<th data-quarto-table-cell-role="th">is_weekend</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">0</td>
-<td>2026-01-01 00:00:00</td>
-<td>70.264545</td>
-<td>20.500000</td>
-<td>False</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">1</td>
-<td>2026-01-01 01:00:00</td>
-<td>61.884150</td>
-<td>18.829187</td>
-<td>False</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">2</td>
-<td>2026-01-01 02:00:00</td>
-<td>62.960170</td>
-<td>17.034906</td>
-<td>False</td>
-</tr>
-</tbody>
-</table>
-
-</div>
-</div>
-</div>
-<aside class="notes">
-<p>Explique os componentes apenas após os alunos observarem os gráficos. Há tendência leve, padrões diário e semanal, relação não linear com temperatura, ruído e uma observação incomum intencional. Tempo: 3 min.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="observational-unit-and-temporal-key" class="slide level2">
-<h2>Observational unit and temporal key</h2>
-<ul>
-<li><strong>Observation:</strong> one hourly market measurement.</li>
-<li><strong>Time key:</strong> <code>timestamp</code>.</li>
-<li><strong>Target:</strong> <code>demand_mw</code>.</li>
-<li><strong>Covariate:</strong> <code>temperature_c</code>.</li>
-<li><strong>Calendar variable:</strong> <code>is_weekend</code>.</li>
-<li><strong>Declared frequency:</strong> hourly.</li>
-</ul>
-<div id="1aeb8562" class="cell" data-execution_count="19">
-<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href=""></a><span class="bu">print</span>(ts.shape)</span>
-<span id="cb32-2"><a href=""></a><span class="bu">print</span>(ts.dtypes)</span>
-<span id="cb32-3"><a href=""></a><span class="bu">print</span>(<span class="st">"unique timestamps:"</span>, ts[<span class="st">"timestamp"</span>].is_unique)</span>
-<span id="cb32-4"><a href=""></a><span class="bu">print</span>(<span class="st">"monotonic time:"</span>, ts[<span class="st">"timestamp"</span>].is_monotonic_increasing)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>(2160, 4)
-timestamp        datetime64[ns]
-demand_mw               float64
-temperature_c           float64
-is_weekend                 bool
-dtype: object
-unique timestamps: True
-monotonic time: True</code></pre>
-</div>
-</div>
-<aside class="notes">
-<p>A unidade temporal deve ser explícita. Frequência, duplicação e ordenação influenciam todos os gráficos e lags. Tempo: 3 min.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="index-and-columns" class="slide level2">
-<h2>Index and columns</h2>
-<div id="42db70ad" class="cell" data-execution_count="20">
-<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href=""></a>ts_indexed <span class="op">=</span> ts.set_index(<span class="st">"timestamp"</span>)</span>
-<span id="cb34-2"><a href=""></a><span class="bu">print</span>(ts_indexed.index)</span>
-<span id="cb34-3"><a href=""></a><span class="bu">print</span>(ts_indexed.columns)</span>
-<span id="cb34-4"><a href=""></a>ts_indexed.head(<span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>DatetimeIndex(['2026-01-01 00:00:00', '2026-01-01 01:00:00', '2026-01-01 02:00:00', '2026-01-01 03:00:00',
-               '2026-01-01 04:00:00', '2026-01-01 05:00:00', '2026-01-01 06:00:00', '2026-01-01 07:00:00',
-               '2026-01-01 08:00:00', '2026-01-01 09:00:00',
-               ...
-               '2026-03-31 14:00:00', '2026-03-31 15:00:00', '2026-03-31 16:00:00', '2026-03-31 17:00:00',
-               '2026-03-31 18:00:00', '2026-03-31 19:00:00', '2026-03-31 20:00:00', '2026-03-31 21:00:00',
-               '2026-03-31 22:00:00', '2026-03-31 23:00:00'],
-              dtype='datetime64[ns]', name='timestamp', length=2160, freq=None)
-Index(['demand_mw', 'temperature_c', 'is_weekend'], dtype='object')</code></pre>
-</div>
-<div class="cell-output cell-output-display" data-execution_count="20">
-<div>
-<style scoped="">
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-
-<table class="dataframe caption-top" data-quarto-postprocess="true" data-border="1">
-<thead>
-<tr class="header" style="text-align: right;">
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th">demand_mw</th>
-<th data-quarto-table-cell-role="th">temperature_c</th>
-<th data-quarto-table-cell-role="th">is_weekend</th>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">timestamp</th>
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th"></th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">2026-01-01 00:00:00</td>
-<td>70.264545</td>
-<td>20.500000</td>
-<td>False</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">2026-01-01 01:00:00</td>
-<td>61.884150</td>
-<td>18.829187</td>
-<td>False</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">2026-01-01 02:00:00</td>
-<td>62.960170</td>
-<td>17.034906</td>
-<td>False</td>
-</tr>
-</tbody>
-</table>
-
-</div>
-</div>
-</div>
-<p>A time index makes ordering, slicing, resampling, and lag construction explicit.</p>
-<aside class="notes">
-<p>Diferencie índice estrutural de uma coluna comum. O índice não substitui a necessidade de verificar frequência e unicidade. Tempo: 2 min.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="timestamp-versus-period" class="slide level2">
-<h2>Timestamp versus Period</h2>
-<div id="3e50c6bc" class="cell" data-execution_count="21">
-<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href=""></a><span class="bu">print</span>(pd.Timestamp(<span class="st">"2026-01"</span>))</span>
-<span id="cb36-2"><a href=""></a><span class="bu">print</span>(pd.Period(<span class="st">"2026-01"</span>, freq<span class="op">=</span><span class="st">"M"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>2026-01-01 00:00:00
-2026-01</code></pre>
-</div>
-</div>
-<ul>
-<li><code>Timestamp</code>: an instant in time.</li>
-<li><code>Period</code>: a span associated with a frequency.</li>
-</ul>
-<aside class="notes">
-<p>Um mês pode representar o primeiro instante do mês ou o intervalo mensal completo. Essa distinção importa para labels, agregações e interpretação. Tempo: 3 min.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="frequency-is-analytical-metadata" class="slide level2">
-<h2>Frequency is analytical metadata</h2>
-<div id="b6f47399" class="cell" data-execution_count="22">
-<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href=""></a><span class="bu">print</span>(<span class="st">"inferred frequency:"</span>, pd.infer_freq(ts_indexed.index))</span>
-<span id="cb38-2"><a href=""></a><span class="bu">print</span>(<span class="st">"expected observations:"</span>, <span class="bu">len</span>(pd.date_range(</span>
-<span id="cb38-3"><a href=""></a>    ts_indexed.index.<span class="bu">min</span>(), ts_indexed.index.<span class="bu">max</span>(), freq<span class="op">=</span><span class="st">"h"</span></span>
-<span id="cb38-4"><a href=""></a>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>inferred frequency: h
-expected observations: 2160</code></pre>
-</div>
-</div>
-<p>A regular frequency defines what “lag 1,” “season,” and “consecutive” mean.</p>
-<aside class="notes">
-<p>Lag 1 em dados horários significa uma hora apenas se o calendário estiver regular. Tempo: 3 min.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="detect-gaps-and-duplicate-timestamps" class="slide level2">
-<h2>Detect gaps and duplicate timestamps</h2>
-<div id="6770ab10" class="cell" data-execution_count="23">
-<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href=""></a>broken <span class="op">=</span> pd.concat([ts.iloc[:<span class="dv">100</span>], ts.iloc[<span class="dv">101</span>:<span class="dv">110</span>], ts.iloc[[<span class="dv">105</span>]]], ignore_index<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb40-2"><a href=""></a><span class="bu">print</span>(<span class="st">"duplicate timestamps:"</span>, broken[<span class="st">"timestamp"</span>].duplicated().<span class="bu">sum</span>())</span>
-<span id="cb40-3"><a href=""></a>expected <span class="op">=</span> pd.date_range(broken[<span class="st">"timestamp"</span>].<span class="bu">min</span>(), broken[<span class="st">"timestamp"</span>].<span class="bu">max</span>(), freq<span class="op">=</span><span class="st">"h"</span>)</span>
-<span id="cb40-4"><a href=""></a>missing_timestamps <span class="op">=</span> expected.difference(pd.DatetimeIndex(broken[<span class="st">"timestamp"</span>]))</span>
-<span id="cb40-5"><a href=""></a><span class="bu">print</span>(<span class="st">"missing timestamps:"</span>, missing_timestamps.tolist())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>duplicate timestamps: 1
-missing timestamps: [Timestamp('2026-01-05 04:00:00')]</code></pre>
-</div>
-</div>
-<aside class="notes">
-<p>Uma linha unida através de um intervalo ausente pode sugerir continuidade falsa. Verifique o calendário antes de plotar. Tempo: 3 min.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="reindex-to-expose-missing-periods" class="slide level2">
-<h2>Reindex to expose missing periods</h2>
-<div id="00911d36" class="cell" data-execution_count="24">
-<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href=""></a>regular <span class="op">=</span> (</span>
-<span id="cb42-2"><a href=""></a>    broken.set_index(<span class="st">"timestamp"</span>)</span>
-<span id="cb42-3"><a href=""></a>    .loc[<span class="kw">lambda</span> d: <span class="op">~</span>d.index.duplicated(keep<span class="op">=</span><span class="st">"first"</span>)]</span>
-<span id="cb42-4"><a href=""></a>    .reindex(expected)</span>
-<span id="cb42-5"><a href=""></a>)</span>
-<span id="cb42-6"><a href=""></a>regular.loc[regular[<span class="st">"demand_mw"</span>].isna()].head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="24">
-<div>
-<style scoped="">
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-
-<table class="dataframe caption-top" data-quarto-postprocess="true" data-border="1">
-<thead>
-<tr class="header" style="text-align: right;">
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th">demand_mw</th>
-<th data-quarto-table-cell-role="th">temperature_c</th>
-<th data-quarto-table-cell-role="th">is_weekend</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">2026-01-05 04:00:00</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-</tbody>
-</table>
-
-</div>
-</div>
-</div>
-<p>Reindexing makes missing periods explicit; it does not justify interpolation.</p>
-<aside class="notes">
-<p>Diferencie criar a linha ausente no calendário de preencher o valor de demanda. Tempo: 2 min.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section></section>
-<section>
-<section id="time-series-graphics" class="title-slide slide level1 center">
-<h1>Time Series Graphics</h1>
-
-</section>
-<section id="why-start-with-graphs" class="slide level2">
-<h2>Why start with graphs?</h2>
-<p>Graphs help reveal:</p>
-<ul>
-<li>patterns and changes through time;</li>
-<li>unusual observations;</li>
-<li>seasonal behavior;</li>
-<li>relationships between variables;</li>
-<li>temporal dependence.</li>
-</ul>
-<p>Visual features should inform the forecasting method considered later.</p>
-<aside class="notes">
-<p>Este material acompanha a sequência e os exemplos gráficos do Capítulo 2, com redação própria. Os exemplos utilizam os arquivos CSV locais informados pelo usuário.</p>
-<p>[Sources] - https://otexts.com/fpppy/02-graphics.html</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section></section>
-<section>
-<section id="dataframe-objects" class="title-slide slide level1 center">
-<h1>DataFrame objects</h1>
-
-</section>
 <section id="a-time-series-in-a-dataframe" class="slide level2">
 <h2>A time series in a DataFrame</h2>
-<div id="b526596a" class="cell" data-execution_count="25">
-<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a href=""></a>df <span class="op">=</span> pd.DataFrame({</span>
-<span id="cb43-2"><a href=""></a>    <span class="st">"Year"</span>: <span class="bu">list</span>(<span class="bu">range</span>(<span class="dv">2015</span>, <span class="dv">2020</span>)),</span>
-<span id="cb43-3"><a href=""></a>    <span class="st">"Observation"</span>: [<span class="dv">123</span>, <span class="dv">39</span>, <span class="dv">78</span>, <span class="dv">52</span>, <span class="dv">110</span>],</span>
-<span id="cb43-4"><a href=""></a>})</span>
-<span id="cb43-5"><a href=""></a>df</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="25">
+<div id="9c5f0ebf" class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href=""></a>df <span class="op">=</span> pd.DataFrame({</span>
+<span id="cb1-2"><a href=""></a>    <span class="st">"Year"</span>: <span class="bu">list</span>(<span class="bu">range</span>(<span class="dv">2015</span>, <span class="dv">2020</span>)),</span>
+<span id="cb1-3"><a href=""></a>    <span class="st">"Observation"</span>: [<span class="dv">123</span>, <span class="dv">39</span>, <span class="dv">78</span>, <span class="dv">52</span>, <span class="dv">110</span>],</span>
+<span id="cb1-4"><a href=""></a>})</span>
+<span id="cb1-5"><a href=""></a>df</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="2">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -1828,11 +569,11 @@ missing timestamps: [Timestamp('2026-01-05 04:00:00')]</code></pre>
 </section>
 <section id="index-columns-and-data-types" class="slide level2">
 <h2>Index, columns, and data types</h2>
-<div id="34d2d571" class="cell" data-execution_count="26">
-<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb44-1"><a href=""></a><span class="bu">print</span>(df.index)</span>
-<span id="cb44-2"><a href=""></a><span class="bu">print</span>(df.columns)</span>
-<span id="cb44-3"><a href=""></a><span class="bu">print</span>(df.dtypes)</span>
-<span id="cb44-4"><a href=""></a><span class="bu">print</span>(<span class="bu">type</span>(df[<span class="st">"Year"</span>]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="27fca2ec" class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href=""></a><span class="bu">print</span>(df.index)</span>
+<span id="cb2-2"><a href=""></a><span class="bu">print</span>(df.columns)</span>
+<span id="cb2-3"><a href=""></a><span class="bu">print</span>(df.dtypes)</span>
+<span id="cb2-4"><a href=""></a><span class="bu">print</span>(<span class="bu">type</span>(df[<span class="st">"Year"</span>]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>RangeIndex(start=0, stop=5, step=1)
 Index(['Year', 'Observation'], dtype='object')
@@ -1842,10 +583,10 @@ dtype: object
 &lt;class 'pandas.core.series.Series'&gt;</code></pre>
 </div>
 </div>
-<div id="912f549b" class="cell" data-execution_count="27">
-<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb46-1"><a href=""></a>year_df <span class="op">=</span> df.set_index(<span class="st">"Year"</span>)</span>
-<span id="cb46-2"><a href=""></a>year_df</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="27">
+<div id="7f8b96cb" class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href=""></a>year_df <span class="op">=</span> df.set_index(<span class="st">"Year"</span>)</span>
+<span id="cb4-2"><a href=""></a>year_df</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="4">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -1916,9 +657,9 @@ dtype: object
 </section>
 <section id="timestamps-and-periods" class="slide level2">
 <h2>Timestamps and periods</h2>
-<div id="a823a8c5" class="cell" data-execution_count="28">
-<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb47-1"><a href=""></a><span class="bu">print</span>(<span class="bu">repr</span>(pd.Timestamp(<span class="st">"2020-01"</span>)))</span>
-<span id="cb47-2"><a href=""></a><span class="bu">print</span>(<span class="bu">repr</span>(pd.Period(<span class="st">"2020-01"</span>, freq<span class="op">=</span><span class="st">"M"</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="9594017c" class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href=""></a><span class="bu">print</span>(<span class="bu">repr</span>(pd.Timestamp(<span class="st">"2020-01"</span>)))</span>
+<span id="cb5-2"><a href=""></a><span class="bu">print</span>(<span class="bu">repr</span>(pd.Period(<span class="st">"2020-01"</span>, freq<span class="op">=</span><span class="st">"M"</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Timestamp('2020-01-01 00:00:00')
 Period('2020-01', 'M')</code></pre>
@@ -1945,14 +686,14 @@ Period('2020-01', 'M')</code></pre>
 </section>
 <section id="timestamp-attributes" class="slide level2">
 <h2>Timestamp attributes</h2>
-<div id="d4e68522" class="cell" data-execution_count="29">
-<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb49-1"><a href=""></a>timestamps <span class="op">=</span> pd.date_range(<span class="st">"2020-01-01"</span>, periods<span class="op">=</span><span class="dv">3</span>, freq<span class="op">=</span><span class="st">"D"</span>)</span>
-<span id="cb49-2"><a href=""></a>ts_frame <span class="op">=</span> pd.DataFrame(index<span class="op">=</span>timestamps)</span>
-<span id="cb49-3"><a href=""></a>ts_frame[<span class="st">"date"</span>] <span class="op">=</span> ts_frame.index.date</span>
-<span id="cb49-4"><a href=""></a>ts_frame[<span class="st">"year"</span>] <span class="op">=</span> ts_frame.index.year</span>
-<span id="cb49-5"><a href=""></a>ts_frame[<span class="st">"label"</span>] <span class="op">=</span> ts_frame.index.strftime(<span class="st">"%A, %B </span><span class="sc">%-d</span><span class="st">"</span>)</span>
-<span id="cb49-6"><a href=""></a>ts_frame</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="29">
+<div id="9cc2d350" class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href=""></a>timestamps <span class="op">=</span> pd.date_range(<span class="st">"2020-01-01"</span>, periods<span class="op">=</span><span class="dv">3</span>, freq<span class="op">=</span><span class="st">"D"</span>)</span>
+<span id="cb7-2"><a href=""></a>ts_frame <span class="op">=</span> pd.DataFrame(index<span class="op">=</span>timestamps)</span>
+<span id="cb7-3"><a href=""></a>ts_frame[<span class="st">"date"</span>] <span class="op">=</span> ts_frame.index.date</span>
+<span id="cb7-4"><a href=""></a>ts_frame[<span class="st">"year"</span>] <span class="op">=</span> ts_frame.index.year</span>
+<span id="cb7-5"><a href=""></a>ts_frame[<span class="st">"label"</span>] <span class="op">=</span> ts_frame.index.strftime(<span class="st">"%A, %B </span><span class="sc">%-d</span><span class="st">"</span>)</span>
+<span id="cb7-6"><a href=""></a>ts_frame</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="6">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -2019,10 +760,10 @@ Period('2020-01', 'M')</code></pre>
 </section>
 <section id="key-variables-identify-separate-series" class="slide level2">
 <h2>Key variables identify separate series</h2>
-<div id="20693732" class="cell" data-execution_count="30">
-<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb50-1"><a href=""></a>olympic_running <span class="op">=</span> pd.read_csv(DATA_PATH <span class="op">/</span> <span class="st">"olympic_running_unparsed.csv"</span>)</span>
-<span id="cb50-2"><a href=""></a>olympic_running.head(<span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="30">
+<div id="0a03013e" class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href=""></a>olympic_running <span class="op">=</span> pd.read_csv(DATA_PATH <span class="op">/</span> <span class="st">"olympic_running_unparsed.csv"</span>)</span>
+<span id="cb8-2"><a href=""></a>olympic_running.head(<span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="7">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -2076,10 +817,10 @@ Period('2020-01', 'M')</code></pre>
 </div>
 </div>
 </div>
-<div id="d2d7ff47" class="cell" data-execution_count="31">
-<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb51-1"><a href=""></a>key_columns <span class="op">=</span> [<span class="st">"Length"</span>, <span class="st">"Sex"</span>]</span>
-<span id="cb51-2"><a href=""></a>olympic_running.groupby(key_columns).size().rename(<span class="st">"observations"</span>).head(<span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="31">
+<div id="6a771ace" class="cell" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href=""></a>key_columns <span class="op">=</span> [<span class="st">"Length"</span>, <span class="st">"Sex"</span>]</span>
+<span id="cb9-2"><a href=""></a>olympic_running.groupby(key_columns).size().rename(<span class="st">"observations"</span>).head(<span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="8">
 <pre><code>Length  Sex  
 100     men      31
         women    23
@@ -2105,12 +846,12 @@ Name: observations, dtype: int64</code></pre>
 </section>
 <section id="wide-and-long-representations" class="slide level2">
 <h2>Wide and long representations</h2>
-<div id="0069c7a8" class="cell" data-execution_count="32">
-<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb53-1"><a href=""></a>wide_demo <span class="op">=</span> olympic_running.pivot_table(</span>
-<span id="cb53-2"><a href=""></a>    index<span class="op">=</span><span class="st">"Year"</span>, columns<span class="op">=</span>[<span class="st">"Length"</span>, <span class="st">"Sex"</span>], values<span class="op">=</span><span class="st">"Time"</span></span>
-<span id="cb53-3"><a href=""></a>)</span>
-<span id="cb53-4"><a href=""></a>wide_demo.head(<span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="32">
+<div id="d0c78b1f" class="cell" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href=""></a>wide_demo <span class="op">=</span> olympic_running.pivot_table(</span>
+<span id="cb11-2"><a href=""></a>    index<span class="op">=</span><span class="st">"Year"</span>, columns<span class="op">=</span>[<span class="st">"Length"</span>, <span class="st">"Sex"</span>], values<span class="op">=</span><span class="st">"Time"</span></span>
+<span id="cb11-3"><a href=""></a>)</span>
+<span id="cb11-4"><a href=""></a>wide_demo.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="9">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -2224,10 +965,42 @@ Name: observations, dtype: int64</code></pre>
 <td>NaN</td>
 <td>NaN</td>
 </tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1908</td>
+<td>10.8</td>
+<td>NaN</td>
+<td>22.6</td>
+<td>NaN</td>
+<td>50.0</td>
+<td>NaN</td>
+<td>...</td>
+<td>243.4</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">1912</td>
+<td>10.8</td>
+<td>NaN</td>
+<td>21.7</td>
+<td>NaN</td>
+<td>48.2</td>
+<td>NaN</td>
+<td>...</td>
+<td>236.8</td>
+<td>NaN</td>
+<td>876.6</td>
+<td>NaN</td>
+<td>1880.8</td>
+<td>NaN</td>
+</tr>
 </tbody>
 </table>
 
-<p>3 rows × 14 columns</p>
+<p>5 rows × 14 columns</p>
 </div>
 </div>
 </div>
@@ -2247,15 +1020,15 @@ Name: observations, dtype: int64</code></pre>
           display:block!important;
       }</style></aside>
 </section>
-<section id="pharmaceutical-benefits-scheme-data" class="slide level2">
-<h2>Pharmaceutical Benefits Scheme data</h2>
-<div id="a4032d23" class="cell" data-execution_count="33">
-<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb54-1"><a href=""></a>pbs <span class="op">=</span> (</span>
-<span id="cb54-2"><a href=""></a>    pd.read_csv(DATA_PATH <span class="op">/</span> <span class="st">"PBS_unparsed.csv"</span>, parse_dates<span class="op">=</span>[<span class="st">"Month"</span>])</span>
-<span id="cb54-3"><a href=""></a>    [[<span class="st">"Month"</span>, <span class="st">"Concession"</span>, <span class="st">"Type"</span>, <span class="st">"ATC1"</span>, <span class="st">"ATC2"</span>, <span class="st">"Scripts"</span>, <span class="st">"Cost"</span>]]</span>
-<span id="cb54-4"><a href=""></a>)</span>
-<span id="cb54-5"><a href=""></a>pbs.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="33">
+<section id="working-with-time-series-dataframes" class="slide level2">
+<h2>Working with time series dataframes</h2>
+<div id="a9503cce" class="cell" data-execution_count="10">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href=""></a>pbs <span class="op">=</span> (</span>
+<span id="cb12-2"><a href=""></a>    pd.read_csv(DATA_PATH <span class="op">/</span> <span class="st">"PBS_unparsed.csv"</span>, parse_dates<span class="op">=</span>[<span class="st">"Month"</span>])</span>
+<span id="cb12-3"><a href=""></a>    [[<span class="st">"Month"</span>, <span class="st">"Concession"</span>, <span class="st">"Type"</span>, <span class="st">"ATC1"</span>, <span class="st">"ATC2"</span>, <span class="st">"Scripts"</span>, <span class="st">"Cost"</span>]]</span>
+<span id="cb12-4"><a href=""></a>)</span>
+<span id="cb12-5"><a href=""></a>pbs.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="10">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -2358,17 +1131,17 @@ Name: observations, dtype: int64</code></pre>
 </section>
 <section id="filter-and-aggregate-one-monthly-series" class="slide level2">
 <h2>Filter and aggregate one monthly series</h2>
-<div id="b7460cb1" class="cell" data-execution_count="34">
-<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb55-1"><a href=""></a>total_cost_df <span class="op">=</span> pd.read_csv(DATA_PATH <span class="op">/</span> <span class="st">"total_cost_df.csv"</span>)</span>
-<span id="cb55-2"><a href=""></a></span>
-<span id="cb55-3"><a href=""></a>a10 <span class="op">=</span> pbs.loc[pbs[<span class="st">"ATC2"</span>] <span class="op">==</span> <span class="st">"A10"</span>]</span>
-<span id="cb55-4"><a href=""></a>total_cost_df <span class="op">=</span> (</span>
-<span id="cb55-5"><a href=""></a>    a10.groupby(<span class="st">"Month"</span>, as_index<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb55-6"><a href=""></a>    .agg(Cost<span class="op">=</span>(<span class="st">"Cost"</span>, <span class="st">"sum"</span>))</span>
-<span id="cb55-7"><a href=""></a>    .assign(Cost<span class="op">=</span><span class="kw">lambda</span> x: x[<span class="st">"Cost"</span>] <span class="op">/</span> <span class="fl">1e6</span>)</span>
-<span id="cb55-8"><a href=""></a>)</span>
-<span id="cb55-9"><a href=""></a>total_cost_df.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="34">
+<div id="0ff2b005" class="cell" data-execution_count="11">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href=""></a>total_cost_df <span class="op">=</span> pd.read_csv(DATA_PATH <span class="op">/</span> <span class="st">"total_cost_df.csv"</span>)</span>
+<span id="cb13-2"><a href=""></a></span>
+<span id="cb13-3"><a href=""></a>a10 <span class="op">=</span> pbs.loc[pbs[<span class="st">"ATC2"</span>] <span class="op">==</span> <span class="st">"A10"</span>]</span>
+<span id="cb13-4"><a href=""></a>total_cost_df <span class="op">=</span> (</span>
+<span id="cb13-5"><a href=""></a>    a10.groupby(<span class="st">"Month"</span>, as_index<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb13-6"><a href=""></a>    .agg(Cost<span class="op">=</span>(<span class="st">"Cost"</span>, <span class="st">"sum"</span>))</span>
+<span id="cb13-7"><a href=""></a>    .assign(Cost<span class="op">=</span><span class="kw">lambda</span> x: x[<span class="st">"Cost"</span>] <span class="op">/</span> <span class="fl">1e6</span>)</span>
+<span id="cb13-8"><a href=""></a>)</span>
+<span id="cb13-9"><a href=""></a>total_cost_df.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="11">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -2439,147 +1212,60 @@ Name: observations, dtype: int64</code></pre>
           display:block!important;
       }</style></aside>
 </section>
-<section id="a-quarterly-multi-series-table" class="slide level2">
-<h2>A quarterly multi-series table</h2>
-<div id="b3eb54cf" class="cell" data-execution_count="35">
-<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb56-1"><a href=""></a>prison <span class="op">=</span> (</span>
-<span id="cb56-2"><a href=""></a>    pd.read_csv(DATA_PATH <span class="op">/</span> <span class="st">"prison_population.csv"</span>, parse_dates<span class="op">=</span>[<span class="st">"Date"</span>])</span>
-<span id="cb56-3"><a href=""></a>    .rename(columns<span class="op">=</span>{<span class="st">"Date"</span>: <span class="st">"Quarter"</span>})</span>
-<span id="cb56-4"><a href=""></a>    .sort_values([<span class="st">"State"</span>, <span class="st">"Gender"</span>, <span class="st">"Legal"</span>, <span class="st">"Indigenous"</span>, <span class="st">"Quarter"</span>])</span>
-<span id="cb56-5"><a href=""></a>)</span>
-<span id="cb56-6"><a href=""></a>prison.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="35">
-<div>
-<style scoped="">
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-
-<table class="dataframe caption-top" data-quarto-postprocess="true" data-border="1">
-<thead>
-<tr class="header" style="text-align: right;">
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th">Quarter</th>
-<th data-quarto-table-cell-role="th">State</th>
-<th data-quarto-table-cell-role="th">Gender</th>
-<th data-quarto-table-cell-role="th">Legal</th>
-<th data-quarto-table-cell-role="th">Indigenous</th>
-<th data-quarto-table-cell-role="th">Count</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">0</td>
-<td>2005-03-01</td>
-<td>ACT</td>
-<td>Female</td>
-<td>Remanded</td>
-<td>ATSI</td>
-<td>0</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">64</td>
-<td>2005-06-01</td>
-<td>ACT</td>
-<td>Female</td>
-<td>Remanded</td>
-<td>ATSI</td>
-<td>1</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">128</td>
-<td>2005-09-01</td>
-<td>ACT</td>
-<td>Female</td>
-<td>Remanded</td>
-<td>ATSI</td>
-<td>0</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">192</td>
-<td>2005-12-01</td>
-<td>ACT</td>
-<td>Female</td>
-<td>Remanded</td>
-<td>ATSI</td>
-<td>0</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">256</td>
-<td>2006-03-01</td>
-<td>ACT</td>
-<td>Female</td>
-<td>Remanded</td>
-<td>ATSI</td>
-<td>1</td>
-</tr>
-</tbody>
-</table>
-
-</div>
-</div>
-</div>
-<div id="5932a5ab" class="cell" data-execution_count="36">
-<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb57-1"><a href=""></a>keys <span class="op">=</span> [<span class="st">"State"</span>, <span class="st">"Gender"</span>, <span class="st">"Legal"</span>, <span class="st">"Indigenous"</span>, <span class="st">"Quarter"</span>]</span>
-<span id="cb57-2"><a href=""></a><span class="cf">assert</span> <span class="kw">not</span> prison.duplicated(keys).<span class="bu">any</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<aside class="notes">
-<p>Cada combinação de State, Gender, Legal e Indigenous identifica uma série; Quarter identifica a observação no tempo.</p>
-<p>[Sources] - https://otexts.com/fpppy/02-graphics.html</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
 <section id="seasonal-period" class="slide level2">
 <h2>Seasonal period</h2>
 <table class="caption-top">
 <thead>
 <tr class="header">
-<th>Observation interval</th>
-<th style="text-align: right;">Frequent seasonal period</th>
+<th>Interval</th>
+<th style="text-align: right;">Hour</th>
+<th>Day</th>
+<th>Week</th>
+<th>Year</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td>Quarter</td>
-<td style="text-align: right;">4</td>
+<td style="text-align: right;"></td>
+<td></td>
+<td></td>
+<td>4</td>
 </tr>
 <tr class="even">
 <td>Month</td>
-<td style="text-align: right;">12</td>
+<td style="text-align: right;"></td>
+<td></td>
+<td></td>
+<td>12</td>
 </tr>
 <tr class="odd">
 <td>Week</td>
-<td style="text-align: right;">about 52</td>
+<td style="text-align: right;"></td>
+<td></td>
+<td></td>
+<td>52</td>
 </tr>
 <tr class="even">
 <td>Day</td>
-<td style="text-align: right;">7 and about 365.25</td>
+<td style="text-align: right;"></td>
+<td></td>
+<td>7</td>
+<td>365.25</td>
 </tr>
 <tr class="odd">
 <td>Hour</td>
-<td style="text-align: right;">24, 168, and about 8766</td>
+<td style="text-align: right;"></td>
+<td>24</td>
+<td>168</td>
+<td>8766</td>
 </tr>
 <tr class="even">
 <td>Minute</td>
-<td style="text-align: right;">60, 1440, and 10080</td>
+<td style="text-align: right;">60</td>
+<td>1440</td>
+<td>10080</td>
+<td>525960</td>
 </tr>
 </tbody>
 </table>
@@ -2604,25 +1290,7 @@ Name: observations, dtype: int64</code></pre>
 <h1>Time plots</h1>
 
 </section>
-<section id="ansett-airlines" class="slide level2">
-<h2>Ansett Airlines</h2>
-
-<img data-src="Lecture_02_time_series_files/figure-revealjs/cell-38-output-1.png" class="quarto-figure quarto-figure-center r-stretch"><aside class="notes">
-<p>O time plot preserva a cronologia. Discuta períodos sem passageiros, mudanças de nível, quedas sazonais e flutuação de longo prazo observáveis no gráfico.</p>
-<p>[Sources] - https://otexts.com/fpppy/02-graphics.html</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="time-plot-reading-protocol" class="slide level2">
+<section id="time-plot-reading-protocol" class="slide level2 scrollable">
 <h2>Time-plot reading protocol</h2>
 <p>Look for:</p>
 <ol type="1">
@@ -2648,12 +1316,29 @@ Name: observations, dtype: int64</code></pre>
           display:block!important;
       }</style></aside>
 </section>
+<section id="ansett-airlines" class="slide level2">
+<h2>Ansett Airlines</h2>
+
+<img data-src="Lecture_02_time_series_files/figure-revealjs/cell-13-output-1.png" class="quarto-figure quarto-figure-center r-stretch"><aside class="notes">
+<p>For time series data, the obvious graph to start with is a time plot. That is, the observations are plotted against the time of observation, with consecutive observations joined by straight lines. Figure 2.1 shows the weekly economy passenger load on Ansett airlines between Australia’s two largest cities (Melbourne and Sydney). This plot reveals some interesting features.</p>
+<p>There was a period in 1989 when no passengers were carried — this was due to an industrial dispute. There was a period of reduced load in 1992. This was due to a trial in which some economy class seats were replaced by business class seats. A large increase in passenger load occurred in the second half of 1991. There are some large dips in load around the start of each year. These are due to holiday effects. There is a long-term fluctuation in the level of the series which increases during 1987, decreases in 1989, and increases again through 1990 and 1991.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
 <section id="antidiabetic-drug-sales" class="slide level2">
 <h2>Antidiabetic drug sales</h2>
 
-<img data-src="Lecture_02_time_series_files/figure-revealjs/cell-39-output-1.png" class="quarto-figure quarto-figure-center r-stretch"><aside class="notes">
-<p>Identifique tendência crescente, sazonalidade forte e amplitude sazonal que aumenta com o nível.</p>
-<p>[Sources] - https://otexts.com/fpppy/02-graphics.html</p>
+<img data-src="Lecture_02_time_series_files/figure-revealjs/cell-14-output-1.png" class="quarto-figure quarto-figure-center r-stretch"><aside class="notes">
+<p>Here, there is a clear and increasing trend. There is also a strong seasonal pattern that increases in size as the level of the series increases. The sudden drop at the start of each year is caused by a government subsidisation scheme that makes it cost-effective for patients to stockpile drugs at the end of the calendar year. Any forecasts of this series would need to capture the seasonal pattern, and the fact that the trend is changing slowly.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -2678,10 +1363,13 @@ Name: observations, dtype: int64</code></pre>
 <li><strong>Seasonal:</strong> repetition with a fixed, known, calendar-related period.</li>
 <li><strong>Cyclic:</strong> rises and falls without a fixed frequency.</li>
 </ul>
-<p>A forecasting method should be able to represent the patterns visible in the data.</p>
 <aside class="notes">
-<p>O principal contraste é fixed known period versus duração variável.</p>
-<p>[Sources] - https://otexts.com/fpppy/02-graphics.html</p>
+<p>Trend</p>
+<p>A trend exists when there is a long-term increase or decrease in the data. It does not have to be linear. Sometimes we will refer to a trend as “changing direction”, when it might go from an increasing trend to a decreasing trend. There is a trend in the antidiabetic drug sales data shown in Figure 2.2.</p>
+<p>Seasonal</p>
+<p>A seasonal pattern occurs when a time series is affected by seasonal factors such as the time of the year, the day of the week or the hour of the day. Seasonality is always of a fixed and known period. The monthly sales of antidiabetic drugs (Figure 2.2) shows seasonality which is induced partly by the change in the cost of the drugs at the end of the calendar year. (Note that one series can have more than one seasonal pattern.)</p>
+<p>Cyclic</p>
+<p>A cycle occurs when the data exhibit rises and falls that are not of a fixed frequency. These fluctuations are usually due to economic conditions, and are often related to the “business cycle”. The duration of these fluctuations is usually at least 2 years.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -2694,12 +1382,16 @@ Name: observations, dtype: int64</code></pre>
           display:block!important;
       }</style></aside>
 </section>
-<section id="four-contrasting-patterns" class="slide level2">
+<section id="four-contrasting-patterns" class="slide level2 scrollable">
 <h2>Four contrasting patterns</h2>
 
-<img data-src="Lecture_02_time_series_files/figure-revealjs/cell-40-output-1.png" class="quarto-figure quarto-figure-center r-stretch"><aside class="notes">
-<p>O capítulo contrasta sazonalidade e ciclo em housing, tendência no treasury, tendência com sazonalidade em electricity e mudanças aparentemente irregulares no preço do Google. Os dois primeiros painéis dependem dos arquivos locais correspondentes.</p>
-<p>[Sources] - https://otexts.com/fpppy/02-graphics.html</p>
+<img data-src="Lecture_02_time_series_files/figure-revealjs/cell-15-output-1.png" class="quarto-figure quarto-figure-center r-stretch"><aside class="notes">
+<ol type="1">
+<li><p>The monthly housing sales (top left) show strong seasonality within each year, as well as some strong cyclic behaviour with a period of about 6–10 years. There is no apparent trend in the data over this period.</p></li>
+<li><p>The US treasury bill contracts (top right) show results from the Chicago market for 100 consecutive trading days in 1981. Here there is no seasonality, but an obvious downward trend. Possibly, if we had a much longer series, we would see that this downward trend is actually part of a long cycle, but when viewed over only 100 days it appears to be a trend.</p></li>
+<li><p>The Australian quarterly electricity production (bottom left) shows a strong increasing trend, with strong seasonality. There is no evidence of any cyclic behaviour here.</p></li>
+<li><p>The daily change in the Google closing stock price (bottom right) has no trend, seasonality or cyclic behaviour.</p></li>
+</ol>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -2720,9 +1412,10 @@ Name: observations, dtype: int64</code></pre>
 <section id="monthly-seasonal-plot" class="slide level2">
 <h2>Monthly seasonal plot</h2>
 
-<img data-src="Lecture_02_time_series_files/figure-revealjs/cell-41-output-1.png" class="r-stretch"><aside class="notes">
+<img data-src="Lecture_02_time_series_files/figure-revealjs/cell-16-output-1.png" class="r-stretch"><aside class="notes">
 <p>Ao sobrepor anos, o padrão dentro do calendário fica mais evidente e anos incomuns podem ser identificados.</p>
-<p>[Sources] - https://otexts.com/fpppy/02-graphics.html</p>
+<p>A seasonal plot shows the underlying seasonal pattern more clearly and helps identify years when the pattern changes.</p>
+<p>There is a large jump in sales in January each year. These are probably sales in late December as customers stockpile before the end of the calendar year, but the sales are not registered with the government until a week or two later. The graph also shows an unusually small number of sales in March 2008 (most other years show an increase between February and March). The small number of sales in June 2008 is probably due to incomplete counting of sales when the data were collected.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -2737,9 +1430,77 @@ Name: observations, dtype: int64</code></pre>
 </section>
 <section id="multiple-seasonal-periods" class="slide level2">
 <h2>Multiple seasonal periods</h2>
-<div id="1529fca4" class="cell" data-execution_count="41">
-<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb58-1"><a href=""></a>vic_elec_df <span class="op">=</span> pd.read_csv(DATA_PATH <span class="op">/</span> <span class="st">"vic_elec.csv"</span>, parse_dates<span class="op">=</span>[<span class="st">"ds"</span>])</span>
-<span id="cb58-2"><a href=""></a>vic_elec_demand <span class="op">=</span> vic_elec_df.loc[vic_elec_df[<span class="st">"unique_id"</span>] <span class="op">==</span> <span class="st">"Demand"</span>].copy()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="74e79774" class="cell" data-execution_count="16">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href=""></a>vic_elec_df <span class="op">=</span> pd.read_csv(DATA_PATH <span class="op">/</span> <span class="st">"vic_elec.csv"</span>, parse_dates<span class="op">=</span>[<span class="st">"ds"</span>])</span>
+<span id="cb14-2"><a href=""></a>vic_elec_demand <span class="op">=</span> vic_elec_df.loc[vic_elec_df[<span class="st">"unique_id"</span>] <span class="op">==</span> <span class="st">"Demand"</span>].copy()</span>
+<span id="cb14-3"><a href=""></a>vic_elec_demand.tail()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="16">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+
+<table class="dataframe caption-top" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header" style="text-align: right;">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">ds</th>
+<th data-quarto-table-cell-role="th">unique_id</th>
+<th data-quarto-table-cell-role="th">y</th>
+<th data-quarto-table-cell-role="th">Holiday</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">52597</td>
+<td>2014-12-31 21:30:00</td>
+<td>Demand</td>
+<td>3873.448714</td>
+<td>False</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">52598</td>
+<td>2014-12-31 22:00:00</td>
+<td>Demand</td>
+<td>3791.637322</td>
+<td>False</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">52599</td>
+<td>2014-12-31 22:30:00</td>
+<td>Demand</td>
+<td>3724.835666</td>
+<td>False</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">52600</td>
+<td>2014-12-31 23:00:00</td>
+<td>Demand</td>
+<td>3761.886854</td>
+<td>False</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">52601</td>
+<td>2014-12-31 23:30:00</td>
+<td>Demand</td>
+<td>3809.414586</td>
+<td>False</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
 </div>
 <p>Half-hourly demand can show daily, weekly, and annual patterns.</p>
 <aside class="notes">
@@ -2760,7 +1521,7 @@ Name: observations, dtype: int64</code></pre>
 <section id="daily-seasonal-pattern" class="slide level2">
 <h2>Daily seasonal pattern</h2>
 
-<img data-src="Lecture_02_time_series_files/figure-revealjs/cell-43-output-1.png" class="r-stretch"><aside class="notes">
+<img data-src="Lecture_02_time_series_files/figure-revealjs/cell-18-output-1.png" class="r-stretch"><aside class="notes">
 <p>Cada linha representa um dia; o eixo horizontal representa a posição dentro do dia.</p>
 <p>[Sources] - https://otexts.com/fpppy/02-graphics.html</p>
 <style type="text/css">
@@ -2778,9 +1539,8 @@ Name: observations, dtype: int64</code></pre>
 <section id="weekly-seasonal-pattern" class="slide level2">
 <h2>Weekly seasonal pattern</h2>
 
-<img data-src="Lecture_02_time_series_files/figure-revealjs/cell-44-output-1.png" class="r-stretch"><aside class="notes">
+<img data-src="Lecture_02_time_series_files/figure-revealjs/cell-19-output-1.png" class="r-stretch"><aside class="notes">
 <p>O gráfico reorganiza observações pela posição na semana e permite comparar semanas.</p>
-<p>[Sources] - https://otexts.com/fpppy/02-graphics.html</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -2796,9 +1556,8 @@ Name: observations, dtype: int64</code></pre>
 <section id="annual-seasonal-pattern" class="slide level2">
 <h2>Annual seasonal pattern</h2>
 
-<img data-src="Lecture_02_time_series_files/figure-revealjs/cell-45-output-1.png" class="r-stretch"><aside class="notes">
+<img data-src="Lecture_02_time_series_files/figure-revealjs/cell-20-output-1.png" class="r-stretch"><aside class="notes">
 <p>A sazonalidade anual é exibida sobrepondo anos. Muitos pontos e linhas exigem interpretação cuidadosa.</p>
-<p>[Sources] - https://otexts.com/fpppy/02-graphics.html</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -2819,9 +1578,9 @@ Name: observations, dtype: int64</code></pre>
 <section id="monthly-subseries" class="slide level2">
 <h2>Monthly subseries</h2>
 
-<img data-src="Lecture_02_time_series_files/figure-revealjs/cell-46-output-1.png" class="r-stretch"><aside class="notes">
+<img data-src="Lecture_02_time_series_files/figure-revealjs/cell-21-output-1.png" class="r-stretch"><aside class="notes">
 <p>Cada painel reúne o mesmo mês ao longo dos anos; a linha azul representa a média daquele mês.</p>
-<p>[Sources] - https://otexts.com/fpppy/02-graphics.html</p>
+<p>The blue horizontal lines indicate the means for each month. This form of plot enables the underlying seasonal pattern to be seen clearly, and also shows the changes in seasonality over time. It is especially useful in identifying changes within particular seasons. In this example, the plot is not particularly revealing; but in some cases, this is the most useful way of viewing seasonal changes over time.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -2836,15 +1595,15 @@ Name: observations, dtype: int64</code></pre>
 </section>
 <section id="australian-holiday-tourism" class="slide level2">
 <h2>Australian holiday tourism</h2>
-<div id="d447da3d" class="cell" data-execution_count="46">
-<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb59-1"><a href=""></a>tourism <span class="op">=</span> pd.read_csv(DATA_PATH <span class="op">/</span> <span class="st">"tourism.csv"</span>, parse_dates<span class="op">=</span>[<span class="st">"ds"</span>])</span>
-<span id="cb59-2"><a href=""></a>trips <span class="op">=</span> (</span>
-<span id="cb59-3"><a href=""></a>    tourism.loc[<span class="kw">lambda</span> x: x[<span class="st">"Purpose"</span>] <span class="op">==</span> <span class="st">"Holiday"</span>]</span>
-<span id="cb59-4"><a href=""></a>    .groupby([<span class="st">"State"</span>, <span class="st">"ds"</span>], as_index<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb59-5"><a href=""></a>    .agg(y<span class="op">=</span>(<span class="st">"y"</span>, <span class="st">"sum"</span>))</span>
-<span id="cb59-6"><a href=""></a>)</span>
-<span id="cb59-7"><a href=""></a>trips.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="46">
+<div id="1813c53a" class="cell" data-execution_count="21">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href=""></a>tourism <span class="op">=</span> pd.read_csv(DATA_PATH <span class="op">/</span> <span class="st">"tourism.csv"</span>, parse_dates<span class="op">=</span>[<span class="st">"ds"</span>])</span>
+<span id="cb15-2"><a href=""></a>trips <span class="op">=</span> (</span>
+<span id="cb15-3"><a href=""></a>    tourism.loc[<span class="kw">lambda</span> x: x[<span class="st">"Purpose"</span>] <span class="op">==</span> <span class="st">"Holiday"</span>]</span>
+<span id="cb15-4"><a href=""></a>    .groupby([<span class="st">"State"</span>, <span class="st">"ds"</span>], as_index<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb15-5"><a href=""></a>    .agg(y<span class="op">=</span>(<span class="st">"y"</span>, <span class="st">"sum"</span>))</span>
+<span id="cb15-6"><a href=""></a>)</span>
+<span id="cb15-7"><a href=""></a>trips.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="21">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -2908,7 +1667,7 @@ Name: observations, dtype: int64</code></pre>
 </div>
 <aside class="notes">
 <p>A agregação ignora Region e soma viagens por State e quarter para Purpose igual a Holiday.</p>
-<p>[Sources] - https://otexts.com/fpppy/02-graphics.html</p>
+<p>Australian quarterly vacation data provides an interesting example of how these plots can reveal information. First we need to extract the relevant data from the tourism dataframe. All the usual pandas wrangling functions apply. To get the total visitor nights spent on Holiday by State for each quarter (i.e., ignoring Regions) we can use the following code.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -2924,9 +1683,9 @@ Name: observations, dtype: int64</code></pre>
 <section id="holiday-time-plots-by-state" class="slide level2">
 <h2>Holiday time plots by state</h2>
 
-<img data-src="Lecture_02_time_series_files/figure-revealjs/cell-48-output-1.png" class="quarto-figure quarto-figure-center r-stretch"><aside class="notes">
+<img data-src="Lecture_02_time_series_files/figure-revealjs/cell-23-output-1.png" class="quarto-figure quarto-figure-center r-stretch"><aside class="notes">
 <p>Os estados apresentam sazonabilidade forte, mas os picos não coincidem necessariamente.</p>
-<p>[Sources] - https://otexts.com/fpppy/02-graphics.html</p>
+<p>To see the timing of the seasonal peaks in each state, we can use a season plot. Figure 2.10 makes it clear that the southern states of Australia (Tasmania, Victoria and South Australia) have the strongest tourism in Q1 (their summer), while the northern states (Queensland and the Northern Territory) have the strongest tourism in Q3 (their dry season).</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -2942,9 +1701,8 @@ Name: observations, dtype: int64</code></pre>
 <section id="seasonal-plots-by-state" class="slide level2">
 <h2>Seasonal plots by state</h2>
 
-<img data-src="Lecture_02_time_series_files/figure-revealjs/cell-49-output-1.png" class="quarto-figure quarto-figure-center r-stretch"><aside class="notes">
+<img data-src="Lecture_02_time_series_files/figure-revealjs/cell-24-output-1.png" class="quarto-figure quarto-figure-center r-stretch"><aside class="notes">
 <p>O gráfico evidencia em qual trimestre cada estado tende a atingir maior atividade turística.</p>
-<p>[Sources] - https://otexts.com/fpppy/02-graphics.html</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -2960,9 +1718,9 @@ Name: observations, dtype: int64</code></pre>
 <section id="holiday-subseries-by-state" class="slide level2">
 <h2>Holiday subseries by state</h2>
 
-<img data-src="Lecture_02_time_series_files/figure-revealjs/cell-50-output-1.png" class="quarto-figure quarto-figure-center r-stretch"><aside class="notes">
+<img data-src="Lecture_02_time_series_files/figure-revealjs/cell-25-output-1.png" class="quarto-figure quarto-figure-center r-stretch"><aside class="notes">
 <p>O painel permite detectar mudanças específicas dentro de um trimestre e estado.</p>
-<p>[Sources] - https://otexts.com/fpppy/02-graphics.html</p>
+<p>The corresponding subseries plots are shown in Figure 2.11. This figure makes it evident that Western Australian tourism has jumped markedly in recent years, while Victorian tourism has increased in Q1 and Q4 but not in the middle of the year.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -2983,13 +1741,25 @@ Name: observations, dtype: int64</code></pre>
 <section id="electricity-demand" class="slide level2">
 <h2>Electricity demand</h2>
 
-<img data-src="Lecture_02_time_series_files/figure-revealjs/cell-51-output-1.png" class="r-stretch"></section>
+<img data-src="Lecture_02_time_series_files/figure-revealjs/cell-26-output-1.png" class="r-stretch"><aside class="notes">
+<p>half-hourly electricity demand (in Gigawatts)</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
 <section id="temperature" class="slide level2">
 <h2>Temperature</h2>
 
-<img data-src="Lecture_02_time_series_files/figure-revealjs/cell-52-output-1.png" class="quarto-figure quarto-figure-center r-stretch"><aside class="notes">
-<p>Os dois time plots preservam a escala de cada variável antes de examinar a relação entre elas.</p>
-<p>[Sources] - https://otexts.com/fpppy/02-graphics.html</p>
+<img data-src="Lecture_02_time_series_files/figure-revealjs/cell-27-output-1.png" class="quarto-figure quarto-figure-center r-stretch"><aside class="notes">
+<p>temperature (in degrees Celsius), for 2014 in Victoria, Australia.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -3005,9 +1775,8 @@ Name: observations, dtype: int64</code></pre>
 <section id="demand-versus-temperature" class="slide level2">
 <h2>Demand versus temperature</h2>
 
-<img data-src="Lecture_02_time_series_files/figure-revealjs/cell-53-output-1.png" class="quarto-figure quarto-figure-center r-stretch"><aside class="notes">
-<p>A relação é não linear: demanda elevada pode ocorrer em temperaturas altas e também em temperaturas baixas.</p>
-<p>[Sources] - https://otexts.com/fpppy/02-graphics.html</p>
+<img data-src="Lecture_02_time_series_files/figure-revealjs/cell-28-output-1.png" class="quarto-figure quarto-figure-center r-stretch"><aside class="notes">
+<p>This scatterplot helps us to visualise the relationship between the variables. It is clear that high demand occurs when temperatures are high due to the effect of air-conditioning. But there is also a heating effect, where demand increases for low temperatures.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -3049,38 +1818,20 @@ r = \frac{\sum_t (x_t-\bar{x})(y_t-\bar{y})}
 </section>
 <section id="different-correlations" class="slide level2">
 <h2>Different correlations</h2>
-<div id="166ed276" class="cell" data-execution_count="53">
-<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb60-1"><a href=""></a>correlations <span class="op">=</span> [<span class="op">-</span><span class="fl">0.9</span>, <span class="op">-</span><span class="fl">0.5</span>, <span class="dv">0</span>, <span class="fl">0.5</span>, <span class="fl">0.9</span>]</span>
-<span id="cb60-2"><a href=""></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">5</span>, figsize<span class="op">=</span>(<span class="dv">13</span>, <span class="dv">3</span>), sharex<span class="op">=</span><span class="va">True</span>, sharey<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb60-3"><a href=""></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">42</span>)</span>
-<span id="cb60-4"><a href=""></a><span class="cf">for</span> ax, rho <span class="kw">in</span> <span class="bu">zip</span>(axes, correlations):</span>
-<span id="cb60-5"><a href=""></a>    values <span class="op">=</span> rng.multivariate_normal([<span class="dv">0</span>, <span class="dv">0</span>], [[<span class="dv">1</span>, rho], [rho, <span class="dv">1</span>]], size<span class="op">=</span><span class="dv">120</span>)</span>
-<span id="cb60-6"><a href=""></a>    ax.scatter(values[:, <span class="dv">0</span>], values[:, <span class="dv">1</span>], s<span class="op">=</span><span class="dv">10</span>, alpha<span class="op">=</span><span class="fl">.55</span>)</span>
-<span id="cb60-7"><a href=""></a>    ax.set_title(<span class="ss">f"r ≈ </span><span class="sc">{</span>np<span class="sc">.</span>corrcoef(values.T)[<span class="dv">0</span>,<span class="dv">1</span>]<span class="sc">:.2f}</span><span class="ss">"</span>)</span>
-<span id="cb60-8"><a href=""></a>plt.tight_layout()</span>
-<span id="cb60-9"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="e8304153" class="cell" data-execution_count="28">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href=""></a>correlations <span class="op">=</span> [<span class="op">-</span><span class="fl">0.9</span>, <span class="op">-</span><span class="fl">0.5</span>, <span class="dv">0</span>, <span class="fl">0.5</span>, <span class="fl">0.9</span>]</span>
+<span id="cb16-2"><a href=""></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">5</span>, figsize<span class="op">=</span>(<span class="dv">13</span>, <span class="dv">3</span>), sharex<span class="op">=</span><span class="va">True</span>, sharey<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb16-3"><a href=""></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">42</span>)</span>
+<span id="cb16-4"><a href=""></a><span class="cf">for</span> ax, rho <span class="kw">in</span> <span class="bu">zip</span>(axes, correlations):</span>
+<span id="cb16-5"><a href=""></a>    values <span class="op">=</span> rng.multivariate_normal([<span class="dv">0</span>, <span class="dv">0</span>], [[<span class="dv">1</span>, rho], [rho, <span class="dv">1</span>]], size<span class="op">=</span><span class="dv">120</span>)</span>
+<span id="cb16-6"><a href=""></a>    ax.scatter(values[:, <span class="dv">0</span>], values[:, <span class="dv">1</span>], s<span class="op">=</span><span class="dv">10</span>, alpha<span class="op">=</span><span class="fl">.55</span>)</span>
+<span id="cb16-7"><a href=""></a>    ax.set_title(<span class="ss">f"r ≈ </span><span class="sc">{</span>np<span class="sc">.</span>corrcoef(values.T)[<span class="dv">0</span>,<span class="dv">1</span>]<span class="sc">:.2f}</span><span class="ss">"</span>)</span>
+<span id="cb16-8"><a href=""></a>plt.tight_layout()</span>
+<span id="cb16-9"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
 </div>
-<img data-src="Lecture_02_time_series_files/figure-revealjs/cell-54-output-1.png" class="r-stretch"><aside class="notes">
+<img data-src="Lecture_02_time_series_files/figure-revealjs/cell-29-output-1.png" class="r-stretch"><aside class="notes">
 <p>Este gráfico recria o conceito da figura com dados simulados e mostra direção e intensidade da associação linear.</p>
-<p>[Sources] - https://otexts.com/fpppy/02-graphics.html</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="anscombes-quartet" class="slide level2">
-<h2>Anscombe’s quartet</h2>
-
-<img data-src="Lecture_02_time_series_files/figure-revealjs/cell-55-output-1.png" class="quarto-figure quarto-figure-center r-stretch"><aside class="notes">
-<p>Este bloco usa o dataset embutido do seaborn; se o ambiente não tiver cache e estiver offline, substitua pelos valores clássicos locais. As quatro séries possuem resumos semelhantes e relações visuais distintas.</p>
 <p>[Sources] - https://otexts.com/fpppy/02-graphics.html</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
@@ -3097,7 +1848,7 @@ r = \frac{\sum_t (x_t-\bar{x})(y_t-\bar{y})}
 <section id="tourism-relationships" class="slide level2">
 <h2>Tourism relationships</h2>
 
-<img data-src="Lecture_02_time_series_files/figure-revealjs/cell-56-output-1.png" class="quarto-figure quarto-figure-center r-stretch"><aside class="notes">
+<img data-src="Lecture_02_time_series_files/figure-revealjs/cell-30-output-1.png" class="quarto-figure quarto-figure-center r-stretch"><aside class="notes">
 <p>Small multiples preservam a cronologia de cada estado.</p>
 <p>[Sources] - https://otexts.com/fpppy/02-graphics.html</p>
 <style type="text/css">
@@ -3115,9 +1866,9 @@ r = \frac{\sum_t (x_t-\bar{x})(y_t-\bar{y})}
 <section id="scatterplot-matrix" class="slide level2">
 <h2>Scatterplot matrix</h2>
 
-<img data-src="Lecture_02_time_series_files/figure-revealjs/cell-57-output-1.png" class="quarto-figure quarto-figure-center r-stretch"><aside class="notes">
+<img data-src="Lecture_02_time_series_files/figure-revealjs/cell-31-output-1.png" class="quarto-figure quarto-figure-center r-stretch"><aside class="notes">
 <p>A diagonal mostra distribuições; a metade inferior mostra relações; a metade superior resume correlação.</p>
-<p>[Sources] - https://otexts.com/fpppy/02-graphics.html</p>
+<p>The value of the scatterplot matrix is that it enables a quick view of the relationships between all pairs of variables. In this example, mostly positive relationships are revealed, with the strongest relationships being between the neighbouring states located in the south and south-east coast of Australia, namely, New South Wales, Victoria and South Australia. Some negative relationships are also revealed between the Northern Territory and other regions. The Northern Territory is located in the north of Australia, famous for its outback desert landscapes visited mostly in winter. Hence, the peak visitation in the Northern Territory is in the July (winter) quarter in contrast to January (summer) quarter for the rest of the regions.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -3138,7 +1889,7 @@ r = \frac{\sum_t (x_t-\bar{x})(y_t-\bar{y})}
 <section id="quarterly-beer-production" class="slide level2">
 <h2>Quarterly beer production</h2>
 
-<img data-src="Lecture_02_time_series_files/figure-revealjs/cell-58-output-1.png" class="quarto-figure quarto-figure-center r-stretch"><aside class="notes">
+<img data-src="Lecture_02_time_series_files/figure-revealjs/cell-32-output-1.png" class="quarto-figure quarto-figure-center r-stretch"><aside class="notes">
 <p>Relações positivas nos lags 4 e 8 refletem sazonalidade trimestral; lags 2 e 6 relacionam picos a vales.</p>
 <p>[Sources] - https://otexts.com/fpppy/02-graphics.html</p>
 <style type="text/css">
@@ -3165,27 +1916,11 @@ r_k = \frac{\sum_{t=k+1}^{T}(y_t-\bar{y})(y_{t-k}-\bar{y})}
 {\sum_{t=1}^{T}(y_t-\bar{y})^2}
 \]</span></p>
 <p>Autocorrelation measures linear association between a series and its lagged values. The collection of coefficients is the ACF.</p>
-<aside class="notes">
-<p>Cada coeficiente resume um dos painéis do lag plot.</p>
-<p>[Sources] - https://otexts.com/fpppy/02-graphics.html</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="beer-autocorrelation-coefficients" class="slide level2">
-<h2>Beer autocorrelation coefficients</h2>
-<div id="d536b756" class="cell" data-execution_count="58">
-<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb61-1"><a href=""></a>acf_values <span class="op">=</span> sm.tsa.acf(beer[<span class="st">"y"</span>], nlags<span class="op">=</span><span class="dv">9</span>, fft<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb61-2"><a href=""></a>pd.Series(acf_values, name<span class="op">=</span><span class="st">"ACF"</span>).to_frame().rename_axis(<span class="st">"lag"</span>).iloc[<span class="dv">1</span>:].head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="58">
+<div class="columns">
+<div class="column" style="width:50%;">
+<h3 id="beer-autocorrelation-coefficients">Beer autocorrelation coefficients</h3>
+<div id="b85a05fd" class="cell" data-execution_count="32">
+<div class="cell-output cell-output-display" data-execution_count="32">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -3239,32 +1974,19 @@ r_k = \frac{\sum_{t=k+1}^{T}(y_t-\bar{y})(y_{t-k}-\bar{y})}
 </div>
 </div>
 </div>
-<aside class="notes">
-<p>Compare os sinais e magnitudes com a geometria dos lag plots.</p>
-<p>[Sources] - https://otexts.com/fpppy/02-graphics.html</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="beer-acf" class="slide level2">
-<h2>Beer ACF</h2>
-<div id="83414f6a" class="cell" data-execution_count="59">
-<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb62-1"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>, <span class="dv">4</span>))</span>
-<span id="cb62-2"><a href=""></a>plot_acf(beer[<span class="st">"y"</span>], lags<span class="op">=</span><span class="dv">16</span>, zero<span class="op">=</span><span class="va">False</span>, bartlett_confint<span class="op">=</span><span class="va">False</span>, auto_ylims<span class="op">=</span><span class="va">True</span>, ax<span class="op">=</span>ax)</span>
-<span id="cb62-3"><a href=""></a>ax.<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Autocorrelation Function for Beer"</span>, xlabel<span class="op">=</span><span class="st">"lag [1Q]"</span>, ylabel<span class="op">=</span><span class="st">"acf"</span>)</span>
-<span id="cb62-4"><a href=""></a>plt.tight_layout()</span>
-<span id="cb62-5"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-
+</div><div class="column" style="width:50%;">
+<h3 id="beer-autocorrelation-function">Beer autocorrelation function</h3>
+<div id="ea814c04" class="cell" data-execution_count="33">
+<div class="cell-output cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="Lecture_02_time_series_files/figure-revealjs/cell-34-output-1.png" class="quarto-figure quarto-figure-center"></p>
+</figure>
 </div>
-<img data-src="Lecture_02_time_series_files/figure-revealjs/cell-60-output-1.png" class="r-stretch"><aside class="notes">
+</div>
+</div>
+</div></div>
+<aside class="notes">
 <p>Lag 4 é grande e positivo por sazonalidade; lag 2 tende a ser negativo porque relaciona trimestres opostos.</p>
 <p>[Sources] - https://otexts.com/fpppy/02-graphics.html</p>
 <style type="text/css">
@@ -3286,34 +2008,8 @@ r_k = \frac{\sum_{t=k+1}^{T}(y_t-\bar{y})(y_{t-k}-\bar{y})}
 <li>seasonality produces peaks at seasonal lags;</li>
 <li>trend plus seasonality combines slow decay with repeated seasonal structure.</li>
 </ul>
-<aside class="notes">
-<p>A ACF não substitui o time plot; os dois gráficos respondem perguntas complementares.</p>
-<p>[Sources] - https://otexts.com/fpppy/02-graphics.html</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="antidiabetic-sales-acf" class="slide level2">
-<h2>Antidiabetic sales ACF</h2>
-<div id="5493b6fa" class="cell" data-execution_count="60">
-<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb63-1"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>, <span class="dv">4</span>))</span>
-<span id="cb63-2"><a href=""></a>plot_acf(total_cost_df[<span class="st">"Cost"</span>], lags<span class="op">=</span><span class="dv">48</span>, zero<span class="op">=</span><span class="va">False</span>,</span>
-<span id="cb63-3"><a href=""></a>         bartlett_confint<span class="op">=</span><span class="va">False</span>, auto_ylims<span class="op">=</span><span class="va">True</span>, ax<span class="op">=</span>ax)</span>
-<span id="cb63-4"><a href=""></a>ax.<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Autocorrelation Function for Antidiabetic Drug Sales"</span>,</span>
-<span id="cb63-5"><a href=""></a>       xlabel<span class="op">=</span><span class="st">"lag [1M]"</span>, ylabel<span class="op">=</span><span class="st">"acf"</span>, ylim<span class="op">=</span>(<span class="op">-</span><span class="fl">.3</span>, <span class="va">None</span>))</span>
-<span id="cb63-6"><a href=""></a>plt.tight_layout()</span>
-<span id="cb63-7"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
-</div>
-<img data-src="Lecture_02_time_series_files/figure-revealjs/cell-61-output-1.png" class="quarto-figure quarto-figure-center r-stretch"><aside class="notes">
+<img data-src="Lecture_02_time_series_files/figure-revealjs/cell-35-output-1.png" class="quarto-figure quarto-figure-center r-stretch"><aside class="notes">
 <p>A redução lenta reflete tendência; a forma periódica reflete sazonalidade mensal.</p>
 <p>[Sources] - https://otexts.com/fpppy/02-graphics.html</p>
 <style type="text/css">
@@ -3394,7 +2090,7 @@ r_k = \frac{\sum_{t=k+1}^{T}(y_t-\bar{y})(y_{t-k}-\bar{y})}
 <h1>Key takeaways</h1>
 
 </section>
-<section id="visual-diagnostic-sequence" class="slide level2">
+<section id="visual-diagnostic-sequence" class="slide level2 scrollable">
 <h2>Visual diagnostic sequence</h2>
 <ol type="1">
 <li>validate time, identifiers, and frequency;</li>
@@ -3426,30 +2122,76 @@ r_k = \frac{\sum_{t=k+1}^{T}(y_t-\bar{y})(y_{t-k}-\bar{y})}
 <h1>Exercises</h1>
 
 </section>
-<section id="core-exercises" class="slide level2">
+<section id="core-exercises" class="slide level2 scrollable">
 <h2>Core exercises</h2>
 <ol type="1">
-<li>Plot <code>Bricks</code>, <code>Lynx</code>, <code>GOOG_Close</code>, and Victorian <code>Demand</code>.</li>
-<li>Identify the dates of peak closing prices in <code>gafa_stock</code>.</li>
-<li>Plot <code>Sales</code>, <code>AdBudget</code>, and <code>GDP</code> from <code>tute1.csv</code>.</li>
-<li>Explore annual US natural-gas consumption in New England.</li>
-<li>Create seasonal and subseries plots for quarterly arrivals.</li>
-<li>Diagnose a selected Australian retail series with time, seasonal, lag, and ACF plots.</li>
+<li>Explore the following four time series: <code>Bricks</code> from <code>aus_production</code>, <code>Lynx</code> from <code>pelt</code>, <code>GOOG_Close</code> from <code>gafa_stock</code>, <code>Demand</code> from <code>vic_elec</code>.</li>
 </ol>
-<aside class="notes">
-<p>Os exercícios são reformulados a partir da seção de exercícios do capítulo. Adapte o escopo aos arquivos disponíveis no diretório local.</p>
-<p>[Sources] - https://otexts.com/fpppy/02-graphics.html</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
+<ul>
+<li>Use <code>.info()</code> to find out about the data in each series.</li>
+<li>What is the time interval of each series?</li>
+<li>Produce a time plot of each series.</li>
+</ul>
+<ol start="2" type="1">
+<li><p>Use <code>.loc[]</code> or <code>query()</code> to find what days corresponded to the peak closing price for each of the four stocks in <code>gafa_stock</code>.</p></li>
+<li><p>Download the file <code>tute1.csv</code>, open it in Excel (or some other spreadsheet application), and review its contents. You should find four columns of information. Columns B through D each contain a quarterly series, labelled Sales, AdBudget and GDP. Sales contains the quarterly sales for a small company over the period 1981–2005. AdBudget is the advertising budget and GDP is the gross domestic product. All series have been adjusted for inflation.</p></li>
+</ol>
+<ul>
+<li>You can read the data into Python with the following script:</li>
+</ul>
+<div class="sourceCode" id="cb17"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href=""></a>tute1 <span class="op">=</span> pd.read_csv(<span class="st">"tute1.csv"</span>, parse_dates<span class="op">=</span>[<span class="st">"ds"</span>])</span>
+<span id="cb17-2"><a href=""></a>tute1.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li>Construct time series plots of each of the three series</li>
+</ul>
+<ol start="3" type="1">
+<li>The us_total.csv contains data on the demand for natural gas in the US.</li>
+</ol>
+<ul>
+<li><p>Download us_total.csv from the book website read in the csv file using pd.read_csv().</p></li>
+<li><p>Create a dataframe from us_total with year as the index.</p></li>
+<li><p>Plot the annual natural gas consumption by state for the New England area (comprising the states of Maine, Vermont, New Hampshire, Massachusetts, Connecticut and Rhode Island).</p></li>
+</ul>
+<ol start="4" type="1">
+<li>Download tourism.xlsx and read in it using pd.read_excel().</li>
+</ol>
+<ul>
+<li><p>Create a dataframe using tourism.xlsx.</p></li>
+<li><p>Find what combination of Region and Purpose had the maximum number of overnight trips on average.</p></li>
+<li><p>Create a new dataframe which combines the Purposes and Regions, and just has total trips by State.</p></li>
+</ul>
+<ol start="6" type="1">
+<li>The aus_arrivals data set comprises quarterly international arrivals to Australia from Japan, New Zealand, UK and the US.</li>
+</ol>
+<ul>
+<li><p>Use plot_series() to visualise the data.</p></li>
+<li><p>Use seaborn or matplotlib to create seasonal and subseries plots to compare the differences between the arrivals from these four countries and identify any unusual observations.</p></li>
+</ul>
+<ol start="7" type="1">
+<li>Monthly Australian retail data is provided in aus_retail. Select one of the time series as follows (but choose your own seed value):</li>
+</ol>
+<div class="sourceCode" id="cb18"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href=""></a>random <span class="op">=</span> np.random.RandomState(<span class="dv">12345678</span>)</span>
+<span id="cb18-2"><a href=""></a>random_series_id <span class="op">=</span> random.choice(aus_retail[<span class="st">"Series ID"</span>].unique())</span>
+<span id="cb18-3"><a href=""></a>myseries <span class="op">=</span> aus_retail.loc[aus_retail[<span class="st">"Series ID"</span>] <span class="op">==</span> random_series_id]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li>Explore your chosen retail time series using the following functions:</li>
+</ul>
+<div class="sourceCode" id="cb19"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href=""></a>plot_series(), seasonal_decompose(), lag_plot(), plot_acf()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li>Can you spot any seasonality, cyclicity and trend? What do you learn about the series?</li>
+</ul>
+<ol start="8" type="1">
+<li>Use the following graphics functions: <code>plot_series()</code>, <code>seasonal_decompose()</code>, <code>lag_plot()</code>, <code>plot_acf()</code> and explore features from the following time series: “Total Private” <code>Employed</code> from <code>us_employment</code>, <code>Bricks</code> from <code>aus_production</code>, <code>Hare</code> from <code>pelt</code>, “H02” <code>Cost</code> from <code>PBS</code>, and <code>Barrels</code> from <code>us_gasoline</code>.</li>
+</ol>
+<ul>
+<li>Can you spot any seasonality, cyclicity and trend?</li>
+<li>What do you learn about the series?</li>
+<li>What can you say about the seasonal patterns?</li>
+<li>Can you identify any unusual years?</li>
+</ul>
+<ol start="9" type="1">
+<li>The aus_livestock data contains the monthly total number of pigs slaughtered in Victoria, Australia, from Jul 1972 to Dec 2018. Use <code>.loc[]</code> to extract pig slaughters in Victoria between 1990 and 1995. Use <code>plot_series()</code> and <code>plot_acf()</code> for this data. If a longer period of data is used, what difference does it make to the ACF?</li>
+</ol>
 </section>
 <section id="references" class="slide level2">
 <h2>References</h2>
