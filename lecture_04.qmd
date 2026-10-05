@@ -6,6 +6,7 @@ format:
   revealjs:
     theme: white
     # smaller: true
+    scrollable: true
     toc: true
     toc-depth: 1
     slide-number: c/t
@@ -438,40 +439,16 @@ Panel scales differ. A component that fills its panel is not necessarily large r
 - https://otexts.com/fpppy/03-decomposition.html
 :::
 
-
 # Classical Decomposition
-
-<!-- ## Seasonally adjusted series -->
-
-<!-- For an additive decomposition: -->
-
-<!-- $$ -->
-<!-- y_t^{\mathrm{SA}} = y_t-\widehat S_t -->
-<!-- =\widehat T_t+\widehat R_t. -->
-<!-- $$ -->
-
-<!-- For a multiplicative decomposition: -->
-
-<!-- $$ -->
-<!-- y_t^{\mathrm{SA}}=\frac{y_t}{\widehat S_t}. -->
-<!-- $$ -->
-
-<!-- ::: {.notes} -->
-<!-- Seasonally adjusted does not mean smooth because the remainder remains. For turning points, the trend-cycle is usually the clearer visual object. -->
-
-<!-- [Sources] -->
-<!-- - https://otexts.com/fpppy/03-decomposition.html -->
-<!-- ::: -->
-
 
 ## Classical additive algorithm
 
 For seasonal period $m$:
 
-1. estimate $\widehat T_t$ with an $m$-MA or centered $2\times m$-MA;
-2. detrend: $d_t=y_t-\widehat T_t$;
-3. average $d_t$ by seasonal position and normalize so seasonal factors sum to zero;
-4. calculate
+1. estimate trend-cycle $\widehat T_t$ with an $m$-Moving Average (MA) or centered $2\times m$-MA;
+2. detrend the series: $d_t=y_t-\widehat T_t$;
+3. estimate $\widehat S_t$ by averaging $d_t$ by seasonal position and normalize so seasonal factors sum to zero;
+4. calculate the remainder component $\widehat R_t$
 
 $$
 \widehat R_t=y_t-\widehat T_t-\widehat S_t.
@@ -484,18 +461,53 @@ The seasonal pattern is assumed constant from cycle to cycle.
 - https://otexts.com/fpppy/03-decomposition.html
 :::
 
-## Moving Averages: Centered moving average of odd order
+## Trend-cycle estimation
 
-For $m=2k+1$:
+Let $m=2k+1$. The centered moving average of odd order is:
 
 $$
-\widehat T_t
+\widetilde T_t
 =
 \frac{1}{m}
 \sum_{j=-k}^{k}y_{t+j}.
 $$
 
-Nearby observations are averaged to suppress short-run fluctuations.
+The moving average of moving averages ($2\times m$-MA) can be written as:
+
+$$
+\widehat T_t
+=
+\frac{1}{m}
+\left[
+\frac{1}{2}y_{t-6}
++
+\sum_{j=-5}^{5} y_{t+j}
++
+\frac{1}{2}y_{t+6}
+\right]
+$$
+Monthly seasonality has even period $m=12$. A centered $2 \times 12$-MA is then:
+
+$$
+\widehat T_t =
+\frac{1}{24}
+\left(
+y_t
++2y_{t+1}
++2y_{t+2}
++2y_{t+3}
++2y_{t+4}
++2y_{t+5}
++2y_{t+6}
++2y_{t+7}
++2y_{t+8}
++2y_{t+9}
++2y_{t+10}
++2y_{t+11}
++y_{t+12}
+\right)
+$$
+
 
 ::: {.notes}
 Odd order produces a symmetric centered window. Estimates are unavailable near endpoints without additional rules.
@@ -504,107 +516,24 @@ Odd order produces a symmetric centered window. Estimates are unavailable near e
 - https://otexts.com/fpppy/03-decomposition.html
 :::
 
-## Australian exports
+## Trend-cycle estimation: 2x12-MA for retail employment
 
 ```{python}
-aus_exports = (
-    global_economy.loc[lambda x: x["unique_id"] == "Australia"]
-    .assign(MA_5=lambda x: x["Exports"].rolling(5, center=True).mean())
-)
-aus_exports[["ds", "Exports", "MA_5"]].head(8)
-```
-
-::: {.notes}
-The first 5-MA estimate averages five years centered on the corresponding year.
-
-[Sources]
-- https://otexts.com/fpppy/03-decomposition.html
-:::
-
-## Exports and 5-MA
-
-```{python}
+#| echo: false
+#| fig-align: center
+ma_employment = us_retail_employment.copy()
+ma_employment["12-MA"] = ma_employment["y"].rolling(12, center=True).mean().shift(-1)
+ma_employment["2x12-MA"] = ma_employment["12-MA"].rolling(2, center=True).mean()
 fig, ax = plt.subplots()
-ax.plot(aus_exports["ds"], aus_exports["Exports"], color="black", label="Exports")
-ax.plot(aus_exports["ds"], aus_exports["MA_5"], color=COLORS["trend"], label="5-MA", linewidth=2)
-ax.set(title="Total Australian exports", xlabel="Year [1Y]", ylabel="% of GDP")
+ax.plot(ma_employment["ds"], ma_employment["y"], color="0.7", label="Data")
+ax.plot(ma_employment["ds"], ma_employment["2x12-MA"], color=COLORS["trend"], label="2x12-MA", linewidth=2)
+ax.set(title="Total employment in US retail", xlabel="Month [1M]", ylabel="Persons (thousands)")
 ax.legend(frameon=False)
 plt.tight_layout(); plt.show()
 ```
 
-::: {.notes}
-The moving average reveals broad movement but omits two observations at each end for a centered 5-term window.
 
-[Sources]
-- https://otexts.com/fpppy/03-decomposition.html
-:::
 
-## Smoothness depends on order
-
-```{python}
-for window in [3, 5, 9, 15]:
-    aus_exports[f"MA_{window}"] = aus_exports["Exports"].rolling(window, center=True).mean()
-fig, ax = plt.subplots()
-ax.plot(aus_exports["ds"], aus_exports["Exports"], color="0.75", label="Data")
-for window, color in zip([3, 5, 9, 15], sns.color_palette("viridis", 4)):
-    ax.plot(aus_exports["ds"], aus_exports[f"MA_{window}"], label=f"{window}-MA", color=color)
-ax.set(title="Moving-average order controls smoothness", xlabel="Year", ylabel="Exports (% GDP)")
-ax.legend(frameon=False, ncol=2)
-plt.tight_layout(); plt.show()
-```
-
-::: {.notes}
-Larger windows smooth more strongly but can obscure turning points and create longer endpoint gaps.
-:::
-
-## Moving average of moving averages
-
-Quarterly seasonality has even period $m=4$. A centered $2\times4$ moving average is obtained by applying a 2-MA after a 4-MA.
-
-```{python}
-beer = (
-    aus_production[["ds", "Beer"]]
-    .loc[lambda x: x["ds"] >= "1992"]
-    .reset_index(drop=True)
-)
-beer["4-MA"] = beer["Beer"].rolling(4, center=True).mean().shift(-1)
-beer["2x4-MA"] = beer["4-MA"].rolling(2, center=True).mean()
-beer.head(8)
-```
-
-::: {.notes}
-The second moving average restores symmetry for an even seasonal window.
-
-[Sources]
-- https://otexts.com/fpppy/03-decomposition.html
-:::
-
-## Equivalent weighted average
-
-The $2\times4$-MA is
-
-$$
-\widehat T_t
-=
-\frac18y_{t-2}
-+
-\frac14y_{t-1}
-+
-\frac14y_t
-+
-\frac14y_{t+1}
-+
-\frac18y_{t+2}.
-$$
-
-The weights are symmetric and sum to one.
-
-::: {.notes}
-Combining simple moving averages creates a weighted moving average with smaller weights at the endpoints.
-
-[Sources]
-- https://otexts.com/fpppy/03-decomposition.html
-:::
 
 ## Trend extraction should match seasonal period
 
@@ -621,30 +550,11 @@ The window is not selected only for visual smoothness. It is aligned with the se
 - https://otexts.com/fpppy/03-decomposition.html
 :::
 
-## 2x12-MA for retail employment
-
-```{python}
-ma_employment = us_retail_employment.copy()
-ma_employment["12-MA"] = ma_employment["y"].rolling(12, center=True).mean().shift(-1)
-ma_employment["2x12-MA"] = ma_employment["12-MA"].rolling(2, center=True).mean()
-fig, ax = plt.subplots()
-ax.plot(ma_employment["ds"], ma_employment["y"], color="0.7", label="Data")
-ax.plot(ma_employment["ds"], ma_employment["2x12-MA"], color=COLORS["trend"], label="2x12-MA", linewidth=2)
-ax.set(title="Total employment in US retail", xlabel="Month [1M]", ylabel="Persons (thousands)")
-ax.legend(frameon=False)
-plt.tight_layout(); plt.show()
-```
-
-::: {.notes}
-The centered moving average largely removes annual seasonality but has no estimates at the ends.
-
-[Sources]
-- https://otexts.com/fpppy/03-decomposition.html
-:::
-
 ## Classical additive decomposition in Python
 
 ```{python}
+#| echo: false
+#| fig-align: center
 classical_add = seasonal_decompose(
     us_retail_employment.set_index("ds")["y"],
     model="additive", period=12, extrapolate_trend=0,
@@ -656,65 +566,15 @@ classical_frame = pd.DataFrame({
     "seasonal": classical_add.seasonal.to_numpy(),
     "remainder": classical_add.resid.to_numpy(),
 })
-```
-
-::: {.notes}
-The statsmodels function operationalizes classical decomposition. Missing trend and remainder values at the endpoints are retained to make the limitation visible.
-:::
-
-## Classical additive components
-
-```{python}
 fig, axes = component_plot(classical_frame, title="Classical additive decomposition")
 plt.show()
 ```
 
 ::: {.notes}
+The statsmodels function operationalizes classical decomposition. Missing trend and remainder values at the endpoints are retained to make the limitation visible.
+
 Compare this with STL. Classical seasonality repeats exactly and endpoint estimates are absent.
-
-[Sources]
-- https://otexts.com/fpppy/03-decomposition.html
 :::
-
-<!-- ## Classical multiplicative algorithm -->
-
-<!-- 1. estimate $\widehat T_t$; -->
-<!-- 2. detrend: $d_t=y_t/\widehat T_t$; -->
-<!-- 3. average ratios by season and normalize so seasonal indices sum to $m$; -->
-<!-- 4. calculate -->
-
-<!-- $$ -->
-<!-- \widehat R_t -->
-<!-- = -->
-<!-- \frac{y_t}{\widehat T_t\widehat S_t}. -->
-<!-- $$ -->
-
-<!-- ::: {.notes} -->
-<!-- Multiplicative seasonal indices average to one, equivalently sum to m across one full seasonal cycle. -->
-
-<!-- [Sources] -->
-<!-- - https://otexts.com/fpppy/03-decomposition.html -->
-<!-- ::: -->
-
-<!-- ## Multiplicative decomposition of gas -->
-
-<!-- ```{python} -->
-<!-- recent_gas = gas.tail(5 * 4).set_index("ds")["Gas"] -->
-<!-- classical_mult = seasonal_decompose(recent_gas, model="multiplicative", period=4) -->
-<!-- mult_frame = pd.DataFrame({ -->
-<!--     "ds": recent_gas.index, -->
-<!--     "data": recent_gas.to_numpy(), -->
-<!--     "trend": classical_mult.trend.to_numpy(), -->
-<!--     "seasonal": classical_mult.seasonal.to_numpy(), -->
-<!--     "remainder": classical_mult.resid.to_numpy(), -->
-<!-- }) -->
-<!-- fig, axes = component_plot(mult_frame, title="Classical multiplicative decomposition of gas") -->
-<!-- plt.show() -->
-<!-- ``` -->
-
-<!-- ::: {.notes} -->
-<!-- Interpret the seasonal and remainder panels as ratios around one, not quantities in the original gas unit. -->
-<!-- ::: -->
 
 ## Limitations of classical decomposition
 
@@ -726,65 +586,6 @@ Compare this with STL. Classical seasonality repeats exactly and endpoint estima
 
 ::: {.notes}
 The chapter explicitly does not recommend classical decomposition when better methods are available, although it remains useful for understanding the logic.
-
-[Sources]
-- https://otexts.com/fpppy/03-decomposition.html
-:::
-
-## Outlier contamination experiment
-
-```{python}
-gas_outlier = recent_gas.copy()
-gas_outlier.iloc[len(gas_outlier)//2] += 300
-base_dec = seasonal_decompose(recent_gas, model="multiplicative", period=4)
-out_dec = seasonal_decompose(gas_outlier, model="multiplicative", period=4)
-fig, ax = plt.subplots()
-ax.plot(recent_gas.index, recent_gas / base_dec.seasonal, label="Original adjusted")
-ax.plot(gas_outlier.index, gas_outlier / out_dec.seasonal, label="With outlier adjusted", alpha=.8)
-ax.set(title="Classical seasonal adjustment is sensitive to unusual values", xlabel="Quarter", ylabel="Seasonally adjusted gas")
-ax.legend(frameon=False)
-plt.tight_layout(); plt.show()
-```
-
-::: {.notes}
-The extreme value can influence the estimated trend and seasonal indices, spreading its impact beyond a single period.
-:::
-
-# 3.5 Official Seasonal Adjustment
-
-## X-11 and SEATS
-
-Official statistical agencies commonly use variants of:
-
-- **X-11**, based on classical decomposition with additional procedures;
-- **SEATS**, Seasonal Extraction in ARIMA Time Series;
-- combinations of both.
-
-They are designed primarily for monthly and quarterly official series.
-
-::: {.notes}
-The chapter states that these procedures are not intended for daily, hourly, or weekly seasonality.
-
-[Sources]
-- https://otexts.com/fpppy/03-decomposition.html
-:::
-
-## What X-11 adds
-
-The chapter highlights that X-11:
-
-- provides endpoint trend-cycle estimates;
-- allows slowly changing seasonality;
-- handles trading-day and holiday variation;
-- can include known predictors;
-- supports additive and multiplicative forms;
-- is designed to be robust to outliers and level shifts.
-
-::: {.notes}
-This slide summarizes capabilities explicitly described in the chapter. The detailed X-11 algorithm is beyond this lecture.
-
-[Sources]
-- https://otexts.com/fpppy/03-decomposition.html
 :::
 
 # STL Decomposition
@@ -800,15 +601,6 @@ STL estimates:
 - a remainder;
 - optionally robust weights for unusual observations.
 
-::: {.notes}
-LOESS is a local regression smoother. STL was introduced by Cleveland and coauthors and later extended to multiple seasonal patterns through MSTL.
-
-[Sources]
-- https://otexts.com/fpppy/03-decomposition.html
-:::
-
-## Advantages and limitations
-
 ### Advantages
 
 - supports many seasonal periods, not only monthly or quarterly;
@@ -822,15 +614,16 @@ LOESS is a local regression smoother. STL was introduced by Cleveland and coauth
 - directly provides additive decomposition only.
 
 ::: {.notes}
-A multiplicative interpretation can be approached by logging positive data before STL.
+LOESS is a local regression smoother. STL was introduced by Cleveland and coauthors and later extended to multiple seasonal patterns through MSTL.
 
-[Sources]
-- https://otexts.com/fpppy/03-decomposition.html
+A multiplicative interpretation can be approached by logging positive data before STL.
 :::
 
-## Robust STL
+## Robust STL components
 
 ```{python}
+#| echo: false
+#| fig-align: center
 stl_robust = STL(
     us_retail_employment["y"],
     period=12,
@@ -846,32 +639,22 @@ robust_frame = pd.DataFrame({
     "seasonal": res_robust.seasonal,
     "remainder": res_robust.resid,
 })
-```
 
-::: {.notes}
-The seasonal and trend windows are odd integers. Smaller values permit more rapid component changes.
-
-[Sources]
-- https://otexts.com/fpppy/03-decomposition.html
-:::
-
-## Robust STL components
-
-```{python}
 fig, axes = component_plot(robust_frame, title="Robust STL decomposition with flexible trend")
 plt.show()
 ```
 
 ::: {.notes}
-Compare the remainder around the global financial crisis with the default decomposition. A too-rigid trend can leak systematic movement into the remainder.
+The seasonal and trend windows are odd integers. Smaller values permit more rapid component changes.
 
-[Sources]
-- https://otexts.com/fpppy/03-decomposition.html
+Compare the remainder around the global financial crisis with the default decomposition. A too-rigid trend can leak systematic movement into the remainder.
 :::
 
 ## Trend-window sensitivity
 
 ```{python}
+#| echo: false
+#| fig-align: center
 trend_windows = [21, 37, 61]
 fig, ax = plt.subplots()
 ax.plot(us_retail_employment["ds"], us_retail_employment["y"], color="0.85", label="Data")
@@ -891,6 +674,8 @@ Smaller trend windows allow more rapid changes. Larger windows produce smoother 
 ## Seasonal-window sensitivity
 
 ```{python}
+#| echo: false
+#| fig-align: center
 seasonal_windows = [7, 13, 25]
 fig, axes = plt.subplots(3, 1, sharex=True, figsize=(11, 7))
 for ax, window, color in zip(axes, seasonal_windows, sns.color_palette("viridis", 3)):
@@ -910,6 +695,8 @@ A smaller seasonal smoother permits the shape to evolve more rapidly; a larger o
 ## Robust versus non-robust STL
 
 ```{python}
+#| echo: false
+#| fig-align: center
 series_outlier = us_retail_employment["y"].copy()
 position = len(series_outlier) // 2
 series_outlier.iloc[position] += 2500
@@ -926,164 +713,218 @@ plt.tight_layout(); plt.show()
 
 ::: {.notes}
 Robust STL does not make the outlier disappear. It seeks to keep unusual observations from distorting the trend and seasonal components, leaving the impact in the remainder.
-
-[Sources]
-- https://otexts.com/fpppy/03-decomposition.html
 :::
 
-## Remainder diagnostics
+## Official Seasonal Adjustment: X-11 and SEATS
+
+Official statistical agencies commonly use variants of:
+
+- **X-11**, based on classical decomposition with additional procedures;
+- **SEATS**, Seasonal Extraction in ARIMA Time Series;
+- combinations of both.
+
+They are designed primarily for monthly and quarterly official series.
+
+::: {.notes}
+The chapter states that these procedures are not intended for daily, hourly, or weekly seasonality.
+
+X11
+- provides endpoint trend-cycle estimates;
+- allows slowly changing seasonality;
+- handles trading-day and holiday variation;
+- can include known predictors;
+- supports additive and multiplicative forms;
+- is designed to be robust to outliers and level shifts.
+
+:::
+
+# Outliers
+
+## What is an outlier?
+
+An outlier is an observation that is very different from most observations in the time series.
+
+An outlier may be:
+
+- a recording or processing error;
+- a valid but unusual event;
+- evidence of model misspecification;
+- evidence of a level shift or structural change.
+
+::: {.notes}
+
+A value can appear ordinary marginally but be unusual for:
+- its season;
+- its neighboring observations;
+- the current trend level;
+- its day of week or quarter;
+- the variance regime at that time.
+
+> Outlier detection for time series should respect temporal structure.
+
+A global boxplot of the raw data may flag regular seasonal peaks rather than anomalies.
+:::
+
+## Adelaide Hills tourism data
 
 ```{python}
-fig, axes = plt.subplots(1, 2, figsize=(11, 4.5))
-axes[0].plot(robust_frame["ds"], robust_frame["remainder"], color=COLORS["remainder"])
-axes[0].axhline(0, color="0.4", linewidth=1)
-axes[0].set(title="Remainder through time", xlabel="Month", ylabel="Remainder")
-plot_acf(robust_frame["remainder"].dropna(), lags=36, zero=False, ax=axes[1])
-axes[1].set(title="Remainder ACF", xlabel="Lag [1M]")
+#| echo: false
+#| fig-align: center
+tourism_raw = pd.read_csv(DATA_PATH / "tourism.csv", parse_dates=["ds"])
+tourism = (
+    tourism_raw
+    .loc[lambda x: (x["Region"] == "Adelaide Hills") &
+                   (x["Purpose"] == "Visiting")]
+    .assign(unique_id="trips")
+    .reset_index(drop=True)
+    [["unique_id", "ds", "y"]]
+)
+
+fig, ax = plot_series_matplotlib(
+    tourism,
+    title="Quarterly overnight trips to Adelaide Hills",
+    xlabel="Quarter [1Q]",
+    ylabel="Number of trips",
+)
+plt.show()
+```
+
+::: {.notes}
+This reproduces the series used in the source subsection: quarterly overnight trips to Adelaide Hills for the Visiting purpose.
+
+[Sources]
+- https://otexts.com/fpppy/13-practical.html#sec-missing-outliers
+:::
+
+## Adelaide Hills tourism data: suspected outlier observation
+
+```{python}
+#| echo: false
+#| fig-align: center
+suspected_date = pd.Timestamp("2002-10-01")
+suspected = tourism.loc[tourism["ds"] == suspected_date]
+fig, ax = plt.subplots()
+ax.plot(tourism["ds"], tourism["y"], color=COLORS["observed"], linewidth=1.2)
+ax.scatter(suspected["ds"], suspected["y"], color=COLORS["outlier"], s=90,
+           zorder=3, label="Candidate: 2002 Q4")
+ax.set(title="Candidate outlier shown in temporal context",
+       xlabel="Quarter [1Q]", ylabel="Number of trips")
+ax.legend(frameon=False)
+plt.tight_layout(); plt.show()
+```
+
+
+## Why decompose before detecting?
+
+```{python}
+#| echo: false
+#| fig-align: center
+stl = STL(tourism["y"], period=4, robust=True)
+stl_result = stl.fit()
+dcmp = pd.DataFrame({
+    "ds": tourism["ds"].to_numpy(),
+    "data": tourism["y"].to_numpy(),
+    "trend": stl_result.trend,
+    "seasonal": stl_result.seasonal,
+    "remainder": stl_result.resid,
+})
+
+fig, axes = plt.subplots(4, 1, sharex=True, figsize=(11, 7))
+for ax, column, label, color in zip(
+    axes,
+    ["data", "trend", "seasonal", "remainder"],
+    ["Observed", "Trend", "Seasonal", "Remainder"],
+    [COLORS["observed"], COLORS["trend"], COLORS["seasonal"], COLORS["remainder"]],
+):
+    ax.plot(dcmp["ds"], dcmp[column], color=color)
+    ax.set_ylabel(label)
+axes[-1].set_xlabel("Quarter")
+fig.suptitle("Robust STL decomposition")
 plt.tight_layout(); plt.show()
 ```
 
 ::: {.notes}
-Look for leftover autocorrelation, changing variance, unusual observations, and unresolved seasonal peaks. The remainder need not be white noise, but visible structure indicates incomplete decomposition for the intended purpose.
+
+The chapter recommends STL decomposition as a useful way to reveal outliers in the remainder series.
+
+A seasonally high value may be normal. An unusual remainder is unusual **after accounting for estimated trend and seasonality**.
+
+The book implements robust STL through MSTL with one seasonal period. Here, statsmodels STL gives the corresponding single-season robust decomposition directly.
 :::
 
-## Component scales can mislead
-
-A decomposition plot usually gives each panel its own vertical scale.
-
-Therefore:
-
-- panel height is not component importance;
-- compare axis values, not visual amplitude alone;
-- annotate units and zero lines;
-- use overlays when direct magnitude comparison matters.
-
-::: {.notes}
-This visual-literacy point is central to decomposition plots and appears again in the chapter exercises.
-:::
-
-## Overlay components on a common scale
+## Adelaide Hills tourism data: Remainder component
 
 ```{python}
+#| echo: false
+#| fig-align: center
 fig, ax = plt.subplots()
-ax.plot(robust_frame["ds"], robust_frame["data"], color=COLORS["data"], label="Data")
-ax.plot(robust_frame["ds"], robust_frame["trend"], color=COLORS["trend"], label="Trend")
-ax.plot(robust_frame["ds"], robust_frame["seasonally_adjusted"] if "seasonally_adjusted" in robust_frame else robust_frame["data"]-robust_frame["seasonal"],
-        color=COLORS["adjusted"], label="Seasonally adjusted", alpha=.8)
-ax.set(title="Common-scale comparison", xlabel="Month", ylabel="Persons (thousands)")
+ax.plot(dcmp["ds"], dcmp["remainder"], color=COLORS["remainder"])
+ax.axhline(0, color="0.35", linewidth=1)
+ax.scatter(suspected_date,
+           dcmp.loc[dcmp["ds"] == suspected_date, "remainder"],
+           color=COLORS["outlier"], s=90, zorder=3)
+ax.set(title="Outliers should be judged against the remainder",
+       xlabel="Quarter", ylabel="Remainder")
+plt.tight_layout(); plt.show()
+```
+
+::: {.notes}
+The remainder plot preserves time ordering, allowing detection of isolated spikes, clusters, and changes in variance.
+:::
+
+## Adelaide Hills tourism data: Z-Score
+
+```{python}
+dcmp["remainder"]
+```
+
+
+## Adelaide Hills tourism data: Remainder Boxplot
+
+```{python}
+#| echo: false
+#| fig-align: center
+q1 = dcmp["remainder"].quantile(.25)
+q3 = dcmp["remainder"].quantile(.75)
+iqr = q3 - q1
+lower = q1 - 3 * iqr
+upper = q3 + 3 * iqr
+outliers = dcmp.loc[~dcmp["remainder"].between(lower, upper)].copy()
+fig, ax = plt.subplots()
+sns.boxplot(x=dcmp["remainder"], color="#56B4E9", whis=3, ax=ax)
+ax.set(title="Remainder boxplot with 3-IQR whisker rule",
+       xlabel="Remainder")
+plt.tight_layout(); plt.show()
+```
+
+## IQR rule on the remainder
+
+Let $\operatorname{IQR}=Q_3-Q_1$. A general fence with multiplier $k$ is $L=Q_1-k\operatorname{IQR}, \ U=Q_3+k\operatorname{IQR}$
+
+
+```{python}
+#| echo: false
+#| fig-align: center
+fig, ax = plt.subplots()
+ax.plot(dcmp["ds"], dcmp["remainder"], color=COLORS["remainder"], label="Remainder")
+ax.axhline(lower, color=COLORS["outlier"], linestyle="--", label="3-IQR fences")
+ax.axhline(upper, color=COLORS["outlier"], linestyle="--")
+ax.scatter(outliers["ds"], outliers["remainder"], color=COLORS["outlier"],
+           s=75, zorder=3, label="Flagged")
+ax.set(title="Remainder-based candidate outliers",
+       xlabel="Quarter", ylabel="Remainder")
 ax.legend(frameon=False)
 plt.tight_layout(); plt.show()
 ```
 
 ::: {.notes}
-A common-scale overlay clarifies the relative magnitude of trend and seasonal adjustment, but too many overlapping lines can reduce readability.
-:::
+Flag observations for which $R_t<L$ or $R_t>U$.
 
-# Integrated Visual Workflow
+The book discusses k equal to 1.5 and prefers a stricter k equal to 3 for this context.
 
-## Decomposition decision guide
+The source section reports that this rule identifies the suspected observation plus three additional observations in the example.
 
-| Evidence | Useful response |
-|---|---|
-| trading-day variation | calendar adjustment |
-| total driven by population | per-capita adjustment |
-| nominal monetary growth | inflation adjustment |
-| amplitude grows with level | log or Box-Cox, then additive method |
-| stable fixed seasonality | classical decomposition may describe it |
-| evolving seasonality | STL |
-| unusual observations | robust STL and explicit investigation |
-| multiple seasonal periods | MSTL or another multi-seasonal method |
-
-::: {.notes}
-This guide summarizes analytical choices. It is not a substitute for inspection and domain knowledge.
-:::
-
-## Visual diagnostic protocol
-
-1. plot the original series;
-2. label units and frequency;
-3. inspect seasonal amplitude against level;
-4. remove known calendar, population, or price effects;
-5. compare plausible transformations;
-6. estimate components;
-7. compare observed, trend, and adjusted series;
-8. inspect remainder over time and by ACF;
-9. test sensitivity to windows and robust fitting;
-10. document choices and limitations.
-
-::: {.notes}
-The protocol is the reusable output of the lecture.
-:::
-
-## What decomposition does not prove
-
-Decomposition alone does not prove:
-
-- causality;
-- that a remainder is random;
-- that a trend will continue;
-- that a seasonal pattern is structurally stable;
-- that the selected transformation is optimal;
-- that forecasts will be accurate.
-
-::: {.notes}
-Components are estimated descriptive structures, not autonomous causal mechanisms.
-:::
-
-# Practice
-
-## Capstone exercise
-
-Choose one local series and produce a decomposition report that:
-
-1. defines frequency, seasonal period, and units;
-2. identifies needed calendar, population, or inflation adjustments;
-3. compares original and transformed scales;
-4. justifies additive or multiplicative structure;
-5. visualizes a moving-average trend;
-6. performs classical decomposition;
-7. performs robust STL;
-8. compares seasonally adjusted and trend-cycle series;
-9. diagnoses the remainder;
-10. reports parameter sensitivity and limitations.
-
-::: {.notes}
-Suggested series include Gas from aus_production, Retail Trade from us_employment, and a positive retail series.
-:::
-
-## Guided gas exercise
-
-Using the last five years of quarterly gas production:
-
-- plot and describe seasonality and trend;
-- calculate a multiplicative classical decomposition;
-- plot seasonal indices;
-- compute seasonally adjusted gas;
-- insert an outlier in the middle and repeat;
-- insert an outlier near an endpoint and compare;
-- explain why the effect differs.
-
-::: {.notes}
-This closely follows the chapter's exercise structure while emphasizing visual comparison and outlier sensitivity.
-
-[Sources]
-- https://otexts.com/fpppy/03-decomposition.html
-:::
-
-## Assessment rubric
-
-| Dimension | Evidence |
-|---|---|
-| Mathematical precision | additive, multiplicative, MA, and adjustment formulas are correct |
-| Visual reasoning | component scales and overlays are interpreted carefully |
-| Transformation | scale choice is justified and units are updated |
-| Seasonality | period and stability are explained |
-| Robustness | outliers and parameter sensitivity are examined |
-| Diagnostics | remainder is inspected through time and autocorrelation |
-| Reproducibility | paths, windows, periods, and options are explicit |
-
-::: {.notes}
-A strong submission explains why each component is useful and what uncertainty remains.
+Plotting the fences makes the rule auditable. The points are flags for investigation, not proof of error.
 :::
 
 # Key Takeaways
@@ -1105,22 +946,63 @@ A strong submission explains why each component is useful and what uncertainty r
 Ask students to distinguish trend-cycle from seasonally adjusted data before ending the lecture.
 :::
 
-## Final checklist
+## Visual diagnostic protocol
 
-- [ ] Is the frequency and seasonal period explicit?
-- [ ] Are known calendar and scale effects adjusted?
-- [ ] Is the transformation valid for the data domain?
-- [ ] Is additive or multiplicative structure justified?
-- [ ] Does the moving-average window match the seasonal period?
-- [ ] Are endpoint losses visible?
-- [ ] Can seasonality evolve over time?
-- [ ] Were robust and non-robust results compared?
-- [ ] Does the remainder retain structure?
-- [ ] Are component scales and units communicated honestly?
+1. plot the original series;
+2. label units and frequency;
+3. inspect seasonal amplitude against level;
+4. remove known calendar, population, or price effects;
+5. compare plausible transformations;
+6. estimate components;
+7. compare observed, trend, and adjusted series;
+8. inspect remainder over time and by ACF;
+9. test sensitivity to windows and robust fitting;
+10. document choices and limitations.
 
 ::: {.notes}
-This checklist can be reused for forecasting projects and decomposition-based dashboards.
+The protocol is the reusable output of the lecture.
 :::
+
+# Exercises
+
+## Core Exercises
+
+1. Consider the GDP information in `global_economy`. Plot the GDP per capita for each country over time. Which country has the highest GDP per capita? How has this changed over time?
+
+2. For each of the following series, make a graph of the data. If transforming seems appropriate, do so and describe the effect.
+
+- United States GDP from `global_economy`.
+- Slaughter of Victorian “Bulls, bullocks and steers” in `aus_livestock`.
+- Victorian Electricity Demand from `vic_elec`.
+- Gas production from `aus_production`.
+
+3. Why is a Box-Cox transformation unhelpful for the `canadian_gas` data?
+
+<!-- 4. What Box-Cox transformation would you select for your retail data (from Exercise 7 in Section 2.10)? -->
+
+4. For the following series, find an appropriate Box-Cox transformation in order to stabilise the variance. Tobacco from `aus_production`, Economy class passengers between Melbourne and Sydney from `ansett`, and Pedestrian counts at Southern Cross Station from `pedestrian`.
+
+<!-- 5. Show that a  3×5 MA is equivalent to a 7-term weighted moving average with weights of 0.067, 0.133, 0.200, 0.200, 0.200, 0.133, and 0.067. -->
+
+5. Consider the last five years of the Gas data from aus_production.
+
+```python
+gas = aus_production.loc[lambda x: x["unique_id"] == "Gas"].tail(5 * 4)
+```
+- Plot the time series. Can you identify seasonal fluctuations and/or a trend-cycle?
+- Use `seasonal_decompose` with model='multiplicative' to calculate the trend-cycle and seasonal indices.
+- Do the results support the graphical interpretation from part a?
+- Compute and plot the seasonally adjusted data.
+- Change one observation to be an outlier (e.g., add 300 to one observation), and recompute the seasonally adjusted data. What is the effect of the outlier?
+- Does it make any difference if the outlier is near the end rather than in the middle of the time series?
+
+
+6. This exercise uses the `canadian_gas` data (monthly Canadian gas production in billions of cubic metres, January 1960 – February 2005).
+
+- Plot the data using to look at the effect of the changing seasonality over time.1
+- Do an STL decomposition of the data using `STL()`.
+- How does the seasonal shape change over time? [Hint: Try plotting the seasonal component.]
+- Can you produce a plausible seasonally adjusted series?
 
 # References
 
@@ -1135,6 +1017,4 @@ This checklist can be reused for forecasting projects and decomposition-based da
 ::: {.notes}
 The teaching prose, organization, and extension examples were written for this lecture. The chapter is the primary conceptual and code reference.
 
-[Sources]
-- https://otexts.com/fpppy/03-decomposition.html
 :::

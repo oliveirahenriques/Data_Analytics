@@ -5,7 +5,7 @@ author: "Victor Henriques, Ph.D."
 format:
   revealjs:
     theme: white
-    smaller: true
+    # smaller: true
     toc: true
     toc-depth: 1
     slide-number: c/t

@@ -489,7 +489,7 @@ Victor Henriques, Ph.D.
 </section>
 <section id="a-time-series-in-a-dataframe" class="slide level2">
 <h2>A time series in a DataFrame</h2>
-<div id="9c5f0ebf" class="cell" data-execution_count="2">
+<div id="aedbdb05" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href=""></a>df <span class="op">=</span> pd.DataFrame({</span>
 <span id="cb1-2"><a href=""></a>    <span class="st">"Year"</span>: <span class="bu">list</span>(<span class="bu">range</span>(<span class="dv">2015</span>, <span class="dv">2020</span>)),</span>
 <span id="cb1-3"><a href=""></a>    <span class="st">"Observation"</span>: [<span class="dv">123</span>, <span class="dv">39</span>, <span class="dv">78</span>, <span class="dv">52</span>, <span class="dv">110</span>],</span>
@@ -569,7 +569,7 @@ Victor Henriques, Ph.D.
 </section>
 <section id="index-columns-and-data-types" class="slide level2">
 <h2>Index, columns, and data types</h2>
-<div id="27fca2ec" class="cell" data-execution_count="3">
+<div id="43399e07" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href=""></a><span class="bu">print</span>(df.index)</span>
 <span id="cb2-2"><a href=""></a><span class="bu">print</span>(df.columns)</span>
 <span id="cb2-3"><a href=""></a><span class="bu">print</span>(df.dtypes)</span>
@@ -583,7 +583,7 @@ dtype: object
 &lt;class 'pandas.core.series.Series'&gt;</code></pre>
 </div>
 </div>
-<div id="7f8b96cb" class="cell" data-execution_count="4">
+<div id="4f37ea61" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href=""></a>year_df <span class="op">=</span> df.set_index(<span class="st">"Year"</span>)</span>
 <span id="cb4-2"><a href=""></a>year_df</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="4">
@@ -657,7 +657,7 @@ dtype: object
 </section>
 <section id="timestamps-and-periods" class="slide level2">
 <h2>Timestamps and periods</h2>
-<div id="9594017c" class="cell" data-execution_count="5">
+<div id="74db273d" class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href=""></a><span class="bu">print</span>(<span class="bu">repr</span>(pd.Timestamp(<span class="st">"2020-01"</span>)))</span>
 <span id="cb5-2"><a href=""></a><span class="bu">print</span>(<span class="bu">repr</span>(pd.Period(<span class="st">"2020-01"</span>, freq<span class="op">=</span><span class="st">"M"</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -686,7 +686,7 @@ Period('2020-01', 'M')</code></pre>
 </section>
 <section id="timestamp-attributes" class="slide level2">
 <h2>Timestamp attributes</h2>
-<div id="9cc2d350" class="cell" data-execution_count="6">
+<div id="edf820cb" class="cell" data-execution_count="6">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href=""></a>timestamps <span class="op">=</span> pd.date_range(<span class="st">"2020-01-01"</span>, periods<span class="op">=</span><span class="dv">3</span>, freq<span class="op">=</span><span class="st">"D"</span>)</span>
 <span id="cb7-2"><a href=""></a>ts_frame <span class="op">=</span> pd.DataFrame(index<span class="op">=</span>timestamps)</span>
 <span id="cb7-3"><a href=""></a>ts_frame[<span class="st">"date"</span>] <span class="op">=</span> ts_frame.index.date</span>
@@ -760,7 +760,7 @@ Period('2020-01', 'M')</code></pre>
 </section>
 <section id="key-variables-identify-separate-series" class="slide level2">
 <h2>Key variables identify separate series</h2>
-<div id="0a03013e" class="cell" data-execution_count="7">
+<div id="f513cd07" class="cell" data-execution_count="7">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href=""></a>olympic_running <span class="op">=</span> pd.read_csv(DATA_PATH <span class="op">/</span> <span class="st">"olympic_running_unparsed.csv"</span>)</span>
 <span id="cb8-2"><a href=""></a>olympic_running.head(<span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="7">
@@ -817,7 +817,7 @@ Period('2020-01', 'M')</code></pre>
 </div>
 </div>
 </div>
-<div id="6a771ace" class="cell" data-execution_count="8">
+<div id="2efc1193" class="cell" data-execution_count="8">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href=""></a>key_columns <span class="op">=</span> [<span class="st">"Length"</span>, <span class="st">"Sex"</span>]</span>
 <span id="cb9-2"><a href=""></a>olympic_running.groupby(key_columns).size().rename(<span class="st">"observations"</span>).head(<span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="8">
@@ -846,7 +846,7 @@ Name: observations, dtype: int64</code></pre>
 </section>
 <section id="wide-and-long-representations" class="slide level2">
 <h2>Wide and long representations</h2>
-<div id="d0c78b1f" class="cell" data-execution_count="9">
+<div id="a9980a12" class="cell" data-execution_count="9">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href=""></a>wide_demo <span class="op">=</span> olympic_running.pivot_table(</span>
 <span id="cb11-2"><a href=""></a>    index<span class="op">=</span><span class="st">"Year"</span>, columns<span class="op">=</span>[<span class="st">"Length"</span>, <span class="st">"Sex"</span>], values<span class="op">=</span><span class="st">"Time"</span></span>
 <span id="cb11-3"><a href=""></a>)</span>
@@ -1022,7 +1022,7 @@ Name: observations, dtype: int64</code></pre>
 </section>
 <section id="working-with-time-series-dataframes" class="slide level2">
 <h2>Working with time series dataframes</h2>
-<div id="a9503cce" class="cell" data-execution_count="10">
+<div id="3c0e5929" class="cell" data-execution_count="10">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href=""></a>pbs <span class="op">=</span> (</span>
 <span id="cb12-2"><a href=""></a>    pd.read_csv(DATA_PATH <span class="op">/</span> <span class="st">"PBS_unparsed.csv"</span>, parse_dates<span class="op">=</span>[<span class="st">"Month"</span>])</span>
 <span id="cb12-3"><a href=""></a>    [[<span class="st">"Month"</span>, <span class="st">"Concession"</span>, <span class="st">"Type"</span>, <span class="st">"ATC1"</span>, <span class="st">"ATC2"</span>, <span class="st">"Scripts"</span>, <span class="st">"Cost"</span>]]</span>
@@ -1131,7 +1131,7 @@ Name: observations, dtype: int64</code></pre>
 </section>
 <section id="filter-and-aggregate-one-monthly-series" class="slide level2">
 <h2>Filter and aggregate one monthly series</h2>
-<div id="0ff2b005" class="cell" data-execution_count="11">
+<div id="2a1840c5" class="cell" data-execution_count="11">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href=""></a>total_cost_df <span class="op">=</span> pd.read_csv(DATA_PATH <span class="op">/</span> <span class="st">"total_cost_df.csv"</span>)</span>
 <span id="cb13-2"><a href=""></a></span>
 <span id="cb13-3"><a href=""></a>a10 <span class="op">=</span> pbs.loc[pbs[<span class="st">"ATC2"</span>] <span class="op">==</span> <span class="st">"A10"</span>]</span>
@@ -1430,7 +1430,7 @@ Name: observations, dtype: int64</code></pre>
 </section>
 <section id="multiple-seasonal-periods" class="slide level2">
 <h2>Multiple seasonal periods</h2>
-<div id="74e79774" class="cell" data-execution_count="16">
+<div id="201d4769" class="cell" data-execution_count="16">
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href=""></a>vic_elec_df <span class="op">=</span> pd.read_csv(DATA_PATH <span class="op">/</span> <span class="st">"vic_elec.csv"</span>, parse_dates<span class="op">=</span>[<span class="st">"ds"</span>])</span>
 <span id="cb14-2"><a href=""></a>vic_elec_demand <span class="op">=</span> vic_elec_df.loc[vic_elec_df[<span class="st">"unique_id"</span>] <span class="op">==</span> <span class="st">"Demand"</span>].copy()</span>
 <span id="cb14-3"><a href=""></a>vic_elec_demand.tail()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -1595,7 +1595,7 @@ Name: observations, dtype: int64</code></pre>
 </section>
 <section id="australian-holiday-tourism" class="slide level2">
 <h2>Australian holiday tourism</h2>
-<div id="1813c53a" class="cell" data-execution_count="21">
+<div id="f5538f3c" class="cell" data-execution_count="21">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href=""></a>tourism <span class="op">=</span> pd.read_csv(DATA_PATH <span class="op">/</span> <span class="st">"tourism.csv"</span>, parse_dates<span class="op">=</span>[<span class="st">"ds"</span>])</span>
 <span id="cb15-2"><a href=""></a>trips <span class="op">=</span> (</span>
 <span id="cb15-3"><a href=""></a>    tourism.loc[<span class="kw">lambda</span> x: x[<span class="st">"Purpose"</span>] <span class="op">==</span> <span class="st">"Holiday"</span>]</span>
@@ -1818,7 +1818,7 @@ r = \frac{\sum_t (x_t-\bar{x})(y_t-\bar{y})}
 </section>
 <section id="different-correlations" class="slide level2">
 <h2>Different correlations</h2>
-<div id="e8304153" class="cell" data-execution_count="28">
+<div id="72841d76" class="cell" data-execution_count="28">
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href=""></a>correlations <span class="op">=</span> [<span class="op">-</span><span class="fl">0.9</span>, <span class="op">-</span><span class="fl">0.5</span>, <span class="dv">0</span>, <span class="fl">0.5</span>, <span class="fl">0.9</span>]</span>
 <span id="cb16-2"><a href=""></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">5</span>, figsize<span class="op">=</span>(<span class="dv">13</span>, <span class="dv">3</span>), sharex<span class="op">=</span><span class="va">True</span>, sharey<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb16-3"><a href=""></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">42</span>)</span>
@@ -1919,7 +1919,7 @@ r_k = \frac{\sum_{t=k+1}^{T}(y_t-\bar{y})(y_{t-k}-\bar{y})}
 <div class="columns">
 <div class="column" style="width:50%;">
 <h3 id="beer-autocorrelation-coefficients">Beer autocorrelation coefficients</h3>
-<div id="b85a05fd" class="cell" data-execution_count="32">
+<div id="ab8331ff" class="cell" data-execution_count="32">
 <div class="cell-output cell-output-display" data-execution_count="32">
 <div>
 <style scoped="">
@@ -1976,7 +1976,7 @@ r_k = \frac{\sum_{t=k+1}^{T}(y_t-\bar{y})(y_{t-k}-\bar{y})}
 </div>
 </div><div class="column" style="width:50%;">
 <h3 id="beer-autocorrelation-function">Beer autocorrelation function</h3>
-<div id="ea814c04" class="cell" data-execution_count="33">
+<div id="bae08275" class="cell" data-execution_count="33">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure>

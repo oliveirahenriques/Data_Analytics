@@ -311,6 +311,7 @@
     }
     .reveal .slide:not(.center) {
       height: 100%;
+      overflow-y: auto;
     }
     .reveal .slide.scrollable {
       overflow-y: auto;
@@ -415,11 +416,10 @@ Victor Henriques, Ph.D.
 <li><a href="#/transformations-and-adjustments" id="/toc-transformations-and-adjustments">Transformations and Adjustments</a></li>
 <li><a href="#/time-series-components" id="/toc-time-series-components">Time Series Components</a></li>
 <li><a href="#/classical-decomposition" id="/toc-classical-decomposition">Classical Decomposition</a></li>
-<li><a href="#/official-seasonal-adjustment" id="/toc-official-seasonal-adjustment">3.5 Official Seasonal Adjustment</a></li>
 <li><a href="#/stl-decomposition" id="/toc-stl-decomposition">STL Decomposition</a></li>
-<li><a href="#/integrated-visual-workflow" id="/toc-integrated-visual-workflow">Integrated Visual Workflow</a></li>
-<li><a href="#/practice" id="/toc-practice">Practice</a></li>
+<li><a href="#/outliers" id="/toc-outliers">Outliers</a></li>
 <li><a href="#/key-takeaways" id="/toc-key-takeaways">Key Takeaways</a></li>
+<li><a href="#/exercises" id="/toc-exercises">Exercises</a></li>
 <li><a href="#/references" id="/toc-references">References</a></li>
 </ul>
 </nav>
@@ -641,8 +641,8 @@ y_t = T_t\times S_t\times R_t \ , \quad \text{or} \quad \log y_t = \log T_t + \l
 </section>
 <section id="us-retail-employment" class="slide level2">
 <h2>US retail employment</h2>
-<div id="58903e17" class="cell" data-execution_count="6">
-<div class="cell-output cell-output-display" data-execution_count="67">
+<div id="7925366a" class="cell" data-execution_count="6">
+<div class="cell-output cell-output-display" data-execution_count="6">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -758,32 +758,76 @@ y_t = T_t\times S_t\times R_t \ , \quad \text{or} \quad \log y_t = \log T_t + \l
 <section>
 <section id="classical-decomposition" class="title-slide slide level1 center">
 <h1>Classical Decomposition</h1>
-<!-- ## Seasonally adjusted series -->
-<!-- For an additive decomposition: -->
-<!-- $$ -->
-<!-- y_t^{\mathrm{SA}} = y_t-\widehat S_t -->
-<!-- =\widehat T_t+\widehat R_t. -->
-<!-- $$ -->
-<!-- For a multiplicative decomposition: -->
-<!-- $$ -->
-<!-- y_t^{\mathrm{SA}}=\frac{y_t}{\widehat S_t}. -->
-<!-- $$ -->
-<!-- ::: {.notes} -->
-<!-- Seasonally adjusted does not mean smooth because the remainder remains. For turning points, the trend-cycle is usually the clearer visual object. -->
-<!-- [Sources] -->
-<!-- - https://otexts.com/fpppy/03-decomposition.html -->
-<!-- ::: -->
+
 </section>
-<section id="moving-averages-centered-moving-average-of-odd-order" class="slide level2">
-<h2>Moving Averages: Centered moving average of odd order</h2>
-<p>For <span class="math inline">\(m=2k+1\)</span>:</p>
+<section id="classical-additive-algorithm" class="slide level2 scrollable">
+<h2>Classical additive algorithm</h2>
+<p>For seasonal period <span class="math inline">\(m\)</span>:</p>
+<ol type="1">
+<li>estimate trend-cycle <span class="math inline">\(\widehat T_t\)</span> with an <span class="math inline">\(m\)</span>-Moving Average (MA) or centered <span class="math inline">\(2\times m\)</span>-MA;</li>
+<li>detrend the series: <span class="math inline">\(d_t=y_t-\widehat T_t\)</span>;</li>
+<li>estimate <span class="math inline">\(\widehat S_t\)</span> by averaging <span class="math inline">\(d_t\)</span> by seasonal position and normalize so seasonal factors sum to zero;</li>
+<li>calculate the remainder component <span class="math inline">\(\widehat R_t\)</span></li>
+</ol>
 <p><span class="math display">\[
-\widehat T_t
+\widehat R_t=y_t-\widehat T_t-\widehat S_t.
+\]</span></p>
+<aside class="notes">
+<p>The seasonal pattern is assumed constant from cycle to cycle.</p>
+<p>[Sources] - https://otexts.com/fpppy/03-decomposition.html</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="trend-cycle-estimation" class="slide level2">
+<h2>Trend-cycle estimation</h2>
+<p>Let <span class="math inline">\(m=2k+1\)</span>. The centered moving average of odd order is:</p>
+<p><span class="math display">\[
+\widetilde T_t
 =
 \frac{1}{m}
 \sum_{j=-k}^{k}y_{t+j}.
 \]</span></p>
-<p>Nearby observations are averaged to suppress short-run fluctuations.</p>
+<p>The moving average of moving averages (<span class="math inline">\(2\times m\)</span>-MA) can be written as:</p>
+<p><span class="math display">\[
+\widehat T_t
+=
+\frac{1}{m}
+\left[
+\frac{1}{2}y_{t-6}
++
+\sum_{j=-5}^{5} y_{t+j}
++
+\frac{1}{2}y_{t+6}
+\right]
+\]</span> Monthly seasonality has even period <span class="math inline">\(m=12\)</span>. A centered <span class="math inline">\(2 \times 12\)</span>-MA is then:</p>
+<p><span class="math display">\[
+\widehat T_t =
+\frac{1}{24}
+\left(
+y_t
++2y_{t+1}
++2y_{t+2}
++2y_{t+3}
++2y_{t+4}
++2y_{t+5}
++2y_{t+6}
++2y_{t+7}
++2y_{t+8}
++2y_{t+9}
++2y_{t+10}
++2y_{t+11}
++y_{t+12}
+\right)
+\]</span></p>
 <aside class="notes">
 <p>Odd order produces a symmetric centered window. Estimates are unavailable near endpoints without additional rules.</p>
 <p>[Sources] - https://otexts.com/fpppy/03-decomposition.html</p>
@@ -799,311 +843,10 @@ y_t = T_t\times S_t\times R_t \ , \quad \text{or} \quad \log y_t = \log T_t + \l
           display:block!important;
       }</style></aside>
 </section>
-<section id="australian-exports" class="slide level2">
-<h2>Australian exports</h2>
-<div id="4dbab1c7" class="cell" data-execution_count="11">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href=""></a>aus_exports <span class="op">=</span> (</span>
-<span id="cb1-2"><a href=""></a>    global_economy.loc[<span class="kw">lambda</span> x: x[<span class="st">"unique_id"</span>] <span class="op">==</span> <span class="st">"Australia"</span>]</span>
-<span id="cb1-3"><a href=""></a>    .assign(MA_5<span class="op">=</span><span class="kw">lambda</span> x: x[<span class="st">"Exports"</span>].rolling(<span class="dv">5</span>, center<span class="op">=</span><span class="va">True</span>).mean())</span>
-<span id="cb1-4"><a href=""></a>)</span>
-<span id="cb1-5"><a href=""></a>aus_exports[[<span class="st">"ds"</span>, <span class="st">"Exports"</span>, <span class="st">"MA_5"</span>]].head(<span class="dv">8</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="72">
-<div>
-<style scoped="">
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
+<section id="trend-cycle-estimation-2x12-ma-for-retail-employment" class="slide level2">
+<h2>Trend-cycle estimation: 2x12-MA for retail employment</h2>
 
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-
-<table class="dataframe caption-top" data-quarto-postprocess="true" data-border="1">
-<thead>
-<tr class="header" style="text-align: right;">
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th">ds</th>
-<th data-quarto-table-cell-role="th">Exports</th>
-<th data-quarto-table-cell-role="th">MA_5</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">638</td>
-<td>1960</td>
-<td>12.994452</td>
-<td>NaN</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">639</td>
-<td>1961</td>
-<td>12.403101</td>
-<td>NaN</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">640</td>
-<td>1962</td>
-<td>13.943012</td>
-<td>13.456940</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">641</td>
-<td>1963</td>
-<td>13.005886</td>
-<td>13.502085</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">642</td>
-<td>1964</td>
-<td>14.938248</td>
-<td>13.607941</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">643</td>
-<td>1965</td>
-<td>13.220178</td>
-<td>13.396084</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">644</td>
-<td>1966</td>
-<td>12.932380</td>
-<td>13.254441</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">645</td>
-<td>1967</td>
-<td>12.883730</td>
-<td>12.657763</td>
-</tr>
-</tbody>
-</table>
-
-</div>
-</div>
-</div>
-<aside class="notes">
-<p>The first 5-MA estimate averages five years centered on the corresponding year.</p>
-<p>[Sources] - https://otexts.com/fpppy/03-decomposition.html</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="exports-and-5-ma" class="slide level2">
-<h2>Exports and 5-MA</h2>
-<div id="18ba3c52" class="cell" data-execution_count="12">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
-<span id="cb2-2"><a href=""></a>ax.plot(aus_exports[<span class="st">"ds"</span>], aus_exports[<span class="st">"Exports"</span>], color<span class="op">=</span><span class="st">"black"</span>, label<span class="op">=</span><span class="st">"Exports"</span>)</span>
-<span id="cb2-3"><a href=""></a>ax.plot(aus_exports[<span class="st">"ds"</span>], aus_exports[<span class="st">"MA_5"</span>], color<span class="op">=</span>COLORS[<span class="st">"trend"</span>], label<span class="op">=</span><span class="st">"5-MA"</span>, linewidth<span class="op">=</span><span class="dv">2</span>)</span>
-<span id="cb2-4"><a href=""></a>ax.<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Total Australian exports"</span>, xlabel<span class="op">=</span><span class="st">"Year [1Y]"</span>, ylabel<span class="op">=</span><span class="st">"</span><span class="sc">% o</span><span class="st">f GDP"</span>)</span>
-<span id="cb2-5"><a href=""></a>ax.legend(frameon<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb2-6"><a href=""></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-
-</div>
-<img data-src="lecture_04_files/figure-revealjs/cell-13-output-1.png" class="r-stretch"><aside class="notes">
-<p>The moving average reveals broad movement but omits two observations at each end for a centered 5-term window.</p>
-<p>[Sources] - https://otexts.com/fpppy/03-decomposition.html</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="smoothness-depends-on-order" class="slide level2">
-<h2>Smoothness depends on order</h2>
-<div id="1b0d047f" class="cell" data-execution_count="13">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href=""></a><span class="cf">for</span> window <span class="kw">in</span> [<span class="dv">3</span>, <span class="dv">5</span>, <span class="dv">9</span>, <span class="dv">15</span>]:</span>
-<span id="cb3-2"><a href=""></a>    aus_exports[<span class="ss">f"MA_</span><span class="sc">{</span>window<span class="sc">}</span><span class="ss">"</span>] <span class="op">=</span> aus_exports[<span class="st">"Exports"</span>].rolling(window, center<span class="op">=</span><span class="va">True</span>).mean()</span>
-<span id="cb3-3"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
-<span id="cb3-4"><a href=""></a>ax.plot(aus_exports[<span class="st">"ds"</span>], aus_exports[<span class="st">"Exports"</span>], color<span class="op">=</span><span class="st">"0.75"</span>, label<span class="op">=</span><span class="st">"Data"</span>)</span>
-<span id="cb3-5"><a href=""></a><span class="cf">for</span> window, color <span class="kw">in</span> <span class="bu">zip</span>([<span class="dv">3</span>, <span class="dv">5</span>, <span class="dv">9</span>, <span class="dv">15</span>], sns.color_palette(<span class="st">"viridis"</span>, <span class="dv">4</span>)):</span>
-<span id="cb3-6"><a href=""></a>    ax.plot(aus_exports[<span class="st">"ds"</span>], aus_exports[<span class="ss">f"MA_</span><span class="sc">{</span>window<span class="sc">}</span><span class="ss">"</span>], label<span class="op">=</span><span class="ss">f"</span><span class="sc">{</span>window<span class="sc">}</span><span class="ss">-MA"</span>, color<span class="op">=</span>color)</span>
-<span id="cb3-7"><a href=""></a>ax.<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Moving-average order controls smoothness"</span>, xlabel<span class="op">=</span><span class="st">"Year"</span>, ylabel<span class="op">=</span><span class="st">"Exports (</span><span class="sc">% G</span><span class="st">DP)"</span>)</span>
-<span id="cb3-8"><a href=""></a>ax.legend(frameon<span class="op">=</span><span class="va">False</span>, ncol<span class="op">=</span><span class="dv">2</span>)</span>
-<span id="cb3-9"><a href=""></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-
-</div>
-<img data-src="lecture_04_files/figure-revealjs/cell-14-output-1.png" class="r-stretch"><aside class="notes">
-<p>Larger windows smooth more strongly but can obscure turning points and create longer endpoint gaps.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="moving-average-of-moving-averages" class="slide level2">
-<h2>Moving average of moving averages</h2>
-<p>Quarterly seasonality has even period <span class="math inline">\(m=4\)</span>. A centered <span class="math inline">\(2\times4\)</span> moving average is obtained by applying a 2-MA after a 4-MA.</p>
-<div id="e153c847" class="cell" data-execution_count="14">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href=""></a>beer <span class="op">=</span> (</span>
-<span id="cb4-2"><a href=""></a>    aus_production[[<span class="st">"ds"</span>, <span class="st">"Beer"</span>]]</span>
-<span id="cb4-3"><a href=""></a>    .loc[<span class="kw">lambda</span> x: x[<span class="st">"ds"</span>] <span class="op">&gt;=</span> <span class="st">"1992"</span>]</span>
-<span id="cb4-4"><a href=""></a>    .reset_index(drop<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb4-5"><a href=""></a>)</span>
-<span id="cb4-6"><a href=""></a>beer[<span class="st">"4-MA"</span>] <span class="op">=</span> beer[<span class="st">"Beer"</span>].rolling(<span class="dv">4</span>, center<span class="op">=</span><span class="va">True</span>).mean().shift(<span class="op">-</span><span class="dv">1</span>)</span>
-<span id="cb4-7"><a href=""></a>beer[<span class="st">"2x4-MA"</span>] <span class="op">=</span> beer[<span class="st">"4-MA"</span>].rolling(<span class="dv">2</span>, center<span class="op">=</span><span class="va">True</span>).mean()</span>
-<span id="cb4-8"><a href=""></a>beer.head(<span class="dv">8</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="75">
-<div>
-<style scoped="">
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-
-<table class="dataframe caption-top" data-quarto-postprocess="true" data-border="1">
-<thead>
-<tr class="header" style="text-align: right;">
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th">ds</th>
-<th data-quarto-table-cell-role="th">Beer</th>
-<th data-quarto-table-cell-role="th">4-MA</th>
-<th data-quarto-table-cell-role="th">2x4-MA</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">0</td>
-<td>1992-01-01</td>
-<td>443</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">1</td>
-<td>1992-04-01</td>
-<td>410</td>
-<td>451.25</td>
-<td>NaN</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">2</td>
-<td>1992-07-01</td>
-<td>420</td>
-<td>448.75</td>
-<td>450.000</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">3</td>
-<td>1992-10-01</td>
-<td>532</td>
-<td>451.50</td>
-<td>450.125</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">4</td>
-<td>1993-01-01</td>
-<td>433</td>
-<td>449.00</td>
-<td>450.250</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">5</td>
-<td>1993-04-01</td>
-<td>421</td>
-<td>444.00</td>
-<td>446.500</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">6</td>
-<td>1993-07-01</td>
-<td>410</td>
-<td>448.00</td>
-<td>446.000</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">7</td>
-<td>1993-10-01</td>
-<td>512</td>
-<td>438.00</td>
-<td>443.000</td>
-</tr>
-</tbody>
-</table>
-
-</div>
-</div>
-</div>
-<aside class="notes">
-<p>The second moving average restores symmetry for an even seasonal window.</p>
-<p>[Sources] - https://otexts.com/fpppy/03-decomposition.html</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="equivalent-weighted-average" class="slide level2">
-<h2>Equivalent weighted average</h2>
-<p>The <span class="math inline">\(2\times4\)</span>-MA is</p>
-<p><span class="math display">\[
-\widehat T_t
-=
-\frac18y_{t-2}
-+
-\frac14y_{t-1}
-+
-\frac14y_t
-+
-\frac14y_{t+1}
-+
-\frac18y_{t+2}.
-\]</span></p>
-<p>The weights are symmetric and sum to one.</p>
-<aside class="notes">
-<p>Combining simple moving averages creates a weighted moving average with smaller weights at the endpoints.</p>
-<p>[Sources] - https://otexts.com/fpppy/03-decomposition.html</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
+<img data-src="lecture_04_files/figure-revealjs/cell-12-output-1.png" class="quarto-figure quarto-figure-center r-stretch"></section>
 <section id="trend-extraction-should-match-seasonal-period" class="slide level2">
 <h2>Trend extraction should match seasonal period</h2>
 <ul>
@@ -1127,159 +870,12 @@ y_t = T_t\times S_t\times R_t \ , \quad \text{or} \quad \log y_t = \log T_t + \l
           display:block!important;
       }</style></aside>
 </section>
-<section id="x12-ma-for-retail-employment" class="slide level2">
-<h2>2x12-MA for retail employment</h2>
-<div id="1cdc49ee" class="cell" data-execution_count="15">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href=""></a>ma_employment <span class="op">=</span> us_retail_employment.copy()</span>
-<span id="cb5-2"><a href=""></a>ma_employment[<span class="st">"12-MA"</span>] <span class="op">=</span> ma_employment[<span class="st">"y"</span>].rolling(<span class="dv">12</span>, center<span class="op">=</span><span class="va">True</span>).mean().shift(<span class="op">-</span><span class="dv">1</span>)</span>
-<span id="cb5-3"><a href=""></a>ma_employment[<span class="st">"2x12-MA"</span>] <span class="op">=</span> ma_employment[<span class="st">"12-MA"</span>].rolling(<span class="dv">2</span>, center<span class="op">=</span><span class="va">True</span>).mean()</span>
-<span id="cb5-4"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
-<span id="cb5-5"><a href=""></a>ax.plot(ma_employment[<span class="st">"ds"</span>], ma_employment[<span class="st">"y"</span>], color<span class="op">=</span><span class="st">"0.7"</span>, label<span class="op">=</span><span class="st">"Data"</span>)</span>
-<span id="cb5-6"><a href=""></a>ax.plot(ma_employment[<span class="st">"ds"</span>], ma_employment[<span class="st">"2x12-MA"</span>], color<span class="op">=</span>COLORS[<span class="st">"trend"</span>], label<span class="op">=</span><span class="st">"2x12-MA"</span>, linewidth<span class="op">=</span><span class="dv">2</span>)</span>
-<span id="cb5-7"><a href=""></a>ax.<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Total employment in US retail"</span>, xlabel<span class="op">=</span><span class="st">"Month [1M]"</span>, ylabel<span class="op">=</span><span class="st">"Persons (thousands)"</span>)</span>
-<span id="cb5-8"><a href=""></a>ax.legend(frameon<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb5-9"><a href=""></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-
-</div>
-<img data-src="lecture_04_files/figure-revealjs/cell-16-output-1.png" class="r-stretch"><aside class="notes">
-<p>The centered moving average largely removes annual seasonality but has no estimates at the ends.</p>
-<p>[Sources] - https://otexts.com/fpppy/03-decomposition.html</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="classical-additive-algorithm" class="slide level2">
-<h2>Classical additive algorithm</h2>
-<p>For seasonal period <span class="math inline">\(m\)</span>:</p>
-<ol type="1">
-<li>estimate <span class="math inline">\(\widehat T_t\)</span> with an <span class="math inline">\(m\)</span>-MA or centered <span class="math inline">\(2\times m\)</span>-MA;</li>
-<li>detrend: <span class="math inline">\(d_t=y_t-\widehat T_t\)</span>;</li>
-<li>average <span class="math inline">\(d_t\)</span> by seasonal position and normalize so seasonal factors sum to zero;</li>
-<li>calculate</li>
-</ol>
-<p><span class="math display">\[
-\widehat R_t=y_t-\widehat T_t-\widehat S_t.
-\]</span></p>
-<aside class="notes">
-<p>The seasonal pattern is assumed constant from cycle to cycle.</p>
-<p>[Sources] - https://otexts.com/fpppy/03-decomposition.html</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
 <section id="classical-additive-decomposition-in-python" class="slide level2">
 <h2>Classical additive decomposition in Python</h2>
-<div id="5731a7a9" class="cell" data-execution_count="16">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href=""></a>classical_add <span class="op">=</span> seasonal_decompose(</span>
-<span id="cb6-2"><a href=""></a>    us_retail_employment.set_index(<span class="st">"ds"</span>)[<span class="st">"y"</span>],</span>
-<span id="cb6-3"><a href=""></a>    model<span class="op">=</span><span class="st">"additive"</span>, period<span class="op">=</span><span class="dv">12</span>, extrapolate_trend<span class="op">=</span><span class="dv">0</span>,</span>
-<span id="cb6-4"><a href=""></a>)</span>
-<span id="cb6-5"><a href=""></a>classical_frame <span class="op">=</span> pd.DataFrame({</span>
-<span id="cb6-6"><a href=""></a>    <span class="st">"ds"</span>: us_retail_employment[<span class="st">"ds"</span>].to_numpy(),</span>
-<span id="cb6-7"><a href=""></a>    <span class="st">"data"</span>: us_retail_employment[<span class="st">"y"</span>].to_numpy(),</span>
-<span id="cb6-8"><a href=""></a>    <span class="st">"trend"</span>: classical_add.trend.to_numpy(),</span>
-<span id="cb6-9"><a href=""></a>    <span class="st">"seasonal"</span>: classical_add.seasonal.to_numpy(),</span>
-<span id="cb6-10"><a href=""></a>    <span class="st">"remainder"</span>: classical_add.resid.to_numpy(),</span>
-<span id="cb6-11"><a href=""></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<aside class="notes">
+
+<img data-src="lecture_04_files/figure-revealjs/cell-13-output-1.png" class="quarto-figure quarto-figure-center r-stretch"><aside class="notes">
 <p>The statsmodels function operationalizes classical decomposition. Missing trend and remainder values at the endpoints are retained to make the limitation visible.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="classical-additive-components" class="slide level2">
-<h2>Classical additive components</h2>
-<div id="ef6ef156" class="cell" data-execution_count="17">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href=""></a>fig, axes <span class="op">=</span> component_plot(classical_frame, title<span class="op">=</span><span class="st">"Classical additive decomposition"</span>)</span>
-<span id="cb7-2"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-
-</div>
-<img data-src="lecture_04_files/figure-revealjs/cell-18-output-1.png" class="r-stretch"><aside class="notes">
 <p>Compare this with STL. Classical seasonality repeats exactly and endpoint estimates are absent.</p>
-<p>[Sources] - https://otexts.com/fpppy/03-decomposition.html</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="classical-multiplicative-algorithm" class="slide level2">
-<h2>Classical multiplicative algorithm</h2>
-<ol type="1">
-<li>estimate <span class="math inline">\(\widehat T_t\)</span>;</li>
-<li>detrend: <span class="math inline">\(d_t=y_t/\widehat T_t\)</span>;</li>
-<li>average ratios by season and normalize so seasonal indices sum to <span class="math inline">\(m\)</span>;</li>
-<li>calculate</li>
-</ol>
-<p><span class="math display">\[
-\widehat R_t
-=
-\frac{y_t}{\widehat T_t\widehat S_t}.
-\]</span></p>
-<aside class="notes">
-<p>Multiplicative seasonal indices average to one, equivalently sum to m across one full seasonal cycle.</p>
-<p>[Sources] - https://otexts.com/fpppy/03-decomposition.html</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="multiplicative-decomposition-of-gas" class="slide level2">
-<h2>Multiplicative decomposition of gas</h2>
-<div id="fe2d1b23" class="cell" data-execution_count="18">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href=""></a>recent_gas <span class="op">=</span> gas.tail(<span class="dv">5</span> <span class="op">*</span> <span class="dv">4</span>).set_index(<span class="st">"ds"</span>)[<span class="st">"Gas"</span>]</span>
-<span id="cb8-2"><a href=""></a>classical_mult <span class="op">=</span> seasonal_decompose(recent_gas, model<span class="op">=</span><span class="st">"multiplicative"</span>, period<span class="op">=</span><span class="dv">4</span>)</span>
-<span id="cb8-3"><a href=""></a>mult_frame <span class="op">=</span> pd.DataFrame({</span>
-<span id="cb8-4"><a href=""></a>    <span class="st">"ds"</span>: recent_gas.index,</span>
-<span id="cb8-5"><a href=""></a>    <span class="st">"data"</span>: recent_gas.to_numpy(),</span>
-<span id="cb8-6"><a href=""></a>    <span class="st">"trend"</span>: classical_mult.trend.to_numpy(),</span>
-<span id="cb8-7"><a href=""></a>    <span class="st">"seasonal"</span>: classical_mult.seasonal.to_numpy(),</span>
-<span id="cb8-8"><a href=""></a>    <span class="st">"remainder"</span>: classical_mult.resid.to_numpy(),</span>
-<span id="cb8-9"><a href=""></a>})</span>
-<span id="cb8-10"><a href=""></a>fig, axes <span class="op">=</span> component_plot(mult_frame, title<span class="op">=</span><span class="st">"Classical multiplicative decomposition of gas"</span>)</span>
-<span id="cb8-11"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-
-</div>
-<img data-src="lecture_04_files/figure-revealjs/cell-19-output-1.png" class="r-stretch"><aside class="notes">
-<p>Interpret the seasonal and remainder panels as ratios around one, not quantities in the original gas unit.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1303,91 +899,6 @@ y_t = T_t\times S_t\times R_t \ , \quad \text{or} \quad \log y_t = \log T_t + \l
 </ul>
 <aside class="notes">
 <p>The chapter explicitly does not recommend classical decomposition when better methods are available, although it remains useful for understanding the logic.</p>
-<p>[Sources] - https://otexts.com/fpppy/03-decomposition.html</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="outlier-contamination-experiment" class="slide level2">
-<h2>Outlier contamination experiment</h2>
-<div id="59c0d37c" class="cell" data-execution_count="19">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href=""></a>gas_outlier <span class="op">=</span> recent_gas.copy()</span>
-<span id="cb9-2"><a href=""></a>gas_outlier.iloc[<span class="bu">len</span>(gas_outlier)<span class="op">//</span><span class="dv">2</span>] <span class="op">+=</span> <span class="dv">300</span></span>
-<span id="cb9-3"><a href=""></a>base_dec <span class="op">=</span> seasonal_decompose(recent_gas, model<span class="op">=</span><span class="st">"multiplicative"</span>, period<span class="op">=</span><span class="dv">4</span>)</span>
-<span id="cb9-4"><a href=""></a>out_dec <span class="op">=</span> seasonal_decompose(gas_outlier, model<span class="op">=</span><span class="st">"multiplicative"</span>, period<span class="op">=</span><span class="dv">4</span>)</span>
-<span id="cb9-5"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
-<span id="cb9-6"><a href=""></a>ax.plot(recent_gas.index, recent_gas <span class="op">/</span> base_dec.seasonal, label<span class="op">=</span><span class="st">"Original adjusted"</span>)</span>
-<span id="cb9-7"><a href=""></a>ax.plot(gas_outlier.index, gas_outlier <span class="op">/</span> out_dec.seasonal, label<span class="op">=</span><span class="st">"With outlier adjusted"</span>, alpha<span class="op">=</span><span class="fl">.8</span>)</span>
-<span id="cb9-8"><a href=""></a>ax.<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Classical seasonal adjustment is sensitive to unusual values"</span>, xlabel<span class="op">=</span><span class="st">"Quarter"</span>, ylabel<span class="op">=</span><span class="st">"Seasonally adjusted gas"</span>)</span>
-<span id="cb9-9"><a href=""></a>ax.legend(frameon<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb9-10"><a href=""></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-
-</div>
-<img data-src="lecture_04_files/figure-revealjs/cell-20-output-1.png" class="r-stretch"><aside class="notes">
-<p>The extreme value can influence the estimated trend and seasonal indices, spreading its impact beyond a single period.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section></section>
-<section>
-<section id="official-seasonal-adjustment" class="title-slide slide level1 center">
-<h1>3.5 Official Seasonal Adjustment</h1>
-
-</section>
-<section id="x-11-and-seats" class="slide level2">
-<h2>X-11 and SEATS</h2>
-<p>Official statistical agencies commonly use variants of:</p>
-<ul>
-<li><strong>X-11</strong>, based on classical decomposition with additional procedures;</li>
-<li><strong>SEATS</strong>, Seasonal Extraction in ARIMA Time Series;</li>
-<li>combinations of both.</li>
-</ul>
-<p>They are designed primarily for monthly and quarterly official series.</p>
-<aside class="notes">
-<p>The chapter states that these procedures are not intended for daily, hourly, or weekly seasonality.</p>
-<p>[Sources] - https://otexts.com/fpppy/03-decomposition.html</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="what-x-11-adds" class="slide level2">
-<h2>What X-11 adds</h2>
-<p>The chapter highlights that X-11:</p>
-<ul>
-<li>provides endpoint trend-cycle estimates;</li>
-<li>allows slowly changing seasonality;</li>
-<li>handles trading-day and holiday variation;</li>
-<li>can include known predictors;</li>
-<li>supports additive and multiplicative forms;</li>
-<li>is designed to be robust to outliers and level shifts.</li>
-</ul>
-<aside class="notes">
-<p>This slide summarizes capabilities explicitly described in the chapter. The detailed X-11 algorithm is beyond this lecture.</p>
-<p>[Sources] - https://otexts.com/fpppy/03-decomposition.html</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1415,23 +926,6 @@ y_t = T_t\times S_t\times R_t \ , \quad \text{or} \quad \log y_t = \log T_t + \l
 <li>a remainder;</li>
 <li>optionally robust weights for unusual observations.</li>
 </ul>
-<aside class="notes">
-<p>LOESS is a local regression smoother. STL was introduced by Cleveland and coauthors and later extended to multiple seasonal patterns through MSTL.</p>
-<p>[Sources] - https://otexts.com/fpppy/03-decomposition.html</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="advantages-and-limitations" class="slide level2">
-<h2>Advantages and limitations</h2>
 <h3 id="advantages">Advantages</h3>
 <ul>
 <li>supports many seasonal periods, not only monthly or quarterly;</li>
@@ -1445,42 +939,8 @@ y_t = T_t\times S_t\times R_t \ , \quad \text{or} \quad \log y_t = \log T_t + \l
 <li>directly provides additive decomposition only.</li>
 </ul>
 <aside class="notes">
+<p>LOESS is a local regression smoother. STL was introduced by Cleveland and coauthors and later extended to multiple seasonal patterns through MSTL.</p>
 <p>A multiplicative interpretation can be approached by logging positive data before STL.</p>
-<p>[Sources] - https://otexts.com/fpppy/03-decomposition.html</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="robust-stl" class="slide level2">
-<h2>Robust STL</h2>
-<div id="684e1c8d" class="cell" data-execution_count="20">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href=""></a>stl_robust <span class="op">=</span> STL(</span>
-<span id="cb10-2"><a href=""></a>    us_retail_employment[<span class="st">"y"</span>],</span>
-<span id="cb10-3"><a href=""></a>    period<span class="op">=</span><span class="dv">12</span>,</span>
-<span id="cb10-4"><a href=""></a>    seasonal<span class="op">=</span><span class="dv">13</span>,</span>
-<span id="cb10-5"><a href=""></a>    trend<span class="op">=</span><span class="dv">21</span>,</span>
-<span id="cb10-6"><a href=""></a>    robust<span class="op">=</span><span class="va">True</span>,</span>
-<span id="cb10-7"><a href=""></a>)</span>
-<span id="cb10-8"><a href=""></a>res_robust <span class="op">=</span> stl_robust.fit()</span>
-<span id="cb10-9"><a href=""></a>robust_frame <span class="op">=</span> pd.DataFrame({</span>
-<span id="cb10-10"><a href=""></a>    <span class="st">"ds"</span>: us_retail_employment[<span class="st">"ds"</span>].to_numpy(),</span>
-<span id="cb10-11"><a href=""></a>    <span class="st">"data"</span>: us_retail_employment[<span class="st">"y"</span>].to_numpy(),</span>
-<span id="cb10-12"><a href=""></a>    <span class="st">"trend"</span>: res_robust.trend,</span>
-<span id="cb10-13"><a href=""></a>    <span class="st">"seasonal"</span>: res_robust.seasonal,</span>
-<span id="cb10-14"><a href=""></a>    <span class="st">"remainder"</span>: res_robust.resid,</span>
-<span id="cb10-15"><a href=""></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<aside class="notes">
-<p>The seasonal and trend windows are odd integers. Smaller values permit more rapid component changes.</p>
-<p>[Sources] - https://otexts.com/fpppy/03-decomposition.html</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1495,14 +955,10 @@ y_t = T_t\times S_t\times R_t \ , \quad \text{or} \quad \log y_t = \log T_t + \l
 </section>
 <section id="robust-stl-components" class="slide level2">
 <h2>Robust STL components</h2>
-<div id="187d305d" class="cell" data-execution_count="21">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href=""></a>fig, axes <span class="op">=</span> component_plot(robust_frame, title<span class="op">=</span><span class="st">"Robust STL decomposition with flexible trend"</span>)</span>
-<span id="cb11-2"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
-</div>
-<img data-src="lecture_04_files/figure-revealjs/cell-22-output-1.png" class="r-stretch"><aside class="notes">
+<img data-src="lecture_04_files/figure-revealjs/cell-14-output-1.png" class="quarto-figure quarto-figure-center r-stretch"><aside class="notes">
+<p>The seasonal and trend windows are odd integers. Smaller values permit more rapid component changes.</p>
 <p>Compare the remainder around the global financial crisis with the default decomposition. A too-rigid trend can leak systematic movement into the remainder.</p>
-<p>[Sources] - https://otexts.com/fpppy/03-decomposition.html</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1517,20 +973,8 @@ y_t = T_t\times S_t\times R_t \ , \quad \text{or} \quad \log y_t = \log T_t + \l
 </section>
 <section id="trend-window-sensitivity" class="slide level2">
 <h2>Trend-window sensitivity</h2>
-<div id="93931b82" class="cell" data-execution_count="22">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href=""></a>trend_windows <span class="op">=</span> [<span class="dv">21</span>, <span class="dv">37</span>, <span class="dv">61</span>]</span>
-<span id="cb12-2"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
-<span id="cb12-3"><a href=""></a>ax.plot(us_retail_employment[<span class="st">"ds"</span>], us_retail_employment[<span class="st">"y"</span>], color<span class="op">=</span><span class="st">"0.85"</span>, label<span class="op">=</span><span class="st">"Data"</span>)</span>
-<span id="cb12-4"><a href=""></a><span class="cf">for</span> window, color <span class="kw">in</span> <span class="bu">zip</span>(trend_windows, sns.color_palette(<span class="st">"viridis"</span>, <span class="dv">3</span>)):</span>
-<span id="cb12-5"><a href=""></a>    fit <span class="op">=</span> STL(us_retail_employment[<span class="st">"y"</span>], period<span class="op">=</span><span class="dv">12</span>, seasonal<span class="op">=</span><span class="dv">13</span>,</span>
-<span id="cb12-6"><a href=""></a>              trend<span class="op">=</span>window, robust<span class="op">=</span><span class="va">True</span>).fit()</span>
-<span id="cb12-7"><a href=""></a>    ax.plot(us_retail_employment[<span class="st">"ds"</span>], fit.trend, label<span class="op">=</span><span class="ss">f"trend=</span><span class="sc">{</span>window<span class="sc">}</span><span class="ss">"</span>, color<span class="op">=</span>color)</span>
-<span id="cb12-8"><a href=""></a>ax.<span class="bu">set</span>(title<span class="op">=</span><span class="st">"STL trend window controls flexibility"</span>, xlabel<span class="op">=</span><span class="st">"Month"</span>, ylabel<span class="op">=</span><span class="st">"Persons (thousands)"</span>)</span>
-<span id="cb12-9"><a href=""></a>ax.legend(frameon<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb12-10"><a href=""></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
-</div>
-<img data-src="lecture_04_files/figure-revealjs/cell-23-output-1.png" class="r-stretch"><aside class="notes">
+<img data-src="lecture_04_files/figure-revealjs/cell-15-output-1.png" class="quarto-figure quarto-figure-center r-stretch"><aside class="notes">
 <p>Smaller trend windows allow more rapid changes. Larger windows produce smoother trends but may push signal into the remainder.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
@@ -1546,20 +990,8 @@ y_t = T_t\times S_t\times R_t \ , \quad \text{or} \quad \log y_t = \log T_t + \l
 </section>
 <section id="seasonal-window-sensitivity" class="slide level2">
 <h2>Seasonal-window sensitivity</h2>
-<div id="0c0de8a8" class="cell" data-execution_count="23">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href=""></a>seasonal_windows <span class="op">=</span> [<span class="dv">7</span>, <span class="dv">13</span>, <span class="dv">25</span>]</span>
-<span id="cb13-2"><a href=""></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">3</span>, <span class="dv">1</span>, sharex<span class="op">=</span><span class="va">True</span>, figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="dv">7</span>))</span>
-<span id="cb13-3"><a href=""></a><span class="cf">for</span> ax, window, color <span class="kw">in</span> <span class="bu">zip</span>(axes, seasonal_windows, sns.color_palette(<span class="st">"viridis"</span>, <span class="dv">3</span>)):</span>
-<span id="cb13-4"><a href=""></a>    fit <span class="op">=</span> STL(us_retail_employment[<span class="st">"y"</span>], period<span class="op">=</span><span class="dv">12</span>, seasonal<span class="op">=</span>window,</span>
-<span id="cb13-5"><a href=""></a>              trend<span class="op">=</span><span class="dv">21</span>, robust<span class="op">=</span><span class="va">True</span>).fit()</span>
-<span id="cb13-6"><a href=""></a>    ax.plot(us_retail_employment[<span class="st">"ds"</span>], fit.seasonal, color<span class="op">=</span>color)</span>
-<span id="cb13-7"><a href=""></a>    ax.set_ylabel(<span class="ss">f"seasonal=</span><span class="sc">{</span>window<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb13-8"><a href=""></a>axes[<span class="op">-</span><span class="dv">1</span>].set_xlabel(<span class="st">"Month"</span>)</span>
-<span id="cb13-9"><a href=""></a>fig.suptitle(<span class="st">"STL seasonal window controls temporal evolution"</span>)</span>
-<span id="cb13-10"><a href=""></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
-</div>
-<img data-src="lecture_04_files/figure-revealjs/cell-24-output-1.png" class="r-stretch"><aside class="notes">
+<img data-src="lecture_04_files/figure-revealjs/cell-16-output-1.png" class="quarto-figure quarto-figure-center r-stretch"><aside class="notes">
 <p>A smaller seasonal smoother permits the shape to evolve more rapidly; a larger one stabilizes the seasonal component.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
@@ -1575,24 +1007,9 @@ y_t = T_t\times S_t\times R_t \ , \quad \text{or} \quad \log y_t = \log T_t + \l
 </section>
 <section id="robust-versus-non-robust-stl" class="slide level2">
 <h2>Robust versus non-robust STL</h2>
-<div id="6f8bcb81" class="cell" data-execution_count="24">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href=""></a>series_outlier <span class="op">=</span> us_retail_employment[<span class="st">"y"</span>].copy()</span>
-<span id="cb14-2"><a href=""></a>position <span class="op">=</span> <span class="bu">len</span>(series_outlier) <span class="op">//</span> <span class="dv">2</span></span>
-<span id="cb14-3"><a href=""></a>series_outlier.iloc[position] <span class="op">+=</span> <span class="dv">2500</span></span>
-<span id="cb14-4"><a href=""></a>plain <span class="op">=</span> STL(series_outlier, period<span class="op">=</span><span class="dv">12</span>, seasonal<span class="op">=</span><span class="dv">13</span>, trend<span class="op">=</span><span class="dv">21</span>, robust<span class="op">=</span><span class="va">False</span>).fit()</span>
-<span id="cb14-5"><a href=""></a>robust <span class="op">=</span> STL(series_outlier, period<span class="op">=</span><span class="dv">12</span>, seasonal<span class="op">=</span><span class="dv">13</span>, trend<span class="op">=</span><span class="dv">21</span>, robust<span class="op">=</span><span class="va">True</span>).fit()</span>
-<span id="cb14-6"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
-<span id="cb14-7"><a href=""></a>ax.plot(us_retail_employment[<span class="st">"ds"</span>], plain.trend, label<span class="op">=</span><span class="st">"Non-robust trend"</span>)</span>
-<span id="cb14-8"><a href=""></a>ax.plot(us_retail_employment[<span class="st">"ds"</span>], robust.trend, label<span class="op">=</span><span class="st">"Robust trend"</span>, linewidth<span class="op">=</span><span class="dv">2</span>)</span>
-<span id="cb14-9"><a href=""></a>ax.axvline(us_retail_employment[<span class="st">"ds"</span>].iloc[position], color<span class="op">=</span><span class="st">"0.4"</span>, linestyle<span class="op">=</span><span class="st">"--"</span>, label<span class="op">=</span><span class="st">"Injected outlier"</span>)</span>
-<span id="cb14-10"><a href=""></a>ax.<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Robust STL limits outlier influence on trend"</span>, xlabel<span class="op">=</span><span class="st">"Month"</span>, ylabel<span class="op">=</span><span class="st">"Persons (thousands)"</span>)</span>
-<span id="cb14-11"><a href=""></a>ax.legend(frameon<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb14-12"><a href=""></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
-</div>
-<img data-src="lecture_04_files/figure-revealjs/cell-25-output-1.png" class="r-stretch"><aside class="notes">
+<img data-src="lecture_04_files/figure-revealjs/cell-17-output-1.png" class="quarto-figure quarto-figure-center r-stretch"><aside class="notes">
 <p>Robust STL does not make the outlier disappear. It seeks to keep unusual observations from distorting the trend and seasonal components, leaving the impact in the remainder.</p>
-<p>[Sources] - https://otexts.com/fpppy/03-decomposition.html</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1605,71 +1022,18 @@ y_t = T_t\times S_t\times R_t \ , \quad \text{or} \quad \log y_t = \log T_t + \l
           display:block!important;
       }</style></aside>
 </section>
-<section id="remainder-diagnostics" class="slide level2">
-<h2>Remainder diagnostics</h2>
-<div id="7359681d" class="cell" data-execution_count="25">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href=""></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="fl">4.5</span>))</span>
-<span id="cb15-2"><a href=""></a>axes[<span class="dv">0</span>].plot(robust_frame[<span class="st">"ds"</span>], robust_frame[<span class="st">"remainder"</span>], color<span class="op">=</span>COLORS[<span class="st">"remainder"</span>])</span>
-<span id="cb15-3"><a href=""></a>axes[<span class="dv">0</span>].axhline(<span class="dv">0</span>, color<span class="op">=</span><span class="st">"0.4"</span>, linewidth<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb15-4"><a href=""></a>axes[<span class="dv">0</span>].<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Remainder through time"</span>, xlabel<span class="op">=</span><span class="st">"Month"</span>, ylabel<span class="op">=</span><span class="st">"Remainder"</span>)</span>
-<span id="cb15-5"><a href=""></a>plot_acf(robust_frame[<span class="st">"remainder"</span>].dropna(), lags<span class="op">=</span><span class="dv">36</span>, zero<span class="op">=</span><span class="va">False</span>, ax<span class="op">=</span>axes[<span class="dv">1</span>])</span>
-<span id="cb15-6"><a href=""></a>axes[<span class="dv">1</span>].<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Remainder ACF"</span>, xlabel<span class="op">=</span><span class="st">"Lag [1M]"</span>)</span>
-<span id="cb15-7"><a href=""></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-
-</div>
-<img data-src="lecture_04_files/figure-revealjs/cell-26-output-1.png" class="r-stretch"><aside class="notes">
-<p>Look for leftover autocorrelation, changing variance, unusual observations, and unresolved seasonal peaks. The remainder need not be white noise, but visible structure indicates incomplete decomposition for the intended purpose.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="component-scales-can-mislead" class="slide level2">
-<h2>Component scales can mislead</h2>
-<p>A decomposition plot usually gives each panel its own vertical scale.</p>
-<p>Therefore:</p>
+<section id="official-seasonal-adjustment-x-11-and-seats" class="slide level2">
+<h2>Official Seasonal Adjustment: X-11 and SEATS</h2>
+<p>Official statistical agencies commonly use variants of:</p>
 <ul>
-<li>panel height is not component importance;</li>
-<li>compare axis values, not visual amplitude alone;</li>
-<li>annotate units and zero lines;</li>
-<li>use overlays when direct magnitude comparison matters.</li>
+<li><strong>X-11</strong>, based on classical decomposition with additional procedures;</li>
+<li><strong>SEATS</strong>, Seasonal Extraction in ARIMA Time Series;</li>
+<li>combinations of both.</li>
 </ul>
+<p>They are designed primarily for monthly and quarterly official series.</p>
 <aside class="notes">
-<p>This visual-literacy point is central to decomposition plots and appears again in the chapter exercises.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="overlay-components-on-a-common-scale" class="slide level2">
-<h2>Overlay components on a common scale</h2>
-<div id="48308994" class="cell" data-execution_count="26">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
-<span id="cb16-2"><a href=""></a>ax.plot(robust_frame[<span class="st">"ds"</span>], robust_frame[<span class="st">"data"</span>], color<span class="op">=</span>COLORS[<span class="st">"data"</span>], label<span class="op">=</span><span class="st">"Data"</span>)</span>
-<span id="cb16-3"><a href=""></a>ax.plot(robust_frame[<span class="st">"ds"</span>], robust_frame[<span class="st">"trend"</span>], color<span class="op">=</span>COLORS[<span class="st">"trend"</span>], label<span class="op">=</span><span class="st">"Trend"</span>)</span>
-<span id="cb16-4"><a href=""></a>ax.plot(robust_frame[<span class="st">"ds"</span>], robust_frame[<span class="st">"seasonally_adjusted"</span>] <span class="cf">if</span> <span class="st">"seasonally_adjusted"</span> <span class="kw">in</span> robust_frame <span class="cf">else</span> robust_frame[<span class="st">"data"</span>]<span class="op">-</span>robust_frame[<span class="st">"seasonal"</span>],</span>
-<span id="cb16-5"><a href=""></a>        color<span class="op">=</span>COLORS[<span class="st">"adjusted"</span>], label<span class="op">=</span><span class="st">"Seasonally adjusted"</span>, alpha<span class="op">=</span><span class="fl">.8</span>)</span>
-<span id="cb16-6"><a href=""></a>ax.<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Common-scale comparison"</span>, xlabel<span class="op">=</span><span class="st">"Month"</span>, ylabel<span class="op">=</span><span class="st">"Persons (thousands)"</span>)</span>
-<span id="cb16-7"><a href=""></a>ax.legend(frameon<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb16-8"><a href=""></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-
-</div>
-<img data-src="lecture_04_files/figure-revealjs/cell-27-output-1.png" class="r-stretch"><aside class="notes">
-<p>A common-scale overlay clarifies the relative magnitude of trend and seasonal adjustment, but too many overlapping lines can reduce readability.</p>
+<p>The chapter states that these procedures are not intended for daily, hourly, or weekly seasonality.</p>
+<p>X11 - provides endpoint trend-cycle estimates; - allows slowly changing seasonality; - handles trading-day and holiday variation; - can include known predictors; - supports additive and multiplicative forms; - is designed to be robust to outliers and level shifts.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1683,109 +1047,26 @@ y_t = T_t\times S_t\times R_t \ , \quad \text{or} \quad \log y_t = \log T_t + \l
       }</style></aside>
 </section></section>
 <section>
-<section id="integrated-visual-workflow" class="title-slide slide level1 center">
-<h1>Integrated Visual Workflow</h1>
+<section id="outliers" class="title-slide slide level1 center">
+<h1>Outliers</h1>
 
 </section>
-<section id="decomposition-decision-guide" class="slide level2">
-<h2>Decomposition decision guide</h2>
-<table class="caption-top">
-<thead>
-<tr class="header">
-<th>Evidence</th>
-<th>Useful response</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>trading-day variation</td>
-<td>calendar adjustment</td>
-</tr>
-<tr class="even">
-<td>total driven by population</td>
-<td>per-capita adjustment</td>
-</tr>
-<tr class="odd">
-<td>nominal monetary growth</td>
-<td>inflation adjustment</td>
-</tr>
-<tr class="even">
-<td>amplitude grows with level</td>
-<td>log or Box-Cox, then additive method</td>
-</tr>
-<tr class="odd">
-<td>stable fixed seasonality</td>
-<td>classical decomposition may describe it</td>
-</tr>
-<tr class="even">
-<td>evolving seasonality</td>
-<td>STL</td>
-</tr>
-<tr class="odd">
-<td>unusual observations</td>
-<td>robust STL and explicit investigation</td>
-</tr>
-<tr class="even">
-<td>multiple seasonal periods</td>
-<td>MSTL or another multi-seasonal method</td>
-</tr>
-</tbody>
-</table>
-<aside class="notes">
-<p>This guide summarizes analytical choices. It is not a substitute for inspection and domain knowledge.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="visual-diagnostic-protocol" class="slide level2">
-<h2>Visual diagnostic protocol</h2>
-<ol type="1">
-<li>plot the original series;</li>
-<li>label units and frequency;</li>
-<li>inspect seasonal amplitude against level;</li>
-<li>remove known calendar, population, or price effects;</li>
-<li>compare plausible transformations;</li>
-<li>estimate components;</li>
-<li>compare observed, trend, and adjusted series;</li>
-<li>inspect remainder over time and by ACF;</li>
-<li>test sensitivity to windows and robust fitting;</li>
-<li>document choices and limitations.</li>
-</ol>
-<aside class="notes">
-<p>The protocol is the reusable output of the lecture.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="what-decomposition-does-not-prove" class="slide level2">
-<h2>What decomposition does not prove</h2>
-<p>Decomposition alone does not prove:</p>
+<section id="what-is-an-outlier" class="slide level2">
+<h2>What is an outlier?</h2>
+<p>An outlier is an observation that is very different from most observations in the time series.</p>
+<p>An outlier may be:</p>
 <ul>
-<li>causality;</li>
-<li>that a remainder is random;</li>
-<li>that a trend will continue;</li>
-<li>that a seasonal pattern is structurally stable;</li>
-<li>that the selected transformation is optimal;</li>
-<li>that forecasts will be accurate.</li>
+<li>a recording or processing error;</li>
+<li>a valid but unusual event;</li>
+<li>evidence of model misspecification;</li>
+<li>evidence of a level shift or structural change.</li>
 </ul>
 <aside class="notes">
-<p>Components are estimated descriptive structures, not autonomous causal mechanisms.</p>
+<p>A value can appear ordinary marginally but be unusual for: - its season; - its neighboring observations; - the current trend level; - its day of week or quarter; - the variance regime at that time.</p>
+<blockquote>
+<p>Outlier detection for time series should respect temporal structure.</p>
+</blockquote>
+<p>A global boxplot of the raw data may flag regular seasonal peaks rather than anomalies.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1797,29 +1078,13 @@ y_t = T_t\times S_t\times R_t \ , \quad \text{or} \quad \log y_t = \log T_t + \l
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
-</section></section>
-<section>
-<section id="practice" class="title-slide slide level1 center">
-<h1>Practice</h1>
+</section>
+<section id="adelaide-hills-tourism-data" class="slide level2">
+<h2>Adelaide Hills tourism data</h2>
 
-</section>
-<section id="capstone-exercise" class="slide level2">
-<h2>Capstone exercise</h2>
-<p>Choose one local series and produce a decomposition report that:</p>
-<ol type="1">
-<li>defines frequency, seasonal period, and units;</li>
-<li>identifies needed calendar, population, or inflation adjustments;</li>
-<li>compares original and transformed scales;</li>
-<li>justifies additive or multiplicative structure;</li>
-<li>visualizes a moving-average trend;</li>
-<li>performs classical decomposition;</li>
-<li>performs robust STL;</li>
-<li>compares seasonally adjusted and trend-cycle series;</li>
-<li>diagnoses the remainder;</li>
-<li>reports parameter sensitivity and limitations.</li>
-</ol>
-<aside class="notes">
-<p>Suggested series include Gas from aus_production, Retail Trade from us_employment, and a positive retail series.</p>
+<img data-src="lecture_04_files/figure-revealjs/cell-18-output-1.png" class="quarto-figure quarto-figure-center r-stretch"><aside class="notes">
+<p>This reproduces the series used in the source subsection: quarterly overnight trips to Adelaide Hills for the Visiting purpose.</p>
+<p>[Sources] - https://otexts.com/fpppy/13-practical.html#sec-missing-outliers</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1832,21 +1097,17 @@ y_t = T_t\times S_t\times R_t \ , \quad \text{or} \quad \log y_t = \log T_t + \l
           display:block!important;
       }</style></aside>
 </section>
-<section id="guided-gas-exercise" class="slide level2">
-<h2>Guided gas exercise</h2>
-<p>Using the last five years of quarterly gas production:</p>
-<ul>
-<li>plot and describe seasonality and trend;</li>
-<li>calculate a multiplicative classical decomposition;</li>
-<li>plot seasonal indices;</li>
-<li>compute seasonally adjusted gas;</li>
-<li>insert an outlier in the middle and repeat;</li>
-<li>insert an outlier near an endpoint and compare;</li>
-<li>explain why the effect differs.</li>
-</ul>
-<aside class="notes">
-<p>This closely follows the chapter’s exercise structure while emphasizing visual comparison and outlier sensitivity.</p>
-<p>[Sources] - https://otexts.com/fpppy/03-decomposition.html</p>
+<section id="adelaide-hills-tourism-data-suspected-outlier-observation" class="slide level2">
+<h2>Adelaide Hills tourism data: suspected outlier observation</h2>
+
+<img data-src="lecture_04_files/figure-revealjs/cell-19-output-1.png" class="quarto-figure quarto-figure-center r-stretch"></section>
+<section id="why-decompose-before-detecting" class="slide level2">
+<h2>Why decompose before detecting?</h2>
+
+<img data-src="lecture_04_files/figure-revealjs/cell-20-output-1.png" class="quarto-figure quarto-figure-center r-stretch"><aside class="notes">
+<p>The chapter recommends STL decomposition as a useful way to reveal outliers in the remainder series.</p>
+<p>A seasonally high value may be normal. An unusual remainder is unusual <strong>after accounting for estimated trend and seasonality</strong>.</p>
+<p>The book implements robust STL through MSTL with one seasonal period. Here, statsmodels STL gives the corresponding single-season robust decomposition directly.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1859,52 +1120,36 @@ y_t = T_t\times S_t\times R_t \ , \quad \text{or} \quad \log y_t = \log T_t + \l
           display:block!important;
       }</style></aside>
 </section>
-<section id="assessment-rubric" class="slide level2">
-<h2>Assessment rubric</h2>
-<table class="caption-top">
-<colgroup>
-<col style="width: 50%">
-<col style="width: 50%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Dimension</th>
-<th>Evidence</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Mathematical precision</td>
-<td>additive, multiplicative, MA, and adjustment formulas are correct</td>
-</tr>
-<tr class="even">
-<td>Visual reasoning</td>
-<td>component scales and overlays are interpreted carefully</td>
-</tr>
-<tr class="odd">
-<td>Transformation</td>
-<td>scale choice is justified and units are updated</td>
-</tr>
-<tr class="even">
-<td>Seasonality</td>
-<td>period and stability are explained</td>
-</tr>
-<tr class="odd">
-<td>Robustness</td>
-<td>outliers and parameter sensitivity are examined</td>
-</tr>
-<tr class="even">
-<td>Diagnostics</td>
-<td>remainder is inspected through time and autocorrelation</td>
-</tr>
-<tr class="odd">
-<td>Reproducibility</td>
-<td>paths, windows, periods, and options are explicit</td>
-</tr>
-</tbody>
-</table>
-<aside class="notes">
-<p>A strong submission explains why each component is useful and what uncertainty remains.</p>
+<section id="adelaide-hills-tourism-data-remainder-component" class="slide level2">
+<h2>Adelaide Hills tourism data: Remainder component</h2>
+
+<img data-src="lecture_04_files/figure-revealjs/cell-21-output-1.png" class="quarto-figure quarto-figure-center r-stretch"><aside class="notes">
+<p>The remainder plot preserves time ordering, allowing detection of isolated spikes, clusters, and changes in variance.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="adelaide-hills-tourism-data-remainder-boxplot" class="slide level2">
+<h2>Adelaide Hills tourism data: Remainder Boxplot</h2>
+
+<img data-src="lecture_04_files/figure-revealjs/cell-22-output-1.png" class="quarto-figure quarto-figure-center r-stretch"></section>
+<section id="iqr-rule-on-the-remainder" class="slide level2">
+<h2>IQR rule on the remainder</h2>
+<p>Let <span class="math inline">\(\operatorname{IQR}=Q_3-Q_1\)</span>. A general fence with multiplier <span class="math inline">\(k\)</span> is <span class="math inline">\(L=Q_1-k\operatorname{IQR}, \ U=Q_3+k\operatorname{IQR}\)</span></p>
+
+<img data-src="lecture_04_files/figure-revealjs/cell-23-output-1.png" class="quarto-figure quarto-figure-center r-stretch"><aside class="notes">
+<p>Flag observations for which <span class="math inline">\(R_t&lt;L\)</span> or <span class="math inline">\(R_t&gt;U\)</span>.</p>
+<p>The book discusses k equal to 1.5 and prefers a stricter k equal to 3 for this context.</p>
+<p>The source section reports that this rule identifies the suspected observation plus three additional observations in the example.</p>
+<p>Plotting the fences makes the rule auditable. The points are flags for investigation, not proof of error.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1922,7 +1167,7 @@ y_t = T_t\times S_t\times R_t \ , \quad \text{or} \quad \log y_t = \log T_t + \l
 <h1>Key Takeaways</h1>
 
 </section>
-<section id="main-conclusions" class="slide level2">
+<section id="main-conclusions" class="slide level2 scrollable">
 <h2>Main conclusions</h2>
 <ol type="1">
 <li>Adjust known measurement effects before decomposition.</li>
@@ -1950,22 +1195,22 @@ y_t = T_t\times S_t\times R_t \ , \quad \text{or} \quad \log y_t = \log T_t + \l
           display:block!important;
       }</style></aside>
 </section>
-<section id="final-checklist" class="slide level2">
-<h2>Final checklist</h2>
-<ul class="task-list">
-<li><label><input type="checkbox">Is the frequency and seasonal period explicit?</label></li>
-<li><label><input type="checkbox">Are known calendar and scale effects adjusted?</label></li>
-<li><label><input type="checkbox">Is the transformation valid for the data domain?</label></li>
-<li><label><input type="checkbox">Is additive or multiplicative structure justified?</label></li>
-<li><label><input type="checkbox">Does the moving-average window match the seasonal period?</label></li>
-<li><label><input type="checkbox">Are endpoint losses visible?</label></li>
-<li><label><input type="checkbox">Can seasonality evolve over time?</label></li>
-<li><label><input type="checkbox">Were robust and non-robust results compared?</label></li>
-<li><label><input type="checkbox">Does the remainder retain structure?</label></li>
-<li><label><input type="checkbox">Are component scales and units communicated honestly?</label></li>
-</ul>
+<section id="visual-diagnostic-protocol" class="slide level2 scrollable">
+<h2>Visual diagnostic protocol</h2>
+<ol type="1">
+<li>plot the original series;</li>
+<li>label units and frequency;</li>
+<li>inspect seasonal amplitude against level;</li>
+<li>remove known calendar, population, or price effects;</li>
+<li>compare plausible transformations;</li>
+<li>estimate components;</li>
+<li>compare observed, trend, and adjusted series;</li>
+<li>inspect remainder over time and by ACF;</li>
+<li>test sensitivity to windows and robust fitting;</li>
+<li>document choices and limitations.</li>
+</ol>
 <aside class="notes">
-<p>This checklist can be reused for forecasting projects and decomposition-based dashboards.</p>
+<p>The protocol is the reusable output of the lecture.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1977,6 +1222,53 @@ y_t = T_t\times S_t\times R_t \ , \quad \text{or} \quad \log y_t = \log T_t + \l
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</section></section>
+<section>
+<section id="exercises" class="title-slide slide level1 center">
+<h1>Exercises</h1>
+
+</section>
+<section id="core-exercises" class="slide level2 scrollable">
+<h2>Core Exercises</h2>
+<ol type="1">
+<li><p>Consider the GDP information in <code>global_economy</code>. Plot the GDP per capita for each country over time. Which country has the highest GDP per capita? How has this changed over time?</p></li>
+<li><p>For each of the following series, make a graph of the data. If transforming seems appropriate, do so and describe the effect.</p></li>
+</ol>
+<ul>
+<li>United States GDP from <code>global_economy</code>.</li>
+<li>Slaughter of Victorian “Bulls, bullocks and steers” in <code>aus_livestock</code>.</li>
+<li>Victorian Electricity Demand from <code>vic_elec</code>.</li>
+<li>Gas production from <code>aus_production</code>.</li>
+</ul>
+<ol start="3" type="1">
+<li>Why is a Box-Cox transformation unhelpful for the <code>canadian_gas</code> data?</li>
+</ol>
+<!-- 4. What Box-Cox transformation would you select for your retail data (from Exercise 7 in Section 2.10)? -->
+<ol start="4" type="1">
+<li>For the following series, find an appropriate Box-Cox transformation in order to stabilise the variance. Tobacco from <code>aus_production</code>, Economy class passengers between Melbourne and Sydney from <code>ansett</code>, and Pedestrian counts at Southern Cross Station from <code>pedestrian</code>.</li>
+</ol>
+<!-- 5. Show that a  3×5 MA is equivalent to a 7-term weighted moving average with weights of 0.067, 0.133, 0.200, 0.200, 0.200, 0.133, and 0.067. -->
+<ol start="5" type="1">
+<li>Consider the last five years of the Gas data from aus_production.</li>
+</ol>
+<div class="sourceCode" id="cb1"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href=""></a>gas <span class="op">=</span> aus_production.loc[<span class="kw">lambda</span> x: x[<span class="st">"unique_id"</span>] <span class="op">==</span> <span class="st">"Gas"</span>].tail(<span class="dv">5</span> <span class="op">*</span> <span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li>Plot the time series. Can you identify seasonal fluctuations and/or a trend-cycle?</li>
+<li>Use <code>seasonal_decompose</code> with model=‘multiplicative’ to calculate the trend-cycle and seasonal indices.</li>
+<li>Do the results support the graphical interpretation from part a?</li>
+<li>Compute and plot the seasonally adjusted data.</li>
+<li>Change one observation to be an outlier (e.g., add 300 to one observation), and recompute the seasonally adjusted data. What is the effect of the outlier?</li>
+<li>Does it make any difference if the outlier is near the end rather than in the middle of the time series?</li>
+</ul>
+<ol start="6" type="1">
+<li>This exercise uses the <code>canadian_gas</code> data (monthly Canadian gas production in billions of cubic metres, January 1960 – February 2005).</li>
+</ol>
+<ul>
+<li>Plot the data using to look at the effect of the changing seasonality over time.1</li>
+<li>Do an STL decomposition of the data using <code>STL()</code>.</li>
+<li>How does the seasonal shape change over time? [Hint: Try plotting the seasonal component.]</li>
+<li>Can you produce a plausible seasonally adjusted series?</li>
+</ul>
 </section></section>
 <section>
 <section id="references" class="title-slide slide level1 center">
@@ -1994,7 +1286,6 @@ y_t = T_t\times S_t\times R_t \ , \quad \text{or} \quad \log y_t = \log T_t + \l
 </ul>
 <aside class="notes">
 <p>The teaching prose, organization, and extension examples were written for this lecture. The chapter is the primary conceptual and code reference.</p>
-<p>[Sources] - https://otexts.com/fpppy/03-decomposition.html</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
