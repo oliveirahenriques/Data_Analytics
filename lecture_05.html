@@ -561,7 +561,7 @@ Victor Henriques, Ph.D.
 </section>
 <section id="adelaide-hills-tourism-data" class="slide level2">
 <h2>Adelaide Hills tourism data</h2>
-<div id="c62f9d56" class="cell" data-execution_count="2">
+<div id="5ded5805" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href=""></a>tourism_raw <span class="op">=</span> pd.read_csv(DATA_PATH <span class="op">/</span> <span class="st">"tourism.csv"</span>, parse_dates<span class="op">=</span>[<span class="st">"ds"</span>])</span>
 <span id="cb3-2"><a href=""></a>tourism <span class="op">=</span> (</span>
 <span id="cb3-3"><a href=""></a>    tourism_raw</span>
@@ -651,7 +651,7 @@ Victor Henriques, Ph.D.
 </section>
 <section id="figure-13.9-inspect-the-original-series" class="slide level2">
 <h2>Figure 13.9: Inspect the original series</h2>
-<div id="73a18757" class="cell" data-execution_count="3">
+<div id="24f16cf1" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href=""></a>fig, ax <span class="op">=</span> plot_series_matplotlib(</span>
 <span id="cb4-2"><a href=""></a>    tourism,</span>
 <span id="cb4-3"><a href=""></a>    title<span class="op">=</span><span class="st">"Quarterly overnight trips to Adelaide Hills"</span>,</span>
@@ -678,7 +678,7 @@ Victor Henriques, Ph.D.
 </section>
 <section id="annotate-suspected-observations" class="slide level2">
 <h2>Annotate suspected observations</h2>
-<div id="9d5045e4" class="cell" data-execution_count="4">
+<div id="0f9da5e0" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href=""></a>suspected_date <span class="op">=</span> pd.Timestamp(<span class="st">"2002-10-01"</span>)</span>
 <span id="cb5-2"><a href=""></a>suspected <span class="op">=</span> tourism.loc[tourism[<span class="st">"ds"</span>] <span class="op">==</span> suspected_date]</span>
 <span id="cb5-3"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
@@ -729,7 +729,7 @@ y_t = T_t + S_t + R_t.
 </section>
 <section id="robust-stl-decomposition" class="slide level2">
 <h2>Robust STL decomposition</h2>
-<div id="671465ac" class="cell" data-execution_count="5">
+<div id="acf6e0fc" class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href=""></a>stl <span class="op">=</span> STL(tourism[<span class="st">"y"</span>], period<span class="op">=</span><span class="dv">4</span>, robust<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb6-2"><a href=""></a>stl_result <span class="op">=</span> stl.fit()</span>
 <span id="cb6-3"><a href=""></a>dcmp <span class="op">=</span> pd.DataFrame({</span>
@@ -830,7 +830,7 @@ y_t = T_t + S_t + R_t.
 </section>
 <section id="figure-13.10-components-and-remainder" class="slide level2">
 <h2>Figure 13.10: Components and remainder</h2>
-<div id="7b5578f9" class="cell" data-execution_count="6">
+<div id="41099674" class="cell" data-execution_count="6">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href=""></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">4</span>, <span class="dv">1</span>, sharex<span class="op">=</span><span class="va">True</span>, figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="dv">7</span>))</span>
 <span id="cb7-2"><a href=""></a><span class="cf">for</span> ax, column, label, color <span class="kw">in</span> <span class="bu">zip</span>(</span>
 <span id="cb7-3"><a href=""></a>    axes,</span>
@@ -862,7 +862,7 @@ y_t = T_t + S_t + R_t.
 </section>
 <section id="remainder-in-time" class="slide level2">
 <h2>Remainder in time</h2>
-<div id="fe36f9a1" class="cell" data-execution_count="7">
+<div id="89cee089" class="cell" data-execution_count="7">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
 <span id="cb8-2"><a href=""></a>ax.plot(dcmp[<span class="st">"ds"</span>], dcmp[<span class="st">"remainder"</span>], color<span class="op">=</span>COLORS[<span class="st">"remainder"</span>])</span>
 <span id="cb8-3"><a href=""></a>ax.axhline(<span class="dv">0</span>, color<span class="op">=</span><span class="st">"0.35"</span>, linewidth<span class="op">=</span><span class="dv">1</span>)</span>
@@ -918,7 +918,7 @@ U=Q_3+k\operatorname{IQR}.
 </section>
 <section id="implement-the-chapters-3-iqr-rule" class="slide level2">
 <h2>Implement the chapter’s 3-IQR rule</h2>
-<div id="c29588c4" class="cell" data-execution_count="8">
+<div id="3278bf02" class="cell" data-execution_count="8">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href=""></a>q1 <span class="op">=</span> dcmp[<span class="st">"remainder"</span>].quantile(<span class="fl">.25</span>)</span>
 <span id="cb9-2"><a href=""></a>q3 <span class="op">=</span> dcmp[<span class="st">"remainder"</span>].quantile(<span class="fl">.75</span>)</span>
 <span id="cb9-3"><a href=""></a>iqr <span class="op">=</span> q3 <span class="op">-</span> q1</span>
@@ -1033,7 +1033,7 @@ U=Q_3+k\operatorname{IQR}.
 </section>
 <section id="visualize-the-fences-and-flags" class="slide level2">
 <h2>Visualize the fences and flags</h2>
-<div id="51efea3e" class="cell" data-execution_count="9">
+<div id="818744fc" class="cell" data-execution_count="9">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
 <span id="cb10-2"><a href=""></a>ax.plot(dcmp[<span class="st">"ds"</span>], dcmp[<span class="st">"remainder"</span>], color<span class="op">=</span>COLORS[<span class="st">"remainder"</span>], label<span class="op">=</span><span class="st">"Remainder"</span>)</span>
 <span id="cb10-3"><a href=""></a>ax.axhline(lower, color<span class="op">=</span>COLORS[<span class="st">"outlier"</span>], linestyle<span class="op">=</span><span class="st">"--"</span>, label<span class="op">=</span><span class="st">"3-IQR fences"</span>)</span>
@@ -1062,7 +1062,7 @@ U=Q_3+k\operatorname{IQR}.
 </section>
 <section id="boxplot-of-the-remainder" class="slide level2">
 <h2>Boxplot of the remainder</h2>
-<div id="8db845fa" class="cell" data-execution_count="10">
+<div id="a334d181" class="cell" data-execution_count="10">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
 <span id="cb11-2"><a href=""></a>sns.boxplot(x<span class="op">=</span>dcmp[<span class="st">"remainder"</span>], color<span class="op">=</span><span class="st">"#56B4E9"</span>, whis<span class="op">=</span><span class="dv">3</span>, ax<span class="op">=</span>ax)</span>
 <span id="cb11-3"><a href=""></a>ax.<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Remainder boxplot with 3-IQR whisker rule"</span>,</span>
@@ -1112,7 +1112,7 @@ U=Q_3+k\operatorname{IQR}.
 </section>
 <section id="isolated-outlier-versus-level-shift" class="slide level2">
 <h2>Isolated outlier versus level shift</h2>
-<div id="ea132264" class="cell" data-fig-height="4" data-fig-width="11" data-execution_count="11">
+<div id="4aeb7c45" class="cell" data-fig-height="4" data-fig-width="11" data-execution_count="11">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href=""></a>idx <span class="op">=</span> pd.date_range(<span class="st">"2020-01-01"</span>, periods<span class="op">=</span><span class="dv">80</span>, freq<span class="op">=</span><span class="st">"D"</span>)</span>
 <span id="cb12-2"><a href=""></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">42</span>)</span>
 <span id="cb12-3"><a href=""></a>base <span class="op">=</span> rng.normal(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">80</span>)</span>
@@ -1217,7 +1217,7 @@ U=Q_3+k\operatorname{IQR}.
 </section>
 <section id="create-missing-value-scenarios" class="slide level2">
 <h2>Create missing-value scenarios</h2>
-<div id="2aff531f" class="cell" data-execution_count="12">
+<div id="b9b901e9" class="cell" data-execution_count="12">
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href=""></a>tourism_missing <span class="op">=</span> tourism.copy()</span>
 <span id="cb14-2"><a href=""></a>tourism_missing.loc[[<span class="dv">8</span>, <span class="dv">9</span>, <span class="dv">25</span>], <span class="st">"y"</span>] <span class="op">=</span> np.nan</span>
 <span id="cb14-3"><a href=""></a>missing_dates <span class="op">=</span> tourism_missing.loc[tourism_missing[<span class="st">"y"</span>].isna(), <span class="st">"ds"</span>]</span>
@@ -1342,7 +1342,7 @@ U=Q_3+k\operatorname{IQR}.
 </section>
 <section id="show-gaps-honestly" class="slide level2">
 <h2>Show gaps honestly</h2>
-<div id="f0c223d0" class="cell" data-execution_count="13">
+<div id="e06846de" class="cell" data-execution_count="13">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
 <span id="cb15-2"><a href=""></a>ax.plot(tourism_missing[<span class="st">"ds"</span>], tourism_missing[<span class="st">"y"</span>], color<span class="op">=</span>COLORS[<span class="st">"observed"</span>], marker<span class="op">=</span><span class="st">"o"</span>)</span>
 <span id="cb15-3"><a href=""></a><span class="cf">for</span> date <span class="kw">in</span> missing_dates:</span>
@@ -1368,7 +1368,7 @@ U=Q_3+k\operatorname{IQR}.
 </section>
 <section id="missingness-map" class="slide level2">
 <h2>Missingness map</h2>
-<div id="c2529257" class="cell" data-execution_count="14">
+<div id="88c285bc" class="cell" data-execution_count="14">
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href=""></a>missing_indicator <span class="op">=</span> tourism_missing[<span class="st">"y"</span>].isna().astype(<span class="bu">int</span>).to_numpy()[<span class="va">None</span>, :]</span>
 <span id="cb16-2"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="fl">2.4</span>))</span>
 <span id="cb16-3"><a href=""></a>sns.heatmap(missing_indicator, cmap<span class="op">=</span>[<span class="st">"#E5E7EB"</span>, COLORS[<span class="st">"missing"</span>]], cbar<span class="op">=</span><span class="va">False</span>,</span>
@@ -1394,7 +1394,7 @@ U=Q_3+k\operatorname{IQR}.
 </section>
 <section id="count-and-locate-missing-observations" class="slide level2">
 <h2>Count and locate missing observations</h2>
-<div id="9350b5e1" class="cell" data-execution_count="15">
+<div id="99cd2e0f" class="cell" data-execution_count="15">
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href=""></a>missing_summary <span class="op">=</span> pd.Series({</span>
 <span id="cb17-2"><a href=""></a>    <span class="st">"observations"</span>: <span class="bu">len</span>(tourism_missing),</span>
 <span id="cb17-3"><a href=""></a>    <span class="st">"missing"</span>: tourism_missing[<span class="st">"y"</span>].isna().<span class="bu">sum</span>(),</span>
@@ -1481,7 +1481,7 @@ y_a+
 </section>
 <section id="reproduce-the-sources-interpolation-approach" class="slide level2">
 <h2>Reproduce the source’s interpolation approach</h2>
-<div id="440c441e" class="cell" data-execution_count="16">
+<div id="55fbdd29" class="cell" data-execution_count="16">
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href=""></a>outlier_dates <span class="op">=</span> outliers[<span class="st">"ds"</span>]</span>
 <span id="cb19-2"><a href=""></a>tourism_cleaned <span class="op">=</span> tourism.copy()</span>
 <span id="cb19-3"><a href=""></a>tourism_cleaned[<span class="st">"was_replaced"</span>] <span class="op">=</span> tourism_cleaned[<span class="st">"ds"</span>].isin(outlier_dates)</span>
@@ -1580,7 +1580,7 @@ y_a+
 </section>
 <section id="figure-13.11-original-and-cleaned-series" class="slide level2">
 <h2>Figure 13.11: Original and cleaned series</h2>
-<div id="d58f623e" class="cell" data-execution_count="17">
+<div id="b5c42bcf" class="cell" data-execution_count="17">
 <div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
 <span id="cb20-2"><a href=""></a>ax.plot(tourism_cleaned[<span class="st">"ds"</span>], tourism_cleaned[<span class="st">"y_original"</span>],</span>
 <span id="cb20-3"><a href=""></a>        color<span class="op">=</span><span class="st">"0.75"</span>, label<span class="op">=</span><span class="st">"Original"</span>)</span>
@@ -1612,7 +1612,7 @@ y_a+
 </section>
 <section id="compare-common-imputation-strategies" class="slide level2">
 <h2>Compare common imputation strategies</h2>
-<div id="dc1a58f7" class="cell" data-execution_count="18">
+<div id="620527e2" class="cell" data-execution_count="18">
 <div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href=""></a>comparison <span class="op">=</span> tourism_missing[[<span class="st">"ds"</span>, <span class="st">"y"</span>]].copy()</span>
 <span id="cb21-2"><a href=""></a>comparison[<span class="st">"linear"</span>] <span class="op">=</span> comparison[<span class="st">"y"</span>].interpolate(<span class="st">"linear"</span>)</span>
 <span id="cb21-3"><a href=""></a>comparison[<span class="st">"forward_fill"</span>] <span class="op">=</span> comparison[<span class="st">"y"</span>].ffill()</span>
@@ -1692,7 +1692,7 @@ y_a+
 </section>
 <section id="visual-comparison-of-imputations" class="slide level2">
 <h2>Visual comparison of imputations</h2>
-<div id="85220586" class="cell" data-execution_count="19">
+<div id="f94c6de8" class="cell" data-execution_count="19">
 <div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
 <span id="cb22-2"><a href=""></a>ax.plot(comparison[<span class="st">"ds"</span>], comparison[<span class="st">"y"</span>], color<span class="op">=</span><span class="st">"0.75"</span>, marker<span class="op">=</span><span class="st">"o"</span>, label<span class="op">=</span><span class="st">"Observed"</span>)</span>
 <span id="cb22-3"><a href=""></a><span class="cf">for</span> column, color <span class="kw">in</span> <span class="bu">zip</span>([<span class="st">"linear"</span>, <span class="st">"forward_fill"</span>, <span class="st">"seasonal_lag4"</span>],</span>
@@ -1720,7 +1720,7 @@ y_a+
 </section>
 <section id="gap-length-matters" class="slide level2">
 <h2>Gap length matters</h2>
-<div id="48062e41" class="cell" data-execution_count="20">
+<div id="c51a17b9" class="cell" data-execution_count="20">
 <div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href=""></a>missing_mask <span class="op">=</span> tourism_missing[<span class="st">"y"</span>].isna()</span>
 <span id="cb23-2"><a href=""></a>run_id <span class="op">=</span> missing_mask.ne(missing_mask.shift()).cumsum()</span>
 <span id="cb23-3"><a href=""></a>missing_runs <span class="op">=</span> (</span>
@@ -1822,7 +1822,7 @@ y_a+
 </section>
 <section id="an-auditable-cleaning-table" class="slide level2">
 <h2>An auditable cleaning table</h2>
-<div id="01306bb0" class="cell" data-execution_count="21">
+<div id="1aa72e84" class="cell" data-execution_count="21">
 <div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href=""></a>audit <span class="op">=</span> tourism_cleaned.loc[tourism_cleaned[<span class="st">"was_replaced"</span>],</span>
 <span id="cb24-2"><a href=""></a>                            [<span class="st">"ds"</span>, <span class="st">"y_original"</span>, <span class="st">"y"</span>]].rename(</span>
 <span id="cb24-3"><a href=""></a>    columns<span class="op">=</span>{<span class="st">"y"</span>: <span class="st">"replacement"</span>}</span>
@@ -1941,7 +1941,7 @@ y_a+
 </section>
 <section id="compare-decomposition-before-and-after" class="slide level2">
 <h2>Compare decomposition before and after</h2>
-<div id="8b530ea1" class="cell" data-execution_count="22">
+<div id="e2a05c2d" class="cell" data-execution_count="22">
 <div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href=""></a>original_fit <span class="op">=</span> STL(tourism[<span class="st">"y"</span>], period<span class="op">=</span><span class="dv">4</span>, robust<span class="op">=</span><span class="va">True</span>).fit()</span>
 <span id="cb25-2"><a href=""></a>clean_fit <span class="op">=</span> STL(tourism_cleaned[<span class="st">"y"</span>], period<span class="op">=</span><span class="dv">4</span>, robust<span class="op">=</span><span class="va">True</span>).fit()</span>
 <span id="cb25-3"><a href=""></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">1</span>, sharex<span class="op">=</span><span class="va">True</span>, figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="dv">6</span>))</span>
@@ -1971,7 +1971,7 @@ y_a+
 </section>
 <section id="remainder-acf-before-and-after" class="slide level2">
 <h2>Remainder ACF before and after</h2>
-<div id="7017adbb" class="cell" data-execution_count="23">
+<div id="b27a721c" class="cell" data-execution_count="23">
 <div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href=""></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="fl">4.5</span>))</span>
 <span id="cb26-2"><a href=""></a>plot_acf(original_fit.resid, lags<span class="op">=</span><span class="dv">16</span>, zero<span class="op">=</span><span class="va">False</span>, ax<span class="op">=</span>axes[<span class="dv">0</span>])</span>
 <span id="cb26-3"><a href=""></a>axes[<span class="dv">0</span>].set_title(<span class="st">"Original remainder ACF"</span>)</span>
@@ -2088,7 +2088,7 @@ y_a+
 <li>measurement units: billions of cubic metres;</li>
 <li>a widely documented apparent change near 1898.</li>
 </ul>
-<div id="0878c6c5" class="cell" data-execution_count="24">
+<div id="95042653" class="cell" data-execution_count="24">
 <div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href=""></a><span class="co"># Public, built-in dataset from statsmodels.</span></span>
 <span id="cb27-2"><a href=""></a>nile <span class="op">=</span> sm.datasets.nile.load_pandas().data.copy()</span>
 <span id="cb27-3"><a href=""></a>nile[<span class="st">"year"</span>] <span class="op">=</span> nile[<span class="st">"year"</span>].astype(<span class="bu">int</span>)</span>
@@ -2175,7 +2175,7 @@ y_a+
 </section>
 <section id="visual-inspection" class="slide level2">
 <h2>Visual inspection</h2>
-<div id="cf953636" class="cell" data-execution_count="25">
+<div id="358f12bf" class="cell" data-execution_count="25">
 <div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
 <span id="cb28-2"><a href=""></a>ax.plot(nile[<span class="st">"year"</span>], nile[<span class="st">"volume"</span>], marker<span class="op">=</span><span class="st">"o"</span>, markersize<span class="op">=</span><span class="dv">3</span>, color<span class="op">=</span>COLORS[<span class="st">"primary"</span>])</span>
 <span id="cb28-3"><a href=""></a>ax.<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Annual Nile River volume at Aswan"</span>, xlabel<span class="op">=</span><span class="st">"Year"</span>, ylabel<span class="op">=</span><span class="vs">r"Volume ($10^9$ m³)"</span>)</span>
@@ -2199,7 +2199,7 @@ y_a+
 </section>
 <section id="before-and-after-summaries-are-descriptive" class="slide level2">
 <h2>Before-and-after summaries are descriptive</h2>
-<div id="7a80eb90" class="cell" data-execution_count="26">
+<div id="e1dba5a8" class="cell" data-execution_count="26">
 <div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href=""></a>summary_1898 <span class="op">=</span> (</span>
 <span id="cb29-2"><a href=""></a>    nile.assign(period<span class="op">=</span>np.where(nile[<span class="st">"year"</span>] <span class="op">&lt;</span> <span class="dv">1898</span>, <span class="st">"Before 1898"</span>, <span class="st">"1898 onward"</span>))</span>
 <span id="cb29-3"><a href=""></a>    .groupby(<span class="st">"period"</span>)[<span class="st">"volume"</span>]</span>
@@ -2263,7 +2263,7 @@ y_a+
 </section>
 <section id="distribution-view-by-period" class="slide level2">
 <h2>Distribution view by period</h2>
-<div id="8d0b2ba4" class="cell" data-execution_count="27">
+<div id="be3afc65" class="cell" data-execution_count="27">
 <div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href=""></a>plot_data <span class="op">=</span> nile.assign(</span>
 <span id="cb30-2"><a href=""></a>    period<span class="op">=</span>np.where(nile[<span class="st">"year"</span>] <span class="op">&lt;</span> <span class="dv">1898</span>, <span class="st">"Before 1898"</span>, <span class="st">"1898 onward"</span>)</span>
 <span id="cb30-3"><a href=""></a>)</span>
@@ -2293,7 +2293,7 @@ y_a+
 <p><span class="math display">\[
 y_t=\beta_0+u_t.
 \]</span></p>
-<div id="d95e6ab5" class="cell" data-execution_count="28">
+<div id="1a58ea10" class="cell" data-execution_count="28">
 <div class="sourceCode cell-code" id="cb31"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href=""></a><span class="co"># Stable intercept-only reference model used for parameter-stability tests.</span></span>
 <span id="cb31-2"><a href=""></a>X_level <span class="op">=</span> np.ones((<span class="bu">len</span>(nile), <span class="dv">1</span>))</span>
 <span id="cb31-3"><a href=""></a>level_model <span class="op">=</span> sm.OLS(nile[<span class="st">"volume"</span>], X_level).fit()</span>
@@ -2340,7 +2340,7 @@ y_t=\beta_0+u_t.
 </section>
 <section id="ols-cusum-with-statsmodels" class="slide level2">
 <h2>OLS-CUSUM with <code>statsmodels</code></h2>
-<div id="73c58d7c" class="cell" data-execution_count="29">
+<div id="f342e73f" class="cell" data-execution_count="29">
 <div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href=""></a>cusum_stat, cusum_pvalue, cusum_critical <span class="op">=</span> breaks_cusumolsresid(</span>
 <span id="cb32-2"><a href=""></a>    level_model.resid,</span>
 <span id="cb32-3"><a href=""></a>    ddof<span class="op">=</span><span class="bu">len</span>(level_model.params),</span>
@@ -2388,7 +2388,7 @@ dtype: object</code></pre>
 </section>
 <section id="recursive-ols-diagnostics" class="slide level2">
 <h2>Recursive OLS diagnostics</h2>
-<div id="c908ffbc" class="cell" data-execution_count="30">
+<div id="2e2acf9e" class="cell" data-execution_count="30">
 <div class="sourceCode cell-code" id="cb34"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href=""></a>recursive_output <span class="op">=</span> recursive_olsresiduals(</span>
 <span id="cb34-2"><a href=""></a>    level_model,</span>
 <span id="cb34-3"><a href=""></a>    skip<span class="op">=</span><span class="dv">3</span>,</span>
@@ -2416,7 +2416,7 @@ dtype: object</code></pre>
 </section>
 <section id="recursive-cusum-visualization" class="slide level2">
 <h2>Recursive CUSUM visualization</h2>
-<div id="d644d935" class="cell" data-execution_count="31">
+<div id="4ba21197" class="cell" data-execution_count="31">
 <div class="sourceCode cell-code" id="cb35"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href=""></a>recursive_years <span class="op">=</span> nile[<span class="st">"year"</span>].iloc[<span class="op">-</span><span class="bu">len</span>(recursive_cusum):].to_numpy()</span>
 <span id="cb35-2"><a href=""></a>boundary_years <span class="op">=</span> recursive_years[<span class="dv">1</span>:]</span>
 <span id="cb35-3"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
@@ -2445,7 +2445,7 @@ dtype: object</code></pre>
 </section>
 <section id="plot-segment-means" class="slide level2">
 <h2>Plot segment means</h2>
-<div id="fe7ffc35" class="cell" data-execution_count="32">
+<div id="061cfb4f" class="cell" data-execution_count="32">
 <div class="sourceCode cell-code" id="cb36"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href=""></a>dynp_breaks <span class="op">=</span> (</span>
 <span id="cb36-2"><a href=""></a>    rpt.Dynp(</span>
 <span id="cb36-3"><a href=""></a>        model<span class="op">=</span><span class="st">"l2"</span>,</span>
@@ -2505,7 +2505,7 @@ dtype: object</code></pre>
 </section>
 <section id="differencing-changes-the-question" class="slide level2">
 <h2>Differencing changes the question</h2>
-<div id="ccb8ab9b" class="cell" data-execution_count="33">
+<div id="6e45b3d5" class="cell" data-execution_count="33">
 <div class="sourceCode cell-code" id="cb37"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href=""></a>nile[<span class="st">"difference"</span>] <span class="op">=</span> nile[<span class="st">"volume"</span>].diff()</span>
 <span id="cb37-2"><a href=""></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">1</span>, sharex<span class="op">=</span><span class="va">True</span>, figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="dv">6</span>))</span>
 <span id="cb37-3"><a href=""></a>axes[<span class="dv">0</span>].plot(nile[<span class="st">"year"</span>], nile[<span class="st">"volume"</span>], color<span class="op">=</span>COLORS[<span class="st">"primary"</span>])</span>

@@ -813,8 +813,7 @@ ax.legend(frameon=False)
 plt.tight_layout(); plt.show()
 ```
 
-
-## Why decompose before detecting?
+## Why decompose before detecting the outlier?
 
 ```{python}
 #| echo: false
@@ -852,7 +851,7 @@ A seasonally high value may be normal. An unusual remainder is unusual **after a
 The book implements robust STL through MSTL with one seasonal period. Here, statsmodels STL gives the corresponding single-season robust decomposition directly.
 :::
 
-## Adelaide Hills tourism data: Remainder component
+## Remainder component: time plot
 
 ```{python}
 #| echo: false
@@ -872,14 +871,182 @@ plt.tight_layout(); plt.show()
 The remainder plot preserves time ordering, allowing detection of isolated spikes, clusters, and changes in variance.
 :::
 
-## Adelaide Hills tourism data: Z-Score
+## Remainder component: descriptive statistics
 
 ```{python}
-dcmp["remainder"]
+print(dcmp["remainder"].describe(percentiles = [0, 0.05, .10, .25, .5, .75, .90, .95, 1]))
+```
+
+## Adelaide Hills tourism data: Histogram
+
+```{python}
+#| echo: false
+#| fig-align: center
+sns.histplot(dcmp["remainder"], kde = True)
+```
+
+## Remainder component: Z-Score
+
+```{python}
+#| echo: false
+#| fig-align: center
+def zscore(series, threshold=3):
+    """
+    Detect outliers using z-score method with customizable threshold.
+    """
+    data = series.copy()
+    z = (data - data.mean()) / data.std()
+
+    outliers = data[
+        (z <= -threshold) | (z >= threshold)
+    ]
+
+    return outliers, z
+
+threshold = 3.5
+
+# Calcula o z-score e identifica os outliers
+outliers, zscore = zscore(
+    dcmp["remainder"],
+    threshold=threshold
+)
+
+# Datas correspondentes aos outliers
+zscore_outlier_dates = dcmp.loc[outliers.index, "ds"]
+
+fig, ax = plt.subplots()
+
+ax.plot(
+    dcmp["ds"],
+    zscore,
+    color=COLORS["remainder"]
+)
+
+# Linha central
+ax.axhline(
+    0,
+    color="0.35",
+    linewidth=1
+)
+
+# Limites do z-score
+ax.axhline(
+    threshold,
+    color=COLORS["outlier"],
+    linestyle="--"
+)
+
+ax.axhline(
+    -threshold,
+    color=COLORS["outlier"],
+    linestyle="--"
+)
+
+# Outliers
+ax.scatter(
+    dcmp.loc[outliers.index, "ds"],
+    zscore.loc[outliers.index],
+    color=COLORS["outlier"],
+    s=90,
+    zorder=3
+)
+
+ax.set(
+    title="Outliers detected using the Z-score",
+    xlabel="Quarter",
+    ylabel="Z-score"
+)
+
+plt.tight_layout()
+plt.show()
+```
+
+## Remainder component: Modified Z-Score
+
+```{python}
+#| echo: false
+#| fig-align: center
+def modified_zscore(series, threshold=3):
+    """
+    Detect outliers using the modified z-score method
+    with a customizable threshold.
+    """
+    data = series.copy()
+
+    # Median
+    median = data.median()
+
+    # Median Absolute Deviation (MAD)
+    MAD = np.median(np.abs(data - median))
+
+    # Modified z-score
+    m_z = 0.6745 * (data - median) / MAD
+
+    # Identify outliers
+    outliers = data[
+        (m_z > threshold) |
+        (m_z < -threshold)
+    ]
+
+    return outliers, m_z
+
+threshold = 3.5
+
+outliers, m_zscores = modified_zscore(
+    dcmp["remainder"],
+    threshold=threshold
+)
+
+fig, ax = plt.subplots()
+
+ax.plot(
+    dcmp["ds"],
+    m_zscores,
+    color=COLORS["remainder"]
+)
+
+# Linha central
+ax.axhline(
+    0,
+    color="0.35",
+    linewidth=1
+)
+
+# Limite superior
+ax.axhline(
+    threshold,
+    color=COLORS["outlier"],
+    linestyle="--"
+)
+
+# Limite inferior
+ax.axhline(
+    -threshold,
+    color=COLORS["outlier"],
+    linestyle="--"
+)
+
+# Outliers
+ax.scatter(
+    dcmp.loc[outliers.index, "ds"],
+    m_zscores.loc[outliers.index],
+    color=COLORS["outlier"],
+    s=90,
+    zorder=3
+)
+
+ax.set(
+    title="Outliers detected using the Modified Z-score",
+    xlabel="Quarter",
+    ylabel="Modified Z-score"
+)
+
+plt.tight_layout()
+plt.show()
 ```
 
 
-## Adelaide Hills tourism data: Remainder Boxplot
+## Remainder component: Boxplot
 
 ```{python}
 #| echo: false
@@ -897,10 +1064,9 @@ ax.set(title="Remainder boxplot with 3-IQR whisker rule",
 plt.tight_layout(); plt.show()
 ```
 
-## IQR rule on the remainder
+## Remainder component: Tukey method
 
 Let $\operatorname{IQR}=Q_3-Q_1$. A general fence with multiplier $k$ is $L=Q_1-k\operatorname{IQR}, \ U=Q_3+k\operatorname{IQR}$
-
 
 ```{python}
 #| echo: false
@@ -926,6 +1092,144 @@ The source section reports that this rule identifies the suspected observation p
 
 Plotting the fences makes the rule auditable. The points are flags for investigation, not proof of error.
 :::
+
+# Outlier treatment
+
+## Interpolation is an estimate
+
+Linear interpolation between observed endpoints $y_a$ and $y_b$ is
+
+$$
+\widehat y_t
+=
+y_a+
+\frac{t-a}{b-a}(y_b-y_a),
+\qquad a<t<b.
+$$
+
+It assumes smooth movement between neighboring observations.
+
+::: {.notes}
+Interpolation creates estimated values, not recovered truths. Long gaps and seasonal series make the assumption less plausible.
+:::
+
+
+## Original and cleaned series
+
+```{python}
+#| echo: false
+#| fig-align: center
+q1 = dcmp["remainder"].quantile(.25)
+q3 = dcmp["remainder"].quantile(.75)
+iqr = q3 - q1
+lower = q1 - 3 * iqr
+upper = q3 + 3 * iqr
+outliers = dcmp.loc[~dcmp["remainder"].between(lower, upper)].copy()
+outliers
+outliers = dcmp.loc[~dcmp["remainder"].between(lower, upper)].copy()
+outlier_dates = outliers["ds"]
+tourism_cleaned = tourism.copy()
+tourism_cleaned["was_replaced"] = tourism_cleaned["ds"].isin(outlier_dates)
+tourism_cleaned["y_original"] = tourism_cleaned["y"]
+tourism_cleaned.loc[tourism_cleaned["was_replaced"], "y"] = np.nan
+tourism_cleaned["y"] = tourism_cleaned["y"].interpolate(method="linear")
+tourism_cleaned.loc[tourism_cleaned["was_replaced"]].head()
+fig, ax = plt.subplots()
+ax.plot(tourism_cleaned["ds"], tourism_cleaned["y_original"],
+        color="0.75", label="Original")
+ax.plot(tourism_cleaned["ds"], tourism_cleaned["y"],
+        color="#0072B2", label="Cleaned")
+replaced = tourism_cleaned.loc[tourism_cleaned["was_replaced"]]
+ax.scatter(replaced["ds"], replaced["y"], color=COLORS["imputed"],
+           s=80, zorder=3, label="Interpolated replacement")
+ax.set(title="Quarterly overnight trips to Adelaide Hills",
+       xlabel="Quarter [1Q]", ylabel="Number of trips")
+ax.legend(frameon=False)
+plt.tight_layout(); plt.show()
+```
+
+::: {.notes}
+The source replaces detected outlier values with missing values and then applies pandas interpolate. This version matches by date rather than value, avoiding accidental replacement of legitimate duplicate values.
+
+Displaying original and cleaned values together preserves transparency. The source figure shows the cleaned series after interpolation.
+
+:::
+
+
+## Visual comparison of imputations
+
+```{python}
+#| echo: false
+#| fig-align: center
+tourism_missing = tourism.copy()
+tourism_missing.loc[[8, 9, 25], "y"] = np.nan
+missing_dates = tourism_missing.loc[tourism_missing["y"].isna(), "ds"]
+tourism_missing.head(12)
+comparison = tourism_missing[["ds", "y"]].copy()
+comparison["linear"] = comparison["y"].interpolate("linear")
+comparison["forward_fill"] = comparison["y"].ffill()
+comparison["seasonal_lag4"] = comparison["y"].fillna(comparison["y"].shift(4))
+
+fig, ax = plt.subplots()
+ax.plot(comparison["ds"], comparison["y"], color="0.75", marker="o", label="Observed")
+for column, color in zip(["linear", "forward_fill", "seasonal_lag4"],
+                         ["#0072B2", "#D55E00", "#009E73"]):
+    ax.plot(comparison["ds"], comparison[column], color=color, alpha=.85, label=column)
+ax.set(title="Imputation methods encode different assumptions",
+       xlabel="Quarter", ylabel="Number of trips")
+ax.legend(frameon=False, ncol=2)
+plt.tight_layout(); plt.show()
+```
+
+::: {.notes}
+These are teaching alternatives, not methods prescribed by the source. Linear interpolation assumes local smoothness, forward fill assumes persistence, and seasonal lag substitution assumes seasonal repetition.
+
+The disagreement between methods is a visual representation of imputation uncertainty. Do not select a method solely because it produces the smoothest line.
+
+An isolated gap and a long missing block should not automatically receive the same treatment. Long gaps weaken local interpolation and may span structural changes.
+
+Do not overwrite the raw data
+
+Keep at least:
+
+- original value;
+- cleaned or imputed value;
+- modification flag;
+- reason for modification;
+- method used;
+- parameters or window;
+- analyst review status.
+This is a recommended governance pattern. It supports reproducibility and auditability.
+:::
+
+## Compare decomposition before and after
+
+```{python}
+#| echo: false
+#| fig-align: center
+original_fit = STL(tourism["y"], period=4, robust=True).fit()
+clean_fit = STL(tourism_cleaned["y"], period=4, robust=True).fit()
+fig, axes = plt.subplots(2, 1, sharex=True, figsize=(11, 6))
+axes[0].plot(tourism["ds"], original_fit.trend, label="Original trend", color="0.5")
+axes[0].plot(tourism["ds"], clean_fit.trend, label="Cleaned trend", color=COLORS["trend"])
+axes[0].set_ylabel("Trend"); axes[0].legend(frameon=False)
+axes[1].plot(tourism["ds"], original_fit.resid, label="Original remainder", color="0.5")
+axes[1].plot(tourism["ds"], clean_fit.resid, label="Cleaned remainder", color=COLORS["remainder"])
+axes[1].set(xlabel="Quarter", ylabel="Remainder"); axes[1].legend(frameon=False)
+fig.suptitle("Cleaning changes estimated components")
+plt.tight_layout(); plt.show()
+```
+
+::: {.notes}
+Cleaning is not neutral. It can change the trend, seasonal component, remainder, and subsequent forecasts. Compare before and after explicitly.
+:::
+
+##
+
+```{python}
+sns.histplot(clean_fit.resid, kde = True)
+```
+
 
 # Key Takeaways
 

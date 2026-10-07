@@ -418,6 +418,7 @@ Victor Henriques, Ph.D.
 <li><a href="#/classical-decomposition" id="/toc-classical-decomposition">Classical Decomposition</a></li>
 <li><a href="#/stl-decomposition" id="/toc-stl-decomposition">STL Decomposition</a></li>
 <li><a href="#/outliers" id="/toc-outliers">Outliers</a></li>
+<li><a href="#/outlier-treatment" id="/toc-outlier-treatment">Outlier treatment</a></li>
 <li><a href="#/key-takeaways" id="/toc-key-takeaways">Key Takeaways</a></li>
 <li><a href="#/exercises" id="/toc-exercises">Exercises</a></li>
 <li><a href="#/references" id="/toc-references">References</a></li>
@@ -641,8 +642,8 @@ y_t = T_t\times S_t\times R_t \ , \quad \text{or} \quad \log y_t = \log T_t + \l
 </section>
 <section id="us-retail-employment" class="slide level2">
 <h2>US retail employment</h2>
-<div id="7925366a" class="cell" data-execution_count="6">
-<div class="cell-output cell-output-display" data-execution_count="6">
+<div id="d5753f48" class="cell" data-execution_count="6">
+<div class="cell-output cell-output-display" data-execution_count="167">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -1101,8 +1102,8 @@ y_t
 <h2>Adelaide Hills tourism data: suspected outlier observation</h2>
 
 <img data-src="lecture_04_files/figure-revealjs/cell-19-output-1.png" class="quarto-figure quarto-figure-center r-stretch"></section>
-<section id="why-decompose-before-detecting" class="slide level2">
-<h2>Why decompose before detecting?</h2>
+<section id="why-decompose-before-detecting-the-outlier" class="slide level2">
+<h2>Why decompose before detecting the outlier?</h2>
 
 <img data-src="lecture_04_files/figure-revealjs/cell-20-output-1.png" class="quarto-figure quarto-figure-center r-stretch"><aside class="notes">
 <p>The chapter recommends STL decomposition as a useful way to reveal outliers in the remainder series.</p>
@@ -1120,8 +1121,8 @@ y_t
           display:block!important;
       }</style></aside>
 </section>
-<section id="adelaide-hills-tourism-data-remainder-component" class="slide level2">
-<h2>Adelaide Hills tourism data: Remainder component</h2>
+<section id="remainder-component-time-plot" class="slide level2">
+<h2>Remainder component: time plot</h2>
 
 <img data-src="lecture_04_files/figure-revealjs/cell-21-output-1.png" class="quarto-figure quarto-figure-center r-stretch"><aside class="notes">
 <p>The remainder plot preserves time ordering, allowing detection of isolated spikes, clusters, and changes in variance.</p>
@@ -1137,15 +1138,50 @@ y_t
           display:block!important;
       }</style></aside>
 </section>
-<section id="adelaide-hills-tourism-data-remainder-boxplot" class="slide level2">
-<h2>Adelaide Hills tourism data: Remainder Boxplot</h2>
+<section id="remainder-component-descriptive-statistics" class="slide level2">
+<h2>Remainder component: descriptive statistics</h2>
+<div id="a30bee4a" class="cell" data-execution_count="21">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href=""></a><span class="bu">print</span>(dcmp[<span class="st">"remainder"</span>].describe(percentiles <span class="op">=</span> [<span class="dv">0</span>, <span class="fl">0.05</span>, <span class="fl">.10</span>, <span class="fl">.25</span>, <span class="fl">.5</span>, <span class="fl">.75</span>, <span class="fl">.90</span>, <span class="fl">.95</span>, <span class="dv">1</span>]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>count    80.000000
+mean      1.005041
+std       9.054788
+min     -30.029903
+0%      -30.029903
+5%       -3.364307
+10%      -2.558134
+25%      -1.218413
+50%      -0.099744
+75%       1.493163
+90%       4.164333
+95%       9.295150
+100%     65.267761
+max      65.267761
+Name: remainder, dtype: float64</code></pre>
+</div>
+</div>
+</section>
+<section id="adelaide-hills-tourism-data-histogram" class="slide level2">
+<h2>Adelaide Hills tourism data: Histogram</h2>
 
-<img data-src="lecture_04_files/figure-revealjs/cell-22-output-1.png" class="quarto-figure quarto-figure-center r-stretch"></section>
-<section id="iqr-rule-on-the-remainder" class="slide level2">
-<h2>IQR rule on the remainder</h2>
+<img data-src="lecture_04_files/figure-revealjs/cell-23-output-1.png" class="quarto-figure quarto-figure-center r-stretch"></section>
+<section id="remainder-component-z-score" class="slide level2">
+<h2>Remainder component: Z-Score</h2>
+
+<img data-src="lecture_04_files/figure-revealjs/cell-24-output-1.png" class="quarto-figure quarto-figure-center r-stretch"></section>
+<section id="remainder-component-modified-z-score" class="slide level2">
+<h2>Remainder component: Modified Z-Score</h2>
+
+<img data-src="lecture_04_files/figure-revealjs/cell-25-output-1.png" class="quarto-figure quarto-figure-center r-stretch"></section>
+<section id="remainder-component-boxplot" class="slide level2">
+<h2>Remainder component: Boxplot</h2>
+
+<img data-src="lecture_04_files/figure-revealjs/cell-26-output-1.png" class="quarto-figure quarto-figure-center r-stretch"></section>
+<section id="remainder-component-tukey-method" class="slide level2">
+<h2>Remainder component: Tukey method</h2>
 <p>Let <span class="math inline">\(\operatorname{IQR}=Q_3-Q_1\)</span>. A general fence with multiplier <span class="math inline">\(k\)</span> is <span class="math inline">\(L=Q_1-k\operatorname{IQR}, \ U=Q_3+k\operatorname{IQR}\)</span></p>
 
-<img data-src="lecture_04_files/figure-revealjs/cell-23-output-1.png" class="quarto-figure quarto-figure-center r-stretch"><aside class="notes">
+<img data-src="lecture_04_files/figure-revealjs/cell-27-output-1.png" class="quarto-figure quarto-figure-center r-stretch"><aside class="notes">
 <p>Flag observations for which <span class="math inline">\(R_t&lt;L\)</span> or <span class="math inline">\(R_t&gt;U\)</span>.</p>
 <p>The book discusses k equal to 1.5 and prefers a stricter k equal to 3 for this context.</p>
 <p>The source section reports that this rule identifies the suspected observation plus three additional observations in the example.</p>
@@ -1162,6 +1198,108 @@ y_t
           display:block!important;
       }</style></aside>
 </section></section>
+<section>
+<section id="outlier-treatment" class="title-slide slide level1 center">
+<h1>Outlier treatment</h1>
+
+</section>
+<section id="interpolation-is-an-estimate" class="slide level2">
+<h2>Interpolation is an estimate</h2>
+<p>Linear interpolation between observed endpoints <span class="math inline">\(y_a\)</span> and <span class="math inline">\(y_b\)</span> is</p>
+<p><span class="math display">\[
+\widehat y_t
+=
+y_a+
+\frac{t-a}{b-a}(y_b-y_a),
+\qquad a&lt;t&lt;b.
+\]</span></p>
+<p>It assumes smooth movement between neighboring observations.</p>
+<aside class="notes">
+<p>Interpolation creates estimated values, not recovered truths. Long gaps and seasonal series make the assumption less plausible.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="original-and-cleaned-series" class="slide level2">
+<h2>Original and cleaned series</h2>
+
+<img data-src="lecture_04_files/figure-revealjs/cell-28-output-1.png" class="quarto-figure quarto-figure-center r-stretch"><aside class="notes">
+<p>The source replaces detected outlier values with missing values and then applies pandas interpolate. This version matches by date rather than value, avoiding accidental replacement of legitimate duplicate values.</p>
+<p>Displaying original and cleaned values together preserves transparency. The source figure shows the cleaned series after interpolation.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="visual-comparison-of-imputations" class="slide level2">
+<h2>Visual comparison of imputations</h2>
+
+<img data-src="lecture_04_files/figure-revealjs/cell-29-output-1.png" class="quarto-figure quarto-figure-center r-stretch"><aside class="notes">
+<p>These are teaching alternatives, not methods prescribed by the source. Linear interpolation assumes local smoothness, forward fill assumes persistence, and seasonal lag substitution assumes seasonal repetition.</p>
+<p>The disagreement between methods is a visual representation of imputation uncertainty. Do not select a method solely because it produces the smoothest line.</p>
+<p>An isolated gap and a long missing block should not automatically receive the same treatment. Long gaps weaken local interpolation and may span structural changes.</p>
+<p>Do not overwrite the raw data</p>
+<p>Keep at least:</p>
+<ul>
+<li>original value;</li>
+<li>cleaned or imputed value;</li>
+<li>modification flag;</li>
+<li>reason for modification;</li>
+<li>method used;</li>
+<li>parameters or window;</li>
+<li>analyst review status. This is a recommended governance pattern. It supports reproducibility and auditability.</li>
+</ul>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="compare-decomposition-before-and-after" class="slide level2">
+<h2>Compare decomposition before and after</h2>
+
+<img data-src="lecture_04_files/figure-revealjs/cell-30-output-1.png" class="quarto-figure quarto-figure-center r-stretch"><aside class="notes">
+<p>Cleaning is not neutral. It can change the trend, seasonal component, remainder, and subsequent forecasts. Compare before and after explicitly.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="section" class="slide level2">
+<h2></h2>
+<div id="5c65d36a" class="cell" data-execution_count="30">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href=""></a>sns.histplot(clean_fit.resid, kde <span class="op">=</span> <span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+</div>
+<img data-src="lecture_04_files/figure-revealjs/cell-31-output-1.png" class="r-stretch"></section></section>
 <section>
 <section id="key-takeaways" class="title-slide slide level1 center">
 <h1>Key Takeaways</h1>
@@ -1251,7 +1389,7 @@ y_t
 <ol start="5" type="1">
 <li>Consider the last five years of the Gas data from aus_production.</li>
 </ol>
-<div class="sourceCode" id="cb1"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href=""></a>gas <span class="op">=</span> aus_production.loc[<span class="kw">lambda</span> x: x[<span class="st">"unique_id"</span>] <span class="op">==</span> <span class="st">"Gas"</span>].tail(<span class="dv">5</span> <span class="op">*</span> <span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href=""></a>gas <span class="op">=</span> aus_production.loc[<span class="kw">lambda</span> x: x[<span class="st">"unique_id"</span>] <span class="op">==</span> <span class="st">"Gas"</span>].tail(<span class="dv">5</span> <span class="op">*</span> <span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <ul>
 <li>Plot the time series. Can you identify seasonal fluctuations and/or a trend-cycle?</li>
 <li>Use <code>seasonal_decompose</code> with model=‘multiplicative’ to calculate the trend-cycle and seasonal indices.</li>
