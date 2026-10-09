@@ -1123,6 +1123,184 @@ A redução lenta reflete tendência; a forma periódica reflete sazonalidade me
 <!-- - https://otexts.com/fpppy/02-graphics.html -->
 <!-- ::: -->
 
+# Handling Missing Data
+
+## Quality Check
+
+```{python}
+import pandas as pd
+from pathlib import Path
+import matplotlib.pyplot as plt
+from matplotlib.patches import Rectangle
+import matplotlib.dates as mdates
+import numpy as np
+```
+
+
+```{python}
+co2_original = pd.read_csv(DATA_PATH / "co2_original.csv")
+co2_missing = pd.read_csv(DATA_PATH / "co2_missing_only.csv")
+clicks_original = pd.read_csv(DATA_PATH / 'clicks_original.csv')
+clicks_missing = pd.read_csv(DATA_PATH / 'clicks_missing.csv') 
+
+def plot_dfs(df1, df2, col, title=None, xlabel=None, ylabel=None):
+    '''	
+    df1: original dataframe without missing data
+    df2: dataframe with missing data
+    col: column name that contains missing data
+    '''    
+    df_missing = df2.rename(columns={col: 'missing'})
+    
+    columns = df_missing.loc[:, 'missing':].columns.tolist()
+    subplots_size = len(columns)
+    
+    # subplots_size = df2.shape[1]
+    fig, ax = plt.subplots(subplots_size+1, 1, sharex=True)
+    plt.subplots_adjust(hspace=0.25)
+    fig.suptitle = title 
+    
+    df1[col].plot(ax=ax[0], figsize=(10, 16))
+    ax[0].set_title('Original Dataset')
+    ax[0].set_xlabel(xlabel)
+    ax[0].set_ylabel(ylabel)    
+    
+    for i, colname in enumerate(columns):
+        df_missing[colname].plot(ax=ax[i+1])
+        ax[i+1].set_title(colname)
+
+    plt.show()
+ 
+plot_dfs(co2_original, 
+         co2_missing, 
+         'co2',
+         title="Annual CO2 Emission per Capita",
+         xlabel="Years",
+         ylabel="x100 million tons")
+```
+
+##
+
+```{python}
+co2_missing['ffill'] = co2_missing['co2'].fillna(method='ffill')
+co2_missing['bfill'] = co2_missing['co2'].fillna(method='bfill')
+co2_missing['mean'] = co2_missing['co2'].fillna(co2_missing['co2'].mean())
+
+plot_dfs(co2_original, co2_missing, 'co2')
+```
+
+##
+
+```{python}
+plot_dfs(clicks_original, 
+         clicks_missing, 
+         'clicks',
+         title="Page Clicks per Day",
+         xlabel="date",
+         ylabel="# of clicks")
+```
+
+## 
+
+```{python}
+clicks_missing['ffil'] = clicks_missing['clicks'].fillna(method='ffill')
+clicks_missing['bfill'] = clicks_missing['clicks'].fillna(method='bfill')
+clicks_missing['mean'] = clicks_missing['clicks'].fillna(clicks_missing['clicks'].mean())
+plot_dfs(clicks_original, clicks_missing, 'clicks')
+```
+
+##
+
+```{python}
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.impute import SimpleImputer
+from pathlib import Path
+strategy = [
+    ('Mean Strategy', 'mean'),
+    ('Median Strategy', 'median'),
+    ('Most Frequent Strategy', 'most_frequent')]
+    
+co2_vals = co2_missing['co2'].values.reshape(-1,1)
+clicks_vals = clicks_missing['clicks'].values.reshape(-1,1)
+
+for s_name, s in strategy:
+    co2_missing[s_name] = (
+        SimpleImputer(strategy=s).fit_transform(co2_vals))
+    clicks_missing[s_name] = (
+        SimpleImputer(strategy=s).fit_transform(clicks_vals))    
+        
+plot_dfs(co2_original, co2_missing, 'co2')
+```
+
+## tr
+
+```{python}
+plot_dfs(clicks_original, clicks_missing, 'clicks')
+```
+
+
+
+## 
+
+```{python}
+import pandas as pd
+from pathlib import Path
+import matplotlib.pyplot as plt
+
+from sklearn.experimental import enable_iterative_imputer
+from sklearn.impute import IterativeImputer
+from sklearn.ensemble import ExtraTreesRegressor, BaggingRegressor
+from sklearn.linear_model import ElasticNet, LinearRegression, BayesianRidge
+from sklearn.neighbors import KNeighborsRegressor
+```
+
+
+```{python}
+estimators = [
+    ('bayesianRidge', BayesianRidge()),
+    ('extra_trees', ExtraTreesRegressor(n_estimators=10)),
+    ('bagging', BaggingRegressor(n_estimators=10)),
+    ('elastic_net', ElasticNet()),
+    ('linear_regression', LinearRegression()),
+    ('knn', KNeighborsRegressor(n_neighbors=3))
+]
+
+clicks_vals = clicks_missing.iloc[:,0:3].values
+
+for e_name, e in estimators:
+    est = IterativeImputer(
+                random_state=15,
+                estimator=e).fit(clicks_vals)
+    clicks_missing[e_name] = est.transform(clicks_vals)[: , 2]
+
+plot_dfs(clicks_original, clicks_missing, 'clicks')
+```
+
+##
+
+```{python}
+interpolations = [
+    'linear',
+    'quadratic',
+    'nearest',
+    'cubic'
+]
+
+for intp in interpolations:
+    co2_missing[intp] = co2_missing['co2'].interpolate(method=intp)
+    clicks_missing[intp] = clicks_missing['clicks'].interpolate(method=intp)
+
+
+co2_missing['spline'] = \
+        co2_missing['co2'].interpolate(method='spline', order=3)
+clicks_missing['spline'] = \
+        clicks_missing['clicks'].interpolate(method='spline',order=3)
+
+co2_missing['polynomial'] = \
+        co2_missing['co2'].interpolate(method='polynomial',order=3)
+clicks_missing['polynomial'] = \
+        clicks_missing['clicks'].interpolate(method='polynomial',order=3)
+```
 
 # Key takeaways
 

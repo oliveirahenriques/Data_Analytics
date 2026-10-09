@@ -1,0 +1,1172 @@
+---
+title: "Handling Missing Data"
+subtitle: "Visualization, Imputation, and Evaluation in Time Series"
+author: "Victor Henriques"
+format:
+  revealjs:
+    theme: white
+    smaller: true
+    toc: true
+    toc-depth: 1
+    slide-number: c/t
+    incremental: false
+    code-fold: false
+    code-overflow: wrap
+    center: false
+    width: 1600
+    height: 900
+    margin: 0.06
+    transition: fade
+    chalkboard: true
+    preview-links: auto
+    footer: "Data Visualization | Handling Missing Data"
+execute:
+  echo: true
+  warning: false
+  error: false
+  cache: false
+jupyter: python3
+---
+
+```{python}
+#| label: setup
+#| include: false
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+import statsmodels.api as sm
+
+from sklearn.experimental import enable_iterative_imputer  # noqa: F401
+from sklearn.impute import SimpleImputer, KNNImputer, IterativeImputer
+from sklearn.linear_model import BayesianRidge
+from sklearn.metrics import root_mean_squared_error
+from sklearn.preprocessing import StandardScaler
+
+sns.set_theme(style="whitegrid", context="talk")
+plt.rcParams["figure.figsize"] = (10, 5)
+pd.set_option("display.max_columns", 30)
+pd.set_option("display.width", 140)
+
+COLORS = {
+    "observed": "#6B7280",
+    "missing": "#CC3311",
+    "mean": "#D55E00",
+    "ffill": "#0072B2",
+    "bfill": "#009E73",
+    "linear": "#7A5195",
+    "spline": "#E69F00",
+    "knn": "#56B4E9",
+    "iterative": "#CC79A7",
+}
+
+# -----------------------------------------------------------------------------
+# Known, package-shipped datasets
+# -----------------------------------------------------------------------------
+# Weekly atmospheric CO2 from Mauna Loa. The original dataset already contains
+# missing observations, so it is used for visual diagnosis.
+co2_raw = sm.datasets.co2.load_pandas().data.copy()
+co2_raw.index = pd.DatetimeIndex(co2_raw.index)
+co2_raw = co2_raw.asfreq("W-SAT")
+
+# Complete monthly ground truth created only from the observed period after an
+# initial time interpolation. Controlled gaps are then injected for evaluation.
+co2_monthly = (
+    co2_raw["co2"]
+    .resample("MS")
+    .mean()
+    .interpolate(method="time")
+    .dropna()
+    .to_frame("co2")
+)
+
+rng = np.random.default_rng(42)
+co2_eval = co2_monthly.loc["1985":"1995"].copy()
+co2_missing = co2_eval.copy()
+
+# MCAR-like isolated missing values.
+isolated_positions = rng.choice(np.arange(12, len(co2_missing) - 12), size=10, replace=False)
+# One contiguous 8-month outage block.
+block_positions = np.arange(58, 66)
+missing_positions = np.unique(np.concatenate([isolated_positions, block_positions]))
+co2_missing.iloc[missing_positions, 0] = np.nan
+missing_mask = co2_missing["co2"].isna()
+
+# Known quarterly US macroeconomic dataset for multivariate imputation.
+macro = sm.datasets.macrodata.load_pandas().data.copy()
+macro["date"] = pd.PeriodIndex(
+    year=macro["year"].astype(int),
+    quarter=macro["quarter"].astype(int),
+    freq="Q",
+).to_timestamp(how="end")
+macro = macro.set_index("date")
+macro_features = macro[["realgdp", "realcons", "realinv", "realdpi", "unemp"]].copy()
+macro_missing = macro_features.copy()
+macro_missing.iloc[30:38, macro_missing.columns.get_loc("realgdp")] = np.nan
+macro_missing.iloc[[65, 112, 150], macro_missing.columns.get_loc("realgdp")] = np.nan
+macro_mask = macro_missing["realgdp"].isna()
+
+# -----------------------------------------------------------------------------
+# Package-based imputations for the controlled CO2 gaps
+# -----------------------------------------------------------------------------
+co2_results = co2_missing.copy()
+co2_results["mean"] = SimpleImputer(strategy="mean").fit_transform(co2_missing[["co2"]]).ravel()
+co2_results["median"] = SimpleImputer(strategy="median").fit_transform(co2_missing[["co2"]]).ravel()
+co2_results["ffill"] = co2_missing["co2"].ffill()
+co2_results["bfill"] = co2_missing["co2"].bfill()
+co2_results["linear"] = co2_missing["co2"].interpolate(method="linear")
+co2_results["time"] = co2_missing["co2"].interpolate(method="time")
+co2_results["spline"] = co2_missing["co2"].interpolate(method="spline", order=3)
+
+co2_scores = []
+for column in ["mean", "median", "ffill", "bfill", "linear", "time", "spline"]:
+    score = root_mean_squared_error(
+        co2_eval.loc[missing_mask, "co2"],
+        co2_results.loc[missing_mask, column],
+    )
+    co2_scores.append({"method": column, "RMSE": score})
+co2_scores = pd.DataFrame(co2_scores).sort_values("RMSE")
+
+# -----------------------------------------------------------------------------
+# Package-based multivariate imputation for macrodata
+# Scaling is important for distance-based KNN.
+# -----------------------------------------------------------------------------
+scaler = StandardScaler()
+macro_scaled = scaler.fit_transform(macro_missing)
+
+knn_imputer = KNNImputer(n_neighbors=5, weights="distance")
+knn_scaled = knn_imputer.fit_transform(macro_scaled)
+macro_knn = pd.DataFrame(
+    scaler.inverse_transform(knn_scaled),
+    index=macro_missing.index,
+    columns=macro_missing.columns,
+)
+
+iterative_imputer = IterativeImputer(
+    estimator=BayesianRidge(),
+    max_iter=20,
+    random_state=42,
+    sample_posterior=False,
+)
+iterative_scaled = iterative_imputer.fit_transform(macro_scaled)
+macro_iterative = pd.DataFrame(
+    scaler.inverse_transform(iterative_scaled),
+    index=macro_missing.index,
+    columns=macro_missing.columns,
+)
+
+macro_scores = pd.DataFrame({
+    "method": ["KNNImputer", "IterativeImputer"],
+    "RMSE": [
+        root_mean_squared_error(macro_features.loc[macro_mask, "realgdp"], macro_knn.loc[macro_mask, "realgdp"]),
+        root_mean_squared_error(macro_features.loc[macro_mask, "realgdp"], macro_iterative.loc[macro_mask, "realgdp"]),
+    ],
+})
+```
+
+# Introduction
+
+## Missing data are part of the data-generating process
+
+Missing observations may result from:
+
+- power outages;
+- disconnected or defective sensors;
+- reporting delays;
+- survey non-response;
+- privacy or compliance rules;
+- source-system placeholders;
+- irregular collection schedules.
+
+::: {.notes}
+Chapter 6 emphasizes that missingness is inevitable in real-world data and that domain context is essential for deciding how to handle it.
+
+[Sources]
+- Chapter 6, Handling Missing Data, pages 185–188, attached book.
+:::
+
+## Learning objectives
+
+Students will be able to:
+
+- identify missing observations and placeholders;
+- visualize missingness through time;
+- distinguish isolated gaps from contiguous outages;
+- compare deletion, tagging, imputation, and interpolation;
+- apply pandas and scikit-learn imputers;
+- evaluate imputations using masked ground truth;
+- combine RMSE and visual diagnostics;
+- prevent leakage in forecasting workflows.
+
+::: {.notes}
+The chapter follows a structured process: ingest, identify, impute, evaluate against original data, then visualize and compare methods.
+
+[Sources]
+- Chapter 6, page 187, attached book.
+:::
+
+## A structured workflow
+
+```text
+INGEST
+  ↓
+IDENTIFY AND ANALYZE
+  ↓
+IMPUTE OR INTERPOLATE
+  ↓
+EVALUATE AGAINST MASKED GROUND TRUTH
+  ↓
+VISUALIZE AND COMPARE
+  ↓
+DOCUMENT THE DECISION
+```
+
+::: {.notes}
+This workflow is adapted directly from the five-step process in Chapter 6, with documentation added as a recommended production step.
+
+[Sources]
+- Chapter 6, page 187, attached book.
+:::
+
+## Why visualization is essential
+
+A scalar missing-value count does not reveal:
+
+- where gaps occur;
+- whether gaps form blocks;
+- whether missingness coincides with seasonality;
+- whether one variable is missing whenever another changes;
+- whether imputation smooths away meaningful variability.
+
+::: {.notes}
+The chapter combines RMSE with visualization because a lower error does not necessarily preserve the randomness and variability of the original data.
+
+[Sources]
+- Chapter 6, pages 189 and 220–221, attached book.
+:::
+
+# Understanding Missing Data
+
+## Python representations
+
+Common missing representations include:
+
+- `np.nan` for numeric values;
+- `pd.NA` for nullable pandas types;
+- `NaT` for missing datetimes;
+- blank cells;
+- source-system placeholders such as `99999`, `0`, `?`, or `N/A`.
+
+::: {.notes}
+Chapter 6 notes that pandas typically represents missing observations with NaN, NaT, or NA and warns that placeholders must be investigated carefully.
+
+[Sources]
+- Chapter 6, pages 189–190, attached book.
+:::
+
+## Missing is not automatically zero
+
+```text
+0       = an observed value that may be valid
+NaN     = no usable numeric observation
+NaT     = no usable datetime observation
+```
+
+A zero should only be converted to missing after validating the domain meaning.
+
+::: {.notes}
+The chapter specifically warns that zero may be either a legitimate value or a placeholder and should not be replaced automatically.
+
+[Sources]
+- Chapter 6, page 189, attached book.
+:::
+
+## Missingness mechanisms
+
+A useful statistical vocabulary is:
+
+- **MCAR:** missingness unrelated to observed or unobserved values;
+- **MAR:** missingness related to observed variables;
+- **MNAR:** missingness related to the missing value itself.
+
+These mechanisms are assumptions, not labels that can be established from a heatmap alone.
+
+::: {.notes}
+This slide adds standard missing-data terminology for teaching. The chapter motivates the importance of causes, censoring, and bias but does not provide this three-part taxonomy in the retrieved text.
+:::
+
+## Deduction: missingness can carry information
+
+Instead of erasing missingness, preserve it with:
+
+- an indicator column;
+- a cause label;
+- source-system metadata;
+- outage duration;
+- collection-status flags.
+
+::: {.notes}
+Chapter 6 recommends tagging missing data when the cause is known and shows SimpleImputer with add_indicator=True. Zero indicates observed and one indicates originally missing.
+
+[Sources]
+- Chapter 6, pages 188 and 214–215, attached book.
+:::
+
+# Data Quality Checks
+
+## Known dataset: Mauna Loa CO2
+
+```{python}
+co2_raw.head()
+```
+
+The series is loaded from the `statsmodels` dataset interface and already contains genuine missing observations.
+
+::: {.notes}
+The book chapter uses an annual CO2-emissions dataset. For easy replication, this lecture uses the package-shipped weekly Mauna Loa CO2 dataset from statsmodels.
+:::
+
+## Basic completeness audit
+
+```{python}
+pd.Series({
+    "rows": len(co2_raw),
+    "missing": co2_raw["co2"].isna().sum(),
+    "missing_share": co2_raw["co2"].isna().mean(),
+    "first_observation": co2_raw.index.min(),
+    "last_observation": co2_raw.index.max(),
+})
+```
+
+::: {.notes}
+Chapter 6 recommends methods such as isna or isnull with sum, together with info and describe, for initial data-quality checks.
+
+[Sources]
+- Chapter 6, pages 189–191, attached book.
+:::
+
+## Always inspect the index
+
+```{python}
+index_checks = pd.Series({
+    "monotonic": co2_raw.index.is_monotonic_increasing,
+    "unique": co2_raw.index.is_unique,
+    "duplicates": co2_raw.index.duplicated().sum(),
+    "inferred_frequency": co2_raw.index.inferred_freq,
+})
+index_checks
+```
+
+::: {.notes}
+The chapter notes that missingness can affect values and observations. For time series, the index must also be checked because an absent timestamp may not appear as NaN.
+:::
+
+## Missing values versus missing timestamps
+
+```{python}
+complete_index = pd.date_range(co2_raw.index.min(), co2_raw.index.max(), freq="W-SAT")
+reindexed = co2_raw.reindex(complete_index)
+
+pd.Series({
+    "explicit_missing_values": co2_raw["co2"].isna().sum(),
+    "missing_after_reindexing": reindexed["co2"].isna().sum(),
+})
+```
+
+::: {.notes}
+Reindexing against the expected frequency exposes timestamps that are absent entirely, not merely rows whose values are NaN.
+:::
+
+## Plot gaps honestly
+
+```{python}
+fig, ax = plt.subplots(figsize=(11, 5))
+ax.plot(co2_raw.index, co2_raw["co2"], color=COLORS["observed"], linewidth=1)
+ax.set(title="Weekly atmospheric CO2 with gaps", xlabel="Date", ylabel="CO2")
+fig.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+A line chart containing NaN values should show gaps rather than silently connecting across absent observations.
+:::
+
+## Missingness map
+
+```{python}
+missing_map = co2_raw["co2"].isna().astype(int).to_numpy()[None, :]
+fig, ax = plt.subplots(figsize=(11, 2.2))
+sns.heatmap(
+    missing_map,
+    cmap=["#E5E7EB", COLORS["missing"]],
+    cbar=False,
+    xticklabels=False,
+    yticklabels=["CO2 missing"],
+    ax=ax,
+)
+ax.set(title="Temporal map of missing observations", xlabel="Observation order")
+fig.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+A heatmap reveals isolated missing observations and blocks more clearly than a total count.
+:::
+
+## Missing runs
+
+```{python}
+is_missing = co2_raw["co2"].isna()
+run_id = is_missing.ne(is_missing.shift()).cumsum()
+missing_runs = (
+    co2_raw.assign(missing=is_missing, run_id=run_id)
+    .loc[lambda x: x["missing"]]
+    .groupby("run_id")
+    .agg(start=("missing", lambda x: x.index.min()),
+         end=("missing", lambda x: x.index.max()),
+         length=("missing", "size"))
+    .sort_values("length", ascending=False)
+)
+missing_runs.head(10)
+```
+
+::: {.notes}
+Gap length is a crucial visual and methodological property. Long blocks are harder to reconstruct reliably than isolated values.
+:::
+
+# Strategy Before Imputation
+
+## Four broad responses
+
+1. **Drop** observations or variables.
+2. **Tag** missingness and preserve context.
+3. **Impute** using statistical or machine-learning methods.
+4. **Interpolate** using temporal continuity.
+
+::: {.notes}
+The chapter discusses dropping, tagging, and estimating missing values, and devotes a separate recipe to interpolation.
+
+[Sources]
+- Chapter 6, pages 188–189 and 223 onward, attached book.
+:::
+
+## Dropping can erase the missingness pattern
+
+Dropping is especially risky when:
+
+- data collection is costly;
+- the sample is small;
+- missingness is clustered;
+- missingness is related to the target;
+- the gap itself is operationally meaningful.
+
+::: {.notes}
+Chapter 6 warns that premature deletion can lose information and obscure whether missingness reflects censoring or bias.
+
+[Sources]
+- Chapter 6, page 188, attached book.
+:::
+
+## Add a missing indicator
+
+```{python}
+indicator_imputer = SimpleImputer(
+    strategy="mean",
+    add_indicator=True,
+)
+indicator_output = indicator_imputer.fit_transform(co2_missing[["co2"]])
+
+indicator_example = pd.DataFrame(
+    indicator_output,
+    index=co2_missing.index,
+    columns=["imputed_co2", "was_missing"],
+)
+indicator_example.loc[missing_mask].head()
+```
+
+::: {.notes}
+The chapter demonstrates SimpleImputer with add_indicator=True so the output contains an imputed value and a binary missingness indicator.
+
+[Sources]
+- Chapter 6, pages 214–215, attached book.
+:::
+
+# Controlled Evaluation
+
+## Why create artificial gaps?
+
+For naturally missing observations, the true values are unknown.
+
+A controlled evaluation:
+
+1. starts from observed values;
+2. hides selected observations;
+3. imputes the hidden values;
+4. compares estimates with retained ground truth.
+
+::: {.notes}
+Chapter 6 intentionally removes values while retaining the original data so imputation methods can be evaluated against ground truth.
+
+[Sources]
+- Chapter 6, page 189, attached book.
+:::
+
+## Evaluation dataset
+
+```{python}
+pd.Series({
+    "period_start": co2_eval.index.min(),
+    "period_end": co2_eval.index.max(),
+    "observations": len(co2_eval),
+    "masked_observations": missing_mask.sum(),
+    "isolated_masked": len(isolated_positions),
+    "block_masked": len(block_positions),
+})
+```
+
+::: {.notes}
+The lecture combines isolated missing values with an eight-month block to show that one method may behave differently across gap structures.
+:::
+
+## Visualize the induced missingness
+
+```{python}
+fig, ax = plt.subplots(figsize=(11, 5))
+ax.plot(co2_eval.index, co2_eval["co2"], color="0.8", label="Ground truth")
+ax.plot(co2_missing.index, co2_missing["co2"], color=COLORS["observed"], label="Available observations")
+ax.scatter(co2_eval.index[missing_mask], co2_eval.loc[missing_mask, "co2"],
+           color=COLORS["missing"], s=55, label="Masked for evaluation")
+ax.set(title="Known values masked to evaluate imputation", xlabel="Date", ylabel="CO2")
+ax.legend(frameon=False)
+fig.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+The chart distinguishes truth, observed data, and values intentionally masked for method comparison.
+:::
+
+## RMSE
+
+```math
+RMSE=\sqrt{\frac{1}{N}\sum_{i=1}^{N}(x_i-\widehat{x}_i)^2}.
+```
+
+```{python}
+co2_scores
+```
+
+::: {.notes}
+Chapter 6 evaluates imputation using RMSE calculated between actual and imputed values.
+
+[Sources]
+- Chapter 6, pages 188–189, attached book.
+:::
+
+## RMSE is not enough
+
+A method can obtain a low RMSE while:
+
+- oversmoothing the series;
+- suppressing random variability;
+- distorting seasonal peaks;
+- creating implausible local dynamics;
+- leaking future information.
+
+::: {.notes}
+The chapter explicitly warns that lower RMSE does not necessarily mean better imputation because it may overlook randomness and variability. RMSE should be combined with visualization.
+
+[Sources]
+- Chapter 6, pages 189 and 220–221, attached book.
+:::
+
+# Univariate Imputation with pandas
+
+## Mean imputation
+
+```{python}
+co2_results[["co2", "mean"]].loc[missing_mask].head()
+```
+
+Mean imputation is simple, but it ignores trend, seasonality, and local context.
+
+::: {.notes}
+The chapter presents mean imputation as a simple univariate method using only one variable.
+:::
+
+## Forward fill and backward fill
+
+```{python}
+co2_results[["co2", "ffill", "bfill"]].loc[missing_mask].head()
+```
+
+- `ffill()` uses the last observed value.
+- `bfill()` uses the next observed value.
+
+::: {.notes}
+Chapter 6 evaluates forward fill, backward fill, and mean imputation as pandas-based univariate approaches.
+:::
+
+## Visualize local behavior
+
+```{python}
+window_slice = slice("1989-05-01", "1991-05-01")
+fig, ax = plt.subplots(figsize=(11, 5))
+ax.plot(co2_eval.loc[window_slice].index, co2_eval.loc[window_slice, "co2"],
+        color="black", linewidth=2, label="Ground truth")
+for method, color in [("mean", COLORS["mean"]), ("ffill", COLORS["ffill"]), ("bfill", COLORS["bfill"])]:
+    ax.plot(co2_results.loc[window_slice].index, co2_results.loc[window_slice, method],
+            color=color, alpha=0.9, label=method)
+ax.set(title="Univariate fill methods encode different assumptions", xlabel="Date", ylabel="CO2")
+ax.legend(frameon=False)
+fig.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+The visual comparison reveals flat plateaus and future-value carry-back that a single RMSE value cannot communicate.
+:::
+
+## When carry-forward may be reasonable
+
+Forward fill is more plausible when:
+
+- the process changes slowly;
+- the last state persists until a new measurement;
+- the gap is short;
+- future information is unavailable;
+- stepwise behavior is expected.
+
+It is less plausible for strong trends or long gaps.
+
+::: {.notes}
+These are methodological recommendations for interpreting forward fill. They are not universal rules.
+:::
+
+# SimpleImputer
+
+## Package-based univariate imputation
+
+```{python}
+mean_imputer = SimpleImputer(strategy="mean")
+median_imputer = SimpleImputer(strategy="median")
+
+mean_values = mean_imputer.fit_transform(co2_missing[["co2"]]).ravel()
+median_values = median_imputer.fit_transform(co2_missing[["co2"]]).ravel()
+```
+
+::: {.notes}
+Chapter 6 uses SimpleImputer for mean, median, and most-frequent strategies. The class follows a fit and transform workflow.
+
+[Sources]
+- Chapter 6, pages 208–213, attached book.
+:::
+
+## Fit on training data only
+
+Correct forecasting workflow:
+
+```python
+imputer.fit(train[["value"]])
+train_imputed = imputer.transform(train[["value"]])
+test_imputed = imputer.transform(test[["value"]])
+```
+
+Incorrect workflow:
+
+```python
+imputer.fit(full_dataset[["value"]])
+```
+
+::: {.notes}
+The chapter explains that fitting calculates statistics from the supplied data and notes that fitting is usually done on the training dataset.
+
+[Sources]
+- Chapter 6, page 212, attached book.
+:::
+
+## SimpleImputer parameters
+
+- `missing_values`: representation to replace;
+- `strategy`: `mean`, `median`, `most_frequent`, or `constant`;
+- `fill_value`: value used for constant replacement;
+- `add_indicator`: append missingness flags.
+
+::: {.notes}
+These parameters are described in the chapter's SimpleImputer discussion.
+
+[Sources]
+- Chapter 6, pages 211–215, attached book.
+:::
+
+# Interpolation
+
+## Interpolation uses temporal position
+
+Linear interpolation between known endpoints is
+
+```math
+\widehat x_t=x_a+\frac{t-a}{b-a}(x_b-x_a).
+```
+
+Unlike global mean imputation, interpolation uses neighboring values and temporal spacing.
+
+::: {.notes}
+The chapter's interpolation recipe compares linear and higher-order interpolation methods and recommends limiting how many consecutive values are filled.
+:::
+
+## Linear and time interpolation
+
+```{python}
+co2_results[["co2", "linear", "time"]].loc[missing_mask].head()
+```
+
+- `linear` treats observations as equally spaced positions.
+- `time` uses the datetime index spacing.
+
+::: {.notes}
+For a regular monthly index these methods may be similar. For irregular timestamps their assumptions differ.
+:::
+
+## Spline interpolation
+
+```{python}
+co2_results[["co2", "spline"]].loc[missing_mask].head()
+```
+
+Higher-order interpolation can follow curvature but may overshoot or create unrealistic values.
+
+::: {.notes}
+The chapter lists linear, nearest, quadratic, cubic, spline, and polynomial interpolation among available approaches.
+
+[Sources]
+- Chapter 6, interpolation recipe beginning at page 223, attached book.
+:::
+
+## Compare interpolation visually
+
+```{python}
+fig, ax = plt.subplots(figsize=(11, 5))
+ax.plot(co2_eval.loc[window_slice].index, co2_eval.loc[window_slice, "co2"],
+        color="black", linewidth=2, label="Ground truth")
+for method, color in [("linear", COLORS["linear"]), ("spline", COLORS["spline"])]:
+    ax.plot(co2_results.loc[window_slice].index, co2_results.loc[window_slice, method],
+            color=color, label=method)
+ax.scatter(co2_eval.loc[window_slice].index[missing_mask.loc[window_slice]],
+           co2_eval.loc[window_slice].loc[missing_mask.loc[window_slice], "co2"],
+           color=COLORS["missing"], s=45, zorder=3, label="Masked truth")
+ax.set(title="Interpolation around a contiguous gap", xlabel="Date", ylabel="CO2")
+ax.legend(frameon=False)
+fig.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+The chart makes curvature, overshoot, and long-gap uncertainty visible.
+:::
+
+## Limit the maximum gap filled
+
+```{python}
+limited_interpolation = co2_missing["co2"].interpolate(
+    method="time",
+    limit=3,
+)
+
+pd.Series({
+    "remaining_missing": limited_interpolation.isna().sum(),
+    "filled_missing": missing_mask.sum() - limited_interpolation.isna().sum(),
+})
+```
+
+::: {.notes}
+The chapter demonstrates use of the interpolation limit parameter so only a bounded number of consecutive missing values are filled.
+
+[Sources]
+- Chapter 6, interpolation recipe, attached book.
+:::
+
+# Method Comparison
+
+## RMSE ranking
+
+```{python}
+fig, ax = plt.subplots()
+sns.barplot(data=co2_scores, x="RMSE", y="method", hue="method", legend=False, ax=ax)
+ax.set(title="RMSE on intentionally masked CO2 values", xlabel="RMSE", ylabel="Method")
+fig.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+RMSE ranks reconstruction error on the masked values. The ranking should be read alongside the time-series plots.
+:::
+
+## Separate isolated gaps and outage blocks
+
+```{python}
+isolated_mask = pd.Series(False, index=co2_eval.index)
+isolated_mask.iloc[isolated_positions] = True
+block_mask = pd.Series(False, index=co2_eval.index)
+block_mask.iloc[block_positions] = True
+
+rows = []
+for method in ["mean", "ffill", "bfill", "linear", "spline"]:
+    for gap_type, mask in [("isolated", isolated_mask), ("block", block_mask)]:
+        rows.append({
+            "method": method,
+            "gap_type": gap_type,
+            "RMSE": root_mean_squared_error(co2_eval.loc[mask, "co2"], co2_results.loc[mask, method]),
+        })
+gap_scores = pd.DataFrame(rows)
+gap_scores
+```
+
+::: {.notes}
+A method may perform well for isolated gaps and poorly for a long block. Aggregated RMSE can conceal this distinction.
+:::
+
+## Gap-specific comparison
+
+```{python}
+fig, ax = plt.subplots()
+sns.barplot(data=gap_scores, x="RMSE", y="method", hue="gap_type", ax=ax)
+ax.set(title="Imputation error depends on gap structure", xlabel="RMSE", ylabel="Method")
+ax.legend(frameon=False, title="Gap type")
+fig.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+The visualization demonstrates why missing-run structure belongs in the evaluation design.
+:::
+
+# Multivariate Imputation
+
+## Why use other variables?
+
+Univariate imputation uses the target variable in isolation.
+
+Multivariate imputation exploits relationships among variables to estimate missing values.
+
+Possible benefits are strongest when features are meaningfully related.
+
+::: {.notes}
+Chapter 6 contrasts univariate imputation with multivariate methods that use relationships among variables and introduces IterativeImputer and KNNImputer.
+
+[Sources]
+- Chapter 6, pages 215–216, attached book.
+:::
+
+## Known dataset: US macrodata
+
+```{python}
+macro_features.head()
+```
+
+The lecture masks selected values from `realgdp` and uses four observed macroeconomic variables as auxiliary information.
+
+::: {.notes}
+For easy replication, this lecture uses the package-shipped statsmodels macrodata dataset. The chapter's original multivariate example uses clickstream variables price, location, and clicks.
+:::
+
+## Visualize correlations before imputation
+
+```{python}
+fig, ax = plt.subplots(figsize=(8, 6))
+sns.heatmap(macro_features.corr(), annot=True, fmt=".2f", cmap="vlag", center=0, ax=ax)
+ax.set_title("Relationships available to multivariate imputers")
+fig.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+A correlation heatmap helps explain why auxiliary variables may inform missing values, although correlation alone does not validate an imputation model.
+:::
+
+## KNNImputer
+
+```{python}
+knn_imputer
+```
+
+KNNImputer estimates a missing value using nearby observations in feature space.
+
+Scaling is applied before KNN because distance is sensitive to feature units.
+
+::: {.notes}
+Chapter 6 describes KNNImputer as a proximity-based method and notes that it is useful where local relationships or clusters are meaningful.
+
+[Sources]
+- Chapter 6, pages 215–220, attached book.
+:::
+
+## IterativeImputer
+
+```{python}
+iterative_imputer
+```
+
+IterativeImputer repeatedly models each incomplete feature using the other variables.
+
+The lecture uses `BayesianRidge` as the estimator.
+
+::: {.notes}
+The chapter explains that IterativeImputer uses regression models iteratively and can accept different regressors. It also notes that the scikit-learn implementation is experimental.
+
+[Sources]
+- Chapter 6, pages 216–221, attached book.
+:::
+
+## Multivariate RMSE
+
+```{python}
+macro_scores
+```
+
+The comparison is evaluated only where `realgdp` was intentionally masked.
+
+::: {.notes}
+The chapter calculates RMSE over deliberately removed values and then compares methods visually.
+:::
+
+## Multivariate reconstruction
+
+```{python}
+macro_window = slice("1965", "1975")
+fig, ax = plt.subplots(figsize=(11, 5))
+ax.plot(macro_features.loc[macro_window].index, macro_features.loc[macro_window, "realgdp"],
+        color="black", linewidth=2, label="Ground truth")
+ax.plot(macro_missing.loc[macro_window].index, macro_missing.loc[macro_window, "realgdp"],
+        color="0.7", marker="o", label="Available values")
+ax.plot(macro_knn.loc[macro_window].index, macro_knn.loc[macro_window, "realgdp"],
+        color=COLORS["knn"], label="KNNImputer")
+ax.plot(macro_iterative.loc[macro_window].index, macro_iterative.loc[macro_window, "realgdp"],
+        color=COLORS["iterative"], label="IterativeImputer")
+ax.set(title="Multivariate imputation of a GDP gap", xlabel="Quarter", ylabel="Real GDP")
+ax.legend(frameon=False)
+fig.tight_layout()
+plt.show()
+```
+
+::: {.notes}
+The visual comparison shows whether the imputed path preserves plausible macroeconomic dynamics across the missing block.
+:::
+
+## MICE as a multiple-imputation extension
+
+The chapter also presents `statsmodels.imputation.mice.MICEData`:
+
+- chained-equation updates;
+- predictive mean matching;
+- repeated imputation updates;
+- closer alignment with multiple-imputation workflows.
+
+::: {.notes}
+Chapter 6 describes statsmodels MICE as closer to the R implementation and demonstrates MICEData with predictive mean matching and repeated updates.
+
+[Sources]
+- Chapter 6, pages 221–223, attached book.
+:::
+
+# Visualization and Decision Principles
+
+## Show observed and imputed values differently
+
+Use distinct visual encodings:
+
+- solid line for observed values;
+- dashed line for imputed spans;
+- markers for imputed points;
+- shaded region for missing blocks;
+- an indicator panel underneath the series.
+
+::: {.notes}
+This is a visualization recommendation aligned with the chapter's repeated visual comparison of original, missing, and imputed series.
+:::
+
+## Do not overwrite the raw observations
+
+Maintain:
+
+- original value;
+- incomplete value;
+- imputed value;
+- missing indicator;
+- method name;
+- method parameters;
+- reason for missingness;
+- review status.
+
+::: {.notes}
+The chapter preserves original datasets for evaluation and demonstrates missing indicators. The additional audit fields are recommended for reproducibility.
+:::
+
+## Avoid look-ahead leakage
+
+For forecasting:
+
+- fit imputers on training data only;
+- do not use future observations for real-time imputation;
+- distinguish retrospective cleaning from online availability;
+- reproduce the information set available at each forecast origin.
+
+::: {.notes}
+The chapter notes that fitting an imputer is usually performed on the training dataset. The remaining points are forecasting-specific recommendations.
+
+[Sources]
+- Chapter 6, page 212, attached book.
+:::
+
+## A decision framework
+
+```text
+WHAT DOES MISSING MEAN?
+        ↓
+IS THE GAP ISOLATED OR CONTIGUOUS?
+        ↓
+IS FUTURE INFORMATION AVAILABLE?
+        ↓
+ARE AUXILIARY VARIABLES RELIABLE?
+        ↓
+CHOOSE METHOD
+        ↓
+MASK OBSERVED VALUES FOR EVALUATION
+        ↓
+COMPARE ERROR + VISUAL STRUCTURE
+        ↓
+PRESERVE AN INDICATOR AND AUDIT TRAIL
+```
+
+::: {.notes}
+This framework synthesizes the chapter's emphasis on context, diagnosis, imputation, evaluation, and visualization.
+:::
+
+# Common Errors
+
+## Missing-data failure modes
+
+- converting every zero to NaN;
+- dropping rows before studying missingness patterns;
+- using global means on trending series;
+- forward filling across long outages;
+- using spline interpolation without checking overshoot;
+- fitting imputers on the full dataset before splitting;
+- evaluating naturally missing values without ground truth;
+- selecting a method by RMSE alone;
+- hiding imputed values in the final chart;
+- treating imputed values as equally certain as observations.
+
+::: {.notes}
+These cautions combine the chapter's warnings about placeholders, deletion, RMSE limitations, and training-data fitting with visualization best practices.
+:::
+
+# Practice
+
+## Classroom exercise
+
+Using the package-shipped CO2 dataset:
+
+1. audit values and the datetime index;
+2. calculate missing runs;
+3. build a missingness heatmap;
+4. mask isolated observations and one block;
+5. compare mean, median, forward fill, and backward fill;
+6. compare linear, time, and spline interpolation;
+7. calculate RMSE only over masked observations;
+8. separate scores by gap type;
+9. add a missing indicator;
+10. recommend a method and document its limitations.
+
+::: {.notes}
+The exercise follows the chapter's five-step workflow and adds gap-specific evaluation.
+:::
+
+## Extension: multivariate imputation
+
+Using `statsmodels` macrodata:
+
+1. mask a block of `realgdp`;
+2. inspect correlations;
+3. standardize the features;
+4. apply KNNImputer;
+5. apply IterativeImputer with BayesianRidge;
+6. compare RMSE;
+7. compare the reconstructed path visually;
+8. explain why the lower RMSE may not be sufficient.
+
+::: {.notes}
+The extension mirrors the chapter's multivariate comparison while using a package-shipped dataset for easy replication.
+:::
+
+## Assessment rubric
+
+| Dimension | Evidence |
+|---|---|
+| Diagnosis | values, placeholders, index, and gap runs are checked |
+| Visualization | missingness and imputed points remain visible |
+| Method choice | assumptions match the temporal process |
+| Evaluation | ground truth is created by masking observed values |
+| Robustness | isolated gaps and blocks are compared separately |
+| Leakage control | imputer fitting respects the forecast split |
+| Reproducibility | parameters, indicators, and raw values are retained |
+| Interpretation | RMSE is combined with visual and domain evidence |
+
+::: {.notes}
+A strong submission treats imputation as an explicit modeling decision rather than routine cleaning.
+:::
+
+# Key Takeaways
+
+## Main conclusions
+
+1. Missingness has location, duration, cause, and information content.
+2. A missing timestamp differs from a NaN in an existing row.
+3. Placeholders require domain validation.
+4. Deletion can remove informative patterns.
+5. Univariate methods are simple but ignore other variables.
+6. Interpolation uses temporal continuity but becomes uncertain over long gaps.
+7. Multivariate methods can exploit relationships among features.
+8. RMSE should be calculated on deliberately masked ground truth.
+9. Lower RMSE does not guarantee realistic variability.
+10. Imputed values should remain visible, flagged, and auditable.
+
+::: {.notes}
+These conclusions synthesize the chapter's diagnosis, pandas and scikit-learn imputation, multivariate methods, interpolation, and evaluation guidance.
+
+[Sources]
+- Chapter 6, Handling Missing Data, attached book.
+:::
+
+## Final checklist
+
+- [ ] Is the expected time frequency known?
+- [ ] Were values and timestamps both checked?
+- [ ] Were placeholders validated?
+- [ ] Are missing runs visualized?
+- [ ] Is the cause or mechanism considered?
+- [ ] Was a controlled masking experiment used?
+- [ ] Was the method fit without leakage?
+- [ ] Were long and short gaps assessed separately?
+- [ ] Were RMSE and plots considered together?
+- [ ] Are imputed values and indicators retained?
+
+::: {.notes}
+Use this checklist for analytical notebooks, forecasting pipelines, and production dashboards.
+:::
+
+# References
+
+## Primary reference
+
+- Atwan, T. A. *Time Series Analysis with Python Cookbook*, Chapter 6: Handling Missing Data.
+- pandas missing-data and interpolation APIs.
+- scikit-learn `SimpleImputer`, `KNNImputer`, and `IterativeImputer`.
+- statsmodels package-shipped CO2 and macrodata datasets.
+
+::: {.notes}
+The presentation is based on the attached Chapter 6 and adapts its workflow to package-shipped datasets for easy classroom replication.
+
+[Sources]
+- Chapter 6, Handling Missing Data, attached book.
+:::
