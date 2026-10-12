@@ -2,7 +2,7 @@
  "cells": [
   {
    "cell_type": "markdown",
-   "id": "7f2cac0c",
+   "id": "af40ddb4",
    "metadata": {},
    "source": [
     "---\n",
@@ -25,7 +25,7 @@
     "    footer: \"Data Analytics & Visualization\"\n",
     "    logo: logo.svg\n",
     "    code-fold: true\n",
-    "    code-summary: \"Mostrar código\"\n",
+    "    code-summary: \"show code\"\n",
     "execute:\n",
     "  echo: true\n",
     "  warning: false\n",
@@ -57,36 +57,10 @@
   },
   {
    "cell_type": "markdown",
-   "id": "bae0cc6f",
+   "id": "98df1035",
    "metadata": {},
    "source": [
     "# Data Analytics Foundations\n",
-    "\n",
-    "## The complete pandas workflow for Data Visualization\n",
-    "\n",
-    "- [Chapter 5: Getting Started with pandas](https://wesmckinney.com/book/pandas-basics)\n",
-    "- [Chapter 7: Data Cleaning and Preparation](https://wesmckinney.com/book/data-cleaning)\n",
-    "- [Chapter 8: Data Wrangling](https://wesmckinney.com/book/data-wrangling)\n",
-    "- [Chapter 9: Plotting and Visualization](https://wesmckinney.com/book/plotting-and-visualization)\n",
-    "- [Chapter 10: Data Aggregation and Group Operations](https://wesmckinney.com/book/data-aggregation)\n",
-    "\n",
-    "::: {.notes}\n",
-    "Apresente o módulo como um fluxo analítico completo. A ordem pedagógica difere da ordem numérica: primeiro compreender, preparar e estruturar; depois analisar e comunicar. Todos os dados são sintéticos. Tempo sugerido: 2 min.\n",
-    "\n",
-    "1. **Chapter 5:** Understand\n",
-    "2. **Chapter 7:** Prepare\n",
-    "3. **Chapter 8:** Structure\n",
-    "\n",
-    "**Output:** validated, tidy, analysis-ready data.\n",
-    "\n",
-    "4. **Chapter 10:** Analyze\n",
-    "5. **Chapter 9:** Communicate\n",
-    "\n",
-    "**Output:** validated summaries and defensible graphics.\n",
-    "\n",
-    "RAW DATA → INSPECT → CLEAN → COMBINE → RESHAPE → GROUP → SUMMARIZE → VISUALIZE → INTERPRET\n",
-    "\n",
-    ":::\n",
     "\n",
     "## Learning objectives\n",
     "\n",
@@ -110,7 +84,7 @@
   {
    "cell_type": "code",
    "execution_count": 2,
-   "id": "a5419361",
+   "id": "03c75836",
    "metadata": {},
    "outputs": [
     {
@@ -201,7 +175,7 @@
        "4  2026-01-04       wti     Oil   NaN   105.0      USD"
       ]
      },
-     "execution_count": 2,
+     "execution_count": 458,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -235,7 +209,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "f0e6c88d",
+   "id": "72a0ecda",
    "metadata": {},
    "source": [
     "::: {.notes}\n",
@@ -288,7 +262,7 @@
   {
    "cell_type": "code",
    "execution_count": 3,
-   "id": "09e46370",
+   "id": "39930894",
    "metadata": {},
    "outputs": [
     {
@@ -300,7 +274,7 @@
        "Name: price, dtype: float64"
       ]
      },
-     "execution_count": 3,
+     "execution_count": 459,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -317,7 +291,7 @@
   {
    "cell_type": "code",
    "execution_count": 4,
-   "id": "239bc376",
+   "id": "75c59a69",
    "metadata": {},
    "outputs": [
     {
@@ -328,7 +302,7 @@
        "Name: price, dtype: float64"
       ]
      },
-     "execution_count": 4,
+     "execution_count": 460,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -339,7 +313,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "fb30bd4c",
+   "id": "a17e94c2",
    "metadata": {},
    "source": [
     "::: {.notes}\n",
@@ -352,7 +326,7 @@
   {
    "cell_type": "code",
    "execution_count": 5,
-   "id": "866f5504",
+   "id": "60353009",
    "metadata": {},
    "outputs": [
     {
@@ -364,7 +338,7 @@
        "dtype: float64"
       ]
      },
-     "execution_count": 5,
+     "execution_count": 461,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -379,7 +353,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "0b98cd1d",
+   "id": "e277769a",
    "metadata": {},
    "source": [
     "Order differs, but labels align correctly.\n",
@@ -395,7 +369,7 @@
   {
    "cell_type": "code",
    "execution_count": 6,
-   "id": "d1cf26be",
+   "id": "fda2c446",
    "metadata": {},
    "outputs": [
     {
@@ -408,7 +382,7 @@
        "dtype: float64"
       ]
      },
-     "execution_count": 6,
+     "execution_count": 462,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -420,7 +394,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "28169b22",
+   "id": "332e83d9",
    "metadata": {},
    "source": [
     "Alignment is safer than positional matching, but unmatched labels require investigation.\n",
@@ -437,7 +411,7 @@
   {
    "cell_type": "code",
    "execution_count": 7,
-   "id": "0b6ee269",
+   "id": "b5fa6824",
    "metadata": {},
    "outputs": [
     {
@@ -492,7 +466,7 @@
        "TTF     50.6      84"
       ]
      },
-     "execution_count": 7,
+     "execution_count": 463,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -507,7 +481,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "80c65cb7",
+   "id": "92e589b6",
    "metadata": {},
    "source": [
     "- rows have an index;\n",
@@ -531,7 +505,7 @@
   {
    "cell_type": "code",
    "execution_count": 8,
-   "id": "2f4cf029",
+   "id": "498c2d8c",
    "metadata": {},
    "outputs": [
     {
@@ -602,7 +576,7 @@
        "2  03-01-2026        ttf    gas  48.2    84.0      EUR"
       ]
      },
-     "execution_count": 8,
+     "execution_count": 464,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -614,7 +588,7 @@
   {
    "cell_type": "code",
    "execution_count": 9,
-   "id": "8e01c4fd",
+   "id": "2d71d108",
    "metadata": {},
    "outputs": [
     {
@@ -623,7 +597,7 @@
        "(12, 6)"
       ]
      },
-     "execution_count": 9,
+     "execution_count": 465,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -635,7 +609,7 @@
   {
    "cell_type": "code",
    "execution_count": 10,
-   "id": "4c9f1c25",
+   "id": "c2fe7a1f",
    "metadata": {},
    "outputs": [
     {
@@ -650,7 +624,7 @@
        "dtype: object"
       ]
      },
-     "execution_count": 10,
+     "execution_count": 466,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -661,7 +635,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "cb4829f5",
+   "id": "3be5a770",
    "metadata": {},
    "source": [
     ":::\n",
@@ -671,7 +645,7 @@
   {
    "cell_type": "code",
    "execution_count": 11,
-   "id": "f8d094a3",
+   "id": "2db89836",
    "metadata": {},
    "outputs": [
     {
@@ -742,7 +716,7 @@
        "11  2026-01-08        TTF    Gas     50.2    91.0      EUR"
       ]
      },
-     "execution_count": 11,
+     "execution_count": 467,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -754,7 +728,7 @@
   {
    "cell_type": "code",
    "execution_count": 12,
-   "id": "5761d104",
+   "id": "2b97b3ef",
    "metadata": {},
    "outputs": [
     {
@@ -783,7 +757,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "078954fa",
+   "id": "b3d823a0",
    "metadata": {},
    "source": [
     ":::\n",
@@ -803,7 +777,7 @@
   {
    "cell_type": "code",
    "execution_count": 13,
-   "id": "6f9dc52c",
+   "id": "e5efc59d",
    "metadata": {},
    "outputs": [
     {
@@ -858,7 +832,7 @@
        "2        ttf  48.2"
       ]
      },
-     "execution_count": 13,
+     "execution_count": 469,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -869,7 +843,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "32e156fb",
+   "id": "105e1e2c",
    "metadata": {},
    "source": [
     "`loc` uses labels and includes the endpoint.\n",
@@ -880,7 +854,7 @@
   {
    "cell_type": "code",
    "execution_count": 14,
-   "id": "cdf4a075",
+   "id": "c077c150",
    "metadata": {},
    "outputs": [
     {
@@ -935,7 +909,7 @@
        "2        ttf  48.2"
       ]
      },
-     "execution_count": 14,
+     "execution_count": 470,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -946,7 +920,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "b363efff",
+   "id": "0e1c3fa1",
    "metadata": {},
    "source": [
     "`iloc` uses positions and excludes the stop.\n",
@@ -963,7 +937,7 @@
   {
    "cell_type": "code",
    "execution_count": 15,
-   "id": "59d17c6a",
+   "id": "014c71f2",
    "metadata": {},
    "outputs": [
     {
@@ -1042,7 +1016,7 @@
        "5  2026-01-04       wti    NaN   105.0"
       ]
      },
-     "execution_count": 15,
+     "execution_count": 471,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -1057,7 +1031,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "98bc8b0b",
+   "id": "86ec87df",
    "metadata": {},
    "source": [
     "Use `.copy()` when the subset will later be modified.\n",
@@ -1110,7 +1084,7 @@
   {
    "cell_type": "code",
    "execution_count": 16,
-   "id": "f0172c0a",
+   "id": "c5c20a92",
    "metadata": {},
    "outputs": [
     {
@@ -1122,7 +1096,7 @@
        "Name: price, dtype: float64"
       ]
      },
-     "execution_count": 16,
+     "execution_count": 472,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -1136,7 +1110,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "f611e2c2",
+   "id": "5e53b445",
    "metadata": {},
    "source": [
     ":::\n",
@@ -1146,7 +1120,7 @@
   {
    "cell_type": "code",
    "execution_count": 17,
-   "id": "13be5996",
+   "id": "c1c94b9f",
    "metadata": {},
    "outputs": [
     {
@@ -1195,7 +1169,7 @@
        "1        WTI   73.5"
       ]
      },
-     "execution_count": 17,
+     "execution_count": 473,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -1210,7 +1184,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "7594f1d8",
+   "id": "ae1a8233",
    "metadata": {},
    "source": [
     ":::\n",
@@ -1228,7 +1202,7 @@
   {
    "cell_type": "code",
    "execution_count": 18,
-   "id": "eed3121d",
+   "id": "56011290",
    "metadata": {},
    "outputs": [
     {
@@ -1250,7 +1224,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "1d3f9338",
+   "id": "dbec7c88",
    "metadata": {},
    "source": [
     "- indexes are immutable;\n",
@@ -1268,7 +1242,7 @@
   {
    "cell_type": "code",
    "execution_count": 19,
-   "id": "5d72a2e5",
+   "id": "2b5a648b",
    "metadata": {},
    "outputs": [
     {
@@ -1281,7 +1255,7 @@
        "Name: price, dtype: float64"
       ]
      },
-     "execution_count": 19,
+     "execution_count": 475,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -1294,7 +1268,7 @@
   {
    "cell_type": "code",
    "execution_count": 20,
-   "id": "de2a71b8",
+   "id": "68c688b1",
    "metadata": {},
    "outputs": [
     {
@@ -1307,7 +1281,7 @@
        "Name: price, dtype: float64"
       ]
      },
-     "execution_count": 20,
+     "execution_count": 476,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -1318,7 +1292,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "bf230a5d",
+   "id": "5fc2d625",
    "metadata": {},
    "source": [
     "::: {.callout-warning}\n",
@@ -1337,7 +1311,7 @@
   {
    "cell_type": "code",
    "execution_count": 21,
-   "id": "7f724dc7",
+   "id": "ca29cea5",
    "metadata": {},
    "outputs": [
     {
@@ -1386,7 +1360,7 @@
        "WTI     73.5      98"
       ]
      },
-     "execution_count": 21,
+     "execution_count": 477,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -1398,7 +1372,7 @@
   {
    "cell_type": "code",
    "execution_count": 22,
-   "id": "7bbecd3f",
+   "id": "17b342fc",
    "metadata": {},
    "outputs": [
     {
@@ -1449,7 +1423,7 @@
        "TTF     50.6"
       ]
      },
-     "execution_count": 22,
+     "execution_count": 478,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -1460,7 +1434,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "06c14cfa",
+   "id": "7a86445f",
    "metadata": {},
    "source": [
     "`drop` returns a new object by default. Removing a row or column is a structural action, not evidence that exclusion is analytically justified.\n",
@@ -1478,7 +1452,7 @@
   {
    "cell_type": "code",
    "execution_count": 23,
-   "id": "a9c21fe6",
+   "id": "5cc72302",
    "metadata": {},
    "outputs": [
     {
@@ -1490,7 +1464,7 @@
        "Name: price, dtype: float64"
       ]
      },
-     "execution_count": 23,
+     "execution_count": 479,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -1501,7 +1475,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "e78618df",
+   "id": "8f67584d",
    "metadata": {},
    "source": [
     "A `Series`: one-dimensional.\n",
@@ -1512,7 +1486,7 @@
   {
    "cell_type": "code",
    "execution_count": 24,
-   "id": "71c75c5c",
+   "id": "c5e24f93",
    "metadata": {},
    "outputs": [
     {
@@ -1563,7 +1537,7 @@
        "TTF     50.6"
       ]
      },
-     "execution_count": 24,
+     "execution_count": 480,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -1574,7 +1548,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "b3af8446",
+   "id": "29eecf24",
    "metadata": {},
    "source": [
     "A `DataFrame`: two-dimensional.\n",
@@ -1593,7 +1567,7 @@
   {
    "cell_type": "code",
    "execution_count": 25,
-   "id": "4f008fe3",
+   "id": "aa3a0c77",
    "metadata": {},
    "outputs": [
     {
@@ -1613,7 +1587,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "b10ce60c",
+   "id": "29f8fe83",
    "metadata": {},
    "source": [
     "Use `loc` and `iloc` explicitly to avoid ambiguity.\n",
@@ -1628,7 +1602,7 @@
   {
    "cell_type": "code",
    "execution_count": 26,
-   "id": "0e1ec1c4",
+   "id": "cce67f97",
    "metadata": {},
    "outputs": [
     {
@@ -1687,7 +1661,7 @@
        "day_3    NaN  NaN  NaN"
       ]
      },
-     "execution_count": 26,
+     "execution_count": 482,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -1706,7 +1680,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "7c3ebd40",
+   "id": "e5a411c1",
    "metadata": {},
    "source": [
     "Rows and columns both align; only common labels have computable differences.\n",
@@ -1721,7 +1695,7 @@
   {
    "cell_type": "code",
    "execution_count": 27,
-   "id": "8268a6ac",
+   "id": "e0c5d356",
    "metadata": {},
    "outputs": [
     {
@@ -1780,7 +1754,7 @@
        "day_3    NaN  50.0   72.5"
       ]
      },
-     "execution_count": 27,
+     "execution_count": 483,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -1791,7 +1765,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "4d18c7ea",
+   "id": "1c8e1863",
    "metadata": {},
    "source": [
     "`fill_value` is applied during alignment, but does not make zero substantively correct.\n",
@@ -1808,7 +1782,7 @@
   {
    "cell_type": "code",
    "execution_count": 28,
-   "id": "cbebbdac",
+   "id": "0fb44ef0",
    "metadata": {},
    "outputs": [
     {
@@ -1819,7 +1793,7 @@
        "dtype: float64"
       ]
      },
-     "execution_count": 28,
+     "execution_count": 484,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -1833,7 +1807,7 @@
   {
    "cell_type": "code",
    "execution_count": 29,
-   "id": "e77f1647",
+   "id": "e2574166",
    "metadata": {},
    "outputs": [
     {
@@ -1888,7 +1862,7 @@
        "TTF    50.6   84.0"
       ]
      },
-     "execution_count": 29,
+     "execution_count": 485,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -1899,7 +1873,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "f5ab08aa",
+   "id": "802d9276",
    "metadata": {},
    "source": [
     "- `apply`: operate along an axis;\n",
@@ -1916,7 +1890,7 @@
   {
    "cell_type": "code",
    "execution_count": 30,
-   "id": "56be4116",
+   "id": "04cfe067",
    "metadata": {},
    "outputs": [
     {
@@ -1941,7 +1915,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "289a53e5",
+   "id": "54a65a53",
    "metadata": {},
    "source": [
     "Sorting rearranges observations; ranking assigns an order statistic.\n",
@@ -1956,7 +1930,7 @@
   {
    "cell_type": "code",
    "execution_count": 31,
-   "id": "4a1641b1",
+   "id": "574b2384",
    "metadata": {},
    "outputs": [
     {
@@ -1974,7 +1948,7 @@
        "dtype: float64"
       ]
      },
-     "execution_count": 31,
+     "execution_count": 487,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -1989,7 +1963,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "fe656965",
+   "id": "9998bd0f",
    "metadata": {},
    "source": [
     "A label may return one scalar or multiple values depending on index uniqueness.\n",
@@ -2004,7 +1978,7 @@
   {
    "cell_type": "code",
    "execution_count": 32,
-   "id": "8ef1f67e",
+   "id": "237d841f",
    "metadata": {},
    "outputs": [
     {
@@ -2035,7 +2009,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "c09a64d6",
+   "id": "bf199bca",
    "metadata": {},
    "source": [
     "Many pandas reductions skip missing values by default. The denominator still needs interpretation.\n",
@@ -2050,7 +2024,7 @@
   {
    "cell_type": "code",
    "execution_count": 33,
-   "id": "80f8da9f",
+   "id": "4043c0e6",
    "metadata": {},
    "outputs": [
     {
@@ -2083,7 +2057,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "17dcea02",
+   "id": "a795ec8a",
    "metadata": {},
    "source": [
     "These operations are essential for auditing categories before legends, colors, and facets are created.\n",
@@ -2114,7 +2088,7 @@
   {
    "cell_type": "code",
    "execution_count": 34,
-   "id": "368ac28c",
+   "id": "c69b1f84",
    "metadata": {},
    "outputs": [
     {
@@ -2194,7 +2168,7 @@
        "currency        str        0       3"
       ]
      },
-     "execution_count": 34,
+     "execution_count": 490,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -2211,7 +2185,7 @@
   {
    "cell_type": "code",
    "execution_count": 35,
-   "id": "2e54b9b9",
+   "id": "7d207464",
    "metadata": {},
    "outputs": [
     {
@@ -2230,7 +2204,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "149ebfcd",
+   "id": "9df10fb8",
    "metadata": {},
    "source": [
     "::: {.notes}\n",
@@ -2243,7 +2217,7 @@
   {
    "cell_type": "code",
    "execution_count": 36,
-   "id": "f91c1cf3",
+   "id": "04677543",
    "metadata": {},
    "outputs": [
     {
@@ -2258,7 +2232,7 @@
        "dtype: int64"
       ]
      },
-     "execution_count": 36,
+     "execution_count": 492,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -2271,7 +2245,7 @@
   {
    "cell_type": "code",
    "execution_count": 37,
-   "id": "f729d81e",
+   "id": "1f041ad3",
    "metadata": {
     "fig-height": 4.5,
     "fig-width": 9
@@ -2305,7 +2279,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "c264edc6",
+   "id": "2162699d",
    "metadata": {},
    "source": [
     "::: {.notes}\n",
@@ -2321,7 +2295,7 @@
   {
    "cell_type": "code",
    "execution_count": 38,
-   "id": "1b456001",
+   "id": "c9f80e84",
    "metadata": {},
    "outputs": [
     {
@@ -2330,7 +2304,7 @@
        "(10, 6)"
       ]
      },
-     "execution_count": 38,
+     "execution_count": 494,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -2341,7 +2315,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "a0f43ce3",
+   "id": "3089b5b1",
    "metadata": {},
    "source": [
     "Removal discards other observed information.\n",
@@ -2352,7 +2326,7 @@
   {
    "cell_type": "code",
    "execution_count": 39,
-   "id": "abf14385",
+   "id": "9347be57",
    "metadata": {},
    "outputs": [
     {
@@ -2403,7 +2377,7 @@
        "8  2026-01-06        WTI    Oil  73.4    98.0      USD"
       ]
      },
-     "execution_count": 39,
+     "execution_count": 495,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -2416,7 +2390,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "f2da9d78",
+   "id": "1a1aa138",
    "metadata": {},
    "source": [
     "Filling introduces an assumption.\n",
@@ -2433,7 +2407,7 @@
   {
    "cell_type": "code",
    "execution_count": 40,
-   "id": "9f9866c4",
+   "id": "eb6c8727",
    "metadata": {},
    "outputs": [
     {
@@ -2520,7 +2494,7 @@
        "5  2026-01-04  2026-04-01   NaN          <NA>"
       ]
      },
-     "execution_count": 40,
+     "execution_count": 496,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -2540,7 +2514,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "45f7aea1",
+   "id": "effc66d4",
    "metadata": {},
    "source": [
     "::: {.notes}\n",
@@ -2553,7 +2527,7 @@
   {
    "cell_type": "code",
    "execution_count": 41,
-   "id": "f515750d",
+   "id": "ec436a44",
    "metadata": {},
    "outputs": [
     {
@@ -2619,7 +2593,7 @@
        "9    UNKNOWN  Other      USD"
       ]
      },
-     "execution_count": 41,
+     "execution_count": 497,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -2639,7 +2613,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "1cedb16e",
+   "id": "cf5002c5",
    "metadata": {},
    "source": [
     "::: {.notes}\n",
@@ -2652,7 +2626,7 @@
   {
    "cell_type": "code",
    "execution_count": 42,
-   "id": "6e13a551",
+   "id": "0297c7cf",
    "metadata": {},
    "outputs": [
     {
@@ -2731,7 +2705,7 @@
        "4    Oil   Liquid energy   105.0      medium"
       ]
      },
-     "execution_count": 42,
+     "execution_count": 498,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -2752,7 +2726,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "b45eeede",
+   "id": "b2b96b2f",
    "metadata": {},
    "source": [
     "::: {.notes}\n",
@@ -2765,7 +2739,7 @@
   {
    "cell_type": "code",
    "execution_count": 43,
-   "id": "70163a7d",
+   "id": "3ab3fcef",
    "metadata": {},
    "outputs": [
     {
@@ -2820,7 +2794,7 @@
        "5 2026-04-01        WTI   <NA>   105.0"
       ]
      },
-     "execution_count": 43,
+     "execution_count": 499,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -2835,7 +2809,7 @@
   {
    "cell_type": "code",
    "execution_count": 44,
-   "id": "a7279fc4",
+   "id": "9b591d8d",
    "metadata": {},
    "outputs": [],
    "source": [
@@ -2846,7 +2820,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "3fe5f95c",
+   "id": "2880ff07",
    "metadata": {},
    "source": [
     "::: {.notes}\n",
@@ -2859,7 +2833,7 @@
   {
    "cell_type": "code",
    "execution_count": 45,
-   "id": "27248b9c",
+   "id": "5dd58333",
    "metadata": {},
    "outputs": [
     {
@@ -2914,7 +2888,7 @@
        "10 2026-07-01      BRENT  1250.0      USD"
       ]
      },
-     "execution_count": 45,
+     "execution_count": 501,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -2928,7 +2902,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "9e537a31",
+   "id": "f1aa2691",
    "metadata": {},
    "source": [
     "- non-positive is invalid under this teaching rule;\n",
@@ -2962,7 +2936,7 @@
   {
    "cell_type": "code",
    "execution_count": 46,
-   "id": "ba21fe53",
+   "id": "335b3aaa",
    "metadata": {},
    "outputs": [
     {
@@ -2974,7 +2948,7 @@
        "dtype: object"
       ]
      },
-     "execution_count": 46,
+     "execution_count": 502,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -2990,7 +2964,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "0ab42336",
+   "id": "37b4c177",
    "metadata": {},
    "source": [
     "Pandas extension dtypes preserve missing integers, Booleans, and strings without coercing everything to generic objects.\n",
@@ -3005,7 +2979,7 @@
   {
    "cell_type": "code",
    "execution_count": 47,
-   "id": "21cd15fb",
+   "id": "cdf7eceb",
    "metadata": {},
    "outputs": [
     {
@@ -3036,7 +3010,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "8a9c1db1",
+   "id": "be48b4f2",
    "metadata": {},
    "source": [
     "The threshold encodes how much observed information is required to retain a row.\n",
@@ -3051,7 +3025,7 @@
   {
    "cell_type": "code",
    "execution_count": 48,
-   "id": "91138ba3",
+   "id": "16a38528",
    "metadata": {},
    "outputs": [
     {
@@ -3082,7 +3056,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "38a7b6db",
+   "id": "c2552f60",
    "metadata": {},
    "source": [
     "Carry-forward methods require a meaningful order and should use limits when long gaps are not defensible.\n",
@@ -3097,7 +3071,7 @@
   {
    "cell_type": "code",
    "execution_count": 49,
-   "id": "f4007299",
+   "id": "fad4c55f",
    "metadata": {},
    "outputs": [
     {
@@ -3148,7 +3122,7 @@
        "2    NaN"
       ]
      },
-     "execution_count": 49,
+     "execution_count": 505,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -3164,7 +3138,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "0bf5e534",
+   "id": "82e58294",
    "metadata": {},
    "source": [
     "Renaming improves semantics; replacing changes values. Keep those operations conceptually separate.\n",
@@ -3179,7 +3153,7 @@
   {
    "cell_type": "code",
    "execution_count": 50,
-   "id": "c0a27d85",
+   "id": "5616c8fb",
    "metadata": {},
    "outputs": [
     {
@@ -3246,7 +3220,7 @@
        "4     75          0.67"
       ]
      },
-     "execution_count": 50,
+     "execution_count": 506,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -3261,7 +3235,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "3082caff",
+   "id": "ad6377f3",
    "metadata": {},
    "source": [
     "A statistical flag is a prompt for investigation, not proof of error.\n",
@@ -3276,7 +3250,7 @@
   {
    "cell_type": "code",
    "execution_count": 51,
-   "id": "58ad1750",
+   "id": "0293fdf4",
    "metadata": {},
    "outputs": [
     {
@@ -3297,7 +3271,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "8c7e2118",
+   "id": "7237a047",
    "metadata": {},
    "source": [
     "Sampling supports inspection and validation; reproducibility requires a fixed random state or generator.\n",
@@ -3312,7 +3286,7 @@
   {
    "cell_type": "code",
    "execution_count": 52,
-   "id": "a545b5f2",
+   "id": "34245633",
    "metadata": {},
    "outputs": [
     {
@@ -3385,7 +3359,7 @@
        "4           0           1             0"
       ]
      },
-     "execution_count": 52,
+     "execution_count": 508,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -3398,7 +3372,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "8e499d54",
+   "id": "0e19932d",
    "metadata": {},
    "source": [
     "Dummy variables are useful for modeling, but visualization libraries often work directly with categorical columns.\n",
@@ -3413,7 +3387,7 @@
   {
    "cell_type": "code",
    "execution_count": 53,
-   "id": "74b5cef1",
+   "id": "fc5b70e4",
    "metadata": {},
    "outputs": [
     {
@@ -3474,7 +3448,7 @@
        "3       <NA>  <NA>"
       ]
      },
-     "execution_count": 53,
+     "execution_count": 509,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -3491,7 +3465,7 @@
   {
    "cell_type": "code",
    "execution_count": 54,
-   "id": "04e1c16c",
+   "id": "c4142b6f",
    "metadata": {},
    "outputs": [
     {
@@ -3504,7 +3478,7 @@
        "dtype: boolean"
       ]
      },
-     "execution_count": 54,
+     "execution_count": 510,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -3515,7 +3489,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "289942ec",
+   "id": "330b6c95",
    "metadata": {},
    "source": [
     "Pandas string methods apply text operations across arrays while handling missing values.\n",
@@ -3532,7 +3506,7 @@
   {
    "cell_type": "code",
    "execution_count": 55,
-   "id": "b63c85f6",
+   "id": "262b8700",
    "metadata": {},
    "outputs": [
     {
@@ -3541,7 +3515,7 @@
        "(8, 8)"
       ]
      },
-     "execution_count": 55,
+     "execution_count": 511,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -3555,7 +3529,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "6e64530f",
+   "id": "b3d166a7",
    "metadata": {},
    "source": [
     "`concat` appends or aligns objects along an axis.\n",
@@ -3583,7 +3557,7 @@
   {
    "cell_type": "code",
    "execution_count": 56,
-   "id": "e80696e3",
+   "id": "f2818d1b",
    "metadata": {},
    "outputs": [
     {
@@ -3686,7 +3660,7 @@
        "7        WTI  North America    USD/bbl   both"
       ]
      },
-     "execution_count": 56,
+     "execution_count": 512,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -3705,7 +3679,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "324d641d",
+   "id": "374f71ea",
    "metadata": {},
    "source": [
     "::: {.notes}\n",
@@ -3737,7 +3711,7 @@
   {
    "cell_type": "code",
    "execution_count": 57,
-   "id": "e1754f65",
+   "id": "34d78967",
    "metadata": {},
    "outputs": [
     {
@@ -3763,7 +3737,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "bff08f30",
+   "id": "5598ade1",
    "metadata": {},
    "source": [
     "::: {.notes}\n",
@@ -3776,7 +3750,7 @@
   {
    "cell_type": "code",
    "execution_count": 58,
-   "id": "0af9ac1d",
+   "id": "167de585",
    "metadata": {},
    "outputs": [
     {
@@ -3789,7 +3763,7 @@
        "Name: count, dtype: int64"
       ]
      },
-     "execution_count": 58,
+     "execution_count": 514,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -3801,7 +3775,7 @@
   {
    "cell_type": "code",
    "execution_count": 59,
-   "id": "c43a9646",
+   "id": "bcee153f",
    "metadata": {},
    "outputs": [
     {
@@ -3812,7 +3786,7 @@
        "Length: 1, dtype: str"
       ]
      },
-     "execution_count": 59,
+     "execution_count": 515,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -3824,7 +3798,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "22945167",
+   "id": "768dfcb8",
    "metadata": {},
    "source": [
     "Never remove unmatched records before making them visible.\n",
@@ -3864,7 +3838,7 @@
   {
    "cell_type": "code",
    "execution_count": 60,
-   "id": "cd5406f0",
+   "id": "10200d46",
    "metadata": {},
    "outputs": [
     {
@@ -3923,7 +3897,7 @@
        "2  2026-01-02        WTI   72.1"
       ]
      },
-     "execution_count": 60,
+     "execution_count": 516,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -3940,7 +3914,7 @@
   {
    "cell_type": "code",
    "execution_count": 61,
-   "id": "cbe318f6",
+   "id": "ca791820",
    "metadata": {},
    "outputs": [
     {
@@ -3999,7 +3973,7 @@
        "2026-01-03   77.0  48.7  72.8"
       ]
      },
-     "execution_count": 61,
+     "execution_count": 517,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -4010,7 +3984,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "bb3c685f",
+   "id": "65c6aa5d",
    "metadata": {},
    "source": [
     "::: {.notes}\n",
@@ -4023,7 +3997,7 @@
   {
    "cell_type": "code",
    "execution_count": 62,
-   "id": "d6328473",
+   "id": "63e29bc3",
    "metadata": {},
    "outputs": [
     {
@@ -4089,7 +4063,7 @@
        "2026-03-01   77.0  <NA>  <NA>"
       ]
      },
-     "execution_count": 62,
+     "execution_count": 518,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -4105,7 +4079,7 @@
   {
    "cell_type": "code",
    "execution_count": 63,
-   "id": "b2c8994a",
+   "id": "17a31ab8",
    "metadata": {},
    "outputs": [
     {
@@ -4118,7 +4092,7 @@
        "dtype: Float64"
       ]
      },
-     "execution_count": 63,
+     "execution_count": 519,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -4129,7 +4103,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "928c5ab2",
+   "id": "9b0d5a15",
    "metadata": {},
    "source": [
     "::: {.notes}\n",
@@ -4143,7 +4117,7 @@
   {
    "cell_type": "code",
    "execution_count": 64,
-   "id": "207b9442",
+   "id": "da9fc057",
    "metadata": {},
    "outputs": [
     {
@@ -4261,7 +4235,7 @@
        "           WTI           USD/bbl   both  "
       ]
      },
-     "execution_count": 64,
+     "execution_count": 520,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -4276,7 +4250,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "c4ea4b73",
+   "id": "434623cb",
    "metadata": {},
    "source": [
     "Index-level order changes which partial selections and grouped operations are natural.\n",
@@ -4291,7 +4265,7 @@
   {
    "cell_type": "code",
    "execution_count": 65,
-   "id": "7add1b81",
+   "id": "64f65773",
    "metadata": {},
    "outputs": [
     {
@@ -4350,7 +4324,7 @@
        "2    TTF        TTF      Gas"
       ]
      },
-     "execution_count": 65,
+     "execution_count": 521,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -4367,7 +4341,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "dd1b67aa",
+   "id": "2e62fc7d",
    "metadata": {},
    "source": [
     "::: {.notes}\n",
@@ -4380,7 +4354,7 @@
   {
    "cell_type": "code",
    "execution_count": 66,
-   "id": "ff1819c5",
+   "id": "f4a993b2",
    "metadata": {},
    "outputs": [
     {
@@ -4436,7 +4410,7 @@
        "TTF         Gas"
       ]
      },
-     "execution_count": 66,
+     "execution_count": 522,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -4449,7 +4423,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "23924e18",
+   "id": "bd27efe2",
    "metadata": {},
    "source": [
     "Index-based joins are concise, but column-based merge often exposes key semantics more clearly.\n",
@@ -4464,7 +4438,7 @@
   {
    "cell_type": "code",
    "execution_count": 67,
-   "id": "dcde0c3d",
+   "id": "10f17d93",
    "metadata": {},
    "outputs": [
     {
@@ -4529,7 +4503,7 @@
        "         WTI          73.0"
       ]
      },
-     "execution_count": 67,
+     "execution_count": 523,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -4542,7 +4516,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "29bea3d7",
+   "id": "f3610638",
    "metadata": {},
    "source": [
     "Keys create a hierarchical index that records the source of each block.\n",
@@ -4557,7 +4531,7 @@
   {
    "cell_type": "code",
    "execution_count": 68,
-   "id": "d663476a",
+   "id": "21030287",
    "metadata": {},
    "outputs": [
     {
@@ -4602,7 +4576,7 @@
        "0      BRENT            76.4            76.6"
       ]
      },
-     "execution_count": 68,
+     "execution_count": 524,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -4615,7 +4589,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "cb42d930",
+   "id": "43fb97df",
    "metadata": {},
    "source": [
     "Suffixes avoid ambiguous names but do not resolve conflicting definitions.\n",
@@ -4630,7 +4604,7 @@
   {
    "cell_type": "code",
    "execution_count": 69,
-   "id": "a381fff1",
+   "id": "449f22d6",
    "metadata": {},
    "outputs": [
     {
@@ -4642,7 +4616,7 @@
        "dtype: float64"
       ]
      },
-     "execution_count": 69,
+     "execution_count": 525,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -4655,7 +4629,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "7607dd96",
+   "id": "95ce0fc1",
    "metadata": {},
    "source": [
     "The operation preserves primary values and uses backup values only where the primary is missing.\n",
@@ -4663,219 +4637,6 @@
     "::: {.notes}\n",
     "Exija uma política de fonte e uma flag de proveniência em aplicações reais. Tempo: 3 min.\n",
     ":::\n",
-    "\n",
-    "## Class 1 integrated pipeline"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": 70,
-   "id": "2b431ea9",
-   "metadata": {},
-   "outputs": [],
-   "source": [
-    "working = raw.assign(\n",
-    "    date=lambda d: pd.to_datetime(d[\"date\"], errors=\"coerce\", format=\"mixed\", dayfirst=True),\n",
-    "    instrument=lambda d: d[\"instrument\"].str.strip().str.upper(),\n",
-    "    market=lambda d: d[\"market\"].str.strip().str.title(),\n",
-    "    currency=lambda d: d[\"currency\"].str.strip().str.upper(),\n",
-    "    price=lambda d: pd.to_numeric(\n",
-    "        d[\"price\"].astype(\"string\").str.replace(\",\", \"\", regex=False),\n",
-    "        errors=\"coerce\"\n",
-    "    )\n",
-    ").drop_duplicates()"
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "id": "b6ff9a2e",
-   "metadata": {},
-   "source": [
-    "::: {.notes}\n",
-    "A primeira parte corrige estrutura e tipos, sem ainda remover falhas. Tempo: 2 min.\n",
-    ":::\n",
-    "\n",
-    "## Preserve an audit trail"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": 71,
-   "id": "6d385eaf",
-   "metadata": {},
-   "outputs": [],
-   "source": [
-    "working = working.assign(\n",
-    "    invalid_date=working[\"date\"].isna(),\n",
-    "    missing_price=working[\"price\"].isna(),\n",
-    "    nonpositive_price=working[\"price\"].le(0).fillna(False)\n",
-    ")\n",
-    "rejected = working.loc[\n",
-    "    working[[\"invalid_date\", \"nonpositive_price\"]].any(axis=1)\n",
-    "].copy()\n",
-    "valid = working.loc[\n",
-    "    ~working[[\"invalid_date\", \"nonpositive_price\"]].any(axis=1)\n",
-    "].copy()"
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "id": "e8bf2c25",
-   "metadata": {},
-   "source": [
-    "::: {.notes}\n",
-    "Separar rejeitados mantém rastreabilidade. Preço ausente não é rejeitado automaticamente. Tempo: 2 min.\n",
-    ":::\n",
-    "\n",
-    "## Complete and validate Class 1 output"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": 72,
-   "id": "210a5612",
-   "metadata": {},
-   "outputs": [
-    {
-     "data": {
-      "text/html": [
-       "<div>\n",
-       "<style scoped>\n",
-       "    .dataframe tbody tr th:only-of-type {\n",
-       "        vertical-align: middle;\n",
-       "    }\n",
-       "\n",
-       "    .dataframe tbody tr th {\n",
-       "        vertical-align: top;\n",
-       "    }\n",
-       "\n",
-       "    .dataframe thead th {\n",
-       "        text-align: right;\n",
-       "    }\n",
-       "</style>\n",
-       "<table border=\"1\" class=\"dataframe\">\n",
-       "  <thead>\n",
-       "    <tr style=\"text-align: right;\">\n",
-       "      <th></th>\n",
-       "      <th>date</th>\n",
-       "      <th>instrument</th>\n",
-       "      <th>market</th>\n",
-       "      <th>price</th>\n",
-       "      <th>volume</th>\n",
-       "      <th>currency</th>\n",
-       "      <th>...</th>\n",
-       "      <th>missing_price</th>\n",
-       "      <th>nonpositive_price</th>\n",
-       "      <th>price_imputed</th>\n",
-       "      <th>region</th>\n",
-       "      <th>category</th>\n",
-       "      <th>price_unit</th>\n",
-       "    </tr>\n",
-       "  </thead>\n",
-       "  <tbody>\n",
-       "    <tr>\n",
-       "      <th>0</th>\n",
-       "      <td>2026-02-01</td>\n",
-       "      <td>BRENT</td>\n",
-       "      <td>Oil</td>\n",
-       "      <td>76.4</td>\n",
-       "      <td>120.0</td>\n",
-       "      <td>USD</td>\n",
-       "      <td>...</td>\n",
-       "      <td>False</td>\n",
-       "      <td>False</td>\n",
-       "      <td>False</td>\n",
-       "      <td>Europe</td>\n",
-       "      <td>Crude oil</td>\n",
-       "      <td>USD/bbl</td>\n",
-       "    </tr>\n",
-       "    <tr>\n",
-       "      <th>1</th>\n",
-       "      <td>2026-02-01</td>\n",
-       "      <td>WTI</td>\n",
-       "      <td>Oil</td>\n",
-       "      <td>72.1</td>\n",
-       "      <td>98.0</td>\n",
-       "      <td>USD</td>\n",
-       "      <td>...</td>\n",
-       "      <td>False</td>\n",
-       "      <td>False</td>\n",
-       "      <td>False</td>\n",
-       "      <td>North America</td>\n",
-       "      <td>Crude oil</td>\n",
-       "      <td>USD/bbl</td>\n",
-       "    </tr>\n",
-       "  </tbody>\n",
-       "</table>\n",
-       "<p>2 rows × 13 columns</p>\n",
-       "</div>"
-      ],
-      "text/plain": [
-       "        date instrument market  price  volume currency  ...  missing_price  nonpositive_price  price_imputed  \\\n",
-       "0 2026-02-01      BRENT    Oil   76.4   120.0      USD  ...          False              False          False   \n",
-       "1 2026-02-01        WTI    Oil   72.1    98.0      USD  ...          False              False          False   \n",
-       "\n",
-       "          region   category price_unit  \n",
-       "0         Europe  Crude oil    USD/bbl  \n",
-       "1  North America  Crude oil    USD/bbl  \n",
-       "\n",
-       "[2 rows x 13 columns]"
-      ]
-     },
-     "execution_count": 72,
-     "metadata": {},
-     "output_type": "execute_result"
-    }
-   ],
-   "source": [
-    "valid[\"price_imputed\"] = valid[\"price\"].isna()\n",
-    "valid[\"price\"] = valid.groupby(\"instrument\")[\"price\"].transform(\n",
-    "    lambda s: s.fillna(s.median())\n",
-    ")\n",
-    "analysis_data = valid.merge(\n",
-    "    metadata, on=\"instrument\", how=\"left\",\n",
-    "    validate=\"many_to_one\", indicator=True\n",
-    ")\n",
-    "chart_ready = analysis_data.loc[analysis_data[\"_merge\"].eq(\"both\")].drop(columns=\"_merge\")\n",
-    "assert chart_ready[[\"date\", \"instrument\", \"price\", \"price_unit\"]].notna().all().all()\n",
-    "assert metadata[\"instrument\"].is_unique\n",
-    "chart_ready.head(2)"
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "id": "0c7a4076",
-   "metadata": {},
-   "source": [
-    "::: {.notes}\n",
-    "A mediana por instrumento é uma hipótese didática. A saída é validada, tidy e pronta para análise. Tempo: 3 min.\n",
-    ":::\n",
-    "\n",
-    "<!-- ## End of Class 1 -->\n",
-    "\n",
-    "<!-- ### Deliverable -->\n",
-    "\n",
-    "<!-- > A validated, tidy, analysis-ready dataset with explicit units, keys, and quality flags. -->\n",
-    "\n",
-    "<!-- ### Exit ticket -->\n",
-    "\n",
-    "<!-- - What is one assumption in the pipeline? -->\n",
-    "<!-- - Which assertion protects a key relationship? -->\n",
-    "<!-- - Which records are absent from `chart_ready`, and why? -->\n",
-    "\n",
-    "<!-- ::: {.notes} -->\n",
-    "<!-- Use como fechamento da primeira aula e ponte para a segunda. Tempo: 4 min. -->\n",
-    "<!-- ::: -->\n",
-    "\n",
-    "<!-- # Class 2 -->\n",
-    "\n",
-    "<!-- ## From analysis-ready data to visual evidence -->\n",
-    "\n",
-    "<!-- **Chapter 10 → Chapter 9** -->\n",
-    "\n",
-    "<!-- ::: {.notes} -->\n",
-    "<!-- Relembre a tabela chart_ready e a unidade de observação. Tempo: 1 min. -->\n",
-    "<!-- ::: -->\n",
     "\n",
     "# Data Aggregation and Group Operations\n",
     "\n",
@@ -4888,8 +4649,8 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 73,
-   "id": "64241377",
+   "execution_count": 70,
+   "id": "e46fe172",
    "metadata": {},
    "outputs": [
     {
@@ -4898,19 +4659,52 @@
        "'DataFrameGroupBy'"
       ]
      },
-     "execution_count": 73,
+     "execution_count": 526,
      "metadata": {},
      "output_type": "execute_result"
     }
    ],
    "source": [
+    "working = raw.assign(\n",
+    "    date=lambda d: pd.to_datetime(d[\"date\"], errors=\"coerce\", format=\"mixed\", dayfirst=True),\n",
+    "    instrument=lambda d: d[\"instrument\"].str.strip().str.upper(),\n",
+    "    market=lambda d: d[\"market\"].str.strip().str.title(),\n",
+    "    currency=lambda d: d[\"currency\"].str.strip().str.upper(),\n",
+    "    price=lambda d: pd.to_numeric(\n",
+    "        d[\"price\"].astype(\"string\").str.replace(\",\", \"\", regex=False),\n",
+    "        errors=\"coerce\"\n",
+    "    )\n",
+    ").drop_duplicates()\n",
+    "working = working.assign(\n",
+    "    invalid_date=working[\"date\"].isna(),\n",
+    "    missing_price=working[\"price\"].isna(),\n",
+    "    nonpositive_price=working[\"price\"].le(0).fillna(False)\n",
+    ")\n",
+    "rejected = working.loc[\n",
+    "    working[[\"invalid_date\", \"nonpositive_price\"]].any(axis=1)\n",
+    "].copy()\n",
+    "valid = working.loc[\n",
+    "    ~working[[\"invalid_date\", \"nonpositive_price\"]].any(axis=1)\n",
+    "].copy()\n",
+    "valid[\"price_imputed\"] = valid[\"price\"].isna()\n",
+    "valid[\"price\"] = valid.groupby(\"instrument\")[\"price\"].transform(\n",
+    "    lambda s: s.fillna(s.median())\n",
+    ")\n",
+    "analysis_data = valid.merge(\n",
+    "    metadata, on=\"instrument\", how=\"left\",\n",
+    "    validate=\"many_to_one\", indicator=True\n",
+    ")\n",
+    "chart_ready = analysis_data.loc[analysis_data[\"_merge\"].eq(\"both\")].drop(columns=\"_merge\")\n",
+    "assert chart_ready[[\"date\", \"instrument\", \"price\", \"price_unit\"]].notna().all().all()\n",
+    "assert metadata[\"instrument\"].is_unique\n",
+    "chart_ready.head(2)\n",
     "grouped = chart_ready.groupby(\"instrument\")\n",
     "type(grouped).__name__"
    ]
   },
   {
    "cell_type": "markdown",
-   "id": "63b34c50",
+   "id": "a2c0d73d",
    "metadata": {},
    "source": [
     "::: {.notes}\n",
@@ -4937,8 +4731,8 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 74,
-   "id": "dfb2652d",
+   "execution_count": 71,
+   "id": "affef1c7",
    "metadata": {},
    "outputs": [
     {
@@ -5013,7 +4807,7 @@
        "2        WTI     3                3       72.75         72.75      0.65         203.0"
       ]
      },
-     "execution_count": 74,
+     "execution_count": 527,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -5035,7 +4829,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "a5463085",
+   "id": "cb73dd63",
    "metadata": {},
    "source": [
     "::: {.notes}\n",
@@ -5050,8 +4844,8 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 75,
-   "id": "e1f98026",
+   "execution_count": 72,
+   "id": "98c09a7c",
    "metadata": {},
    "outputs": [
     {
@@ -5064,7 +4858,7 @@
        "Name: price, dtype: Float64"
       ]
      },
-     "execution_count": 75,
+     "execution_count": 528,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -5075,7 +4869,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "e0566140",
+   "id": "60b4ef31",
    "metadata": {},
    "source": [
     "One result per group.\n",
@@ -5085,8 +4879,8 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 76,
-   "id": "2dd34d56",
+   "execution_count": 73,
+   "id": "76569515",
    "metadata": {},
    "outputs": [
     {
@@ -5100,7 +4894,7 @@
        "Name: price, dtype: Float64"
       ]
      },
-     "execution_count": 76,
+     "execution_count": 529,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -5111,7 +4905,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "f57d5008",
+   "id": "6fb20119",
    "metadata": {},
    "source": [
     "One aligned result per row.\n",
@@ -5127,8 +4921,8 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 77,
-   "id": "4eba3edc",
+   "execution_count": 74,
+   "id": "66721de7",
    "metadata": {},
    "outputs": [
     {
@@ -5231,7 +5025,7 @@
        "4 2026-04-01        WTI   72.75     0.901526       0.0"
       ]
      },
-     "execution_count": 77,
+     "execution_count": 530,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -5249,7 +5043,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "8d43a178",
+   "id": "5f55611b",
    "metadata": {},
    "source": [
     "::: {.notes}\n",
@@ -5261,8 +5055,8 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 78,
-   "id": "02952624",
+   "execution_count": 75,
+   "id": "a770bdfc",
    "metadata": {},
    "outputs": [],
    "source": [
@@ -5280,7 +5074,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "9a4b3bb7",
+   "id": "aae3f657",
    "metadata": {},
    "source": [
     "Use specialized operations before `apply`.\n",
@@ -5294,8 +5088,8 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 79,
-   "id": "f77b4f7d",
+   "execution_count": 76,
+   "id": "69b80852",
    "metadata": {},
    "outputs": [
     {
@@ -5351,7 +5145,7 @@
        "WTI         0.0"
       ]
      },
-     "execution_count": 79,
+     "execution_count": 532,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -5367,7 +5161,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "cf872c35",
+   "id": "760cdf40",
    "metadata": {},
    "source": [
     "::: {.notes}\n",
@@ -5379,8 +5173,8 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 80,
-   "id": "44b04960",
+   "execution_count": 77,
+   "id": "b0047b49",
    "metadata": {},
    "outputs": [
     {
@@ -5441,7 +5235,7 @@
        "WTI             0.67   0.33"
       ]
      },
-     "execution_count": 80,
+     "execution_count": 533,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -5454,7 +5248,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "f89c09f8",
+   "id": "fe108efb",
    "metadata": {},
    "source": [
     "::: {.notes}\n",
@@ -5466,8 +5260,8 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 81,
-   "id": "230e7039",
+   "execution_count": 78,
+   "id": "d4018272",
    "metadata": {},
    "outputs": [
     {
@@ -5528,7 +5322,7 @@
        "WTI            3         3"
       ]
      },
-     "execution_count": 81,
+     "execution_count": 534,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -5546,26 +5340,12 @@
   },
   {
    "cell_type": "markdown",
-   "id": "cf9c70d4",
+   "id": "5ec6d0cf",
    "metadata": {},
    "source": [
     "::: {.notes}\n",
     "Valide denominadores, cobertura e forma do resultado. Tempo: 2 min.\n",
     ":::\n",
-    "\n",
-    "<!-- ## Checkpoint 3 -->\n",
-    "\n",
-    "<!-- Choose the most specific operation: -->\n",
-    "\n",
-    "<!-- 1. one mean per instrument; -->\n",
-    "<!-- 2. subtract each instrument's own mean from every row; -->\n",
-    "<!-- 3. retain instruments with sufficient coverage; -->\n",
-    "<!-- 4. obtain two rows with highest volume per group; -->\n",
-    "<!-- 5. create several named summaries. -->\n",
-    "\n",
-    "<!-- ::: {.notes} -->\n",
-    "<!-- Respostas: agg, transform, filter, apply, agg. Tempo: 3 min. -->\n",
-    "<!-- ::: -->\n",
     "\n",
     "\n",
     "## Inspecting groups directly"
@@ -5573,8 +5353,8 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 82,
-   "id": "b4a1fadd",
+   "execution_count": 79,
+   "id": "40e32c77",
    "metadata": {},
    "outputs": [
     {
@@ -5594,8 +5374,8 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 83,
-   "id": "5b955540",
+   "execution_count": 80,
+   "id": "be42052d",
    "metadata": {},
    "outputs": [
     {
@@ -5702,7 +5482,7 @@
        "[3 rows x 16 columns]"
       ]
      },
-     "execution_count": 83,
+     "execution_count": 536,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -5713,7 +5493,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "1080861d",
+   "id": "fa32ec52",
    "metadata": {},
    "source": [
     "Inspecting groups is useful for debugging the split before applying a summary.\n",
@@ -5727,8 +5507,8 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 84,
-   "id": "02a44fb8",
+   "execution_count": 81,
+   "id": "45033f4f",
    "metadata": {},
    "outputs": [
     {
@@ -5739,7 +5519,7 @@
        "Name: price, dtype: float64"
       ]
      },
-     "execution_count": 84,
+     "execution_count": 537,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -5751,7 +5531,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "d7f5b3c8",
+   "id": "ab98fa13",
    "metadata": {},
    "source": [
     "Grouping keys can be columns, arrays, mappings, functions, or index levels.\n",
@@ -5765,8 +5545,8 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 85,
-   "id": "32b781b7",
+   "execution_count": 82,
+   "id": "dd5bbfd5",
    "metadata": {},
    "outputs": [
     {
@@ -5832,7 +5612,7 @@
        "WTI         72.75   72.75           1.3"
       ]
      },
-     "execution_count": 85,
+     "execution_count": 538,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -5848,7 +5628,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "f470f36e",
+   "id": "9601813a",
    "metadata": {},
    "source": [
     "Built-in group methods are usually clearer and faster than custom Python functions.\n",
@@ -5862,8 +5642,8 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 86,
-   "id": "494d95fc",
+   "execution_count": 83,
+   "id": "084684cc",
    "metadata": {},
    "outputs": [
     {
@@ -5944,7 +5724,7 @@
        "WTI         72.75    0.65  203.0  101.5"
       ]
      },
-     "execution_count": 86,
+     "execution_count": 539,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -5958,7 +5738,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "a2f42e92",
+   "id": "472fba92",
    "metadata": {},
    "source": [
     "This syntax is compact but creates hierarchical column labels; named aggregation is often easier to communicate.\n",
@@ -5972,8 +5752,8 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 87,
-   "id": "aa296adc",
+   "execution_count": 84,
+   "id": "d32015e3",
    "metadata": {},
    "outputs": [
     {
@@ -6028,7 +5808,7 @@
        "Natural gas    49.2    87.5"
       ]
      },
-     "execution_count": 87,
+     "execution_count": 540,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -6040,7 +5820,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "f5dad3e7",
+   "id": "47a09a17",
    "metadata": {},
    "source": [
     "Grouping by an index level is useful after reshaping or hierarchical indexing.\n",
@@ -6054,8 +5834,8 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 88,
-   "id": "4db8732f",
+   "execution_count": 85,
+   "id": "fb3a94de",
    "metadata": {},
    "outputs": [
     {
@@ -6128,7 +5908,7 @@
        "8        TTF    91.0              1.0"
       ]
      },
-     "execution_count": 88,
+     "execution_count": 541,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -6143,7 +5923,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "816f9800",
+   "id": "2c62f5e0",
    "metadata": {},
    "source": [
     "Quantile bins describe relative position within each group, not common absolute thresholds.\n",
@@ -6535,27 +6315,7 @@
     "\n",
     "::: {.notes}\n",
     "Diferencie referência conceitual, código didático e dados sintéticos. Tempo: 1 min.\n",
-    ":::\n",
-    "\n",
-    "<!-- # Appendix {.unnumbered} -->\n",
-    "\n",
-    "<!-- ## Optional: save a publication-ready figure -->\n",
-    "\n",
-    "<!-- ```{python} -->\n",
-    "<!-- fig, ax = plt.subplots(figsize=(8, 4.5)) -->\n",
-    "<!-- sns.lineplot(data=weekly, x=\"week\", y=\"mean_return\", -->\n",
-    "<!--              hue=\"instrument\", marker=\"o\", ax=ax) -->\n",
-    "<!-- ax.axhline(0, color=\"0.35\", linewidth=1) -->\n",
-    "<!-- ax.set(title=\"Weekly mean daily return in synthetic data\", -->\n",
-    "<!--        xlabel=\"Week\", ylabel=\"Mean daily return (%)\") -->\n",
-    "<!-- fig.tight_layout() -->\n",
-    "<!-- fig.savefig(\"weekly_returns_synthetic.png\", dpi=160, bbox_inches=\"tight\") -->\n",
-    "<!-- plt.close(fig) -->\n",
-    "<!-- ``` -->\n",
-    "\n",
-    "<!-- ::: {.notes} -->\n",
-    "<!-- Slide de backup. Explique dpi e bbox_inches. Tempo: 2 min. -->\n",
-    "<!-- ::: -->"
+    ":::\n"
    ]
   }
  ],
@@ -6565,18 +6325,6 @@
    "language": "python",
    "name": "python3",
    "path": "D:\\Users\\victor.henriques\\AppData\\Roaming\\Python\\share\\jupyter\\kernels\\python3"
-  },
-  "language_info": {
-   "codemirror_mode": {
-    "name": "ipython",
-    "version": 3
-   },
-   "file_extension": ".py",
-   "mimetype": "text/x-python",
-   "name": "python",
-   "nbconvert_exporter": "python",
-   "pygments_lexer": "ipython3",
-   "version": "3.11.4"
   }
  },
  "nbformat": 4,

@@ -43,32 +43,6 @@ pd.set_option("display.width", 120)
 
 # Data Analytics Foundations
 
-## The complete pandas workflow for Data Visualization
-
-- [Chapter 5: Getting Started with pandas](https://wesmckinney.com/book/pandas-basics)
-- [Chapter 7: Data Cleaning and Preparation](https://wesmckinney.com/book/data-cleaning)
-- [Chapter 8: Data Wrangling](https://wesmckinney.com/book/data-wrangling)
-- [Chapter 9: Plotting and Visualization](https://wesmckinney.com/book/plotting-and-visualization)
-- [Chapter 10: Data Aggregation and Group Operations](https://wesmckinney.com/book/data-aggregation)
-
-::: {.notes}
-Apresente o módulo como um fluxo analítico completo. A ordem pedagógica difere da ordem numérica: primeiro compreender, preparar e estruturar; depois analisar e comunicar. Todos os dados são sintéticos. Tempo sugerido: 2 min.
-
-1. **Chapter 5:** Understand
-2. **Chapter 7:** Prepare
-3. **Chapter 8:** Structure
-
-**Output:** validated, tidy, analysis-ready data.
-
-4. **Chapter 10:** Analyze
-5. **Chapter 9:** Communicate
-
-**Output:** validated summaries and defensible graphics.
-
-RAW DATA → INSPECT → CLEAN → COMBINE → RESHAPE → GROUP → SUMMARIZE → VISUALIZE → INTERPRET
-
-:::
-
 ## Learning objectives
 
 By the end of the module, students will be able to:
@@ -1164,7 +1138,13 @@ The operation preserves primary values and uses backup values only where the pri
 Exija uma política de fonte e uma flag de proveniência em aplicações reais. Tempo: 3 min.
 :::
 
-## Class 1 integrated pipeline
+# Data Aggregation and Group Operations
+
+## Split–apply–combine
+
+1. **Split** rows using one or more keys.
+2. **Apply** an aggregation, transformation, filter, or custom operation.
+3. **Combine** the results into a pandas object.
 
 ```{python}
 working = raw.assign(
@@ -1177,15 +1157,6 @@ working = raw.assign(
         errors="coerce"
     )
 ).drop_duplicates()
-```
-
-::: {.notes}
-A primeira parte corrige estrutura e tipos, sem ainda remover falhas. Tempo: 2 min.
-:::
-
-## Preserve an audit trail
-
-```{python}
 working = working.assign(
     invalid_date=working["date"].isna(),
     missing_price=working["price"].isna(),
@@ -1197,15 +1168,6 @@ rejected = working.loc[
 valid = working.loc[
     ~working[["invalid_date", "nonpositive_price"]].any(axis=1)
 ].copy()
-```
-
-::: {.notes}
-Separar rejeitados mantém rastreabilidade. Preço ausente não é rejeitado automaticamente. Tempo: 2 min.
-:::
-
-## Complete and validate Class 1 output
-
-```{python}
 valid["price_imputed"] = valid["price"].isna()
 valid["price"] = valid.groupby("instrument")["price"].transform(
     lambda s: s.fillna(s.median())
@@ -1218,47 +1180,6 @@ chart_ready = analysis_data.loc[analysis_data["_merge"].eq("both")].drop(columns
 assert chart_ready[["date", "instrument", "price", "price_unit"]].notna().all().all()
 assert metadata["instrument"].is_unique
 chart_ready.head(2)
-```
-
-::: {.notes}
-A mediana por instrumento é uma hipótese didática. A saída é validada, tidy e pronta para análise. Tempo: 3 min.
-:::
-
-<!-- ## End of Class 1 -->
-
-<!-- ### Deliverable -->
-
-<!-- > A validated, tidy, analysis-ready dataset with explicit units, keys, and quality flags. -->
-
-<!-- ### Exit ticket -->
-
-<!-- - What is one assumption in the pipeline? -->
-<!-- - Which assertion protects a key relationship? -->
-<!-- - Which records are absent from `chart_ready`, and why? -->
-
-<!-- ::: {.notes} -->
-<!-- Use como fechamento da primeira aula e ponte para a segunda. Tempo: 4 min. -->
-<!-- ::: -->
-
-<!-- # Class 2 -->
-
-<!-- ## From analysis-ready data to visual evidence -->
-
-<!-- **Chapter 10 → Chapter 9** -->
-
-<!-- ::: {.notes} -->
-<!-- Relembre a tabela chart_ready e a unidade de observação. Tempo: 1 min. -->
-<!-- ::: -->
-
-# Data Aggregation and Group Operations
-
-## Split–apply–combine
-
-1. **Split** rows using one or more keys.
-2. **Apply** an aggregation, transformation, filter, or custom operation.
-3. **Combine** the results into a pandas object.
-
-```{python}
 grouped = chart_ready.groupby("instrument")
 type(grouped).__name__
 ```
@@ -1407,20 +1328,6 @@ check
 ::: {.notes}
 Valide denominadores, cobertura e forma do resultado. Tempo: 2 min.
 :::
-
-<!-- ## Checkpoint 3 -->
-
-<!-- Choose the most specific operation: -->
-
-<!-- 1. one mean per instrument; -->
-<!-- 2. subtract each instrument's own mean from every row; -->
-<!-- 3. retain instruments with sufficient coverage; -->
-<!-- 4. obtain two rows with highest volume per group; -->
-<!-- 5. create several named summaries. -->
-
-<!-- ::: {.notes} -->
-<!-- Respostas: agg, transform, filter, apply, agg. Tempo: 3 min. -->
-<!-- ::: -->
 
 
 ## Inspecting groups directly
@@ -1899,22 +1806,3 @@ Diferencie quantile bins por instrumento de limites absolutos de volume. Tempo: 
 Diferencie referência conceitual, código didático e dados sintéticos. Tempo: 1 min.
 :::
 
-<!-- # Appendix {.unnumbered} -->
-
-<!-- ## Optional: save a publication-ready figure -->
-
-<!-- ```{python} -->
-<!-- fig, ax = plt.subplots(figsize=(8, 4.5)) -->
-<!-- sns.lineplot(data=weekly, x="week", y="mean_return", -->
-<!--              hue="instrument", marker="o", ax=ax) -->
-<!-- ax.axhline(0, color="0.35", linewidth=1) -->
-<!-- ax.set(title="Weekly mean daily return in synthetic data", -->
-<!--        xlabel="Week", ylabel="Mean daily return (%)") -->
-<!-- fig.tight_layout() -->
-<!-- fig.savefig("weekly_returns_synthetic.png", dpi=160, bbox_inches="tight") -->
-<!-- plt.close(fig) -->
-<!-- ``` -->
-
-<!-- ::: {.notes} -->
-<!-- Slide de backup. Explique dpi e bbox_inches. Tempo: 2 min. -->
-<!-- ::: -->

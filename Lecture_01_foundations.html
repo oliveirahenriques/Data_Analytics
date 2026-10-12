@@ -218,41 +218,6 @@ Victor Henriques, Ph.D.
 <h1>Data Analytics Foundations</h1>
 
 </section>
-<section id="the-complete-pandas-workflow-for-data-visualization" class="slide level2">
-<h2>The complete pandas workflow for Data Visualization</h2>
-<ul>
-<li><a href="https://wesmckinney.com/book/pandas-basics">Chapter 5: Getting Started with pandas</a></li>
-<li><a href="https://wesmckinney.com/book/data-cleaning">Chapter 7: Data Cleaning and Preparation</a></li>
-<li><a href="https://wesmckinney.com/book/data-wrangling">Chapter 8: Data Wrangling</a></li>
-<li><a href="https://wesmckinney.com/book/plotting-and-visualization">Chapter 9: Plotting and Visualization</a></li>
-<li><a href="https://wesmckinney.com/book/data-aggregation">Chapter 10: Data Aggregation and Group Operations</a></li>
-</ul>
-<aside class="notes">
-<p>Apresente o módulo como um fluxo analítico completo. A ordem pedagógica difere da ordem numérica: primeiro compreender, preparar e estruturar; depois analisar e comunicar. Todos os dados são sintéticos. Tempo sugerido: 2 min.</p>
-<ol type="1">
-<li><strong>Chapter 5:</strong> Understand</li>
-<li><strong>Chapter 7:</strong> Prepare</li>
-<li><strong>Chapter 8:</strong> Structure</li>
-</ol>
-<p><strong>Output:</strong> validated, tidy, analysis-ready data.</p>
-<ol start="4" type="1">
-<li><strong>Chapter 10:</strong> Analyze</li>
-<li><strong>Chapter 9:</strong> Communicate</li>
-</ol>
-<p><strong>Output:</strong> validated summaries and defensible graphics.</p>
-<p>RAW DATA → INSPECT → CLEAN → COMBINE → RESHAPE → GROUP → SUMMARIZE → VISUALIZE → INTERPRET</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
 <section id="learning-objectives" class="slide level2">
 <h2>Learning objectives</h2>
 <p>By the end of the module, students will be able to:</p>
@@ -281,7 +246,7 @@ Victor Henriques, Ph.D.
 </section>
 <section id="synthetic-market-data" class="slide level2">
 <h2>Synthetic market data</h2>
-<div id="a5419361" class="cell" data-execution_count="2">
+<div id="03c75836" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href=""></a>raw <span class="op">=</span> pd.DataFrame({</span>
@@ -306,7 +271,7 @@ Victor Henriques, Ph.D.
 <span id="cb1-20"><a href=""></a>})</span>
 <span id="cb1-21"><a href=""></a>raw.head()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="2">
+<div class="cell-output cell-output-display" data-execution_count="458">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -462,9 +427,9 @@ Victor Henriques, Ph.D.
 </section>
 <section id="series-values-plus-labels" class="slide level2">
 <h2><code>Series</code>: values plus labels</h2>
-<div id="09e46370" class="cell" data-execution_count="3">
+<div id="39930894" class="cell" data-execution_count="3">
 <details class="code-fold">
-<summary>Mostrar código</summary>
+<summary>show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href=""></a>latest <span class="op">=</span> pd.Series(</span>
 <span id="cb2-2"><a href=""></a>    [<span class="fl">77.4</span>, <span class="fl">73.5</span>, <span class="fl">50.6</span>],</span>
 <span id="cb2-3"><a href=""></a>    index<span class="op">=</span>[<span class="st">"BRENT"</span>, <span class="st">"WTI"</span>, <span class="st">"TTF"</span>],</span>
@@ -472,19 +437,19 @@ Victor Henriques, Ph.D.
 <span id="cb2-5"><a href=""></a>)</span>
 <span id="cb2-6"><a href=""></a>latest</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="3">
+<div class="cell-output cell-output-display" data-execution_count="459">
 <pre><code>BRENT    77.4
 WTI      73.5
 TTF      50.6
 Name: price, dtype: float64</code></pre>
 </div>
 </div>
-<div id="239bc376" class="cell" data-execution_count="4">
+<div id="75c59a69" class="cell" data-execution_count="4">
 <details class="code-fold">
-<summary>Mostrar código</summary>
+<summary>show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href=""></a>latest.loc[[<span class="st">"BRENT"</span>, <span class="st">"TTF"</span>]]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="4">
+<div class="cell-output cell-output-display" data-execution_count="460">
 <pre><code>BRENT    77.4
 TTF      50.6
 Name: price, dtype: float64</code></pre>
@@ -506,16 +471,16 @@ Name: price, dtype: float64</code></pre>
 </section>
 <section id="label-alignment-protects-meaning" class="slide level2">
 <h2>Label alignment protects meaning</h2>
-<div id="866f5504" class="cell" data-execution_count="5">
+<div id="60353009" class="cell" data-execution_count="5">
 <details class="code-fold">
-<summary>Mostrar código</summary>
+<summary>show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href=""></a>previous <span class="op">=</span> pd.Series(</span>
 <span id="cb6-2"><a href=""></a>    [<span class="fl">49.8</span>, <span class="fl">76.6</span>, <span class="fl">72.7</span>],</span>
 <span id="cb6-3"><a href=""></a>    index<span class="op">=</span>[<span class="st">"TTF"</span>, <span class="st">"BRENT"</span>, <span class="st">"WTI"</span>]</span>
 <span id="cb6-4"><a href=""></a>)</span>
 <span id="cb6-5"><a href=""></a>(latest <span class="op">-</span> previous).<span class="bu">round</span>(<span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="5">
+<div class="cell-output cell-output-display" data-execution_count="461">
 <pre><code>BRENT    0.8
 TTF      0.8
 WTI      0.8
@@ -539,13 +504,13 @@ dtype: float64</code></pre>
 </section>
 <section id="missing-labels-create-missing-results" class="slide level2">
 <h2>Missing labels create missing results</h2>
-<div id="d1cf26be" class="cell" data-execution_count="6">
+<div id="fda2c446" class="cell" data-execution_count="6">
 <details class="code-fold">
-<summary>Mostrar código</summary>
+<summary>show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href=""></a>partial <span class="op">=</span> pd.Series({<span class="st">"BRENT"</span>: <span class="fl">76.6</span>, <span class="st">"WTI"</span>: <span class="fl">72.7</span>, <span class="st">"HENRY"</span>: <span class="fl">3.2</span>})</span>
 <span id="cb8-2"><a href=""></a>latest <span class="op">-</span> partial</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="6">
+<div class="cell-output cell-output-display" data-execution_count="462">
 <pre><code>BRENT    0.8
 HENRY    NaN
 TTF      NaN
@@ -571,16 +536,16 @@ dtype: float64</code></pre>
 </section>
 <section id="dataframe-labeled-tabular-structure" class="slide level2">
 <h2><code>DataFrame</code>: labeled tabular structure</h2>
-<div id="0b6ee269" class="cell" data-execution_count="7">
+<div id="b5fa6824" class="cell" data-execution_count="7">
 <details class="code-fold">
-<summary>Mostrar código</summary>
+<summary>show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href=""></a>snapshot <span class="op">=</span> pd.DataFrame({</span>
 <span id="cb10-2"><a href=""></a>    <span class="st">"price"</span>: latest,</span>
 <span id="cb10-3"><a href=""></a>    <span class="st">"volume"</span>: pd.Series({<span class="st">"BRENT"</span>: <span class="dv">120</span>, <span class="st">"WTI"</span>: <span class="dv">98</span>, <span class="st">"TTF"</span>: <span class="dv">84</span>})</span>
 <span id="cb10-4"><a href=""></a>})</span>
 <span id="cb10-5"><a href=""></a>snapshot</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="7">
+<div class="cell-output cell-output-display" data-execution_count="463">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -651,12 +616,12 @@ dtype: float64</code></pre>
 <h2>Inspect before transforming</h2>
 <div class="columns">
 <div class="column" style="width:50%;">
-<div id="2f4cf029" class="cell" data-execution_count="8">
+<div id="498c2d8c" class="cell" data-execution_count="8">
 <details class="code-fold">
-<summary>Mostrar código</summary>
+<summary>show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href=""></a>raw.head(<span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="8">
+<div class="cell-output cell-output-display" data-execution_count="464">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -718,21 +683,21 @@ dtype: float64</code></pre>
 </div>
 </div>
 </div>
-<div id="8e01c4fd" class="cell" data-execution_count="9">
+<div id="2d71d108" class="cell" data-execution_count="9">
 <details class="code-fold">
-<summary>Mostrar código</summary>
+<summary>show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href=""></a>raw.shape</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="9">
+<div class="cell-output cell-output-display" data-execution_count="465">
 <pre><code>(12, 6)</code></pre>
 </div>
 </div>
-<div id="4c9f1c25" class="cell" data-execution_count="10">
+<div id="c2fe7a1f" class="cell" data-execution_count="10">
 <details class="code-fold">
-<summary>Mostrar código</summary>
+<summary>show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href=""></a>raw.dtypes</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="10">
+<div class="cell-output cell-output-display" data-execution_count="466">
 <pre><code>date              str
 instrument        str
 market            str
@@ -743,12 +708,12 @@ dtype: object</code></pre>
 </div>
 </div>
 </div><div class="column" style="width:50%;">
-<div id="f8d094a3" class="cell" data-execution_count="11">
+<div id="2db89836" class="cell" data-execution_count="11">
 <details class="code-fold">
-<summary>Mostrar código</summary>
+<summary>show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href=""></a>raw.tail(<span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="11">
+<div class="cell-output cell-output-display" data-execution_count="467">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -810,9 +775,9 @@ dtype: object</code></pre>
 </div>
 </div>
 </div>
-<div id="5761d104" class="cell" data-execution_count="12">
+<div id="2b97b3ef" class="cell" data-execution_count="12">
 <details class="code-fold">
-<summary>Mostrar código</summary>
+<summary>show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href=""></a>raw.info()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
@@ -850,12 +815,12 @@ memory usage: 708.0 bytes</code></pre>
 <h2>Select by label and position</h2>
 <div class="columns">
 <div class="column" style="width:50%;">
-<div id="6f9dc52c" class="cell" data-execution_count="13">
+<div id="e5efc59d" class="cell" data-execution_count="13">
 <details class="code-fold">
-<summary>Mostrar código</summary>
+<summary>show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href=""></a>raw.loc[<span class="dv">0</span>:<span class="dv">2</span>, [<span class="st">"instrument"</span>, <span class="st">"price"</span>]]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="13">
+<div class="cell-output cell-output-display" data-execution_count="469">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -903,12 +868,12 @@ memory usage: 708.0 bytes</code></pre>
 </div>
 <p><code>loc</code> uses labels and includes the endpoint.</p>
 </div><div class="column" style="width:50%;">
-<div id="cdf4a075" class="cell" data-execution_count="14">
+<div id="c077c150" class="cell" data-execution_count="14">
 <details class="code-fold">
-<summary>Mostrar código</summary>
+<summary>show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href=""></a>raw.iloc[<span class="dv">0</span>:<span class="dv">3</span>, [<span class="dv">1</span>, <span class="dv">3</span>]]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="14">
+<div class="cell-output cell-output-display" data-execution_count="470">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -972,16 +937,16 @@ memory usage: 708.0 bytes</code></pre>
 </section>
 <section id="boolean-filtering-and-explicit-copies" class="slide level2">
 <h2>Boolean filtering and explicit copies</h2>
-<div id="59d17c6a" class="cell" data-execution_count="15">
+<div id="014c71f2" class="cell" data-execution_count="15">
 <details class="code-fold">
-<summary>Mostrar código</summary>
+<summary>show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href=""></a>oil <span class="op">=</span> raw.loc[</span>
 <span id="cb21-2"><a href=""></a>    raw[<span class="st">"market"</span>].<span class="bu">str</span>.strip().<span class="bu">str</span>.casefold().eq(<span class="st">"oil"</span>),</span>
 <span id="cb21-3"><a href=""></a>    [<span class="st">"date"</span>, <span class="st">"instrument"</span>, <span class="st">"price"</span>, <span class="st">"volume"</span>]</span>
 <span id="cb21-4"><a href=""></a>].copy()</span>
 <span id="cb21-5"><a href=""></a>oil.head()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="15">
+<div class="cell-output cell-output-display" data-execution_count="471">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -1092,15 +1057,15 @@ memory usage: 708.0 bytes</code></pre>
 <h2>Constructing Series and DataFrames</h2>
 <div class="columns">
 <div class="column" style="width:50%;">
-<div id="f0172c0a" class="cell" data-execution_count="16">
+<div id="c5c20a92" class="cell" data-execution_count="16">
 <details class="code-fold">
-<summary>Mostrar código</summary>
+<summary>show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href=""></a>series_from_dict <span class="op">=</span> pd.Series({</span>
 <span id="cb22-2"><a href=""></a>    <span class="st">"BRENT"</span>: <span class="fl">77.4</span>, <span class="st">"WTI"</span>: <span class="fl">73.5</span>, <span class="st">"TTF"</span>: <span class="fl">50.6</span></span>
 <span id="cb22-3"><a href=""></a>}, name<span class="op">=</span><span class="st">"price"</span>)</span>
 <span id="cb22-4"><a href=""></a>series_from_dict</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="16">
+<div class="cell-output cell-output-display" data-execution_count="472">
 <pre><code>BRENT    77.4
 WTI      73.5
 TTF      50.6
@@ -1108,16 +1073,16 @@ Name: price, dtype: float64</code></pre>
 </div>
 </div>
 </div><div class="column" style="width:50%;">
-<div id="13be5996" class="cell" data-execution_count="17">
+<div id="c1c94b9f" class="cell" data-execution_count="17">
 <details class="code-fold">
-<summary>Mostrar código</summary>
+<summary>show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href=""></a>frame_from_records <span class="op">=</span> pd.DataFrame([</span>
 <span id="cb24-2"><a href=""></a>    {<span class="st">"instrument"</span>: <span class="st">"BRENT"</span>, <span class="st">"price"</span>: <span class="fl">77.4</span>},</span>
 <span id="cb24-3"><a href=""></a>    {<span class="st">"instrument"</span>: <span class="st">"WTI"</span>, <span class="st">"price"</span>: <span class="fl">73.5</span>}</span>
 <span id="cb24-4"><a href=""></a>])</span>
 <span id="cb24-5"><a href=""></a>frame_from_records</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="17">
+<div class="cell-output cell-output-display" data-execution_count="473">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -1176,9 +1141,9 @@ Name: price, dtype: float64</code></pre>
 </section>
 <section id="index-objects-are-structural-metadata" class="slide level2">
 <h2>Index objects are structural metadata</h2>
-<div id="eed3121d" class="cell" data-execution_count="18">
+<div id="56011290" class="cell" data-execution_count="18">
 <details class="code-fold">
-<summary>Mostrar código</summary>
+<summary>show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href=""></a>idx <span class="op">=</span> pd.Index([<span class="st">"BRENT"</span>, <span class="st">"WTI"</span>, <span class="st">"TTF"</span>], name<span class="op">=</span><span class="st">"instrument"</span>)</span>
 <span id="cb25-2"><a href=""></a><span class="bu">print</span>(<span class="st">"unique:"</span>, idx.is_unique)</span>
 <span id="cb25-3"><a href=""></a><span class="bu">print</span>(<span class="st">"membership:"</span>, idx.isin([<span class="st">"BRENT"</span>, <span class="st">"TTF"</span>]))</span>
@@ -1212,13 +1177,13 @@ union: ['BRENT', 'HENRY', 'TTF', 'WTI']</code></pre>
 </section>
 <section id="reindexing-is-alignment-to-a-target-structure" class="slide level2">
 <h2>Reindexing is alignment to a target structure</h2>
-<div id="5d72a2e5" class="cell" data-execution_count="19">
+<div id="2b5a648b" class="cell" data-execution_count="19">
 <details class="code-fold">
-<summary>Mostrar código</summary>
+<summary>show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href=""></a>target <span class="op">=</span> [<span class="st">"TTF"</span>, <span class="st">"BRENT"</span>, <span class="st">"WTI"</span>, <span class="st">"HENRY"</span>]</span>
 <span id="cb27-2"><a href=""></a>latest.reindex(target)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="19">
+<div class="cell-output cell-output-display" data-execution_count="475">
 <pre><code>TTF      50.6
 BRENT    77.4
 WTI      73.5
@@ -1226,12 +1191,12 @@ HENRY     NaN
 Name: price, dtype: float64</code></pre>
 </div>
 </div>
-<div id="de2a71b8" class="cell" data-execution_count="20">
+<div id="68c688b1" class="cell" data-execution_count="20">
 <details class="code-fold">
-<summary>Mostrar código</summary>
+<summary>show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href=""></a>latest.reindex(target, fill_value<span class="op">=</span><span class="dv">0</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="20">
+<div class="cell-output cell-output-display" data-execution_count="476">
 <pre><code>TTF      50.6
 BRENT    77.4
 WTI      73.5
@@ -1269,12 +1234,12 @@ Name: price, dtype: float64</code></pre>
 </section>
 <section id="dropping-labels-does-not-validate-them" class="slide level2">
 <h2>Dropping labels does not validate them</h2>
-<div id="7f724dc7" class="cell" data-execution_count="21">
+<div id="ca29cea5" class="cell" data-execution_count="21">
 <details class="code-fold">
-<summary>Mostrar código</summary>
+<summary>show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href=""></a>snapshot.drop(index<span class="op">=</span><span class="st">"TTF"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="21">
+<div class="cell-output cell-output-display" data-execution_count="477">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -1315,12 +1280,12 @@ Name: price, dtype: float64</code></pre>
 </div>
 </div>
 </div>
-<div id="7bbecd3f" class="cell" data-execution_count="22">
+<div id="17b342fc" class="cell" data-execution_count="22">
 <details class="code-fold">
-<summary>Mostrar código</summary>
+<summary>show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href=""></a>snapshot.drop(columns<span class="op">=</span><span class="st">"volume"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="22">
+<div class="cell-output cell-output-display" data-execution_count="478">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -1381,12 +1346,12 @@ Name: price, dtype: float64</code></pre>
 <h2>Selection syntax and output dimensionality</h2>
 <div class="columns">
 <div class="column" style="width:50%;">
-<div id="a9c21fe6" class="cell" data-execution_count="23">
+<div id="5cc72302" class="cell" data-execution_count="23">
 <details class="code-fold">
-<summary>Mostrar código</summary>
+<summary>show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href=""></a>snapshot[<span class="st">"price"</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="23">
+<div class="cell-output cell-output-display" data-execution_count="479">
 <pre><code>BRENT    77.4
 WTI      73.5
 TTF      50.6
@@ -1395,12 +1360,12 @@ Name: price, dtype: float64</code></pre>
 </div>
 <p>A <code>Series</code>: one-dimensional.</p>
 </div><div class="column" style="width:50%;">
-<div id="71c75c5c" class="cell" data-execution_count="24">
+<div id="c5e24f93" class="cell" data-execution_count="24">
 <details class="code-fold">
-<summary>Mostrar código</summary>
+<summary>show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href=""></a>snapshot[[<span class="st">"price"</span>]]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="24">
+<div class="cell-output cell-output-display" data-execution_count="480">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -1461,9 +1426,9 @@ Name: price, dtype: float64</code></pre>
 </section>
 <section id="integer-labels-are-not-positions" class="slide level2">
 <h2>Integer labels are not positions</h2>
-<div id="4f008fe3" class="cell" data-execution_count="25">
+<div id="aa3a0c77" class="cell" data-execution_count="25">
 <details class="code-fold">
-<summary>Mostrar código</summary>
+<summary>show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href=""></a>integer_indexed <span class="op">=</span> pd.Series([<span class="fl">76.4</span>, <span class="fl">72.1</span>, <span class="fl">48.2</span>], index<span class="op">=</span>[<span class="dv">10</span>, <span class="dv">20</span>, <span class="dv">30</span>])</span>
 <span id="cb36-2"><a href=""></a><span class="bu">print</span>(<span class="st">"label 10:"</span>, integer_indexed.loc[<span class="dv">10</span>])</span>
 <span id="cb36-3"><a href=""></a><span class="bu">print</span>(<span class="st">"position 0:"</span>, integer_indexed.iloc[<span class="dv">0</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -1490,9 +1455,9 @@ position 0: 76.4</code></pre>
 </section>
 <section id="arithmetic-aligns-both-axes" class="slide level2">
 <h2>Arithmetic aligns both axes</h2>
-<div id="0e1ec1c4" class="cell" data-execution_count="26">
+<div id="cce67f97" class="cell" data-execution_count="26">
 <details class="code-fold">
-<summary>Mostrar código</summary>
+<summary>show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href=""></a>left <span class="op">=</span> pd.DataFrame(</span>
 <span id="cb38-2"><a href=""></a>    {<span class="st">"BRENT"</span>: [<span class="fl">76.0</span>, <span class="fl">77.0</span>], <span class="st">"WTI"</span>: [<span class="fl">72.0</span>, <span class="fl">73.0</span>]},</span>
 <span id="cb38-3"><a href=""></a>    index<span class="op">=</span>[<span class="st">"day_1"</span>, <span class="st">"day_2"</span>]</span>
@@ -1503,7 +1468,7 @@ position 0: 76.4</code></pre>
 <span id="cb38-8"><a href=""></a>)</span>
 <span id="cb38-9"><a href=""></a>left <span class="op">-</span> right</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="26">
+<div class="cell-output cell-output-display" data-execution_count="482">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -1570,12 +1535,12 @@ position 0: 76.4</code></pre>
 </section>
 <section id="arithmetic-with-fill-values" class="slide level2">
 <h2>Arithmetic with fill values</h2>
-<div id="8268a6ac" class="cell" data-execution_count="27">
+<div id="e0c5d356" class="cell" data-execution_count="27">
 <details class="code-fold">
-<summary>Mostrar código</summary>
+<summary>show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href=""></a>left.add(right, fill_value<span class="op">=</span><span class="dv">0</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="27">
+<div class="cell-output cell-output-display" data-execution_count="483">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -1643,25 +1608,25 @@ position 0: 76.4</code></pre>
 </section>
 <section id="function-application-and-elementwise-mapping" class="slide level2">
 <h2>Function application and elementwise mapping</h2>
-<div id="cbebbdac" class="cell" data-execution_count="28">
+<div id="0fb44ef0" class="cell" data-execution_count="28">
 <details class="code-fold">
-<summary>Mostrar código</summary>
+<summary>show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href=""></a>numeric_frame <span class="op">=</span> snapshot.loc[:, [<span class="st">"price"</span>, <span class="st">"volume"</span>]]</span>
 <span id="cb40-2"><a href=""></a>range_by_column <span class="op">=</span> numeric_frame.<span class="bu">apply</span>(<span class="kw">lambda</span> s: s.<span class="bu">max</span>() <span class="op">-</span> s.<span class="bu">min</span>())</span>
 <span id="cb40-3"><a href=""></a>range_by_column</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="28">
+<div class="cell-output cell-output-display" data-execution_count="484">
 <pre><code>price     26.8
 volume    36.0
 dtype: float64</code></pre>
 </div>
 </div>
-<div id="e77f1647" class="cell" data-execution_count="29">
+<div id="e2574166" class="cell" data-execution_count="29">
 <details class="code-fold">
-<summary>Mostrar código</summary>
+<summary>show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb42"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href=""></a>numeric_frame.<span class="bu">map</span>(<span class="kw">lambda</span> x: <span class="ss">f"</span><span class="sc">{</span>x<span class="sc">:.1f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="29">
+<div class="cell-output cell-output-display" data-execution_count="485">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -1728,9 +1693,9 @@ dtype: float64</code></pre>
 </section>
 <section id="sorting-data-versus-ranking-values" class="slide level2">
 <h2>Sorting data versus ranking values</h2>
-<div id="56be4116" class="cell" data-execution_count="30">
+<div id="04cfe067" class="cell" data-execution_count="30">
 <details class="code-fold">
-<summary>Mostrar código</summary>
+<summary>show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb43"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a href=""></a><span class="bu">print</span>(latest.sort_values(ascending<span class="op">=</span><span class="va">False</span>))</span>
 <span id="cb43-2"><a href=""></a><span class="bu">print</span>(latest.rank(ascending<span class="op">=</span><span class="va">False</span>, method<span class="op">=</span><span class="st">"dense"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
@@ -1762,9 +1727,9 @@ Name: price, dtype: float64</code></pre>
 </section>
 <section id="duplicate-labels-change-selection-behavior" class="slide level2">
 <h2>Duplicate labels change selection behavior</h2>
-<div id="4a1641b1" class="cell" data-execution_count="31">
+<div id="574b2384" class="cell" data-execution_count="31">
 <details class="code-fold">
-<summary>Mostrar código</summary>
+<summary>show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb45-1"><a href=""></a>duplicate_index <span class="op">=</span> pd.Series(</span>
 <span id="cb45-2"><a href=""></a>    [<span class="fl">76.4</span>, <span class="fl">76.7</span>, <span class="fl">72.1</span>], index<span class="op">=</span>[<span class="st">"BRENT"</span>, <span class="st">"BRENT"</span>, <span class="st">"WTI"</span>]</span>
 <span id="cb45-3"><a href=""></a>)</span>
@@ -1774,7 +1739,7 @@ Name: price, dtype: float64</code></pre>
 <div class="cell-output cell-output-stdout">
 <pre><code>is unique: False</code></pre>
 </div>
-<div class="cell-output cell-output-display" data-execution_count="31">
+<div class="cell-output cell-output-display" data-execution_count="487">
 <pre><code>BRENT    76.4
 BRENT    76.7
 dtype: float64</code></pre>
@@ -1797,9 +1762,9 @@ dtype: float64</code></pre>
 </section>
 <section id="reductions-and-missing-data-defaults" class="slide level2">
 <h2>Reductions and missing-data defaults</h2>
-<div id="8ef1f67e" class="cell" data-execution_count="32">
+<div id="237d841f" class="cell" data-execution_count="32">
 <details class="code-fold">
-<summary>Mostrar código</summary>
+<summary>show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb48"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb48-1"><a href=""></a>summary_demo <span class="op">=</span> pd.DataFrame({</span>
 <span id="cb48-2"><a href=""></a>    <span class="st">"price"</span>: [<span class="fl">76.4</span>, np.nan, <span class="fl">72.1</span>],</span>
 <span id="cb48-3"><a href=""></a>    <span class="st">"volume"</span>: [<span class="dv">120</span>, <span class="dv">98</span>, np.nan]</span>
@@ -1837,9 +1802,9 @@ dtype: float64</code></pre>
 </section>
 <section id="unique-values-frequencies-and-membership" class="slide level2">
 <h2>Unique values, frequencies, and membership</h2>
-<div id="80f8da9f" class="cell" data-execution_count="33">
+<div id="4043c0e6" class="cell" data-execution_count="33">
 <details class="code-fold">
-<summary>Mostrar código</summary>
+<summary>show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb50"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb50-1"><a href=""></a>labels_demo <span class="op">=</span> pd.Series([<span class="st">"Oil"</span>, <span class="st">"Gas"</span>, <span class="st">"Oil"</span>, <span class="va">None</span>, <span class="st">"oil"</span>])</span>
 <span id="cb50-2"><a href=""></a><span class="bu">print</span>(labels_demo.unique())</span>
 <span id="cb50-3"><a href=""></a><span class="bu">print</span>(labels_demo.value_counts(dropna<span class="op">=</span><span class="va">False</span>))</span>
@@ -1936,9 +1901,9 @@ dtype: bool</code></pre>
 </section>
 <section id="diagnose-quality" class="slide level2">
 <h2>Diagnose quality</h2>
-<div id="368ac28c" class="cell" data-execution_count="34">
+<div id="c69b1f84" class="cell" data-execution_count="34">
 <details class="code-fold">
-<summary>Mostrar código</summary>
+<summary>show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb52"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb52-1"><a href=""></a>quality <span class="op">=</span> pd.DataFrame({</span>
 <span id="cb52-2"><a href=""></a>    <span class="st">"dtype"</span>: raw.dtypes.astype(<span class="bu">str</span>),</span>
 <span id="cb52-3"><a href=""></a>    <span class="st">"missing"</span>: raw.isna().<span class="bu">sum</span>(),</span>
@@ -1946,7 +1911,7 @@ dtype: bool</code></pre>
 <span id="cb52-5"><a href=""></a>})</span>
 <span id="cb52-6"><a href=""></a>quality</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="34">
+<div class="cell-output cell-output-display" data-execution_count="490">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -2014,9 +1979,9 @@ dtype: bool</code></pre>
 </div>
 </div>
 </div>
-<div id="2e54b9b9" class="cell" data-execution_count="35">
+<div id="7d207464" class="cell" data-execution_count="35">
 <details class="code-fold">
-<summary>Mostrar código</summary>
+<summary>show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb53"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb53-1"><a href=""></a><span class="bu">print</span>(<span class="st">"exact duplicates:"</span>, raw.duplicated().<span class="bu">sum</span>())</span>
 <span id="cb53-2"><a href=""></a><span class="bu">print</span>(raw[<span class="st">"instrument"</span>].unique().tolist())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
@@ -2041,13 +2006,13 @@ dtype: bool</code></pre>
 </section>
 <section id="missingness-is-data" class="slide level2">
 <h2>Missingness is data</h2>
-<div id="f91c1cf3" class="cell" data-execution_count="36">
+<div id="04677543" class="cell" data-execution_count="36">
 <details class="code-fold">
-<summary>Mostrar código</summary>
+<summary>show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb55"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb55-1"><a href=""></a>missing <span class="op">=</span> raw.isna()</span>
 <span id="cb55-2"><a href=""></a>missing.<span class="bu">sum</span>().sort_values(ascending<span class="op">=</span><span class="va">False</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="36">
+<div class="cell-output cell-output-display" data-execution_count="492">
 <pre><code>price         2
 volume        1
 instrument    0
@@ -2057,9 +2022,9 @@ currency      0
 dtype: int64</code></pre>
 </div>
 </div>
-<div id="f729d81e" class="cell" data-fig-height="4.5" data-fig-width="9" data-execution_count="37">
+<div id="1f041ad3" class="cell" data-fig-height="4.5" data-fig-width="9" data-execution_count="37">
 <details class="code-fold">
-<summary>Mostrar código</summary>
+<summary>show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb57"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb57-1"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
 <span id="cb57-2"><a href=""></a>sns.heatmap(missing.T, cbar<span class="op">=</span><span class="va">False</span>,</span>
 <span id="cb57-3"><a href=""></a>            cmap<span class="op">=</span>[<span class="st">"#F2F2F2"</span>, <span class="st">"#D55E00"</span>], ax<span class="op">=</span>ax)</span>
@@ -2093,25 +2058,25 @@ dtype: int64</code></pre>
 <h2>Drop, fill, or retain?</h2>
 <div class="columns">
 <div class="column" style="width:50%;">
-<div id="1b456001" class="cell" data-execution_count="38">
+<div id="c9f80e84" class="cell" data-execution_count="38">
 <details class="code-fold">
-<summary>Mostrar código</summary>
+<summary>show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb58"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb58-1"><a href=""></a>raw.dropna(subset<span class="op">=</span>[<span class="st">"price"</span>]).shape</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="38">
+<div class="cell-output cell-output-display" data-execution_count="494">
 <pre><code>(10, 6)</code></pre>
 </div>
 </div>
 <p>Removal discards other observed information.</p>
 </div><div class="column" style="width:50%;">
-<div id="abf14385" class="cell" data-execution_count="39">
+<div id="9347be57" class="cell" data-execution_count="39">
 <details class="code-fold">
-<summary>Mostrar código</summary>
+<summary>show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb60"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb60-1"><a href=""></a>raw.assign(</span>
 <span id="cb60-2"><a href=""></a>    volume<span class="op">=</span>raw[<span class="st">"volume"</span>].fillna(raw[<span class="st">"volume"</span>].median())</span>
 <span id="cb60-3"><a href=""></a>).loc[raw[<span class="st">"volume"</span>].isna()]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="39">
+<div class="cell-output cell-output-display" data-execution_count="495">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -2173,9 +2138,9 @@ dtype: int64</code></pre>
 </section>
 <section id="parse-types-and-expose-failures" class="slide level2">
 <h2>Parse types and expose failures</h2>
-<div id="9f9866c4" class="cell" data-execution_count="40">
+<div id="eb6c8727" class="cell" data-execution_count="40">
 <details class="code-fold">
-<summary>Mostrar código</summary>
+<summary>show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb61"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb61-1"><a href=""></a>parsed <span class="op">=</span> raw.assign(</span>
 <span id="cb61-2"><a href=""></a>    date_parsed<span class="op">=</span>pd.to_datetime(</span>
 <span id="cb61-3"><a href=""></a>        raw[<span class="st">"date"</span>], errors<span class="op">=</span><span class="st">"coerce"</span>, <span class="bu">format</span><span class="op">=</span><span class="st">"mixed"</span>, dayfirst<span class="op">=</span><span class="va">True</span></span>
@@ -2187,7 +2152,7 @@ dtype: int64</code></pre>
 <span id="cb61-9"><a href=""></a>)</span>
 <span id="cb61-10"><a href=""></a>parsed.loc[:, [<span class="st">"date"</span>, <span class="st">"date_parsed"</span>, <span class="st">"price"</span>, <span class="st">"price_parsed"</span>]].head(<span class="dv">6</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="40">
+<div class="cell-output cell-output-display" data-execution_count="496">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -2278,9 +2243,9 @@ dtype: int64</code></pre>
 </section>
 <section id="standardize-strings-and-categories" class="slide level2">
 <h2>Standardize strings and categories</h2>
-<div id="f515750d" class="cell" data-execution_count="41">
+<div id="ec436a44" class="cell" data-execution_count="41">
 <details class="code-fold">
-<summary>Mostrar código</summary>
+<summary>show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb62"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb62-1"><a href=""></a>clean <span class="op">=</span> (</span>
 <span id="cb62-2"><a href=""></a>    parsed.assign(</span>
 <span id="cb62-3"><a href=""></a>        instrument<span class="op">=</span>parsed[<span class="st">"instrument"</span>].<span class="bu">str</span>.strip().<span class="bu">str</span>.upper(),</span>
@@ -2292,7 +2257,7 @@ dtype: int64</code></pre>
 <span id="cb62-9"><a href=""></a>)</span>
 <span id="cb62-10"><a href=""></a>clean.loc[:, [<span class="st">"instrument"</span>, <span class="st">"market"</span>, <span class="st">"currency"</span>]].drop_duplicates()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="41">
+<div class="cell-output cell-output-display" data-execution_count="497">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -2364,9 +2329,9 @@ dtype: int64</code></pre>
 </section>
 <section id="replace-map-and-categorize" class="slide level2">
 <h2>Replace, map, and categorize</h2>
-<div id="6e13a551" class="cell" data-execution_count="42">
+<div id="0297c7cf" class="cell" data-execution_count="42">
 <details class="code-fold">
-<summary>Mostrar código</summary>
+<summary>show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb63"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb63-1"><a href=""></a>clean <span class="op">=</span> clean.assign(</span>
 <span id="cb63-2"><a href=""></a>    currency<span class="op">=</span>clean[<span class="st">"currency"</span>].replace({<span class="st">"US$"</span>: <span class="st">"USD"</span>}),</span>
 <span id="cb63-3"><a href=""></a>    market_group<span class="op">=</span>clean[<span class="st">"market"</span>].<span class="bu">map</span>({</span>
@@ -2379,7 +2344,7 @@ dtype: int64</code></pre>
 <span id="cb63-10"><a href=""></a>)</span>
 <span id="cb63-11"><a href=""></a>clean.loc[:, [<span class="st">"market"</span>, <span class="st">"market_group"</span>, <span class="st">"volume"</span>, <span class="st">"volume_band"</span>]].head()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="42">
+<div class="cell-output cell-output-display" data-execution_count="498">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -2463,15 +2428,15 @@ dtype: int64</code></pre>
 </section>
 <section id="duplicates-require-an-analytical-key" class="slide level2">
 <h2>Duplicates require an analytical key</h2>
-<div id="70163a7d" class="cell" data-execution_count="43">
+<div id="3ab3fcef" class="cell" data-execution_count="43">
 <details class="code-fold">
-<summary>Mostrar código</summary>
+<summary>show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb64"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb64-1"><a href=""></a>exact_dup <span class="op">=</span> clean.duplicated()</span>
 <span id="cb64-2"><a href=""></a>key_dup <span class="op">=</span> clean.duplicated(subset<span class="op">=</span>[<span class="st">"date"</span>, <span class="st">"instrument"</span>], keep<span class="op">=</span><span class="va">False</span>)</span>
 <span id="cb64-3"><a href=""></a>clean.loc[exact_dup <span class="op">|</span> key_dup,</span>
 <span id="cb64-4"><a href=""></a>          [<span class="st">"date"</span>, <span class="st">"instrument"</span>, <span class="st">"price"</span>, <span class="st">"volume"</span>]]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="43">
+<div class="cell-output cell-output-display" data-execution_count="499">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -2518,9 +2483,9 @@ dtype: int64</code></pre>
 </div>
 </div>
 </div>
-<div id="a7279fc4" class="cell" data-execution_count="44">
+<div id="9b591d8d" class="cell" data-execution_count="44">
 <details class="code-fold">
-<summary>Mostrar código</summary>
+<summary>show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb65"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb65-1"><a href=""></a>dedup <span class="op">=</span> clean.drop_duplicates(</span>
 <span id="cb65-2"><a href=""></a>    subset<span class="op">=</span>[<span class="st">"date"</span>, <span class="st">"instrument"</span>, <span class="st">"price"</span>, <span class="st">"volume"</span>], keep<span class="op">=</span><span class="st">"first"</span></span>
 <span id="cb65-3"><a href=""></a>).copy()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -2542,15 +2507,15 @@ dtype: int64</code></pre>
 </section>
 <section id="invalid-versus-unusual" class="slide level2">
 <h2>Invalid versus unusual</h2>
-<div id="27248b9c" class="cell" data-execution_count="45">
+<div id="5dd58333" class="cell" data-execution_count="45">
 <details class="code-fold">
-<summary>Mostrar código</summary>
+<summary>show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb66"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb66-1"><a href=""></a>invalid <span class="op">=</span> dedup[<span class="st">"price"</span>].le(<span class="dv">0</span>)</span>
 <span id="cb66-2"><a href=""></a>unusual <span class="op">=</span> dedup[<span class="st">"price"</span>].gt(<span class="dv">500</span>)</span>
 <span id="cb66-3"><a href=""></a>dedup.loc[invalid <span class="op">|</span> unusual,</span>
 <span id="cb66-4"><a href=""></a>          [<span class="st">"date"</span>, <span class="st">"instrument"</span>, <span class="st">"price"</span>, <span class="st">"currency"</span>]]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="45">
+<div class="cell-output cell-output-display" data-execution_count="501">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -2629,9 +2594,9 @@ dtype: int64</code></pre>
 </section>
 <section id="missing-values-must-be-interpreted-by-dtype" class="slide level2">
 <h2>Missing values must be interpreted by dtype</h2>
-<div id="ba21fe53" class="cell" data-execution_count="46">
+<div id="335b3aaa" class="cell" data-execution_count="46">
 <details class="code-fold">
-<summary>Mostrar código</summary>
+<summary>show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb67"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb67-1"><a href=""></a>nullable <span class="op">=</span> pd.DataFrame({</span>
 <span id="cb67-2"><a href=""></a>    <span class="st">"trades"</span>: pd.Series([<span class="dv">10</span>, <span class="va">None</span>, <span class="dv">12</span>], dtype<span class="op">=</span><span class="st">"Int64"</span>),</span>
 <span id="cb67-3"><a href=""></a>    <span class="st">"active"</span>: pd.Series([<span class="va">True</span>, <span class="va">None</span>, <span class="va">False</span>], dtype<span class="op">=</span><span class="st">"boolean"</span>),</span>
@@ -2639,7 +2604,7 @@ dtype: int64</code></pre>
 <span id="cb67-5"><a href=""></a>})</span>
 <span id="cb67-6"><a href=""></a>nullable.dtypes</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="46">
+<div class="cell-output cell-output-display" data-execution_count="502">
 <pre><code>trades          Int64
 active        boolean
 instrument     string
@@ -2663,9 +2628,9 @@ dtype: object</code></pre>
 </section>
 <section id="dropna-has-several-decision-thresholds" class="slide level2">
 <h2><code>dropna</code> has several decision thresholds</h2>
-<div id="21cd15fb" class="cell" data-execution_count="47">
+<div id="cdf7eceb" class="cell" data-execution_count="47">
 <details class="code-fold">
-<summary>Mostrar código</summary>
+<summary>show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb69"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb69-1"><a href=""></a>missing_demo <span class="op">=</span> pd.DataFrame({</span>
 <span id="cb69-2"><a href=""></a>    <span class="st">"price"</span>: [<span class="fl">76.4</span>, np.nan, np.nan],</span>
 <span id="cb69-3"><a href=""></a>    <span class="st">"volume"</span>: [<span class="dv">120</span>, <span class="dv">98</span>, np.nan],</span>
@@ -2703,9 +2668,9 @@ dtype: object</code></pre>
 </section>
 <section id="forward-fill-and-backward-fill-encode-ordering-assumptions" class="slide level2">
 <h2>Forward fill and backward fill encode ordering assumptions</h2>
-<div id="91138ba3" class="cell" data-execution_count="48">
+<div id="16a38528" class="cell" data-execution_count="48">
 <details class="code-fold">
-<summary>Mostrar código</summary>
+<summary>show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb71"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb71-1"><a href=""></a>time_demo <span class="op">=</span> pd.Series(</span>
 <span id="cb71-2"><a href=""></a>    [<span class="fl">76.4</span>, np.nan, np.nan, <span class="fl">77.1</span>],</span>
 <span id="cb71-3"><a href=""></a>    index<span class="op">=</span>pd.date_range(<span class="st">"2026-01-01"</span>, periods<span class="op">=</span><span class="dv">4</span>)</span>
@@ -2743,9 +2708,9 @@ Freq: D, dtype: float64</code></pre>
 </section>
 <section id="replacing-values-and-renaming-axes" class="slide level2">
 <h2>Replacing values and renaming axes</h2>
-<div id="f4007299" class="cell" data-execution_count="49">
+<div id="fad4c55f" class="cell" data-execution_count="49">
 <details class="code-fold">
-<summary>Mostrar código</summary>
+<summary>show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb73"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb73-1"><a href=""></a>code_demo <span class="op">=</span> pd.DataFrame({<span class="st">"mkt"</span>: [<span class="st">"OIL"</span>, <span class="st">"NG"</span>, <span class="st">"N/A"</span>]})</span>
 <span id="cb73-2"><a href=""></a>code_demo <span class="op">=</span> (</span>
 <span id="cb73-3"><a href=""></a>    code_demo.replace({<span class="st">"N/A"</span>: pd.NA, <span class="st">"NG"</span>: <span class="st">"GAS"</span>})</span>
@@ -2753,7 +2718,7 @@ Freq: D, dtype: float64</code></pre>
 <span id="cb73-5"><a href=""></a>)</span>
 <span id="cb73-6"><a href=""></a>code_demo</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="49">
+<div class="cell-output cell-output-display" data-execution_count="505">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -2812,16 +2777,16 @@ Freq: D, dtype: float64</code></pre>
 </section>
 <section id="detecting-and-filtering-unusual-values" class="slide level2">
 <h2>Detecting and filtering unusual values</h2>
-<div id="c0a27d85" class="cell" data-execution_count="50">
+<div id="5616c8fb" class="cell" data-execution_count="50">
 <details class="code-fold">
-<summary>Mostrar código</summary>
+<summary>show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb74"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb74-1"><a href=""></a>values <span class="op">=</span> pd.Series([<span class="dv">72</span>, <span class="dv">73</span>, <span class="dv">74</span>, <span class="dv">1200</span>, <span class="dv">75</span>], name<span class="op">=</span><span class="st">"price"</span>)</span>
 <span id="cb74-2"><a href=""></a>center <span class="op">=</span> values.median()</span>
 <span id="cb74-3"><a href=""></a>mad <span class="op">=</span> (values <span class="op">-</span> center).<span class="bu">abs</span>().median()</span>
 <span id="cb74-4"><a href=""></a>robust_score <span class="op">=</span> <span class="fl">0.6745</span> <span class="op">*</span> (values <span class="op">-</span> center) <span class="op">/</span> mad</span>
 <span id="cb74-5"><a href=""></a>pd.DataFrame({<span class="st">"price"</span>: values, <span class="st">"robust_score"</span>: robust_score.<span class="bu">round</span>(<span class="dv">2</span>)})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="50">
+<div class="cell-output cell-output-display" data-execution_count="506">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -2894,9 +2859,9 @@ Freq: D, dtype: float64</code></pre>
 </section>
 <section id="permutation-and-sampling" class="slide level2">
 <h2>Permutation and sampling</h2>
-<div id="58ad1750" class="cell" data-execution_count="51">
+<div id="0293fdf4" class="cell" data-execution_count="51">
 <details class="code-fold">
-<summary>Mostrar código</summary>
+<summary>show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb75"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb75-1"><a href=""></a>sample_demo <span class="op">=</span> clean.sample(n<span class="op">=</span><span class="dv">4</span>, random_state<span class="op">=</span><span class="dv">42</span>)</span>
 <span id="cb75-2"><a href=""></a>permuted_demo <span class="op">=</span> clean.iloc[rng.permutation(<span class="bu">len</span>(clean))[:<span class="dv">4</span>]]</span>
 <span id="cb75-3"><a href=""></a><span class="bu">print</span>(sample_demo.index.tolist())</span>
@@ -2924,14 +2889,14 @@ Freq: D, dtype: float64</code></pre>
 </section>
 <section id="dummy-variables-for-categorical-encodings" class="slide level2">
 <h2>Dummy variables for categorical encodings</h2>
-<div id="a545b5f2" class="cell" data-execution_count="52">
+<div id="34245633" class="cell" data-execution_count="52">
 <details class="code-fold">
-<summary>Mostrar código</summary>
+<summary>show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb77"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb77-1"><a href=""></a>pd.get_dummies(</span>
 <span id="cb77-2"><a href=""></a>    clean[<span class="st">"market"</span>], prefix<span class="op">=</span><span class="st">"market"</span>, dtype<span class="op">=</span><span class="st">"int8"</span></span>
 <span id="cb77-3"><a href=""></a>).head()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="52">
+<div class="cell-output cell-output-display" data-execution_count="508">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -3010,9 +2975,9 @@ Freq: D, dtype: float64</code></pre>
 </section>
 <section id="vectorized-string-methods-and-regular-expressions" class="slide level2">
 <h2>Vectorized string methods and regular expressions</h2>
-<div id="74b5cef1" class="cell" data-execution_count="53">
+<div id="fc5b70e4" class="cell" data-execution_count="53">
 <details class="code-fold">
-<summary>Mostrar código</summary>
+<summary>show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb78"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb78-1"><a href=""></a>contracts <span class="op">=</span> pd.Series(</span>
 <span id="cb78-2"><a href=""></a>    [<span class="st">"BRENT_M1"</span>, <span class="st">"WTI-M2"</span>, <span class="st">"TTF_Q1"</span>, <span class="va">None</span>], dtype<span class="op">=</span><span class="st">"string"</span></span>
 <span id="cb78-3"><a href=""></a>)</span>
@@ -3020,7 +2985,7 @@ Freq: D, dtype: float64</code></pre>
 <span id="cb78-5"><a href=""></a>    <span class="vs">r"</span><span class="kw">(</span><span class="fu">?P&lt;instrument&gt;</span><span class="pp">[A-Z]</span><span class="op">+</span><span class="kw">)</span><span class="pp">[_-]</span><span class="kw">(</span><span class="fu">?P&lt;tenor&gt;</span><span class="pp">[A-Z]</span><span class="dv">\d</span><span class="kw">)</span><span class="vs">"</span></span>
 <span id="cb78-6"><a href=""></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="53">
+<div class="cell-output cell-output-display" data-execution_count="509">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -3071,12 +3036,12 @@ Freq: D, dtype: float64</code></pre>
 </div>
 </div>
 </div>
-<div id="04e1c16c" class="cell" data-execution_count="54">
+<div id="c4142b6f" class="cell" data-execution_count="54">
 <details class="code-fold">
-<summary>Mostrar código</summary>
+<summary>show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb79"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb79-1"><a href=""></a>contracts.<span class="bu">str</span>.contains(<span class="vs">r"M</span><span class="dv">\d</span><span class="vs">"</span>, na<span class="op">=</span><span class="va">False</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="54">
+<div class="cell-output cell-output-display" data-execution_count="510">
 <pre><code>0     True
 1     True
 2    False
@@ -3106,15 +3071,15 @@ dtype: boolean</code></pre>
 </section>
 <section id="concat-is-not-a-relational-join" class="slide level2">
 <h2><code>concat</code> is not a relational join</h2>
-<div id="b63c85f6" class="cell" data-execution_count="55">
+<div id="262b8700" class="cell" data-execution_count="55">
 <details class="code-fold">
-<summary>Mostrar código</summary>
+<summary>show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb81"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb81-1"><a href=""></a>part_a <span class="op">=</span> dedup.iloc[:<span class="dv">4</span>].copy()</span>
 <span id="cb81-2"><a href=""></a>part_b <span class="op">=</span> dedup.iloc[<span class="dv">4</span>:<span class="dv">8</span>].copy()</span>
 <span id="cb81-3"><a href=""></a>combined <span class="op">=</span> pd.concat([part_a, part_b], ignore_index<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb81-4"><a href=""></a>combined.shape</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="55">
+<div class="cell-output cell-output-display" data-execution_count="511">
 <pre><code>(8, 8)</code></pre>
 </div>
 </div>
@@ -3177,9 +3142,9 @@ dtype: boolean</code></pre>
 </section>
 <section id="anatomy-of-a-validated-merge" class="slide level2">
 <h2>Anatomy of a validated merge</h2>
-<div id="e80696e3" class="cell" data-execution_count="56">
+<div id="f2818d1b" class="cell" data-execution_count="56">
 <details class="code-fold">
-<summary>Mostrar código</summary>
+<summary>show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb83"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb83-1"><a href=""></a>merged <span class="op">=</span> dedup.merge(</span>
 <span id="cb83-2"><a href=""></a>    metadata,</span>
 <span id="cb83-3"><a href=""></a>    on<span class="op">=</span><span class="st">"instrument"</span>,</span>
@@ -3190,7 +3155,7 @@ dtype: boolean</code></pre>
 <span id="cb83-8"><a href=""></a><span class="cf">assert</span> <span class="bu">len</span>(merged) <span class="op">==</span> <span class="bu">len</span>(dedup)</span>
 <span id="cb83-9"><a href=""></a>merged.loc[:, [<span class="st">"instrument"</span>, <span class="st">"region"</span>, <span class="st">"price_unit"</span>, <span class="st">"_merge"</span>]].head(<span class="dv">8</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="56">
+<div class="cell-output cell-output-display" data-execution_count="512">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -3340,9 +3305,9 @@ dtype: boolean</code></pre>
 </section>
 <section id="many-to-many-risk" class="slide level2">
 <h2>Many-to-many risk</h2>
-<div id="e1754f65" class="cell" data-execution_count="57">
+<div id="34d78967" class="cell" data-execution_count="57">
 <details class="code-fold">
-<summary>Mostrar código</summary>
+<summary>show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb85"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb85-1"><a href=""></a>bad_metadata <span class="op">=</span> pd.concat([</span>
 <span id="cb85-2"><a href=""></a>    metadata,</span>
 <span id="cb85-3"><a href=""></a>    metadata.loc[metadata[<span class="st">"instrument"</span>].eq(<span class="st">"BRENT"</span>)]</span>
@@ -3374,12 +3339,12 @@ dtype: boolean</code></pre>
 </section>
 <section id="audit-unmatched-records" class="slide level2">
 <h2>Audit unmatched records</h2>
-<div id="0af9ac1d" class="cell" data-execution_count="58">
+<div id="167de585" class="cell" data-execution_count="58">
 <details class="code-fold">
-<summary>Mostrar código</summary>
+<summary>show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb87"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb87-1"><a href=""></a>merged[<span class="st">"_merge"</span>].value_counts()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="58">
+<div class="cell-output cell-output-display" data-execution_count="514">
 <pre><code>_merge
 both          10
 left_only      1
@@ -3387,13 +3352,13 @@ right_only     0
 Name: count, dtype: int64</code></pre>
 </div>
 </div>
-<div id="c43a9646" class="cell" data-execution_count="59">
+<div id="bcee153f" class="cell" data-execution_count="59">
 <details class="code-fold">
-<summary>Mostrar código</summary>
+<summary>show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb89"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb89-1"><a href=""></a>unmatched <span class="op">=</span> merged.loc[merged[<span class="st">"_merge"</span>].ne(<span class="st">"both"</span>), <span class="st">"instrument"</span>].unique()</span>
 <span id="cb89-2"><a href=""></a>unmatched</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="59">
+<div class="cell-output cell-output-display" data-execution_count="515">
 <pre><code>&lt;StringArray&gt;
 ['UNKNOWN']
 Length: 1, dtype: str</code></pre>
@@ -3482,9 +3447,9 @@ Length: 1, dtype: str</code></pre>
 </section>
 <section id="melt-pivot-and-pivot_table" class="slide level2">
 <h2><code>melt</code>, <code>pivot</code>, and <code>pivot_table</code></h2>
-<div id="cd5406f0" class="cell" data-execution_count="60">
+<div id="10200d46" class="cell" data-execution_count="60">
 <details class="code-fold">
-<summary>Mostrar código</summary>
+<summary>show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb91"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb91-1"><a href=""></a>wide <span class="op">=</span> pd.DataFrame({</span>
 <span id="cb91-2"><a href=""></a>    <span class="st">"date"</span>: [<span class="st">"2026-01-02"</span>, <span class="st">"2026-01-03"</span>],</span>
 <span id="cb91-3"><a href=""></a>    <span class="st">"BRENT"</span>: [<span class="fl">76.4</span>, <span class="fl">77.0</span>], <span class="st">"WTI"</span>: [<span class="fl">72.1</span>, <span class="fl">72.8</span>], <span class="st">"TTF"</span>: [<span class="fl">48.2</span>, <span class="fl">48.7</span>]</span>
@@ -3492,7 +3457,7 @@ Length: 1, dtype: str</code></pre>
 <span id="cb91-5"><a href=""></a><span class="bu">long</span> <span class="op">=</span> wide.melt(id_vars<span class="op">=</span><span class="st">"date"</span>, var_name<span class="op">=</span><span class="st">"instrument"</span>, value_name<span class="op">=</span><span class="st">"price"</span>)</span>
 <span id="cb91-6"><a href=""></a><span class="bu">long</span>.head(<span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="60">
+<div class="cell-output cell-output-display" data-execution_count="516">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -3542,12 +3507,12 @@ Length: 1, dtype: str</code></pre>
 </div>
 </div>
 </div>
-<div id="cbe318f6" class="cell" data-execution_count="61">
+<div id="ca791820" class="cell" data-execution_count="61">
 <details class="code-fold">
-<summary>Mostrar código</summary>
+<summary>show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb92"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb92-1"><a href=""></a><span class="bu">long</span>.pivot(index<span class="op">=</span><span class="st">"date"</span>, columns<span class="op">=</span><span class="st">"instrument"</span>, values<span class="op">=</span><span class="st">"price"</span>).head(<span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="61">
+<div class="cell-output cell-output-display" data-execution_count="517">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -3613,16 +3578,16 @@ Length: 1, dtype: str</code></pre>
 </section>
 <section id="multiindex-stack-and-unstack" class="slide level2">
 <h2>MultiIndex, <code>stack</code>, and <code>unstack</code></h2>
-<div id="d6328473" class="cell" data-execution_count="62">
+<div id="63e29bc3" class="cell" data-execution_count="62">
 <details class="code-fold">
-<summary>Mostrar código</summary>
+<summary>show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb93"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb93-1"><a href=""></a>small <span class="op">=</span> merged.dropna(subset<span class="op">=</span>[<span class="st">"date"</span>, <span class="st">"price"</span>]).set_index(</span>
 <span id="cb93-2"><a href=""></a>    [<span class="st">"instrument"</span>, <span class="st">"date"</span>]</span>
 <span id="cb93-3"><a href=""></a>)[<span class="st">"price"</span>].head(<span class="dv">6</span>)</span>
 <span id="cb93-4"><a href=""></a>wide_indexed <span class="op">=</span> small.unstack(<span class="st">"instrument"</span>)</span>
 <span id="cb93-5"><a href=""></a>wide_indexed.head(<span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="62">
+<div class="cell-output cell-output-display" data-execution_count="518">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -3678,12 +3643,12 @@ Length: 1, dtype: str</code></pre>
 </div>
 </div>
 </div>
-<div id="b2c8994a" class="cell" data-execution_count="63">
+<div id="17a31ab8" class="cell" data-execution_count="63">
 <details class="code-fold">
-<summary>Mostrar código</summary>
+<summary>show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb94"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb94-1"><a href=""></a>wide_indexed.stack(future_stack<span class="op">=</span><span class="va">True</span>).head(<span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="63">
+<div class="cell-output cell-output-display" data-execution_count="519">
 <pre><code>date        instrument
 2026-02-01  BRENT         76.4
             WTI           72.1
@@ -3707,9 +3672,9 @@ dtype: Float64</code></pre>
 </section>
 <section id="reordering-and-sorting-index-levels" class="slide level2">
 <h2>Reordering and sorting index levels</h2>
-<div id="207b9442" class="cell" data-execution_count="64">
+<div id="da9fc057" class="cell" data-execution_count="64">
 <details class="code-fold">
-<summary>Mostrar código</summary>
+<summary>show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb96"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb96-1"><a href=""></a>hier <span class="op">=</span> merged.dropna(subset<span class="op">=</span>[<span class="st">"date"</span>]).set_index(</span>
 <span id="cb96-2"><a href=""></a>    [<span class="st">"instrument"</span>, <span class="st">"date"</span>]</span>
 <span id="cb96-3"><a href=""></a>).sort_index()</span>
@@ -3719,7 +3684,7 @@ dtype: Float64</code></pre>
 <div class="cell-output cell-output-stdout">
 <pre><code>['instrument', 'date']</code></pre>
 </div>
-<div class="cell-output cell-output-display" data-execution_count="64">
+<div class="cell-output cell-output-display" data-execution_count="520">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -3831,9 +3796,9 @@ dtype: Float64</code></pre>
 </section>
 <section id="merge-on-differently-named-keys" class="slide level2">
 <h2>Merge on differently named keys</h2>
-<div id="7add1b81" class="cell" data-execution_count="65">
+<div id="64f65773" class="cell" data-execution_count="65">
 <details class="code-fold">
-<summary>Mostrar código</summary>
+<summary>show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb98"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb98-1"><a href=""></a>left_keys <span class="op">=</span> pd.DataFrame({<span class="st">"ticker"</span>: [<span class="st">"BRENT"</span>, <span class="st">"WTI"</span>, <span class="st">"TTF"</span>]})</span>
 <span id="cb98-2"><a href=""></a>right_keys <span class="op">=</span> pd.DataFrame({<span class="st">"instrument"</span>: [<span class="st">"BRENT"</span>, <span class="st">"WTI"</span>, <span class="st">"TTF"</span>],</span>
 <span id="cb98-3"><a href=""></a>                           <span class="st">"category"</span>: [<span class="st">"Oil"</span>, <span class="st">"Oil"</span>, <span class="st">"Gas"</span>]})</span>
@@ -3842,7 +3807,7 @@ dtype: Float64</code></pre>
 <span id="cb98-6"><a href=""></a>    validate<span class="op">=</span><span class="st">"one_to_one"</span></span>
 <span id="cb98-7"><a href=""></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="65">
+<div class="cell-output cell-output-display" data-execution_count="521">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -3908,14 +3873,14 @@ dtype: Float64</code></pre>
 </section>
 <section id="merge-using-indexes" class="slide level2">
 <h2>Merge using indexes</h2>
-<div id="ff1819c5" class="cell" data-execution_count="66">
+<div id="f4a993b2" class="cell" data-execution_count="66">
 <details class="code-fold">
-<summary>Mostrar código</summary>
+<summary>show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb99"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb99-1"><a href=""></a>left_indexed <span class="op">=</span> left_keys.set_index(<span class="st">"ticker"</span>)</span>
 <span id="cb99-2"><a href=""></a>right_indexed <span class="op">=</span> right_keys.set_index(<span class="st">"instrument"</span>)</span>
 <span id="cb99-3"><a href=""></a>left_indexed.join(right_indexed, how<span class="op">=</span><span class="st">"left"</span>, validate<span class="op">=</span><span class="st">"one_to_one"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="66">
+<div class="cell-output cell-output-display" data-execution_count="522">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -3978,14 +3943,14 @@ dtype: Float64</code></pre>
 </section>
 <section id="concatenation-keys-preserve-provenance" class="slide level2">
 <h2>Concatenation keys preserve provenance</h2>
-<div id="dcde0c3d" class="cell" data-execution_count="67">
+<div id="10f17d93" class="cell" data-execution_count="67">
 <details class="code-fold">
-<summary>Mostrar código</summary>
+<summary>show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb100"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb100-1"><a href=""></a>jan <span class="op">=</span> pd.DataFrame({<span class="st">"price"</span>: [<span class="fl">76.4</span>, <span class="fl">72.1</span>]}, index<span class="op">=</span>[<span class="st">"BRENT"</span>, <span class="st">"WTI"</span>])</span>
 <span id="cb100-2"><a href=""></a>feb <span class="op">=</span> pd.DataFrame({<span class="st">"price"</span>: [<span class="fl">77.2</span>, <span class="fl">73.0</span>]}, index<span class="op">=</span>[<span class="st">"BRENT"</span>, <span class="st">"WTI"</span>])</span>
 <span id="cb100-3"><a href=""></a>pd.concat({<span class="st">"January"</span>: jan, <span class="st">"February"</span>: feb}, names<span class="op">=</span>[<span class="st">"month"</span>, <span class="st">"instrument"</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="67">
+<div class="cell-output cell-output-display" data-execution_count="523">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -4056,14 +4021,14 @@ dtype: Float64</code></pre>
 </section>
 <section id="overlapping-columns-and-suffixes" class="slide level2">
 <h2>Overlapping columns and suffixes</h2>
-<div id="d663476a" class="cell" data-execution_count="68">
+<div id="21030287" class="cell" data-execution_count="68">
 <details class="code-fold">
-<summary>Mostrar código</summary>
+<summary>show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb101"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb101-1"><a href=""></a>quotes_a <span class="op">=</span> pd.DataFrame({<span class="st">"instrument"</span>: [<span class="st">"BRENT"</span>], <span class="st">"price"</span>: [<span class="fl">76.4</span>]})</span>
 <span id="cb101-2"><a href=""></a>quotes_b <span class="op">=</span> pd.DataFrame({<span class="st">"instrument"</span>: [<span class="st">"BRENT"</span>], <span class="st">"price"</span>: [<span class="fl">76.6</span>]})</span>
 <span id="cb101-3"><a href=""></a>quotes_a.merge(quotes_b, on<span class="op">=</span><span class="st">"instrument"</span>, suffixes<span class="op">=</span>(<span class="st">"_source_a"</span>, <span class="st">"_source_b"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="68">
+<div class="cell-output cell-output-display" data-execution_count="524">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -4118,14 +4083,14 @@ dtype: Float64</code></pre>
 </section>
 <section id="combine_first-patches-aligned-missing-values" class="slide level2">
 <h2><code>combine_first</code> patches aligned missing values</h2>
-<div id="a381fff1" class="cell" data-execution_count="69">
+<div id="449f22d6" class="cell" data-execution_count="69">
 <details class="code-fold">
-<summary>Mostrar código</summary>
+<summary>show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb102"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb102-1"><a href=""></a>primary <span class="op">=</span> pd.Series([<span class="fl">76.4</span>, np.nan, <span class="fl">78.0</span>], index<span class="op">=</span>[<span class="st">"d1"</span>, <span class="st">"d2"</span>, <span class="st">"d3"</span>])</span>
 <span id="cb102-2"><a href=""></a>backup <span class="op">=</span> pd.Series([<span class="fl">76.3</span>, <span class="fl">77.1</span>, <span class="fl">77.9</span>], index<span class="op">=</span>[<span class="st">"d1"</span>, <span class="st">"d2"</span>, <span class="st">"d3"</span>])</span>
 <span id="cb102-3"><a href=""></a>primary.combine_first(backup)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="69">
+<div class="cell-output cell-output-display" data-execution_count="525">
 <pre><code>d1    76.4
 d2    77.1
 d3    78.0
@@ -4146,192 +4111,6 @@ dtype: float64</code></pre>
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
-</section>
-<section id="class-1-integrated-pipeline" class="slide level2">
-<h2>Class 1 integrated pipeline</h2>
-<div id="2b431ea9" class="cell" data-execution_count="70">
-<details class="code-fold">
-<summary>Mostrar código</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb104"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb104-1"><a href=""></a>working <span class="op">=</span> raw.assign(</span>
-<span id="cb104-2"><a href=""></a>    date<span class="op">=</span><span class="kw">lambda</span> d: pd.to_datetime(d[<span class="st">"date"</span>], errors<span class="op">=</span><span class="st">"coerce"</span>, <span class="bu">format</span><span class="op">=</span><span class="st">"mixed"</span>, dayfirst<span class="op">=</span><span class="va">True</span>),</span>
-<span id="cb104-3"><a href=""></a>    instrument<span class="op">=</span><span class="kw">lambda</span> d: d[<span class="st">"instrument"</span>].<span class="bu">str</span>.strip().<span class="bu">str</span>.upper(),</span>
-<span id="cb104-4"><a href=""></a>    market<span class="op">=</span><span class="kw">lambda</span> d: d[<span class="st">"market"</span>].<span class="bu">str</span>.strip().<span class="bu">str</span>.title(),</span>
-<span id="cb104-5"><a href=""></a>    currency<span class="op">=</span><span class="kw">lambda</span> d: d[<span class="st">"currency"</span>].<span class="bu">str</span>.strip().<span class="bu">str</span>.upper(),</span>
-<span id="cb104-6"><a href=""></a>    price<span class="op">=</span><span class="kw">lambda</span> d: pd.to_numeric(</span>
-<span id="cb104-7"><a href=""></a>        d[<span class="st">"price"</span>].astype(<span class="st">"string"</span>).<span class="bu">str</span>.replace(<span class="st">","</span>, <span class="st">""</span>, regex<span class="op">=</span><span class="va">False</span>),</span>
-<span id="cb104-8"><a href=""></a>        errors<span class="op">=</span><span class="st">"coerce"</span></span>
-<span id="cb104-9"><a href=""></a>    )</span>
-<span id="cb104-10"><a href=""></a>).drop_duplicates()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</details>
-</div>
-<aside class="notes">
-<p>A primeira parte corrige estrutura e tipos, sem ainda remover falhas. Tempo: 2 min.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="preserve-an-audit-trail" class="slide level2">
-<h2>Preserve an audit trail</h2>
-<div id="6d385eaf" class="cell" data-execution_count="71">
-<details class="code-fold">
-<summary>Mostrar código</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb105"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb105-1"><a href=""></a>working <span class="op">=</span> working.assign(</span>
-<span id="cb105-2"><a href=""></a>    invalid_date<span class="op">=</span>working[<span class="st">"date"</span>].isna(),</span>
-<span id="cb105-3"><a href=""></a>    missing_price<span class="op">=</span>working[<span class="st">"price"</span>].isna(),</span>
-<span id="cb105-4"><a href=""></a>    nonpositive_price<span class="op">=</span>working[<span class="st">"price"</span>].le(<span class="dv">0</span>).fillna(<span class="va">False</span>)</span>
-<span id="cb105-5"><a href=""></a>)</span>
-<span id="cb105-6"><a href=""></a>rejected <span class="op">=</span> working.loc[</span>
-<span id="cb105-7"><a href=""></a>    working[[<span class="st">"invalid_date"</span>, <span class="st">"nonpositive_price"</span>]].<span class="bu">any</span>(axis<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb105-8"><a href=""></a>].copy()</span>
-<span id="cb105-9"><a href=""></a>valid <span class="op">=</span> working.loc[</span>
-<span id="cb105-10"><a href=""></a>    <span class="op">~</span>working[[<span class="st">"invalid_date"</span>, <span class="st">"nonpositive_price"</span>]].<span class="bu">any</span>(axis<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb105-11"><a href=""></a>].copy()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</details>
-</div>
-<aside class="notes">
-<p>Separar rejeitados mantém rastreabilidade. Preço ausente não é rejeitado automaticamente. Tempo: 2 min.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="complete-and-validate-class-1-output" class="slide level2">
-<h2>Complete and validate Class 1 output</h2>
-<div id="210a5612" class="cell" data-execution_count="72">
-<details class="code-fold">
-<summary>Mostrar código</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb106"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb106-1"><a href=""></a>valid[<span class="st">"price_imputed"</span>] <span class="op">=</span> valid[<span class="st">"price"</span>].isna()</span>
-<span id="cb106-2"><a href=""></a>valid[<span class="st">"price"</span>] <span class="op">=</span> valid.groupby(<span class="st">"instrument"</span>)[<span class="st">"price"</span>].transform(</span>
-<span id="cb106-3"><a href=""></a>    <span class="kw">lambda</span> s: s.fillna(s.median())</span>
-<span id="cb106-4"><a href=""></a>)</span>
-<span id="cb106-5"><a href=""></a>analysis_data <span class="op">=</span> valid.merge(</span>
-<span id="cb106-6"><a href=""></a>    metadata, on<span class="op">=</span><span class="st">"instrument"</span>, how<span class="op">=</span><span class="st">"left"</span>,</span>
-<span id="cb106-7"><a href=""></a>    validate<span class="op">=</span><span class="st">"many_to_one"</span>, indicator<span class="op">=</span><span class="va">True</span></span>
-<span id="cb106-8"><a href=""></a>)</span>
-<span id="cb106-9"><a href=""></a>chart_ready <span class="op">=</span> analysis_data.loc[analysis_data[<span class="st">"_merge"</span>].eq(<span class="st">"both"</span>)].drop(columns<span class="op">=</span><span class="st">"_merge"</span>)</span>
-<span id="cb106-10"><a href=""></a><span class="cf">assert</span> chart_ready[[<span class="st">"date"</span>, <span class="st">"instrument"</span>, <span class="st">"price"</span>, <span class="st">"price_unit"</span>]].notna().<span class="bu">all</span>().<span class="bu">all</span>()</span>
-<span id="cb106-11"><a href=""></a><span class="cf">assert</span> metadata[<span class="st">"instrument"</span>].is_unique</span>
-<span id="cb106-12"><a href=""></a>chart_ready.head(<span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</details>
-<div class="cell-output cell-output-display" data-execution_count="72">
-<div>
-<style scoped="">
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-
-<table class="dataframe caption-top" data-border="1">
-<thead>
-<tr class="header" style="text-align: right;">
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th">date</th>
-<th data-quarto-table-cell-role="th">instrument</th>
-<th data-quarto-table-cell-role="th">market</th>
-<th data-quarto-table-cell-role="th">price</th>
-<th data-quarto-table-cell-role="th">volume</th>
-<th data-quarto-table-cell-role="th">currency</th>
-<th data-quarto-table-cell-role="th">...</th>
-<th data-quarto-table-cell-role="th">missing_price</th>
-<th data-quarto-table-cell-role="th">nonpositive_price</th>
-<th data-quarto-table-cell-role="th">price_imputed</th>
-<th data-quarto-table-cell-role="th">region</th>
-<th data-quarto-table-cell-role="th">category</th>
-<th data-quarto-table-cell-role="th">price_unit</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">0</th>
-<td>2026-02-01</td>
-<td>BRENT</td>
-<td>Oil</td>
-<td>76.4</td>
-<td>120.0</td>
-<td>USD</td>
-<td>...</td>
-<td>False</td>
-<td>False</td>
-<td>False</td>
-<td>Europe</td>
-<td>Crude oil</td>
-<td>USD/bbl</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">1</th>
-<td>2026-02-01</td>
-<td>WTI</td>
-<td>Oil</td>
-<td>72.1</td>
-<td>98.0</td>
-<td>USD</td>
-<td>...</td>
-<td>False</td>
-<td>False</td>
-<td>False</td>
-<td>North America</td>
-<td>Crude oil</td>
-<td>USD/bbl</td>
-</tr>
-</tbody>
-</table>
-
-<p>2 rows × 13 columns</p>
-</div>
-</div>
-</div>
-<aside class="notes">
-<p>A mediana por instrumento é uma hipótese didática. A saída é validada, tidy e pronta para análise. Tempo: 3 min.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-<!-- ## End of Class 1 -->
-<!-- ### Deliverable -->
-<!-- > A validated, tidy, analysis-ready dataset with explicit units, keys, and quality flags. -->
-<!-- ### Exit ticket -->
-<!-- - What is one assumption in the pipeline? -->
-<!-- - Which assertion protects a key relationship? -->
-<!-- - Which records are absent from `chart_ready`, and why? -->
-<!-- ::: {.notes} -->
-<!-- Use como fechamento da primeira aula e ponte para a segunda. Tempo: 4 min. -->
-<!-- ::: -->
-<!-- # Class 2 -->
-<!-- ## From analysis-ready data to visual evidence -->
-<!-- **Chapter 10 → Chapter 9** -->
-<!-- ::: {.notes} -->
-<!-- Relembre a tabela chart_ready e a unidade de observação. Tempo: 1 min. -->
-<!-- ::: -->
 </section></section>
 <section>
 <section id="data-aggregation-and-group-operations" class="title-slide slide level1 center">
@@ -4345,13 +4124,46 @@ dtype: float64</code></pre>
 <li><strong>Apply</strong> an aggregation, transformation, filter, or custom operation.</li>
 <li><strong>Combine</strong> the results into a pandas object.</li>
 </ol>
-<div id="64241377" class="cell" data-execution_count="73">
+<div id="e46fe172" class="cell" data-execution_count="70">
 <details class="code-fold">
-<summary>Mostrar código</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb107"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb107-1"><a href=""></a>grouped <span class="op">=</span> chart_ready.groupby(<span class="st">"instrument"</span>)</span>
-<span id="cb107-2"><a href=""></a><span class="bu">type</span>(grouped).<span class="va">__name__</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<summary>show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb104"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb104-1"><a href=""></a>working <span class="op">=</span> raw.assign(</span>
+<span id="cb104-2"><a href=""></a>    date<span class="op">=</span><span class="kw">lambda</span> d: pd.to_datetime(d[<span class="st">"date"</span>], errors<span class="op">=</span><span class="st">"coerce"</span>, <span class="bu">format</span><span class="op">=</span><span class="st">"mixed"</span>, dayfirst<span class="op">=</span><span class="va">True</span>),</span>
+<span id="cb104-3"><a href=""></a>    instrument<span class="op">=</span><span class="kw">lambda</span> d: d[<span class="st">"instrument"</span>].<span class="bu">str</span>.strip().<span class="bu">str</span>.upper(),</span>
+<span id="cb104-4"><a href=""></a>    market<span class="op">=</span><span class="kw">lambda</span> d: d[<span class="st">"market"</span>].<span class="bu">str</span>.strip().<span class="bu">str</span>.title(),</span>
+<span id="cb104-5"><a href=""></a>    currency<span class="op">=</span><span class="kw">lambda</span> d: d[<span class="st">"currency"</span>].<span class="bu">str</span>.strip().<span class="bu">str</span>.upper(),</span>
+<span id="cb104-6"><a href=""></a>    price<span class="op">=</span><span class="kw">lambda</span> d: pd.to_numeric(</span>
+<span id="cb104-7"><a href=""></a>        d[<span class="st">"price"</span>].astype(<span class="st">"string"</span>).<span class="bu">str</span>.replace(<span class="st">","</span>, <span class="st">""</span>, regex<span class="op">=</span><span class="va">False</span>),</span>
+<span id="cb104-8"><a href=""></a>        errors<span class="op">=</span><span class="st">"coerce"</span></span>
+<span id="cb104-9"><a href=""></a>    )</span>
+<span id="cb104-10"><a href=""></a>).drop_duplicates()</span>
+<span id="cb104-11"><a href=""></a>working <span class="op">=</span> working.assign(</span>
+<span id="cb104-12"><a href=""></a>    invalid_date<span class="op">=</span>working[<span class="st">"date"</span>].isna(),</span>
+<span id="cb104-13"><a href=""></a>    missing_price<span class="op">=</span>working[<span class="st">"price"</span>].isna(),</span>
+<span id="cb104-14"><a href=""></a>    nonpositive_price<span class="op">=</span>working[<span class="st">"price"</span>].le(<span class="dv">0</span>).fillna(<span class="va">False</span>)</span>
+<span id="cb104-15"><a href=""></a>)</span>
+<span id="cb104-16"><a href=""></a>rejected <span class="op">=</span> working.loc[</span>
+<span id="cb104-17"><a href=""></a>    working[[<span class="st">"invalid_date"</span>, <span class="st">"nonpositive_price"</span>]].<span class="bu">any</span>(axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb104-18"><a href=""></a>].copy()</span>
+<span id="cb104-19"><a href=""></a>valid <span class="op">=</span> working.loc[</span>
+<span id="cb104-20"><a href=""></a>    <span class="op">~</span>working[[<span class="st">"invalid_date"</span>, <span class="st">"nonpositive_price"</span>]].<span class="bu">any</span>(axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb104-21"><a href=""></a>].copy()</span>
+<span id="cb104-22"><a href=""></a>valid[<span class="st">"price_imputed"</span>] <span class="op">=</span> valid[<span class="st">"price"</span>].isna()</span>
+<span id="cb104-23"><a href=""></a>valid[<span class="st">"price"</span>] <span class="op">=</span> valid.groupby(<span class="st">"instrument"</span>)[<span class="st">"price"</span>].transform(</span>
+<span id="cb104-24"><a href=""></a>    <span class="kw">lambda</span> s: s.fillna(s.median())</span>
+<span id="cb104-25"><a href=""></a>)</span>
+<span id="cb104-26"><a href=""></a>analysis_data <span class="op">=</span> valid.merge(</span>
+<span id="cb104-27"><a href=""></a>    metadata, on<span class="op">=</span><span class="st">"instrument"</span>, how<span class="op">=</span><span class="st">"left"</span>,</span>
+<span id="cb104-28"><a href=""></a>    validate<span class="op">=</span><span class="st">"many_to_one"</span>, indicator<span class="op">=</span><span class="va">True</span></span>
+<span id="cb104-29"><a href=""></a>)</span>
+<span id="cb104-30"><a href=""></a>chart_ready <span class="op">=</span> analysis_data.loc[analysis_data[<span class="st">"_merge"</span>].eq(<span class="st">"both"</span>)].drop(columns<span class="op">=</span><span class="st">"_merge"</span>)</span>
+<span id="cb104-31"><a href=""></a><span class="cf">assert</span> chart_ready[[<span class="st">"date"</span>, <span class="st">"instrument"</span>, <span class="st">"price"</span>, <span class="st">"price_unit"</span>]].notna().<span class="bu">all</span>().<span class="bu">all</span>()</span>
+<span id="cb104-32"><a href=""></a><span class="cf">assert</span> metadata[<span class="st">"instrument"</span>].is_unique</span>
+<span id="cb104-33"><a href=""></a>chart_ready.head(<span class="dv">2</span>)</span>
+<span id="cb104-34"><a href=""></a>grouped <span class="op">=</span> chart_ready.groupby(<span class="st">"instrument"</span>)</span>
+<span id="cb104-35"><a href=""></a><span class="bu">type</span>(grouped).<span class="va">__name__</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="73">
+<div class="cell-output cell-output-display" data-execution_count="526">
 <pre><code>'DataFrameGroupBy'</code></pre>
 </div>
 </div>
@@ -4396,23 +4208,23 @@ dtype: float64</code></pre>
 </section>
 <section id="first-summaries-and-named-aggregation" class="slide level2">
 <h2>First summaries and named aggregation</h2>
-<div id="dfb2652d" class="cell" data-execution_count="74">
+<div id="affef1c7" class="cell" data-execution_count="71">
 <details class="code-fold">
-<summary>Mostrar código</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb109"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb109-1"><a href=""></a>summary <span class="op">=</span> (</span>
-<span id="cb109-2"><a href=""></a>    chart_ready.groupby(<span class="st">"instrument"</span>, as_index<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb109-3"><a href=""></a>    .agg(</span>
-<span id="cb109-4"><a href=""></a>        rows<span class="op">=</span>(<span class="st">"price"</span>, <span class="st">"size"</span>),</span>
-<span id="cb109-5"><a href=""></a>        observed_prices<span class="op">=</span>(<span class="st">"price"</span>, <span class="st">"count"</span>),</span>
-<span id="cb109-6"><a href=""></a>        mean_price<span class="op">=</span>(<span class="st">"price"</span>, <span class="st">"mean"</span>),</span>
-<span id="cb109-7"><a href=""></a>        median_price<span class="op">=</span>(<span class="st">"price"</span>, <span class="st">"median"</span>),</span>
-<span id="cb109-8"><a href=""></a>        price_sd<span class="op">=</span>(<span class="st">"price"</span>, <span class="st">"std"</span>),</span>
-<span id="cb109-9"><a href=""></a>        total_volume<span class="op">=</span>(<span class="st">"volume"</span>, <span class="st">"sum"</span>)</span>
-<span id="cb109-10"><a href=""></a>    )</span>
-<span id="cb109-11"><a href=""></a>)</span>
-<span id="cb109-12"><a href=""></a>summary.<span class="bu">round</span>(<span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<summary>show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb106"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb106-1"><a href=""></a>summary <span class="op">=</span> (</span>
+<span id="cb106-2"><a href=""></a>    chart_ready.groupby(<span class="st">"instrument"</span>, as_index<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb106-3"><a href=""></a>    .agg(</span>
+<span id="cb106-4"><a href=""></a>        rows<span class="op">=</span>(<span class="st">"price"</span>, <span class="st">"size"</span>),</span>
+<span id="cb106-5"><a href=""></a>        observed_prices<span class="op">=</span>(<span class="st">"price"</span>, <span class="st">"count"</span>),</span>
+<span id="cb106-6"><a href=""></a>        mean_price<span class="op">=</span>(<span class="st">"price"</span>, <span class="st">"mean"</span>),</span>
+<span id="cb106-7"><a href=""></a>        median_price<span class="op">=</span>(<span class="st">"price"</span>, <span class="st">"median"</span>),</span>
+<span id="cb106-8"><a href=""></a>        price_sd<span class="op">=</span>(<span class="st">"price"</span>, <span class="st">"std"</span>),</span>
+<span id="cb106-9"><a href=""></a>        total_volume<span class="op">=</span>(<span class="st">"volume"</span>, <span class="st">"sum"</span>)</span>
+<span id="cb106-10"><a href=""></a>    )</span>
+<span id="cb106-11"><a href=""></a>)</span>
+<span id="cb106-12"><a href=""></a>summary.<span class="bu">round</span>(<span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="74">
+<div class="cell-output cell-output-display" data-execution_count="527">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -4496,12 +4308,12 @@ dtype: float64</code></pre>
 <h2>Aggregation reduces; transformation preserves</h2>
 <div class="columns">
 <div class="column" style="width:50%;">
-<div id="e1f98026" class="cell" data-execution_count="75">
+<div id="98c09a7c" class="cell" data-execution_count="72">
 <details class="code-fold">
-<summary>Mostrar código</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb110"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb110-1"><a href=""></a>chart_ready.groupby(<span class="st">"instrument"</span>)[<span class="st">"price"</span>].mean()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<summary>show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb107"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb107-1"><a href=""></a>chart_ready.groupby(<span class="st">"instrument"</span>)[<span class="st">"price"</span>].mean()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="75">
+<div class="cell-output cell-output-display" data-execution_count="528">
 <pre><code>instrument
 BRENT    467.8
 TTF       49.2
@@ -4511,12 +4323,12 @@ Name: price, dtype: Float64</code></pre>
 </div>
 <p>One result per group.</p>
 </div><div class="column" style="width:50%;">
-<div id="2dd34d56" class="cell" data-execution_count="76">
+<div id="76569515" class="cell" data-execution_count="73">
 <details class="code-fold">
-<summary>Mostrar código</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb112"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb112-1"><a href=""></a>chart_ready.groupby(<span class="st">"instrument"</span>)[<span class="st">"price"</span>].transform(<span class="st">"mean"</span>).head()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<summary>show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb109"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb109-1"><a href=""></a>chart_ready.groupby(<span class="st">"instrument"</span>)[<span class="st">"price"</span>].transform(<span class="st">"mean"</span>).head()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="76">
+<div class="cell-output cell-output-display" data-execution_count="529">
 <pre><code>0    467.8
 1    72.75
 2     49.2
@@ -4543,19 +4355,19 @@ Name: price, dtype: Float64</code></pre>
 </section>
 <section id="within-group-transformation" class="slide level2">
 <h2>Within-group transformation</h2>
-<div id="4eba3edc" class="cell" data-execution_count="77">
+<div id="66721de7" class="cell" data-execution_count="74">
 <details class="code-fold">
-<summary>Mostrar código</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb114"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb114-1"><a href=""></a>chart_ready <span class="op">=</span> chart_ready.sort_values([<span class="st">"instrument"</span>, <span class="st">"date"</span>]).copy()</span>
-<span id="cb114-2"><a href=""></a>chart_ready[<span class="st">"return_pct"</span>] <span class="op">=</span> chart_ready.groupby(<span class="st">"instrument"</span>)[<span class="st">"price"</span>].pct_change(</span>
-<span id="cb114-3"><a href=""></a>    fill_method<span class="op">=</span><span class="va">None</span></span>
-<span id="cb114-4"><a href=""></a>).mul(<span class="dv">100</span>)</span>
-<span id="cb114-5"><a href=""></a>chart_ready[<span class="st">"price_z"</span>] <span class="op">=</span> chart_ready.groupby(<span class="st">"instrument"</span>)[<span class="st">"price"</span>].transform(</span>
-<span id="cb114-6"><a href=""></a>    <span class="kw">lambda</span> s: (s <span class="op">-</span> s.mean()) <span class="op">/</span> s.std()</span>
-<span id="cb114-7"><a href=""></a>)</span>
-<span id="cb114-8"><a href=""></a>chart_ready.loc[:, [<span class="st">"date"</span>, <span class="st">"instrument"</span>, <span class="st">"price"</span>, <span class="st">"return_pct"</span>, <span class="st">"price_z"</span>]].head(<span class="dv">7</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<summary>show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb111"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb111-1"><a href=""></a>chart_ready <span class="op">=</span> chart_ready.sort_values([<span class="st">"instrument"</span>, <span class="st">"date"</span>]).copy()</span>
+<span id="cb111-2"><a href=""></a>chart_ready[<span class="st">"return_pct"</span>] <span class="op">=</span> chart_ready.groupby(<span class="st">"instrument"</span>)[<span class="st">"price"</span>].pct_change(</span>
+<span id="cb111-3"><a href=""></a>    fill_method<span class="op">=</span><span class="va">None</span></span>
+<span id="cb111-4"><a href=""></a>).mul(<span class="dv">100</span>)</span>
+<span id="cb111-5"><a href=""></a>chart_ready[<span class="st">"price_z"</span>] <span class="op">=</span> chart_ready.groupby(<span class="st">"instrument"</span>)[<span class="st">"price"</span>].transform(</span>
+<span id="cb111-6"><a href=""></a>    <span class="kw">lambda</span> s: (s <span class="op">-</span> s.mean()) <span class="op">/</span> s.std()</span>
+<span id="cb111-7"><a href=""></a>)</span>
+<span id="cb111-8"><a href=""></a>chart_ready.loc[:, [<span class="st">"date"</span>, <span class="st">"instrument"</span>, <span class="st">"price"</span>, <span class="st">"return_pct"</span>, <span class="st">"price_z"</span>]].head(<span class="dv">7</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="77">
+<div class="cell-output cell-output-display" data-execution_count="530">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -4661,19 +4473,19 @@ Name: price, dtype: Float64</code></pre>
 </section>
 <section id="filter-groups-and-use-apply-selectively" class="slide level2">
 <h2>Filter groups and use <code>apply</code> selectively</h2>
-<div id="02952624" class="cell" data-execution_count="78">
+<div id="a770bdfc" class="cell" data-execution_count="75">
 <details class="code-fold">
-<summary>Mostrar código</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb115"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb115-1"><a href=""></a>covered <span class="op">=</span> chart_ready.groupby(<span class="st">"instrument"</span>).<span class="bu">filter</span>(</span>
-<span id="cb115-2"><a href=""></a>    <span class="kw">lambda</span> g: g[<span class="st">"price"</span>].notna().mean() <span class="op">&gt;=</span> <span class="fl">0.95</span></span>
-<span id="cb115-3"><a href=""></a>)</span>
-<span id="cb115-4"><a href=""></a></span>
-<span id="cb115-5"><a href=""></a><span class="kw">def</span> top_volume_rows(group, n<span class="op">=</span><span class="dv">2</span>):</span>
-<span id="cb115-6"><a href=""></a>    <span class="cf">return</span> group.nlargest(n, <span class="st">"volume"</span>)</span>
-<span id="cb115-7"><a href=""></a></span>
-<span id="cb115-8"><a href=""></a>top_volume <span class="op">=</span> chart_ready.groupby(<span class="st">"instrument"</span>, group_keys<span class="op">=</span><span class="va">False</span>).<span class="bu">apply</span>(</span>
-<span id="cb115-9"><a href=""></a>    top_volume_rows, include_groups<span class="op">=</span><span class="va">False</span></span>
-<span id="cb115-10"><a href=""></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<summary>show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb112"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb112-1"><a href=""></a>covered <span class="op">=</span> chart_ready.groupby(<span class="st">"instrument"</span>).<span class="bu">filter</span>(</span>
+<span id="cb112-2"><a href=""></a>    <span class="kw">lambda</span> g: g[<span class="st">"price"</span>].notna().mean() <span class="op">&gt;=</span> <span class="fl">0.95</span></span>
+<span id="cb112-3"><a href=""></a>)</span>
+<span id="cb112-4"><a href=""></a></span>
+<span id="cb112-5"><a href=""></a><span class="kw">def</span> top_volume_rows(group, n<span class="op">=</span><span class="dv">2</span>):</span>
+<span id="cb112-6"><a href=""></a>    <span class="cf">return</span> group.nlargest(n, <span class="st">"volume"</span>)</span>
+<span id="cb112-7"><a href=""></a></span>
+<span id="cb112-8"><a href=""></a>top_volume <span class="op">=</span> chart_ready.groupby(<span class="st">"instrument"</span>, group_keys<span class="op">=</span><span class="va">False</span>).<span class="bu">apply</span>(</span>
+<span id="cb112-9"><a href=""></a>    top_volume_rows, include_groups<span class="op">=</span><span class="va">False</span></span>
+<span id="cb112-10"><a href=""></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <p>Use specialized operations before <code>apply</code>.</p>
@@ -4693,17 +4505,17 @@ Name: price, dtype: Float64</code></pre>
 </section>
 <section id="pivot-tables-and-crosstabs" class="slide level2">
 <h2>Pivot tables and crosstabs</h2>
-<div id="f77b4f7d" class="cell" data-execution_count="79">
+<div id="69b80852" class="cell" data-execution_count="76">
 <details class="code-fold">
-<summary>Mostrar código</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb116"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb116-1"><a href=""></a>chart_ready[<span class="st">"week"</span>] <span class="op">=</span> ((chart_ready[<span class="st">"date"</span>].dt.day <span class="op">-</span> <span class="dv">1</span>) <span class="op">//</span> <span class="dv">7</span> <span class="op">+</span> <span class="dv">1</span>).astype(<span class="bu">int</span>)</span>
-<span id="cb116-2"><a href=""></a>weekly_price <span class="op">=</span> chart_ready.pivot_table(</span>
-<span id="cb116-3"><a href=""></a>    index<span class="op">=</span><span class="st">"instrument"</span>, columns<span class="op">=</span><span class="st">"week"</span>, values<span class="op">=</span><span class="st">"price_z"</span>,</span>
-<span id="cb116-4"><a href=""></a>    aggfunc<span class="op">=</span><span class="st">"mean"</span>, observed<span class="op">=</span><span class="va">True</span></span>
-<span id="cb116-5"><a href=""></a>).astype(<span class="bu">float</span>)</span>
-<span id="cb116-6"><a href=""></a>weekly_price.<span class="bu">round</span>(<span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<summary>show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb113"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb113-1"><a href=""></a>chart_ready[<span class="st">"week"</span>] <span class="op">=</span> ((chart_ready[<span class="st">"date"</span>].dt.day <span class="op">-</span> <span class="dv">1</span>) <span class="op">//</span> <span class="dv">7</span> <span class="op">+</span> <span class="dv">1</span>).astype(<span class="bu">int</span>)</span>
+<span id="cb113-2"><a href=""></a>weekly_price <span class="op">=</span> chart_ready.pivot_table(</span>
+<span id="cb113-3"><a href=""></a>    index<span class="op">=</span><span class="st">"instrument"</span>, columns<span class="op">=</span><span class="st">"week"</span>, values<span class="op">=</span><span class="st">"price_z"</span>,</span>
+<span id="cb113-4"><a href=""></a>    aggfunc<span class="op">=</span><span class="st">"mean"</span>, observed<span class="op">=</span><span class="va">True</span></span>
+<span id="cb113-5"><a href=""></a>).astype(<span class="bu">float</span>)</span>
+<span id="cb113-6"><a href=""></a>weekly_price.<span class="bu">round</span>(<span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="79">
+<div class="cell-output cell-output-display" data-execution_count="532">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -4765,14 +4577,14 @@ Name: price, dtype: Float64</code></pre>
 </section>
 <section id="pivot-tables-and-crosstabs-1" class="slide level2">
 <h2>Pivot tables and crosstabs</h2>
-<div id="44b04960" class="cell" data-execution_count="80">
+<div id="b0047b49" class="cell" data-execution_count="77">
 <details class="code-fold">
-<summary>Mostrar código</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb117"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb117-1"><a href=""></a>pd.crosstab(</span>
-<span id="cb117-2"><a href=""></a>    chart_ready[<span class="st">"instrument"</span>], chart_ready[<span class="st">"price_imputed"</span>], normalize<span class="op">=</span><span class="st">"index"</span></span>
-<span id="cb117-3"><a href=""></a>).<span class="bu">round</span>(<span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<summary>show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb114"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb114-1"><a href=""></a>pd.crosstab(</span>
+<span id="cb114-2"><a href=""></a>    chart_ready[<span class="st">"instrument"</span>], chart_ready[<span class="st">"price_imputed"</span>], normalize<span class="op">=</span><span class="st">"index"</span></span>
+<span id="cb114-3"><a href=""></a>).<span class="bu">round</span>(<span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="80">
+<div class="cell-output cell-output-display" data-execution_count="533">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -4839,19 +4651,19 @@ Name: price, dtype: Float64</code></pre>
 </section>
 <section id="validate-grouped-results" class="slide level2">
 <h2>Validate grouped results</h2>
-<div id="230e7039" class="cell" data-execution_count="81">
+<div id="d4018272" class="cell" data-execution_count="78">
 <details class="code-fold">
-<summary>Mostrar código</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb118"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb118-1"><a href=""></a>check <span class="op">=</span> chart_ready.groupby(<span class="st">"instrument"</span>).agg(</span>
-<span id="cb118-2"><a href=""></a>    rows<span class="op">=</span>(<span class="st">"price"</span>, <span class="st">"size"</span>),</span>
-<span id="cb118-3"><a href=""></a>    observed<span class="op">=</span>(<span class="st">"price"</span>, <span class="st">"count"</span>)</span>
-<span id="cb118-4"><a href=""></a>)</span>
-<span id="cb118-5"><a href=""></a><span class="cf">assert</span> check[<span class="st">"rows"</span>].<span class="bu">sum</span>() <span class="op">==</span> <span class="bu">len</span>(chart_ready)</span>
-<span id="cb118-6"><a href=""></a><span class="cf">assert</span> check[<span class="st">"observed"</span>].<span class="bu">sum</span>() <span class="op">==</span> chart_ready[<span class="st">"price"</span>].notna().<span class="bu">sum</span>()</span>
-<span id="cb118-7"><a href=""></a><span class="cf">assert</span> check[<span class="st">"observed"</span>].le(check[<span class="st">"rows"</span>]).<span class="bu">all</span>()</span>
-<span id="cb118-8"><a href=""></a>check</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<summary>show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb115"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb115-1"><a href=""></a>check <span class="op">=</span> chart_ready.groupby(<span class="st">"instrument"</span>).agg(</span>
+<span id="cb115-2"><a href=""></a>    rows<span class="op">=</span>(<span class="st">"price"</span>, <span class="st">"size"</span>),</span>
+<span id="cb115-3"><a href=""></a>    observed<span class="op">=</span>(<span class="st">"price"</span>, <span class="st">"count"</span>)</span>
+<span id="cb115-4"><a href=""></a>)</span>
+<span id="cb115-5"><a href=""></a><span class="cf">assert</span> check[<span class="st">"rows"</span>].<span class="bu">sum</span>() <span class="op">==</span> <span class="bu">len</span>(chart_ready)</span>
+<span id="cb115-6"><a href=""></a><span class="cf">assert</span> check[<span class="st">"observed"</span>].<span class="bu">sum</span>() <span class="op">==</span> chart_ready[<span class="st">"price"</span>].notna().<span class="bu">sum</span>()</span>
+<span id="cb115-7"><a href=""></a><span class="cf">assert</span> check[<span class="st">"observed"</span>].le(check[<span class="st">"rows"</span>]).<span class="bu">all</span>()</span>
+<span id="cb115-8"><a href=""></a>check</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="81">
+<div class="cell-output cell-output-display" data-execution_count="534">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -4915,24 +4727,14 @@ Name: price, dtype: Float64</code></pre>
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
-<!-- ## Checkpoint 3 -->
-<!-- Choose the most specific operation: -->
-<!-- 1. one mean per instrument; -->
-<!-- 2. subtract each instrument's own mean from every row; -->
-<!-- 3. retain instruments with sufficient coverage; -->
-<!-- 4. obtain two rows with highest volume per group; -->
-<!-- 5. create several named summaries. -->
-<!-- ::: {.notes} -->
-<!-- Respostas: agg, transform, filter, apply, agg. Tempo: 3 min. -->
-<!-- ::: -->
 </section>
 <section id="inspecting-groups-directly" class="slide level2">
 <h2>Inspecting groups directly</h2>
-<div id="b4a1fadd" class="cell" data-execution_count="82">
+<div id="40e32c77" class="cell" data-execution_count="79">
 <details class="code-fold">
-<summary>Mostrar código</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb119"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb119-1"><a href=""></a><span class="cf">for</span> key, group <span class="kw">in</span> chart_ready.groupby(<span class="st">"instrument"</span>):</span>
-<span id="cb119-2"><a href=""></a>    <span class="bu">print</span>(key, group.shape)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<summary>show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb116"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb116-1"><a href=""></a><span class="cf">for</span> key, group <span class="kw">in</span> chart_ready.groupby(<span class="st">"instrument"</span>):</span>
+<span id="cb116-2"><a href=""></a>    <span class="bu">print</span>(key, group.shape)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>BRENT (3, 16)
@@ -4940,12 +4742,12 @@ TTF (2, 16)
 WTI (3, 16)</code></pre>
 </div>
 </div>
-<div id="5b955540" class="cell" data-execution_count="83">
+<div id="be42052d" class="cell" data-execution_count="80">
 <details class="code-fold">
-<summary>Mostrar código</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb121"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb121-1"><a href=""></a>chart_ready.groupby(<span class="st">"instrument"</span>).get_group(<span class="st">"BRENT"</span>).head()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<summary>show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb118"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb118-1"><a href=""></a>chart_ready.groupby(<span class="st">"instrument"</span>).get_group(<span class="st">"BRENT"</span>).head()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="83">
+<div class="cell-output cell-output-display" data-execution_count="536">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -5053,13 +4855,13 @@ WTI (3, 16)</code></pre>
 </section>
 <section id="grouping-by-mappings-and-functions" class="slide level2">
 <h2>Grouping by mappings and functions</h2>
-<div id="02a44fb8" class="cell" data-execution_count="84">
+<div id="45033f4f" class="cell" data-execution_count="81">
 <details class="code-fold">
-<summary>Mostrar código</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb122"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb122-1"><a href=""></a>region_map <span class="op">=</span> {<span class="st">"BRENT"</span>: <span class="st">"Atlantic"</span>, <span class="st">"WTI"</span>: <span class="st">"Americas"</span>, <span class="st">"TTF"</span>: <span class="st">"Atlantic"</span>}</span>
-<span id="cb122-2"><a href=""></a>latest.groupby(region_map).mean()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<summary>show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb119"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb119-1"><a href=""></a>region_map <span class="op">=</span> {<span class="st">"BRENT"</span>: <span class="st">"Atlantic"</span>, <span class="st">"WTI"</span>: <span class="st">"Americas"</span>, <span class="st">"TTF"</span>: <span class="st">"Atlantic"</span>}</span>
+<span id="cb119-2"><a href=""></a>latest.groupby(region_map).mean()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="84">
+<div class="cell-output cell-output-display" data-execution_count="537">
 <pre><code>Americas    73.5
 Atlantic    64.0
 Name: price, dtype: float64</code></pre>
@@ -5082,17 +4884,17 @@ Name: price, dtype: float64</code></pre>
 </section>
 <section id="optimized-methods-before-custom-aggregators" class="slide level2">
 <h2>Optimized methods before custom aggregators</h2>
-<div id="32b781b7" class="cell" data-execution_count="85">
+<div id="dd5bbfd5" class="cell" data-execution_count="82">
 <details class="code-fold">
-<summary>Mostrar código</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb124"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb124-1"><a href=""></a><span class="kw">def</span> peak_to_peak(series):</span>
-<span id="cb124-2"><a href=""></a>    <span class="cf">return</span> series.<span class="bu">max</span>() <span class="op">-</span> series.<span class="bu">min</span>()</span>
-<span id="cb124-3"><a href=""></a></span>
-<span id="cb124-4"><a href=""></a>chart_ready.groupby(<span class="st">"instrument"</span>)[<span class="st">"price"</span>].agg(</span>
-<span id="cb124-5"><a href=""></a>    mean<span class="op">=</span><span class="st">"mean"</span>, median<span class="op">=</span><span class="st">"median"</span>, peak_to_peak<span class="op">=</span>peak_to_peak</span>
-<span id="cb124-6"><a href=""></a>).<span class="bu">round</span>(<span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<summary>show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb121"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb121-1"><a href=""></a><span class="kw">def</span> peak_to_peak(series):</span>
+<span id="cb121-2"><a href=""></a>    <span class="cf">return</span> series.<span class="bu">max</span>() <span class="op">-</span> series.<span class="bu">min</span>()</span>
+<span id="cb121-3"><a href=""></a></span>
+<span id="cb121-4"><a href=""></a>chart_ready.groupby(<span class="st">"instrument"</span>)[<span class="st">"price"</span>].agg(</span>
+<span id="cb121-5"><a href=""></a>    mean<span class="op">=</span><span class="st">"mean"</span>, median<span class="op">=</span><span class="st">"median"</span>, peak_to_peak<span class="op">=</span>peak_to_peak</span>
+<span id="cb121-6"><a href=""></a>).<span class="bu">round</span>(<span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="85">
+<div class="cell-output cell-output-display" data-execution_count="538">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -5165,15 +4967,15 @@ Name: price, dtype: float64</code></pre>
 </section>
 <section id="different-functions-for-different-columns" class="slide level2">
 <h2>Different functions for different columns</h2>
-<div id="494d95fc" class="cell" data-execution_count="86">
+<div id="084684cc" class="cell" data-execution_count="83">
 <details class="code-fold">
-<summary>Mostrar código</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb125"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb125-1"><a href=""></a>chart_ready.groupby(<span class="st">"instrument"</span>).agg({</span>
-<span id="cb125-2"><a href=""></a>    <span class="st">"price"</span>: [<span class="st">"mean"</span>, <span class="st">"std"</span>],</span>
-<span id="cb125-3"><a href=""></a>    <span class="st">"volume"</span>: [<span class="st">"sum"</span>, <span class="st">"median"</span>]</span>
-<span id="cb125-4"><a href=""></a>}).<span class="bu">round</span>(<span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<summary>show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb122"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb122-1"><a href=""></a>chart_ready.groupby(<span class="st">"instrument"</span>).agg({</span>
+<span id="cb122-2"><a href=""></a>    <span class="st">"price"</span>: [<span class="st">"mean"</span>, <span class="st">"std"</span>],</span>
+<span id="cb122-3"><a href=""></a>    <span class="st">"volume"</span>: [<span class="st">"sum"</span>, <span class="st">"median"</span>]</span>
+<span id="cb122-4"><a href=""></a>}).<span class="bu">round</span>(<span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="86">
+<div class="cell-output cell-output-display" data-execution_count="539">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -5260,13 +5062,13 @@ Name: price, dtype: float64</code></pre>
 </section>
 <section id="grouping-by-index-level" class="slide level2">
 <h2>Grouping by index level</h2>
-<div id="aa296adc" class="cell" data-execution_count="87">
+<div id="d32015e3" class="cell" data-execution_count="84">
 <details class="code-fold">
-<summary>Mostrar código</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb126"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb126-1"><a href=""></a>indexed_ready <span class="op">=</span> chart_ready.set_index([<span class="st">"category"</span>, <span class="st">"instrument"</span>])</span>
-<span id="cb126-2"><a href=""></a>indexed_ready.groupby(level<span class="op">=</span><span class="st">"category"</span>)[[<span class="st">"price"</span>, <span class="st">"volume"</span>]].mean().<span class="bu">round</span>(<span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<summary>show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb123"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb123-1"><a href=""></a>indexed_ready <span class="op">=</span> chart_ready.set_index([<span class="st">"category"</span>, <span class="st">"instrument"</span>])</span>
+<span id="cb123-2"><a href=""></a>indexed_ready.groupby(level<span class="op">=</span><span class="st">"category"</span>)[[<span class="st">"price"</span>, <span class="st">"volume"</span>]].mean().<span class="bu">round</span>(<span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="87">
+<div class="cell-output cell-output-display" data-execution_count="540">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -5329,16 +5131,16 @@ Name: price, dtype: float64</code></pre>
 </section>
 <section id="quantile-analysis-within-groups" class="slide level2">
 <h2>Quantile analysis within groups</h2>
-<div id="4db8732f" class="cell" data-execution_count="88">
+<div id="fb3a94de" class="cell" data-execution_count="85">
 <details class="code-fold">
-<summary>Mostrar código</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb127"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb127-1"><a href=""></a>chart_ready[<span class="st">"volume_quantile"</span>] <span class="op">=</span> chart_ready.groupby(<span class="st">"instrument"</span>)[<span class="st">"volume"</span>].transform(</span>
-<span id="cb127-2"><a href=""></a>    <span class="kw">lambda</span> s: pd.qcut(s.rank(method<span class="op">=</span><span class="st">"first"</span>), q<span class="op">=</span><span class="bu">min</span>(<span class="dv">3</span>, s.notna().<span class="bu">sum</span>()),</span>
-<span id="cb127-3"><a href=""></a>                      labels<span class="op">=</span><span class="va">False</span>, duplicates<span class="op">=</span><span class="st">"drop"</span>)</span>
-<span id="cb127-4"><a href=""></a>)</span>
-<span id="cb127-5"><a href=""></a>chart_ready.loc[:, [<span class="st">"instrument"</span>, <span class="st">"volume"</span>, <span class="st">"volume_quantile"</span>]].head()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<summary>show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb124"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb124-1"><a href=""></a>chart_ready[<span class="st">"volume_quantile"</span>] <span class="op">=</span> chart_ready.groupby(<span class="st">"instrument"</span>)[<span class="st">"volume"</span>].transform(</span>
+<span id="cb124-2"><a href=""></a>    <span class="kw">lambda</span> s: pd.qcut(s.rank(method<span class="op">=</span><span class="st">"first"</span>), q<span class="op">=</span><span class="bu">min</span>(<span class="dv">3</span>, s.notna().<span class="bu">sum</span>()),</span>
+<span id="cb124-3"><a href=""></a>                      labels<span class="op">=</span><span class="va">False</span>, duplicates<span class="op">=</span><span class="st">"drop"</span>)</span>
+<span id="cb124-4"><a href=""></a>)</span>
+<span id="cb124-5"><a href=""></a>chart_ready.loc[:, [<span class="st">"instrument"</span>, <span class="st">"volume"</span>, <span class="st">"volume_quantile"</span>]].head()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="88">
+<div class="cell-output cell-output-display" data-execution_count="541">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -5734,22 +5536,6 @@ Name: price, dtype: float64</code></pre>
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
-<!-- # Appendix {.unnumbered} -->
-<!-- ## Optional: save a publication-ready figure -->
-<!-- ```{python} -->
-<!-- fig, ax = plt.subplots(figsize=(8, 4.5)) -->
-<!-- sns.lineplot(data=weekly, x="week", y="mean_return", -->
-<!--              hue="instrument", marker="o", ax=ax) -->
-<!-- ax.axhline(0, color="0.35", linewidth=1) -->
-<!-- ax.set(title="Weekly mean daily return in synthetic data", -->
-<!--        xlabel="Week", ylabel="Mean daily return (%)") -->
-<!-- fig.tight_layout() -->
-<!-- fig.savefig("weekly_returns_synthetic.png", dpi=160, bbox_inches="tight") -->
-<!-- plt.close(fig) -->
-<!-- ``` -->
-<!-- ::: {.notes} -->
-<!-- Slide de backup. Explique dpi e bbox_inches. Tempo: 2 min. -->
-<!-- ::: -->
 
 </section></section>
     </div>
