@@ -5,7 +5,7 @@ author: "Victor Henriques, Ph.D."
 format:
   revealjs:
     theme: white
-    smaller: true
+    # smaller: true
     toc: true
     toc-depth: 1
     slide-number: c/t
@@ -21,6 +21,8 @@ format:
     preview-links: auto
     footer: "Data Analytics & Visualization"
     logo: logo.svg
+    code-fold: true
+    code-summary: "show code"    
 execute:
   echo: true
   warning: false

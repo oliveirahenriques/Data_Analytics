@@ -5,7 +5,7 @@ author: "Victor Henriques, Ph.D."
 format:
   revealjs:
     theme: white
-    smaller: true
+    # smaller: true
     slide-number: c/t
     transition: fade
     center: false
@@ -17,6 +17,8 @@ format:
     preview-links: auto
     footer: "Data Analytics & Visualization"
     logo: logo.svg
+    code-fold: true
+    code-summary: "show code"
 execute:
   echo: true
   warning: false
@@ -86,6 +88,9 @@ Relacione cada objetivo a uma entrega observável. Tempo: 2 min.
 ## Synthetic market data
 
 ```{python}
+#| echo: true 
+#| code-fold: true 
+#| code-summary: "Show code"
 raw = pd.DataFrame({
     "date": ["2026-01-02", "2026/01/02", "03-01-2026", "2026-01-03",
              "2026-01-04", "2026-01-04", "2026-01-05", "bad-date",
@@ -113,25 +118,25 @@ raw.head()
 Defina a unidade pretendida: um preço por instrumento e data. Peça aos alunos que identifiquem problemas sem ainda corrigi-los. Tempo: 3 min.
 :::
 
-## Why the first chart is unreliable
+<!-- ## Why the first chart is unreliable -->
 
-```{python}
-#| fig-width: 10
-#| fig-height: 4.7
-#| fig-align: center
-raw_plot = raw.assign(
-    date_plot=pd.to_datetime(raw["date"], errors="coerce", format="mixed", dayfirst=True),
-    price_plot=pd.to_numeric(raw["price"], errors="coerce")
-)
-fig, ax = plt.subplots()
-for name, group in raw_plot.groupby("instrument"):
-    ax.plot(group["date_plot"], group["price_plot"], marker="o", label=repr(name))
-ax.set(title="Raw labels fragment the visual series",
-       xlabel="Date", ylabel="Reported price")
-ax.legend(ncol=3, fontsize=9)
-plt.tight_layout()
-plt.show()
-```
+<!-- ```{python} -->
+<!-- #| fig-width: 10 -->
+<!-- #| fig-height: 4.7 -->
+<!-- #| fig-align: center -->
+<!-- raw_plot = raw.assign( -->
+<!--     date_plot=pd.to_datetime(raw["date"], errors="coerce", format="mixed", dayfirst=True), -->
+<!--     price_plot=pd.to_numeric(raw["price"], errors="coerce") -->
+<!-- ) -->
+<!-- fig, ax = plt.subplots() -->
+<!-- for name, group in raw_plot.groupby("instrument"): -->
+<!--     ax.plot(group["date_plot"], group["price_plot"], marker="o", label=repr(name)) -->
+<!-- ax.set(title="Raw labels fragment the visual series", -->
+<!--        xlabel="Date", ylabel="Reported price") -->
+<!-- ax.legend(ncol=3, fontsize=9) -->
+<!-- plt.tight_layout() -->
+<!-- plt.show() -->
+<!-- ``` -->
 
 ::: {.notes}
 Destaque labels fragmentados, erros de parsing, duplicatas e unidades incompatíveis. O objetivo é criar necessidade para toda a sequência. Tempo: 3 min.
@@ -1509,205 +1514,205 @@ Quantile bins describe relative position within each group, not common absolute 
 Diferencie quantile bins por instrumento de limites absolutos de volume. Tempo: 3 min.
 :::
 
-# Plotting and Visualization
+<!-- # Plotting and Visualization -->
 
-## Visualization begins with the question
+<!-- ## Visualization begins with the question -->
 
-| Question | Frequent starting point |
-|---|---|
-| How does a value evolve? | line |
-| How do categories compare? | bar or dot plot |
-| What is the distribution? | histogram, ECDF, box plot |
-| How do two quantities relate? | scatter plot |
-| How does a matrix vary? | heatmap |
+<!-- | Question | Frequent starting point | -->
+<!-- |---|---| -->
+<!-- | How does a value evolve? | line | -->
+<!-- | How do categories compare? | bar or dot plot | -->
+<!-- | What is the distribution? | histogram, ECDF, box plot | -->
+<!-- | How do two quantities relate? | scatter plot | -->
+<!-- | How does a matrix vary? | heatmap | -->
 
-::: {.notes}
-É uma heurística, não uma regra absoluta. Tempo: 3 min.
-:::
+<!-- ::: {.notes} -->
+<!-- É uma heurística, não uma regra absoluta. Tempo: 3 min. -->
+<!-- ::: -->
 
-## Figure and Axes
+<!-- ## Figure and Axes -->
 
-```{python}
-#| fig-width: 8
-#| fig-height: 4.5
-fig, ax = plt.subplots()
-ax.plot([1, 2, 3], [2, 5, 4], marker="o")
-ax.set(title="A Figure contains one or more Axes",
-       xlabel="Observation", ylabel="Value")
-plt.tight_layout()
-plt.show()
-```
+<!-- ```{python} -->
+<!-- #| fig-width: 8 -->
+<!-- #| fig-height: 4.5 -->
+<!-- fig, ax = plt.subplots() -->
+<!-- ax.plot([1, 2, 3], [2, 5, 4], marker="o") -->
+<!-- ax.set(title="A Figure contains one or more Axes", -->
+<!--        xlabel="Observation", ylabel="Value") -->
+<!-- plt.tight_layout() -->
+<!-- plt.show() -->
+<!-- ``` -->
 
-- `Figure`: complete canvas;
-- `Axes`: one plotting region;
-- methods on `ax`: plot and customize.
+<!-- - `Figure`: complete canvas; -->
+<!-- - `Axes`: one plotting region; -->
+<!-- - methods on `ax`: plot and customize. -->
 
-::: {.notes}
-Axes não é apenas um eixo; é a região que contém os eixos x e y. Tempo: 3 min.
-:::
+<!-- ::: {.notes} -->
+<!-- Axes não é apenas um eixo; é a região que contém os eixos x e y. Tempo: 3 min. -->
+<!-- ::: -->
 
-## A technically correct but invalid chart
+<!-- ## A technically correct but invalid chart -->
 
-```{python}
-#| fig-width: 8
-#| fig-height: 4.5
-ax = summary.plot.bar(x="instrument", y="mean_price",
-                      legend=False, color="#4472C4")
-ax.set(title="Mean synthetic price by instrument",
-       xlabel="Instrument", ylabel="Mean price in original units")
-plt.tight_layout()
-plt.show()
-```
+<!-- ```{python} -->
+<!-- #| fig-width: 8 -->
+<!-- #| fig-height: 4.5 -->
+<!-- ax = summary.plot.bar(x="instrument", y="mean_price", -->
+<!--                       legend=False, color="#4472C4") -->
+<!-- ax.set(title="Mean synthetic price by instrument", -->
+<!--        xlabel="Instrument", ylabel="Mean price in original units") -->
+<!-- plt.tight_layout() -->
+<!-- plt.show() -->
+<!-- ``` -->
 
-> The code works, but the bars mix USD/bbl and EUR/MWh.
+<!-- > The code works, but the bars mix USD/bbl and EUR/MWh. -->
 
-::: {.notes}
-Integração simples com pandas não garante comparação válida. Tempo: 3 min.
-:::
+<!-- ::: {.notes} -->
+<!-- Integração simples com pandas não garante comparação válida. Tempo: 3 min. -->
+<!-- ::: -->
 
-## Compare compatible units
+<!-- ## Compare compatible units -->
 
-```{python}
-#| fig-width: 10
-#| fig-height: 5
-crude = chart_ready.loc[chart_ready["category"].eq("Crude oil")]
-fig, ax = plt.subplots()
-sns.lineplot(data=crude, x="date", y="price",
-             hue="instrument", style="price_imputed",
-             markers=True, dashes=False, ax=ax)
-ax.set(title="Synthetic crude-oil prices",
-       xlabel="Date", ylabel="Price (USD/bbl)")
-ax.legend(title="Instrument / imputed", frameon=False)
-plt.tight_layout()
-plt.show()
-```
+<!-- ```{python} -->
+<!-- #| fig-width: 10 -->
+<!-- #| fig-height: 5 -->
+<!-- crude = chart_ready.loc[chart_ready["category"].eq("Crude oil")] -->
+<!-- fig, ax = plt.subplots() -->
+<!-- sns.lineplot(data=crude, x="date", y="price", -->
+<!--              hue="instrument", style="price_imputed", -->
+<!--              markers=True, dashes=False, ax=ax) -->
+<!-- ax.set(title="Synthetic crude-oil prices", -->
+<!--        xlabel="Date", ylabel="Price (USD/bbl)") -->
+<!-- ax.legend(title="Instrument / imputed", frameon=False) -->
+<!-- plt.tight_layout() -->
+<!-- plt.show() -->
+<!-- ``` -->
 
-::: {.notes}
-A comparação agora usa a mesma unidade e identifica imputações. Tempo: 3 min.
-:::
+<!-- ::: {.notes} -->
+<!-- A comparação agora usa a mesma unidade e identifica imputações. Tempo: 3 min. -->
+<!-- ::: -->
 
-## Distribution before summary
+<!-- ## Distribution before summary -->
 
-```{python}
-#| fig-width: 9
-#| fig-height: 4.7
-fig, ax = plt.subplots()
-sns.boxplot(data=chart_ready, x="instrument", y="price_z",
-            hue="instrument", palette="colorblind", legend=False, ax=ax)
-ax.set(title="Within-instrument standardized price distributions",
-       xlabel="Instrument", ylabel="Price z-score")
-plt.tight_layout()
-plt.show()
-```
+<!-- ```{python} -->
+<!-- #| fig-width: 9 -->
+<!-- #| fig-height: 4.7 -->
+<!-- fig, ax = plt.subplots() -->
+<!-- sns.boxplot(data=chart_ready, x="instrument", y="price_z", -->
+<!--             hue="instrument", palette="colorblind", legend=False, ax=ax) -->
+<!-- ax.set(title="Within-instrument standardized price distributions", -->
+<!--        xlabel="Instrument", ylabel="Price z-score") -->
+<!-- plt.tight_layout() -->
+<!-- plt.show() -->
+<!-- ``` -->
 
-::: {.notes}
-Explique mediana, quartis e whiskers. Pontos extremos não são automaticamente erros. Tempo: 3 min.
-:::
+<!-- ::: {.notes} -->
+<!-- Explique mediana, quartis e whiskers. Pontos extremos não são automaticamente erros. Tempo: 3 min. -->
+<!-- ::: -->
 
-## Relationship and semantic mappings
+<!-- ## Relationship and semantic mappings -->
 
-```{python}
-#| fig-width: 9
-#| fig-height: 4.7
-fig, ax = plt.subplots()
-sns.scatterplot(data=chart_ready, x="volume", y="return_pct",
-                hue="instrument", style="price_imputed", alpha=0.8, ax=ax)
-ax.axhline(0, color="0.4", linewidth=1)
-ax.set(title="Volume and daily return in synthetic observations",
-       xlabel="Volume", ylabel="Daily return (%)")
-plt.tight_layout()
-plt.show()
-```
+<!-- ```{python} -->
+<!-- #| fig-width: 9 -->
+<!-- #| fig-height: 4.7 -->
+<!-- fig, ax = plt.subplots() -->
+<!-- sns.scatterplot(data=chart_ready, x="volume", y="return_pct", -->
+<!--                 hue="instrument", style="price_imputed", alpha=0.8, ax=ax) -->
+<!-- ax.axhline(0, color="0.4", linewidth=1) -->
+<!-- ax.set(title="Volume and daily return in synthetic observations", -->
+<!--        xlabel="Volume", ylabel="Daily return (%)") -->
+<!-- plt.tight_layout() -->
+<!-- plt.show() -->
+<!-- ``` -->
 
-::: {.notes}
-Hue identifica instrumento e style torna imputação visível. Evite inferir causalidade. Tempo: 3 min.
-:::
+<!-- ::: {.notes} -->
+<!-- Hue identifica instrumento e style torna imputação visível. Evite inferir causalidade. Tempo: 3 min. -->
+<!-- ::: -->
 
-## Heatmaps for grouped matrices
+<!-- ## Heatmaps for grouped matrices -->
 
-```{python}
-#| fig-width: 9
-#| fig-height: 4.7
-fig, ax = plt.subplots()
-sns.heatmap(weekly_price, cmap="vlag", center=0,
-            annot=True, fmt=".2f", ax=ax)
-ax.set(title="Weekly mean standardized price",
-       xlabel="Week", ylabel="Instrument")
-plt.tight_layout()
-plt.show()
-```
+<!-- ```{python} -->
+<!-- #| fig-width: 9 -->
+<!-- #| fig-height: 4.7 -->
+<!-- fig, ax = plt.subplots() -->
+<!-- sns.heatmap(weekly_price, cmap="vlag", center=0, -->
+<!--             annot=True, fmt=".2f", ax=ax) -->
+<!-- ax.set(title="Weekly mean standardized price", -->
+<!--        xlabel="Week", ylabel="Instrument") -->
+<!-- plt.tight_layout() -->
+<!-- plt.show() -->
+<!-- ``` -->
 
-::: {.notes}
-Paleta divergente e centro zero correspondem ao significado do z-score. Tempo: 3 min.
-:::
+<!-- ::: {.notes} -->
+<!-- Paleta divergente e centro zero correspondem ao significado do z-score. Tempo: 3 min. -->
+<!-- ::: -->
 
-## Show uncertainty and coverage
+<!-- ## Show uncertainty and coverage -->
 
-```{python}
-return_summary = (
-    chart_ready.groupby("instrument", as_index=False)
-    .agg(mean_return=("return_pct", "mean"),
-         sd_return=("return_pct", "std"),
-         n=("return_pct", "count"))
-)
-return_summary["se_return"] = (
-    return_summary["sd_return"] / np.sqrt(return_summary["n"])
-).fillna(0.0)
-return_summary.round(3)
-```
+<!-- ```{python} -->
+<!-- return_summary = ( -->
+<!--     chart_ready.groupby("instrument", as_index=False) -->
+<!--     .agg(mean_return=("return_pct", "mean"), -->
+<!--          sd_return=("return_pct", "std"), -->
+<!--          n=("return_pct", "count")) -->
+<!-- ) -->
+<!-- return_summary["se_return"] = ( -->
+<!--     return_summary["sd_return"] / np.sqrt(return_summary["n"]) -->
+<!-- ).fillna(0.0) -->
+<!-- return_summary.round(3) -->
+<!-- ``` -->
 
-::: {.notes}
-Erro-padrão não é dispersão dos dados nem intervalo causal. N deve ser mostrado ou auditável. Tempo: 3 min.
-:::
+<!-- ::: {.notes} -->
+<!-- Erro-padrão não é dispersão dos dados nem intervalo causal. N deve ser mostrado ou auditável. Tempo: 3 min. -->
+<!-- ::: -->
 
-## Error bars
+<!-- ## Error bars -->
 
-```{python}
-#| fig-width: 8
-#| fig-height: 4.5
-fig, ax = plt.subplots()
-ax.errorbar(return_summary["instrument"], return_summary["mean_return"],
-            yerr=return_summary["se_return"], fmt="o", capsize=5,
-            color="#0072B2")
-ax.axhline(0, color="0.4", linewidth=1)
-ax.set(title="Mean daily return and standard error",
-       xlabel="Instrument", ylabel="Daily return (%)")
-plt.tight_layout()
-plt.show()
-```
+<!-- ```{python} -->
+<!-- #| fig-width: 8 -->
+<!-- #| fig-height: 4.5 -->
+<!-- fig, ax = plt.subplots() -->
+<!-- ax.errorbar(return_summary["instrument"], return_summary["mean_return"], -->
+<!--             yerr=return_summary["se_return"], fmt="o", capsize=5, -->
+<!--             color="#0072B2") -->
+<!-- ax.axhline(0, color="0.4", linewidth=1) -->
+<!-- ax.set(title="Mean daily return and standard error", -->
+<!--        xlabel="Instrument", ylabel="Daily return (%)") -->
+<!-- plt.tight_layout() -->
+<!-- plt.show() -->
+<!-- ``` -->
 
-::: {.notes}
-Use para ensinar comunicação de incerteza descritiva. Dados sintéticos e amostra curta limitam interpretação. Tempo: 3 min.
-:::
+<!-- ::: {.notes} -->
+<!-- Use para ensinar comunicação de incerteza descritiva. Dados sintéticos e amostra curta limitam interpretação. Tempo: 3 min. -->
+<!-- ::: -->
 
-## Titles, labels, annotations, and legends
+<!-- ## Titles, labels, annotations, and legends -->
 
-A complete chart should answer:
+<!-- A complete chart should answer: -->
 
-- What is being shown?
-- Over which population or sample?
-- In which units?
-- Which visual channels encode variables?
-- What feature deserves attention?
-- What limitation constrains interpretation?
+<!-- - What is being shown? -->
+<!-- - Over which population or sample? -->
+<!-- - In which units? -->
+<!-- - Which visual channels encode variables? -->
+<!-- - What feature deserves attention? -->
+<!-- - What limitation constrains interpretation? -->
 
-::: {.notes}
-Títulos devem comunicar a mensagem, mas não exagerar a evidência. Tempo: 2 min.
-:::
+<!-- ::: {.notes} -->
+<!-- Títulos devem comunicar a mensagem, mas não exagerar a evidência. Tempo: 2 min. -->
+<!-- ::: -->
 
-## Accessibility and restraint
+<!-- ## Accessibility and restraint -->
 
-- use sufficient contrast;
-- avoid relying only on color;
-- label axes with units;
-- remove redundant legends;
-- use direct and informative titles;
-- annotate only relevant evidence;
-- avoid 3D effects and decorative distortion.
+<!-- - use sufficient contrast; -->
+<!-- - avoid relying only on color; -->
+<!-- - label axes with units; -->
+<!-- - remove redundant legends; -->
+<!-- - use direct and informative titles; -->
+<!-- - annotate only relevant evidence; -->
+<!-- - avoid 3D effects and decorative distortion. -->
 
-::: {.notes}
-Acessibilidade melhora precisão e reduz ambiguidade. Tempo: 2 min.
-:::
+<!-- ::: {.notes} -->
+<!-- Acessibilidade melhora precisão e reduz ambiguidade. Tempo: 2 min. -->
+<!-- ::: -->
 
 <!-- ## Checkpoint 4 -->
 
@@ -1726,153 +1731,153 @@ Acessibilidade melhora precisão e reduz ambiguidade. Tempo: 2 min.
 <!-- ::: -->
 
 
-## Choose the visual channel deliberately
+<!-- ## Choose the visual channel deliberately -->
 
-| Data property | Strong visual channel |
-|---|---|
-| quantitative magnitude | aligned position |
-| ordered time | horizontal position and connection |
-| category | position, color, or shape |
-| distribution | position plus density or intervals |
-| uncertainty | intervals, bands, or distributions |
+<!-- | Data property | Strong visual channel | -->
+<!-- |---|---| -->
+<!-- | quantitative magnitude | aligned position | -->
+<!-- | ordered time | horizontal position and connection | -->
+<!-- | category | position, color, or shape | -->
+<!-- | distribution | position plus density or intervals | -->
+<!-- | uncertainty | intervals, bands, or distributions | -->
 
-Use color to support structure, not to compensate for weak comparisons.
+<!-- Use color to support structure, not to compensate for weak comparisons. -->
 
-::: {.notes}
-Apresente como orientação baseada em percepção, não regra universal. Tempo: 3 min.
-:::
+<!-- ::: {.notes} -->
+<!-- Apresente como orientação baseada em percepção, não regra universal. Tempo: 3 min. -->
+<!-- ::: -->
 
-## Line plots require meaningful order
+<!-- ## Line plots require meaningful order -->
 
-```{python}
-#| fig-width: 9
-#| fig-height: 4.5
-brent_line = chart_ready.loc[chart_ready["instrument"].eq("BRENT")].sort_values("date")
-fig, ax = plt.subplots()
-ax.plot(brent_line["date"], brent_line["price"], marker="o", color="#0072B2")
-ax.set(title="A line encodes ordered continuity",
-       xlabel="Date", ylabel="Price (USD/bbl)")
-plt.tight_layout()
-plt.show()
-```
+<!-- ```{python} -->
+<!-- #| fig-width: 9 -->
+<!-- #| fig-height: 4.5 -->
+<!-- brent_line = chart_ready.loc[chart_ready["instrument"].eq("BRENT")].sort_values("date") -->
+<!-- fig, ax = plt.subplots() -->
+<!-- ax.plot(brent_line["date"], brent_line["price"], marker="o", color="#0072B2") -->
+<!-- ax.set(title="A line encodes ordered continuity", -->
+<!--        xlabel="Date", ylabel="Price (USD/bbl)") -->
+<!-- plt.tight_layout() -->
+<!-- plt.show() -->
+<!-- ``` -->
 
-::: {.notes}
-Linha conecta observações e implica ordem. Não use linha para categorias nominais sem ordem. Tempo: 3 min.
-:::
+<!-- ::: {.notes} -->
+<!-- Linha conecta observações e implica ordem. Não use linha para categorias nominais sem ordem. Tempo: 3 min. -->
+<!-- ::: -->
 
-## Bars need a meaningful baseline
+<!-- ## Bars need a meaningful baseline -->
 
-```{python}
-#| fig-width: 8
-#| fig-height: 4.5
-crude_summary = crude.groupby("instrument", as_index=False).agg(
-    mean_price=("price", "mean")
-)
-fig, ax = plt.subplots()
-sns.barplot(data=crude_summary, x="instrument", y="mean_price", color="#4472C4", ax=ax)
-ax.set_ylim(0, None)
-ax.set(title="Mean crude-oil price", xlabel="Instrument", ylabel="Mean price (USD/bbl)")
-plt.tight_layout()
-plt.show()
-```
+<!-- ```{python} -->
+<!-- #| fig-width: 8 -->
+<!-- #| fig-height: 4.5 -->
+<!-- crude_summary = crude.groupby("instrument", as_index=False).agg( -->
+<!--     mean_price=("price", "mean") -->
+<!-- ) -->
+<!-- fig, ax = plt.subplots() -->
+<!-- sns.barplot(data=crude_summary, x="instrument", y="mean_price", color="#4472C4", ax=ax) -->
+<!-- ax.set_ylim(0, None) -->
+<!-- ax.set(title="Mean crude-oil price", xlabel="Instrument", ylabel="Mean price (USD/bbl)") -->
+<!-- plt.tight_layout() -->
+<!-- plt.show() -->
+<!-- ``` -->
 
-Because bar length encodes magnitude, a zero baseline is normally required.
+<!-- Because bar length encodes magnitude, a zero baseline is normally required. -->
 
-::: {.notes}
-Compare com dot plot quando diferenças pequenas são o foco. Tempo: 3 min.
-:::
+<!-- ::: {.notes} -->
+<!-- Compare com dot plot quando diferenças pequenas são o foco. Tempo: 3 min. -->
+<!-- ::: -->
 
-## Histograms depend on bin choices
+<!-- ## Histograms depend on bin choices -->
 
-```{python}
-#| fig-width: 9
-#| fig-height: 4.5
-fig, axes = plt.subplots(1, 2, sharey=True)
-axes[0].hist(chart_ready["return_pct"].dropna(), bins=4, color="#4472C4")
-axes[1].hist(chart_ready["return_pct"].dropna(), bins=10, color="#4472C4")
-axes[0].set(title="4 bins", xlabel="Return (%)", ylabel="Frequency")
-axes[1].set(title="10 bins", xlabel="Return (%)")
-plt.tight_layout()
-plt.show()
-```
+<!-- ```{python} -->
+<!-- #| fig-width: 9 -->
+<!-- #| fig-height: 4.5 -->
+<!-- fig, axes = plt.subplots(1, 2, sharey=True) -->
+<!-- axes[0].hist(chart_ready["return_pct"].dropna(), bins=4, color="#4472C4") -->
+<!-- axes[1].hist(chart_ready["return_pct"].dropna(), bins=10, color="#4472C4") -->
+<!-- axes[0].set(title="4 bins", xlabel="Return (%)", ylabel="Frequency") -->
+<!-- axes[1].set(title="10 bins", xlabel="Return (%)") -->
+<!-- plt.tight_layout() -->
+<!-- plt.show() -->
+<!-- ``` -->
 
-The apparent shape changes with bin width and sample size.
+<!-- The apparent shape changes with bin width and sample size. -->
 
-::: {.notes}
-Ensine sensibilidade a bins. Para amostras pequenas, ECDF ou pontos individuais podem ser mais transparentes. Tempo: 3 min.
-:::
+<!-- ::: {.notes} -->
+<!-- Ensine sensibilidade a bins. Para amostras pequenas, ECDF ou pontos individuais podem ser mais transparentes. Tempo: 3 min. -->
+<!-- ::: -->
 
-## Density and ECDF answer different questions
+<!-- ## Density and ECDF answer different questions -->
 
-```{python}
-#| fig-width: 9
-#| fig-height: 4.5
-fig, axes = plt.subplots(1, 2)
-sns.kdeplot(data=chart_ready, x="price_z", hue="instrument", common_norm=False, ax=axes[0])
-sns.ecdfplot(data=chart_ready, x="price_z", hue="instrument", ax=axes[1])
-axes[0].set(title="Smoothed density", xlabel="Price z-score", ylabel="Density")
-axes[1].set(title="Empirical cumulative distribution", xlabel="Price z-score", ylabel="Cumulative share")
-plt.tight_layout()
-plt.show()
-```
+<!-- ```{python} -->
+<!-- #| fig-width: 9 -->
+<!-- #| fig-height: 4.5 -->
+<!-- fig, axes = plt.subplots(1, 2) -->
+<!-- sns.kdeplot(data=chart_ready, x="price_z", hue="instrument", common_norm=False, ax=axes[0]) -->
+<!-- sns.ecdfplot(data=chart_ready, x="price_z", hue="instrument", ax=axes[1]) -->
+<!-- axes[0].set(title="Smoothed density", xlabel="Price z-score", ylabel="Density") -->
+<!-- axes[1].set(title="Empirical cumulative distribution", xlabel="Price z-score", ylabel="Cumulative share") -->
+<!-- plt.tight_layout() -->
+<!-- plt.show() -->
+<!-- ``` -->
 
-::: {.notes}
-KDE depende de bandwidth; ECDF preserva todos os pontos sem bins ou smoothing. Tempo: 4 min.
-:::
+<!-- ::: {.notes} -->
+<!-- KDE depende de bandwidth; ECDF preserva todos os pontos sem bins ou smoothing. Tempo: 4 min. -->
+<!-- ::: -->
 
-## Faceting prevents incompatible overlays
+<!-- ## Faceting prevents incompatible overlays -->
 
-```{python}
-#| fig-width: 10
-#| fig-height: 4.8
-facet = sns.relplot(
-    data=chart_ready, x="date", y="price",
-    col="price_unit", hue="instrument", kind="line",
-    marker="o", facet_kws={"sharey": False}, height=4, aspect=1.15
-)
-facet.set_axis_labels("Date", "Price in stated unit")
-facet.figure.suptitle("Separate panels preserve unit context", y=1.05)
-plt.show()
-```
+<!-- ```{python} -->
+<!-- #| fig-width: 10 -->
+<!-- #| fig-height: 4.8 -->
+<!-- facet = sns.relplot( -->
+<!--     data=chart_ready, x="date", y="price", -->
+<!--     col="price_unit", hue="instrument", kind="line", -->
+<!--     marker="o", facet_kws={"sharey": False}, height=4, aspect=1.15 -->
+<!-- ) -->
+<!-- facet.set_axis_labels("Date", "Price in stated unit") -->
+<!-- facet.figure.suptitle("Separate panels preserve unit context", y=1.05) -->
+<!-- plt.show() -->
+<!-- ``` -->
 
-::: {.notes}
-Facets separam unidades, mas sharey=False dificulta comparar magnitude vertical entre painéis. Declare essa limitação. Tempo: 3 min.
-:::
+<!-- ::: {.notes} -->
+<!-- Facets separam unidades, mas sharey=False dificulta comparar magnitude vertical entre painéis. Declare essa limitação. Tempo: 3 min. -->
+<!-- ::: -->
 
-## Regression lines are models, not decorations
+<!-- ## Regression lines are models, not decorations -->
 
-```{python}
-#| fig-width: 8
-#| fig-height: 4.5
-plot_reg = chart_ready.dropna(subset=["volume", "return_pct"])
-fig, ax = plt.subplots()
-sns.regplot(data=plot_reg, x="volume", y="return_pct",
-            scatter_kws={"alpha": 0.7}, line_kws={"color": "#D55E00"}, ax=ax)
-ax.set(title="A fitted line summarizes an assumed relationship",
-       xlabel="Volume", ylabel="Daily return (%)")
-plt.tight_layout()
-plt.show()
-```
+<!-- ```{python} -->
+<!-- #| fig-width: 8 -->
+<!-- #| fig-height: 4.5 -->
+<!-- plot_reg = chart_ready.dropna(subset=["volume", "return_pct"]) -->
+<!-- fig, ax = plt.subplots() -->
+<!-- sns.regplot(data=plot_reg, x="volume", y="return_pct", -->
+<!--             scatter_kws={"alpha": 0.7}, line_kws={"color": "#D55E00"}, ax=ax) -->
+<!-- ax.set(title="A fitted line summarizes an assumed relationship", -->
+<!--        xlabel="Volume", ylabel="Daily return (%)") -->
+<!-- plt.tight_layout() -->
+<!-- plt.show() -->
+<!-- ``` -->
 
-A regression line does not establish causality and may conceal group structure.
+<!-- A regression line does not establish causality and may conceal group structure. -->
 
-::: {.notes}
-Destaque amostra pequena, agrupamento ignorado e causalidade. Tempo: 3 min.
-:::
+<!-- ::: {.notes} -->
+<!-- Destaque amostra pequena, agrupamento ignorado e causalidade. Tempo: 3 min. -->
+<!-- ::: -->
 
-## Legends, direct labels, and redundant encodings
+<!-- ## Legends, direct labels, and redundant encodings -->
 
-A legend is useful when:
+<!-- A legend is useful when: -->
 
-- several series share one plotting area;
-- labels would otherwise overlap;
-- color or style has a clear semantic mapping.
+<!-- - several series share one plotting area; -->
+<!-- - labels would otherwise overlap; -->
+<!-- - color or style has a clear semantic mapping. -->
 
-Prefer direct labels when a small number of series can be identified at their endpoints. Combine color and marker shape when accessibility requires redundancy.
+<!-- Prefer direct labels when a small number of series can be identified at their endpoints. Combine color and marker shape when accessibility requires redundancy. -->
 
-::: {.notes}
-Discuta custo cognitivo de mover os olhos entre linhas e legenda. Tempo: 2 min.
-:::
+<!-- ::: {.notes} -->
+<!-- Discuta custo cognitivo de mover os olhos entre linhas e legenda. Tempo: 2 min. -->
+<!-- ::: -->
 
 
 

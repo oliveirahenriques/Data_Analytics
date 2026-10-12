@@ -22,6 +22,8 @@ format:
     preview-links: auto
     footer: "Data Analytics & Visualization"
     logo: logo.svg
+    code-fold: true
+    code-summary: "show code"
 execute:
   echo: true
   warning: false

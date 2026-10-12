@@ -20,6 +20,8 @@ format:
     chalkboard: true
     preview-links: auto
     footer: "Data Visualization"
+    code-fold: true
+    code-summary: "show code"    
 execute:
   echo: true
   warning: false
