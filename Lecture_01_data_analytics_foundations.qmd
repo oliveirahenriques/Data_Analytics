@@ -61,7 +61,7 @@ By the end of this module, students will be able to:
 ::: notes
 Ao final deste módulo, vocês estarão preparados para realizar as principais etapas de transformação e preparação de dados com pandas.
 
-Começaremos pela inspeção da estrutura de um DataFrame, verificando dimensões, tipos de dados e valores ausentes.
+Começaremos pela inspeção da estrutura de um DataFrame, verificando dimensões e tipos de dados.
 
 Em seguida, aprenderemos a selecionar, filtrar, ordenar e reorganizar linhas e colunas de diferentes maneiras.
 
@@ -69,7 +69,7 @@ Também criaremos novas variáveis por meio de operações vetorizadas e constru
 
 Depois, utilizaremos agrupamentos e agregações para resumir os dados e controlar os índices e MultiIndexes produzidos por essas operações.
 
-Veremos ainda como transformar dados entre os formatos largo e longo e como combinar diferentes tabelas por meio de concatenação e joins relacionais.
+Veremos ainda como transformar dados entre os formatos wide e long e como combinar diferentes tabelas por meio de concatenação e joins relacionais.
 
 O objetivo final é preparar dados estruturados, consistentes e prontos para análise e visualização. Afinal, uma visualização confiável começa com dados corretamente organizados e transformados
 :::
@@ -145,7 +145,7 @@ flights.head()
 ::: notes 
 Agora vamos deixar o exemplo artificial e trabalhar com uma base de dados real, chamada flights.
 
-Flights e uma base de dados quem contém informações sobre voos que partiram dos três principais aeroportos da cidade de Nova York ao longo de 2013. 
+Flights e uma base de dados quem contém informações da agencia nacional de estatisticas de transporte americana sobre voos que partiram dos três principais aeroportos da cidade de Nova York ao long de 2013. 
 
 Os aeroportos de origem são JFK, LaGuardia, representado pelo código LGA, e Newark, representado pelo código EWR. No total, a base original reúne 336.776 voos com destinos nos Estados Unidos, em Porto Rico e nas Ilhas Virgens Americanas. 
 
@@ -169,7 +169,7 @@ Em seguida, temos uma lista com todas as colunas do DataFrame. Para cada coluna,
 
 Os tipos podem incluir números inteiros, representados por int, números decimais, representados por float, e objetos de texto, normalmente representados por object. Também podemos encontrar tipos específicos para datas, categorias e valores booleanos.
 
-Na base de voos, por exemplo, podemos esperar valores ausentes em algumas variáveis relacionadas aos horários e aos atrasos. Isso pode acontecer quando um voo foi cancelado ou quando determinada informação não foi registrada.
+<!-- Na base de voos, por exemplo, podemos esperar valores ausentes em algumas variáveis relacionadas aos horários e aos atrasos. Isso pode acontecer quando um voo foi cancelado ou quando determinada informação não foi registrada. -->
 
 Essa inspeção inicial ajuda a identificar problemas antecipadamente e orienta as próximas etapas de limpeza, transformação e análise dos dados. 
 :::
@@ -189,9 +189,7 @@ flights["time_hour"].head()
 ```
 
 ::: notes 
-Agora vamos analisar a variável time_hour, que representa a data e a hora programada do voo.
-
-Quando visualizamos essa coluna, os valores parecem datas e horários. Por exemplo, o primeiro registro apresenta o ano, o mês, o dia e a hora do voo.
+Agora vamos analisar a variável time_hour, que representa a data e a hora programada do voo. Quando visualizamos essa coluna, os valores parecem datas e horários. Por exemplo, o primeiro registro apresenta o ano, o mês, o dia e a hora do voo.
 
 Entretanto, o pandas inicialmente identifica essa coluna como object. Isso significa que, apesar da aparência, esses valores estão armazenados como texto e ainda não são reconhecidos como datas.
 
@@ -224,7 +222,7 @@ df
 ::: notes
 Agora vamos iniciar a seção dedicada à manipulação de linhas.
 
-Para demonstrar essas operações de forma clara, vamos criar um DataFrame pequeno e controlado. Como conhecemos exatamente sua estrutura e seus valores, será mais fácil visualizar o efeito de cada comando.
+Para demonstrar essas operações de forma clara, vamos criar um novo DataFrame.
 
 Primeiro, utilizamos range(36) para gerar uma sequência de números inteiros de zero a trinta e cinco.
 
@@ -248,7 +246,7 @@ Esse exemplo também reforça que um DataFrame pode armazenar diferentes tipos d
 
 :::
 
-## Accessing rows by label
+## Accessing rows by label or position
 
 ### `.loc`
 
@@ -321,7 +319,7 @@ Por padrão, a ordenação é crescente. Para ordenar em ordem decrescente, util
 
 Por exemplo, ao ordenar dep_delay em ordem decrescente, os voos com os maiores atrasos de partida aparecem primeiro.
 
-Os valores ausentes são posicionados no final por padrão. É importante observar que sort_values() reorganiza as linhas, mas não altera os valores nem redefine automaticamente o índice original
+É importante observar que sort_values() reorganiza as linhas, mas não altera os valores nem redefine automaticamente o índice original
 :::
 
 ## Combining row operations
@@ -378,8 +376,7 @@ Cada elemento da lista é associado a uma linha, respeitando a ordem do DataFram
 ```{python}
 df[["new_column1", "new_column2"]] = [5, 6]
 df["new_column3"] = df["col0"] - df["new_column0"]
-df.insert(0, 'new_column3', df.pop('new_column3'))
-df.head()
+df[["col0","new_column0","new_column1", "new_column2","new_column3"]].head()
 ```
 
 ::: notes
@@ -416,7 +413,7 @@ A variável gain compara o atraso na partida com o atraso na chegada. Valores po
 
 A variável speed calcula a velocidade média do voo. Dividimos a distância pelo tempo no ar e multiplicamos o resultado por 60, convertendo a medida para milhas por hora.
 
-O lambda recebe o DataFrame e retorna o resultado da subtração entre as duas colunas.
+O lambda e uma declaração que (nesse caso) fornece uma maneira de especificar ao pandas que desejamos executar a operação em cada linha.
 
 Os cálculos continuam sendo vetorizados, ou seja, são aplicados às colunas inteiras, e não individualmente a cada linha.
 :::
@@ -462,8 +459,6 @@ Com .loc, o primeiro argumento indica as linhas e o segundo indica as colunas. A
 Já o .iloc realiza a seleção com base nas posições numéricas. Os dois-pontos indicam que queremos manter todas as linhas, enquanto a lista [0, 1] seleciona a primeira e a segunda colunas.
 
 Portanto, a estrutura é sempre linhas primeiro e colunas depois. A diferença é que .loc utiliza rótulos, enquanto .iloc utiliza posições.
-
-O método head() apenas limita a visualização às primeiras linhas do resultado.
 :::
 
 ## Selecting columns by type
@@ -474,14 +469,13 @@ flights.select_dtypes(include="int").head()
 
 ::: notes
  O método select_dtypes() permite selecionar colunas com base no tipo de dado que elas armazenam.
+ 
+ O método retorna um novo DataFrame somente com as colunas correspondentes. 
 
 Neste exemplo, usamos include="int" para manter apenas as colunas classificadas como números inteiros, como ano, mês, dia, número do voo e distância.
 
 Esse tipo de seleção é útil quando queremos aplicar operações apenas a determinadas categorias de variáveis, como calcular estatísticas sobre colunas numéricas ou validar colunas de texto.
 
-O método retorna um novo DataFrame somente com as colunas correspondentes. Em seguida, head() limita a visualização às primeiras linhas.
-
-Se quisermos selecionar todas as colunas numéricas, incluindo inteiros e números
 :::
 
 ## Selecting columns by name pattern
@@ -502,11 +496,9 @@ Other useful string methods include:
 ::: notes
 Também podemos selecionar colunas com base em padrões presentes nos seus nomes.
 
-Neste exemplo, df.columns retorna os nomes de todas as colunas. Em seguida, str.startswith("new") verifica quais nomes começam com o texto new.
+Neste exemplo, No .loc, os dois-pontos indicam que queremos manter todas as linhas. quanto as colunas,  df.columns retorna os nomes de todas as colunas. Em seguida, str.startswith("new") verifica quais nomes começam com o texto new. 
 
-O resultado dessa verificação é uma sequência de valores True e False. O valor True identifica as colunas que atendem ao critério.
-
-No .loc, os dois-pontos indicam que queremos manter todas as linhas. A condição após a vírgula seleciona apenas as colunas cujos nomes começam com new.
+Em resumo, a condição após a vírgula seleciona apenas as colunas cujos nomes começam com new.
 
 Outros métodos de texto permitem selecionar colunas que terminam com determinado padrão, que contêm uma expressão ou que possuem nomes formados por números ou letras minúsculas.
 
@@ -532,9 +524,6 @@ Para isso, usamos um dicionário no qual cada nome antigo é associado ao novo n
 
 Por padrão, rename() retorna um novo DataFrame e não modifica o objeto original. Para preservar as alterações, precisamos atribuir o resultado novamente ao DataFrame ou criar um novo objeto.
 
-Também podemos padronizar todos os nomes de forma sistemática. Neste segundo exemplo, removemos espaços no início e no final, convertemos os nomes para letras minúsculas e substituímos espaços por underscores.
-
-Padronizar os nomes das colunas facilita a leitura do código, a documentação, os joins e a manutenção dos pipelines.
 :::
 
 ## Reordering columns
@@ -549,7 +538,7 @@ ordered_df.reindex(columns=sorted(ordered_df.columns)).head(3)
 ```
 
 ::: notes
-Por padrão, novas colunas são adicionadas ao final do DataFrame. No entanto, podemos reorganizá-las de acordo com as necessidades da análise.
+Oodemos reorganizá-las de acordo com as necessidades da análise.
 
 No primeiro exemplo, fornecemos uma lista com os nomes das colunas na ordem desejada. O DataFrame ordered_df mantém apenas essas colunas e respeita exatamente a sequência definida na lista.
 
@@ -619,7 +608,6 @@ A sintaxe segue o padrão: nome da nova coluna, coluna original e função de ag
 
 É importante observar que count() conta apenas valores não ausentes. Portanto, count_flights representa o número de voos com informação disponível sobre o atraso de partida, e não necessariamente o número total de voos em cada mês.
 
-Médias e contagens são estatísticas simples, mas formam a base de muitas análises exploratórias e comparações entre grupos. 
 :::
 
 ## Grouping by multiple variables
@@ -651,7 +639,11 @@ Novamente, count() considera apenas valores não ausentes de dep_delay, e não n
 ## Returning groups to columns
 
 ```{python}
-month_year_delay.reset_index().head()
+month_year_delay.reset_index().head(3)
+```
+
+```{python}
+month_year_delay.reset_index(1).head(3)
 ```
 
 ::: notes
@@ -661,7 +653,7 @@ Neste exemplo, month e year formam um índice com dois níveis, conhecido como M
 
 O método reset_index() transforma todos esses níveis do índice novamente em colunas comuns e cria um novo índice numérico sequencial.
 
-Essa estrutura plana costuma ser mais conveniente para criar gráficos, exportar resultados, combinar tabelas ou continuar o pipeline de transformação.
+Essa estrutura costuma ser mais conveniente para criar gráficos, exportar resultados, combinar tabelas ou continuar o pipeline de transformação.
 
 Também podemos redefinir apenas um nível específico. Por exemplo, reset_index(1) transforma o segundo nível, que neste caso é year, em coluna, enquanto month permanece como índice.
 
@@ -677,9 +669,9 @@ Portanto, reset_index() não altera as estatísticas calculadas. Ele apenas reor
 melt() can help you go from “wider” data to “longer” data.
 
 ::: notes
-Agora vamos introduzir o conceito de transformação de dados do formato largo para o formato longo.
+Agora vamos introduzir o conceito de transformação de dados do formato wide para o formato long.
 
-No formato largo, uma mesma variável pode estar distribuída entre várias colunas. No formato longo, essas colunas são reorganizadas em linhas, normalmente formando uma coluna que identifica a variável e outra que armazena seus valores.
+No formato wide, uma mesma variável pode estar distribuída entre várias colunas. No formato long, essas colunas são reorganizadas em linhas, normalmente formando uma coluna que identifica a variável e outra que armazena seus valores.
 
 O método melt() realiza essa transformação sem alterar os valores originais. Ele apenas reorganiza a estrutura da tabela.
 
@@ -687,9 +679,9 @@ Na imagem, algumas colunas da tabela original são mantidas como identificadores
 
 Essa transformação é importante para produzir dados organizados, nos quais cada variável ocupa uma coluna, cada observação ocupa uma linha e cada célula contém um único valor.
 
-O formato longo costuma facilitar operações de agrupamento, análise e visualização, especialmente com bibliotecas como o seaborn.
+O formato long costuma facilitar operações de agrupamento, análise e visualização, especialmente com bibliotecas como o seaborn.
 
-Em resumo, utilizamos melt() quando temos dados largos e queremos transformá-los em uma estrutura mais longa e adequada para análise.
+Em resumo, utilizamos melt() quando temos dados wides e queremos transformá-los em uma estrutura mais longa e adequada para análise.
 :::
 
 ## Pivoting data from wide to long
@@ -712,7 +704,7 @@ df.melt(id_vars=["first", "last","job"], var_name="quantity", value_vars=["heigh
 ```
 
 ::: notes
-Neste exemplo, começamos com um DataFrame no formato largo, no qual cada linha representa uma pessoa.
+Neste exemplo, começamos com um DataFrame no formato wide, no qual cada linha representa uma pessoa.
 
 As colunas first, last e job identificam e descrevem cada pessoa. Por isso, elas são preservadas no argumento id_vars.
 
@@ -722,7 +714,7 @@ O método melt() transforma essas duas colunas em linhas. O argumento var_name="
 
 Os valores de altura e peso são armazenados automaticamente em uma nova coluna chamada value.
 
-Como resultado, cada pessoa passa a ocupar duas linhas: uma para a altura e outra para o peso. Os valores não são modificados, apenas reorganizados do formato largo para o formato longo.
+Como resultado, cada pessoa passa a ocupar duas linhas: uma para a altura e outra para o peso. Os valores não são modificados, apenas reorganizados do formato wide para o formato long.
 :::
 
 ## Pivoting data from long to wide
@@ -730,7 +722,7 @@ Como resultado, cada pessoa passa a ocupar duas linhas: uma para a altura e outr
 ![](reshaping_pivot.png)
 
 ::: notes
-Agora vamos realizar a transformação inversa, passando do formato longo para o formato largo.
+Agora vamos realizar a transformação inversa, passando do formato long para o formato wide.
 
 Esse tipo de transformação é útil quando as informações de uma mesma observação estão distribuídas em várias linhas e queremos reorganizá-las em colunas.
 
@@ -769,11 +761,11 @@ df.pivot(index="date", columns="variable", values="value")
 
 
 ::: notes
-Neste exemplo, começamos com um DataFrame no formato longo.
+Neste exemplo, começamos com um DataFrame no formato long.
 
 Cada data aparece em duas linhas: uma associada à variável A e outra associada à variável B. A coluna value armazena o valor correspondente a cada combinação entre data e variável.
 
-O método pivot() reorganiza essa estrutura para o formato largo.
+O método pivot() reorganiza essa estrutura para o formato wide.
 
 O argumento index="date" determina que cada data formará uma linha. O argumento columns="variable" transforma os valores A e B em novas colunas. Por fim, values="value" define quais dados preencherão essas colunas.
 
@@ -785,6 +777,12 @@ Para que pivot() funcione, cada combinação de data e variável deve ser única
 ## Reshaping: Stack Data
 
 ![](reshaping_stack.png)
+
+::: notes
+O método stack() transforma dados do formato wide para uma estrutura mais longa, movendo as colunas para um novo nível do índice.
+
+Neste exemplo, o DataFrame original já possui um MultiIndex formado pelos níveis first e second, além das colunas A e B.
+:::
 
 ## Reshaping: Stack Data
 
@@ -814,9 +812,6 @@ df.head()
 :::::
 
 ::: notes
-O método stack() transforma dados do formato largo para uma estrutura mais longa, movendo as colunas para um novo nível do índice.
-
-Neste exemplo, o DataFrame original já possui um MultiIndex formado pelos níveis first e second, além das colunas A e B.
 
 Quando aplicamos stack(), as colunas A e B deixam de aparecer lado a lado e passam a formar um terceiro nível do índice.
 
@@ -829,6 +824,12 @@ Aqui, convertemos a Series resultante novamente em um DataFrame. O stack() é se
 
 ![](reshaping_unstack.png)
 
+::: notes
+O método unstack() realiza a operação inversa ao stack().
+
+Enquanto stack() move colunas para o índice, unstack() move um nível do índice para as colunas, transformando os dados em uma estrutura mais larga.
+:::
+
 ## Reshaping: Unstack data
 
 ```{python}
@@ -836,10 +837,6 @@ df.unstack(level=0)
 ```
 
 ::: notes
-O método unstack() realiza a operação inversa ao stack().
-
-Enquanto stack() move colunas para o índice, unstack() move um nível do índice para as colunas, transformando os dados em uma estrutura mais larga.
-
 Neste exemplo, level=0 indica que o primeiro nível do índice será reorganizado como colunas.
 
 Os demais níveis permanecem no índice, enquanto os valores associados ao nível selecionado passam a aparecer lado a lado.
@@ -853,6 +850,13 @@ Portanto, stack() transforma colunas em níveis do índice, enquanto unstack() t
 
 ![](concat_row.svg) 
 
+```python
+pd.concat([df1,df2], axis = 0)
+pd.concat([df1,df2], axis = 1)
+```
+
+
+
 ::: notes
 A função pd.concat() permite combinar dois ou mais DataFrames em uma única estrutura.
 
@@ -861,8 +865,6 @@ Quando os DataFrames possuem as mesmas colunas, usamos axis=0 para empilhá-los 
 Quando os DataFrames possuem o mesmo índice, podemos usar axis=1 para combiná-los horizontalmente, adicionando novas colunas.
 
 Normalmente, passamos para pd.concat() uma lista contendo os DataFrames que desejamos unir.
-
-O argumento keys permite identificar a origem de cada conjunto de dados no resultado final. Essas chaves passam a formar um novo nível do índice.
 
 É importante verificar se as estruturas são compatíveis antes da concatenação. Quando os nomes das colunas ou os índices não coincidem, o pandas realiza o alinhamento e pode criar valores ausentes.
 :::
@@ -878,13 +880,36 @@ end_url = "pop.dta"
 
 # This grabs the two dataframes, one for each state
 list_of_state_dfs = [pd.read_stata(base_url + state + end_url) for state in state_codes]
-# Show example of first entry in list of dataframes
-print(list_of_state_dfs[0])
+```
 
-# Concatenate the list of dataframes
+:::: {.columns}
+
+::: {.column width="40%"}
+### California
+```{python}
+pd.DataFrame(list_of_state_dfs[0]).head(1)
+```
+
+### Illinois
+
+```{python}
+pd.DataFrame(list_of_state_dfs[1]).head(1)
+```
+
+:::
+
+::: {.column width="60%"}
+
+### Concatenate the list of dataframes
+
+```{python}
 df = pd.concat(list_of_state_dfs, keys=state_codes, axis=0)
 df
 ```
+
+:::
+
+::::
 
 ::: notes
 Neste exemplo, combinamos dados populacionais de dois estados, Califórnia e Illinois, em um único DataFrame.
@@ -903,6 +928,14 @@ O argumento keys é opcional, mas é especialmente útil quando precisamos rastr
 ## Merge
 
 ![](merge_left.svg)
+
+```python
+pd.merge(df1,df2, how = "left")
+pd.merge(df1,df2, how = "right")
+pd.merge(df1,df2, how = "inner")
+pd.merge(df1,df2, how = "outer")
+```
+
 
 ::: notes
 A função pd.merge() combina dois DataFrames a partir de uma ou mais colunas em comum, chamadas de chaves.
@@ -959,9 +992,17 @@ Também podemos observar que a combinação K1 com K0 aparece duas vezes no Data
 Esse exemplo mostra por que devemos verificar a unicidade e a cardinalidade das chaves antes de realizar um merge.
 :::
 
-## Exercises
+# Exercises
+
+## Class Exercises
 
 1.  Using `flights`, find all flights that:
+
+```python
+import pandas as pd
+url = "https://raw.githubusercontent.com/byuidatascience/data4python4ds/master/data-raw/flights/flights.csv"
+flights = pd.read_csv(url)
+```
 
 -   Had an arrival delay of two or more hours
 
@@ -981,9 +1022,19 @@ Esse exemplo mostra por que devemos verificar a unicidade e a cardinalidade das 
 
 4.  Which flights traveled the farthest?
 
-5.  Does it matter what order you used query() and sort_values() in if you’re using both? Why/why not? Think about the results and how much work the functions would have to do.
+## Extra-class Exercises
 
-6.  Compare air_time with arr_time - dep_time. What do you expect to see? What do you see What do you need to do to fix it?
+Using `flights`
+
+```python
+import pandas as pd
+url = "https://raw.githubusercontent.com/byuidatascience/data4python4ds/master/data-raw/flights/flights.csv"
+flights = pd.read_csv(url)
+```
+
+5.  Does it matter what order you used `query()` and `sort_values()` in if you’re using both? Why/why not? Think about the results and how much work the functions would have to do.
+
+6.  Compare `air_time` with `arr_time - dep_time`. What do you expect to see? What do you see What do you need to do to fix it?
 
 7.  Compare dep_time, sched_dep_time, and dep_delay. How would you expect those three numbers to be related?
 
@@ -1010,6 +1061,32 @@ Hint: you can use help even on functions that apply to data frames, eg use help(
 13. Find the most delayed flight to each destination.
 
 14. How do delays vary over the course of the day?
+
+15. Concatenate the follow two data frames:
+
+```python
+df1 = pd.DataFrame([['a', 1], ['b', 2]],
+                   columns=['letter', 'number'])
+
+df2 = pd.DataFrame([['c', 3], ['d', 4]],
+                   columns=['letter', 'number'])
+```
+
+16. Merge the following two data frames using the left_on and right_on keyword arguments to specify a join on lkey and rkey respectively:
+
+```python
+df1 = pd.DataFrame({'lkey': ['foo', 'bar', 'baz', 'foo'],
+                    'value': [1, 2, 3, 5]})
+df2 = pd.DataFrame({'rkey': ['foo', 'bar', 'baz', 'foo'],
+                    'value': [5, 6, 7, 8]})
+```
+
+17. Merge the following two data frames on "a" using how="left" as a keyword argument:
+
+```{python}
+df1 = pd.DataFrame({'a': ['foo', 'bar'], 'b': [1, 2]})
+df2 = pd.DataFrame({'a': ['foo', 'baz'], 'c': [3, 4]})
+```
 
 ## Reference
 

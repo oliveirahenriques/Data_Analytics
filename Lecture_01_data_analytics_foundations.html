@@ -429,11 +429,11 @@ Victor Henriques, Ph.D.
 </ul>
 <aside class="notes">
 <p>Ao final deste módulo, vocês estarão preparados para realizar as principais etapas de transformação e preparação de dados com pandas.</p>
-<p>Começaremos pela inspeção da estrutura de um DataFrame, verificando dimensões, tipos de dados e valores ausentes.</p>
+<p>Começaremos pela inspeção da estrutura de um DataFrame, verificando dimensões e tipos de dados.</p>
 <p>Em seguida, aprenderemos a selecionar, filtrar, ordenar e reorganizar linhas e colunas de diferentes maneiras.</p>
 <p>Também criaremos novas variáveis por meio de operações vetorizadas e construiremos pipelines encadeados, tornando o código mais claro e reproduzível.</p>
 <p>Depois, utilizaremos agrupamentos e agregações para resumir os dados e controlar os índices e MultiIndexes produzidos por essas operações.</p>
-<p>Veremos ainda como transformar dados entre os formatos largo e longo e como combinar diferentes tabelas por meio de concatenação e joins relacionais.</p>
+<p>Veremos ainda como transformar dados entre os formatos wide e long e como combinar diferentes tabelas por meio de concatenação e joins relacionais.</p>
 <p>O objetivo final é preparar dados estruturados, consistentes e prontos para análise e visualização. Afinal, uma visualização confiável começa com dados corretamente organizados e transformados</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
@@ -473,7 +473,7 @@ Victor Henriques, Ph.D.
 </section>
 <section id="dataframe-1" class="slide level2">
 <h2>DataFrame</h2>
-<div id="717baff5" class="cell" data-execution_count="2">
+<div id="b946ba23" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>show code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href=""></a>df <span class="op">=</span> pd.DataFrame(</span>
@@ -578,7 +578,7 @@ Victor Henriques, Ph.D.
 </section>
 <section id="flights-data" class="slide level2">
 <h2>Flights data</h2>
-<div id="95b2fd41" class="cell" data-execution_count="3">
+<div id="68568ad2" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>show code</summary>
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href=""></a>url <span class="op">=</span> <span class="st">"https://raw.githubusercontent.com/byuidatascience/data4python4ds/master/data-raw/flights/flights.csv"</span></span>
@@ -710,7 +710,7 @@ Victor Henriques, Ph.D.
 </div>
 <aside class="notes">
 <p>Agora vamos deixar o exemplo artificial e trabalhar com uma base de dados real, chamada flights.</p>
-<p>Flights e uma base de dados quem contém informações sobre voos que partiram dos três principais aeroportos da cidade de Nova York ao longo de 2013.</p>
+<p>Flights e uma base de dados quem contém informações da agencia nacional de estatisticas de transporte americana sobre voos que partiram dos três principais aeroportos da cidade de Nova York ao long de 2013.</p>
 <p>Os aeroportos de origem são JFK, LaGuardia, representado pelo código LGA, e Newark, representado pelo código EWR. No total, a base original reúne 336.776 voos com destinos nos Estados Unidos, em Porto Rico e nas Ilhas Virgens Americanas.</p>
 <p>Cada linha representa uma observação, ou seja, um voo individual. As colunas apresentam diferentes características desses voos, como a data, os horários de partida e chegada, os atrasos, a companhia aérea, a origem, o destino, a distância e o tempo de voo.</p>
 <style type="text/css">
@@ -727,7 +727,7 @@ Victor Henriques, Ph.D.
 </section>
 <section id="inspecting-flights-data-structure" class="slide level2">
 <h2>Inspecting Flights data structure</h2>
-<div id="11bf74ea" class="cell" data-execution_count="4">
+<div id="8d90fb6d" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>show code</summary>
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href=""></a>flights.info()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -766,7 +766,7 @@ memory usage: 48.8+ MB</code></pre>
 <p>Na primeira parte do resultado, podemos observar o tipo do objeto, o número total de linhas e a estrutura do índice.</p>
 <p>Em seguida, temos uma lista com todas as colunas do DataFrame. Para cada coluna, o pandas informa o nome, a quantidade de valores não nulos e o tipo de dado identificado.</p>
 <p>Os tipos podem incluir números inteiros, representados por int, números decimais, representados por float, e objetos de texto, normalmente representados por object. Também podemos encontrar tipos específicos para datas, categorias e valores booleanos.</p>
-<p>Na base de voos, por exemplo, podemos esperar valores ausentes em algumas variáveis relacionadas aos horários e aos atrasos. Isso pode acontecer quando um voo foi cancelado ou quando determinada informação não foi registrada.</p>
+<!-- Na base de voos, por exemplo, podemos esperar valores ausentes em algumas variáveis relacionadas aos horários e aos atrasos. Isso pode acontecer quando um voo foi cancelado ou quando determinada informação não foi registrada. -->
 <p>Essa inspeção inicial ajuda a identificar problemas antecipadamente e orienta as próximas etapas de limpeza, transformação e análise dos dados.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
@@ -782,7 +782,7 @@ memory usage: 48.8+ MB</code></pre>
 </section>
 <section id="converting-date-and-time" class="slide level2">
 <h2>Converting date and time</h2>
-<div id="ce7d0e6d" class="cell" data-execution_count="5">
+<div id="3b976450" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>show code</summary>
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href=""></a>flights[<span class="st">"time_hour"</span>].head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -796,7 +796,7 @@ memory usage: 48.8+ MB</code></pre>
 Name: time_hour, dtype: object</code></pre>
 </div>
 </div>
-<div id="98b7c545" class="cell" data-execution_count="6">
+<div id="2f8e15ff" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>show code</summary>
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href=""></a>flights[<span class="st">"time_hour"</span>] <span class="op">=</span> pd.to_datetime(</span>
@@ -815,8 +815,7 @@ Name: time_hour, dtype: datetime64[ns]</code></pre>
 </div>
 </div>
 <aside class="notes">
-<p>Agora vamos analisar a variável time_hour, que representa a data e a hora programada do voo.</p>
-<p>Quando visualizamos essa coluna, os valores parecem datas e horários. Por exemplo, o primeiro registro apresenta o ano, o mês, o dia e a hora do voo.</p>
+<p>Agora vamos analisar a variável time_hour, que representa a data e a hora programada do voo. Quando visualizamos essa coluna, os valores parecem datas e horários. Por exemplo, o primeiro registro apresenta o ano, o mês, o dia e a hora do voo.</p>
 <p>Entretanto, o pandas inicialmente identifica essa coluna como object. Isso significa que, apesar da aparência, esses valores estão armazenados como texto e ainda não são reconhecidos como datas.</p>
 <p>Enquanto a variável permanecer como texto, teremos limitações para realizar operações temporais. Por exemplo, não poderemos extrair diretamente o dia da semana, agrupar os voos por hora, calcular diferenças entre datas ou filtrar períodos de maneira adequada.</p>
 <p>Para converter a coluna, utilizamos a função pd.to_datetime().</p>
@@ -842,7 +841,7 @@ Name: time_hour, dtype: datetime64[ns]</code></pre>
 </section>
 <section id="a-compact-example-dataframe" class="slide level2">
 <h2>A compact example DataFrame</h2>
-<div id="823902eb" class="cell" data-execution_count="7">
+<div id="c441f748" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>show code</summary>
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href=""></a>df <span class="op">=</span> pd.DataFrame(</span>
@@ -952,7 +951,7 @@ Name: time_hour, dtype: datetime64[ns]</code></pre>
 </div>
 <aside class="notes">
 <p>Agora vamos iniciar a seção dedicada à manipulação de linhas.</p>
-<p>Para demonstrar essas operações de forma clara, vamos criar um DataFrame pequeno e controlado. Como conhecemos exatamente sua estrutura e seus valores, será mais fácil visualizar o efeito de cada comando.</p>
+<p>Para demonstrar essas operações de forma clara, vamos criar um novo DataFrame.</p>
 <p>Primeiro, utilizamos range(36) para gerar uma sequência de números inteiros de zero a trinta e cinco.</p>
 <p>Em seguida, a função np.reshape() reorganiza essa sequência em uma matriz com seis linhas e seis colunas.</p>
 <p>Essa matriz é utilizada como argumento data na criação do DataFrame.</p>
@@ -975,10 +974,10 @@ Name: time_hour, dtype: datetime64[ns]</code></pre>
           display:block!important;
       }</style></aside>
 </section>
-<section id="accessing-rows-by-label" class="slide level2">
-<h2>Accessing rows by label</h2>
+<section id="accessing-rows-by-label-or-position" class="slide level2">
+<h2>Accessing rows by label or position</h2>
 <h3 id="loc"><code>.loc</code></h3>
-<div id="bdc70548" class="cell" data-execution_count="8">
+<div id="c63c41c0" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>show code</summary>
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href=""></a>df.loc[[<span class="st">"a"</span>, <span class="st">"b"</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -1040,7 +1039,7 @@ Name: time_hour, dtype: datetime64[ns]</code></pre>
 </div>
 </div>
 <h3 id="iloc"><code>.iloc</code></h3>
-<div id="d4d460b2" class="cell" data-execution_count="9">
+<div id="1ec168b7" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>show code</summary>
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href=""></a>df.iloc[[<span class="dv">0</span>, <span class="dv">2</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -1120,7 +1119,7 @@ Name: time_hour, dtype: datetime64[ns]</code></pre>
 </section>
 <section id="filtering-rows-with-query" class="slide level2">
 <h2>Filtering rows with <code>query()</code></h2>
-<div id="25fdd398" class="cell" data-execution_count="10">
+<div id="4f04dc16" class="cell" data-execution_count="10">
 <details class="code-fold">
 <summary>show code</summary>
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href=""></a>df.query(<span class="st">"col6 == 'kiwi' or col6 == 'pineapple'"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -1181,7 +1180,7 @@ Name: time_hour, dtype: datetime64[ns]</code></pre>
 </div>
 </div>
 </div>
-<div id="81f4f2dd" class="cell" data-execution_count="11">
+<div id="5df2781d" class="cell" data-execution_count="11">
 <details class="code-fold">
 <summary>show code</summary>
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href=""></a>df.query(<span class="st">"col0 &gt; 6"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -1283,7 +1282,7 @@ Name: time_hour, dtype: datetime64[ns]</code></pre>
 </section>
 <section id="re-arranging-rows" class="slide level2">
 <h2>Re-arranging Rows</h2>
-<div id="daad40c8" class="cell" data-execution_count="12">
+<div id="18cd4a08" class="cell" data-execution_count="12">
 <details class="code-fold">
 <summary>show code</summary>
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href=""></a>flights.sort_values([<span class="st">"year"</span>, <span class="st">"month"</span>, <span class="st">"day"</span>, <span class="st">"dep_time"</span>]).head(<span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -1397,7 +1396,7 @@ Name: time_hour, dtype: datetime64[ns]</code></pre>
 </section>
 <section id="re-arranging-rows-1" class="slide level2">
 <h2>Re-arranging Rows</h2>
-<div id="37d796f9" class="cell" data-execution_count="13">
+<div id="51124838" class="cell" data-execution_count="13">
 <details class="code-fold">
 <summary>show code</summary>
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href=""></a>flights.sort_values(<span class="st">"dep_delay"</span>,ascending<span class="op">=</span><span class="va">False</span>).head(<span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -1496,7 +1495,7 @@ Name: time_hour, dtype: datetime64[ns]</code></pre>
 <aside class="notes">
 <p>Por padrão, a ordenação é crescente. Para ordenar em ordem decrescente, utilizamos o argumento ascending=False.</p>
 <p>Por exemplo, ao ordenar dep_delay em ordem decrescente, os voos com os maiores atrasos de partida aparecem primeiro.</p>
-<p>Os valores ausentes são posicionados no final por padrão. É importante observar que sort_values() reorganiza as linhas, mas não altera os valores nem redefine automaticamente o índice original</p>
+<p>É importante observar que sort_values() reorganiza as linhas, mas não altera os valores nem redefine automaticamente o índice original</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1511,7 +1510,7 @@ Name: time_hour, dtype: datetime64[ns]</code></pre>
 </section>
 <section id="combining-row-operations" class="slide level2">
 <h2>Combining row operations</h2>
-<div id="4de12b86" class="cell" data-execution_count="14">
+<div id="8c047c16" class="cell" data-execution_count="14">
 <details class="code-fold">
 <summary>show code</summary>
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href=""></a>(</span>
@@ -1637,7 +1636,7 @@ Name: time_hour, dtype: datetime64[ns]</code></pre>
 </section>
 <section id="creating-new-columns" class="slide level2">
 <h2>Creating new columns</h2>
-<div id="b760912d" class="cell" data-execution_count="15">
+<div id="31204062" class="cell" data-execution_count="15">
 <details class="code-fold">
 <summary>show code</summary>
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href=""></a>df[<span class="st">"new_column0"</span>] <span class="op">=</span> <span class="dv">5</span></span>
@@ -1713,7 +1712,7 @@ Name: time_hour, dtype: datetime64[ns]</code></pre>
 </div>
 </div>
 </div>
-<div id="e73267f8" class="cell" data-execution_count="16">
+<div id="2d44dcb8" class="cell" data-execution_count="16">
 <details class="code-fold">
 <summary>show code</summary>
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href=""></a>df[<span class="st">"new_column0"</span>] <span class="op">=</span> [<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">5</span>]</span>
@@ -1809,13 +1808,12 @@ Name: time_hour, dtype: datetime64[ns]</code></pre>
 </section>
 <section id="variables-derived-from-existing-columns" class="slide level2">
 <h2>Variables derived from existing columns</h2>
-<div id="df6d7fb0" class="cell" data-execution_count="17">
+<div id="6b6e7db7" class="cell" data-execution_count="17">
 <details class="code-fold">
 <summary>show code</summary>
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href=""></a>df[[<span class="st">"new_column1"</span>, <span class="st">"new_column2"</span>]] <span class="op">=</span> [<span class="dv">5</span>, <span class="dv">6</span>]</span>
 <span id="cb19-2"><a href=""></a>df[<span class="st">"new_column3"</span>] <span class="op">=</span> df[<span class="st">"col0"</span>] <span class="op">-</span> df[<span class="st">"new_column0"</span>]</span>
-<span id="cb19-3"><a href=""></a>df.insert(<span class="dv">0</span>, <span class="st">'new_column3'</span>, df.pop(<span class="st">'new_column3'</span>))</span>
-<span id="cb19-4"><a href=""></a>df.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb19-3"><a href=""></a>df[[<span class="st">"col0"</span>,<span class="st">"new_column0"</span>,<span class="st">"new_column1"</span>, <span class="st">"new_column2"</span>,<span class="st">"new_column3"</span>]].head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-display" data-execution_count="17">
 <div>
@@ -1837,89 +1835,53 @@ Name: time_hour, dtype: datetime64[ns]</code></pre>
 <thead>
 <tr class="header" style="text-align: right;">
 <th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th">new_column3</th>
 <th data-quarto-table-cell-role="th">col0</th>
-<th data-quarto-table-cell-role="th">col1</th>
-<th data-quarto-table-cell-role="th">col2</th>
-<th data-quarto-table-cell-role="th">col3</th>
-<th data-quarto-table-cell-role="th">col4</th>
-<th data-quarto-table-cell-role="th">col5</th>
-<th data-quarto-table-cell-role="th">col6</th>
 <th data-quarto-table-cell-role="th">new_column0</th>
 <th data-quarto-table-cell-role="th">new_column1</th>
 <th data-quarto-table-cell-role="th">new_column2</th>
+<th data-quarto-table-cell-role="th">new_column3</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">a</td>
 <td>0.0</td>
-<td>0.0</td>
-<td>1.0</td>
-<td>2.0</td>
-<td>3.0</td>
-<td>4.0</td>
-<td>5.0</td>
-<td>apple</td>
 <td>0</td>
 <td>5</td>
 <td>6</td>
+<td>0.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">b</td>
-<td>5.0</td>
 <td>6.0</td>
-<td>7.0</td>
-<td>8.0</td>
-<td>9.0</td>
-<td>10.0</td>
-<td>11.0</td>
-<td>orange</td>
 <td>1</td>
 <td>5</td>
 <td>6</td>
+<td>5.0</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">c</td>
-<td>10.0</td>
 <td>12.0</td>
-<td>13.0</td>
-<td>14.0</td>
-<td>15.0</td>
-<td>16.0</td>
-<td>17.0</td>
-<td>pineapple</td>
 <td>2</td>
 <td>5</td>
 <td>6</td>
+<td>10.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">d</td>
-<td>15.0</td>
 <td>18.0</td>
-<td>19.0</td>
-<td>20.0</td>
-<td>21.0</td>
-<td>22.0</td>
-<td>23.0</td>
-<td>mango</td>
 <td>3</td>
 <td>5</td>
 <td>6</td>
+<td>15.0</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">e</td>
-<td>20.0</td>
 <td>24.0</td>
-<td>25.0</td>
-<td>26.0</td>
-<td>27.0</td>
-<td>28.0</td>
-<td>29.0</td>
-<td>kiwi</td>
 <td>4</td>
 <td>5</td>
 <td>6</td>
+<td>20.0</td>
 </tr>
 </tbody>
 </table>
@@ -1947,7 +1909,7 @@ Name: time_hour, dtype: datetime64[ns]</code></pre>
 </section>
 <section id="creating-variables-inside-a-pipeline" class="slide level2">
 <h2>Creating variables inside a pipeline</h2>
-<div id="abda814f" class="cell" data-execution_count="18">
+<div id="9973270a" class="cell" data-execution_count="18">
 <details class="code-fold">
 <summary>show code</summary>
 <div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href=""></a>flights_enriched <span class="op">=</span> (</span>
@@ -2044,7 +2006,7 @@ Name: time_hour, dtype: datetime64[ns]</code></pre>
 <p>Neste exemplo, criamos duas variáveis: gain e speed.</p>
 <p>A variável gain compara o atraso na partida com o atraso na chegada. Valores positivos indicam que o voo recuperou tempo durante o trajeto, enquanto valores negativos indicam que o atraso aumentou.</p>
 <p>A variável speed calcula a velocidade média do voo. Dividimos a distância pelo tempo no ar e multiplicamos o resultado por 60, convertendo a medida para milhas por hora.</p>
-<p>O lambda recebe o DataFrame e retorna o resultado da subtração entre as duas colunas.</p>
+<p>O lambda e uma declaração que (nesse caso) fornece uma maneira de especificar ao pandas que desejamos executar a operação em cada linha.</p>
 <p>Os cálculos continuam sendo vetorizados, ou seja, são aplicados às colunas inteiras, e não individualmente a cada linha.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
@@ -2060,7 +2022,7 @@ Name: time_hour, dtype: datetime64[ns]</code></pre>
 </section>
 <section id="accessing-columns" class="slide level2">
 <h2>Accessing columns</h2>
-<div id="fae8df64" class="cell" data-execution_count="19">
+<div id="86aceaad" class="cell" data-execution_count="19">
 <details class="code-fold">
 <summary>show code</summary>
 <div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href=""></a>df[<span class="st">"col0"</span>].head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -2074,7 +2036,7 @@ e    24.0
 Name: col0, dtype: float64</code></pre>
 </div>
 </div>
-<div id="6bf1f5e7" class="cell" data-execution_count="20">
+<div id="b0a04874" class="cell" data-execution_count="20">
 <details class="code-fold">
 <summary>show code</summary>
 <div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href=""></a>df[[<span class="st">"col0"</span>, <span class="st">"new_column0"</span>, <span class="st">"col2"</span>]].head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -2164,7 +2126,7 @@ Name: col0, dtype: float64</code></pre>
 </section>
 <section id="selecting-rows-and-columns-together" class="slide level2">
 <h2>Selecting rows and columns together</h2>
-<div id="cbb3d828" class="cell" data-execution_count="21">
+<div id="62ba0e15" class="cell" data-execution_count="21">
 <details class="code-fold">
 <summary>show code</summary>
 <div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href=""></a>df.loc[[<span class="st">"a"</span>, <span class="st">"b"</span>],[<span class="st">"col0"</span>, <span class="st">"new_column0"</span>, <span class="st">"col2"</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -2213,7 +2175,7 @@ Name: col0, dtype: float64</code></pre>
 </div>
 </div>
 </div>
-<div id="788fb475" class="cell" data-execution_count="22">
+<div id="a638639e" class="cell" data-execution_count="22">
 <details class="code-fold">
 <summary>show code</summary>
 <div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href=""></a>df.iloc[:, [<span class="dv">0</span>, <span class="dv">1</span>]].head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -2238,35 +2200,35 @@ Name: col0, dtype: float64</code></pre>
 <thead>
 <tr class="header" style="text-align: right;">
 <th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th">new_column3</th>
 <th data-quarto-table-cell-role="th">col0</th>
+<th data-quarto-table-cell-role="th">col1</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">a</td>
 <td>0.0</td>
-<td>0.0</td>
+<td>1.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">b</td>
-<td>5.0</td>
 <td>6.0</td>
+<td>7.0</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">c</td>
-<td>10.0</td>
 <td>12.0</td>
+<td>13.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">d</td>
-<td>15.0</td>
 <td>18.0</td>
+<td>19.0</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">e</td>
-<td>20.0</td>
 <td>24.0</td>
+<td>25.0</td>
 </tr>
 </tbody>
 </table>
@@ -2279,7 +2241,6 @@ Name: col0, dtype: float64</code></pre>
 <p>Com .loc, o primeiro argumento indica as linhas e o segundo indica as colunas. Aqui, selecionamos as linhas identificadas pelos rótulos a e b e mantemos apenas as colunas col0, new_column0 e col2.</p>
 <p>Já o .iloc realiza a seleção com base nas posições numéricas. Os dois-pontos indicam que queremos manter todas as linhas, enquanto a lista [0, 1] seleciona a primeira e a segunda colunas.</p>
 <p>Portanto, a estrutura é sempre linhas primeiro e colunas depois. A diferença é que .loc utiliza rótulos, enquanto .iloc utiliza posições.</p>
-<p>O método head() apenas limita a visualização às primeiras linhas do resultado.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -2294,7 +2255,7 @@ Name: col0, dtype: float64</code></pre>
 </section>
 <section id="selecting-columns-by-type" class="slide level2">
 <h2>Selecting columns by type</h2>
-<div id="fa78513b" class="cell" data-execution_count="23">
+<div id="f204c71d" class="cell" data-execution_count="23">
 <details class="code-fold">
 <summary>show code</summary>
 <div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href=""></a>flights.select_dtypes(include<span class="op">=</span><span class="st">"int"</span>).head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -2399,10 +2360,9 @@ Name: col0, dtype: float64</code></pre>
 </div>
 <aside class="notes">
 <p>O método select_dtypes() permite selecionar colunas com base no tipo de dado que elas armazenam.</p>
+<p>O método retorna um novo DataFrame somente com as colunas correspondentes.</p>
 <p>Neste exemplo, usamos include=“int” para manter apenas as colunas classificadas como números inteiros, como ano, mês, dia, número do voo e distância.</p>
 <p>Esse tipo de seleção é útil quando queremos aplicar operações apenas a determinadas categorias de variáveis, como calcular estatísticas sobre colunas numéricas ou validar colunas de texto.</p>
-<p>O método retorna um novo DataFrame somente com as colunas correspondentes. Em seguida, head() limita a visualização às primeiras linhas.</p>
-<p>Se quisermos selecionar todas as colunas numéricas, incluindo inteiros e números</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -2417,7 +2377,7 @@ Name: col0, dtype: float64</code></pre>
 </section>
 <section id="selecting-columns-by-name-pattern" class="slide level2">
 <h2>Selecting columns by name pattern</h2>
-<div id="333a3238" class="cell" data-execution_count="24">
+<div id="28123ce6" class="cell" data-execution_count="24">
 <details class="code-fold">
 <summary>show code</summary>
 <div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href=""></a>df.loc[:, df.columns.<span class="bu">str</span>.startswith(<span class="st">"new"</span>)].head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -2442,47 +2402,47 @@ Name: col0, dtype: float64</code></pre>
 <thead>
 <tr class="header" style="text-align: right;">
 <th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th">new_column3</th>
 <th data-quarto-table-cell-role="th">new_column0</th>
 <th data-quarto-table-cell-role="th">new_column1</th>
 <th data-quarto-table-cell-role="th">new_column2</th>
+<th data-quarto-table-cell-role="th">new_column3</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">a</td>
-<td>0.0</td>
 <td>0</td>
 <td>5</td>
 <td>6</td>
+<td>0.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">b</td>
-<td>5.0</td>
 <td>1</td>
 <td>5</td>
 <td>6</td>
+<td>5.0</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">c</td>
-<td>10.0</td>
 <td>2</td>
 <td>5</td>
 <td>6</td>
+<td>10.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">d</td>
-<td>15.0</td>
 <td>3</td>
 <td>5</td>
 <td>6</td>
+<td>15.0</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">e</td>
-<td>20.0</td>
 <td>4</td>
 <td>5</td>
 <td>6</td>
+<td>20.0</td>
 </tr>
 </tbody>
 </table>
@@ -2497,9 +2457,8 @@ Name: col0, dtype: float64</code></pre>
 <span id="cb28-4"><a href=""></a>.<span class="bu">str</span>.islower()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <aside class="notes">
 <p>Também podemos selecionar colunas com base em padrões presentes nos seus nomes.</p>
-<p>Neste exemplo, df.columns retorna os nomes de todas as colunas. Em seguida, str.startswith(“new”) verifica quais nomes começam com o texto new.</p>
-<p>O resultado dessa verificação é uma sequência de valores True e False. O valor True identifica as colunas que atendem ao critério.</p>
-<p>No .loc, os dois-pontos indicam que queremos manter todas as linhas. A condição após a vírgula seleciona apenas as colunas cujos nomes começam com new.</p>
+<p>Neste exemplo, No .loc, os dois-pontos indicam que queremos manter todas as linhas. quanto as colunas, df.columns retorna os nomes de todas as colunas. Em seguida, str.startswith(“new”) verifica quais nomes começam com o texto new.</p>
+<p>Em resumo, a condição após a vírgula seleciona apenas as colunas cujos nomes começam com new.</p>
 <p>Outros métodos de texto permitem selecionar colunas que terminam com determinado padrão, que contêm uma expressão ou que possuem nomes formados por números ou letras minúsculas.</p>
 <p>Essa abordagem é especialmente útil quando os nomes seguem uma convenção, como price_, curve_, contract_ ou is_.</p>
 <style type="text/css">
@@ -2516,7 +2475,7 @@ Name: col0, dtype: float64</code></pre>
 </section>
 <section id="renaming-columns" class="slide level2">
 <h2>Renaming columns</h2>
-<div id="dceebd98" class="cell" data-execution_count="25">
+<div id="a085af6b" class="cell" data-execution_count="25">
 <details class="code-fold">
 <summary>show code</summary>
 <div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href=""></a>df.rename(</span>
@@ -2547,7 +2506,6 @@ Name: col0, dtype: float64</code></pre>
 <thead>
 <tr class="header" style="text-align: right;">
 <th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th">new_column3</th>
 <th data-quarto-table-cell-role="th">col0</th>
 <th data-quarto-table-cell-role="th">col1</th>
 <th data-quarto-table-cell-role="th">col2</th>
@@ -2558,12 +2516,12 @@ Name: col0, dtype: float64</code></pre>
 <th data-quarto-table-cell-role="th">new_column0</th>
 <th data-quarto-table-cell-role="th">new_column1</th>
 <th data-quarto-table-cell-role="th">new_column2</th>
+<th data-quarto-table-cell-role="th">new_column3</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">a</td>
-<td>0.0</td>
 <td>0.0</td>
 <td>1.0</td>
 <td>2.0</td>
@@ -2574,10 +2532,10 @@ Name: col0, dtype: float64</code></pre>
 <td>0</td>
 <td>5</td>
 <td>6</td>
+<td>0.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">b</td>
-<td>5.0</td>
 <td>6.0</td>
 <td>7.0</td>
 <td>8.0</td>
@@ -2588,10 +2546,10 @@ Name: col0, dtype: float64</code></pre>
 <td>1</td>
 <td>5</td>
 <td>6</td>
+<td>5.0</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">c</td>
-<td>10.0</td>
 <td>12.0</td>
 <td>13.0</td>
 <td>14.0</td>
@@ -2602,10 +2560,10 @@ Name: col0, dtype: float64</code></pre>
 <td>2</td>
 <td>5</td>
 <td>6</td>
+<td>10.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">d</td>
-<td>15.0</td>
 <td>18.0</td>
 <td>19.0</td>
 <td>20.0</td>
@@ -2616,10 +2574,10 @@ Name: col0, dtype: float64</code></pre>
 <td>3</td>
 <td>5</td>
 <td>6</td>
+<td>15.0</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">e</td>
-<td>20.0</td>
 <td>24.0</td>
 <td>25.0</td>
 <td>26.0</td>
@@ -2630,6 +2588,7 @@ Name: col0, dtype: float64</code></pre>
 <td>4</td>
 <td>5</td>
 <td>6</td>
+<td>20.0</td>
 </tr>
 </tbody>
 </table>
@@ -2641,8 +2600,6 @@ Name: col0, dtype: float64</code></pre>
 <p>O método rename() permite alterar os nomes de colunas específicas.</p>
 <p>Para isso, usamos um dicionário no qual cada nome antigo é associado ao novo nome. Neste exemplo, col3 passa a se chamar letters, col4 passa a se chamar names e col6 passa a se chamar fruit.</p>
 <p>Por padrão, rename() retorna um novo DataFrame e não modifica o objeto original. Para preservar as alterações, precisamos atribuir o resultado novamente ao DataFrame ou criar um novo objeto.</p>
-<p>Também podemos padronizar todos os nomes de forma sistemática. Neste segundo exemplo, removemos espaços no início e no final, convertemos os nomes para letras minúsculas e substituímos espaços por underscores.</p>
-<p>Padronizar os nomes das colunas facilita a leitura do código, a documentação, os joins e a manutenção dos pipelines.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -2657,7 +2614,7 @@ Name: col0, dtype: float64</code></pre>
 </section>
 <section id="reordering-columns" class="slide level2">
 <h2>Reordering columns</h2>
-<div id="50121bc7" class="cell" data-execution_count="26">
+<div id="e7101628" class="cell" data-execution_count="26">
 <details class="code-fold">
 <summary>show code</summary>
 <div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href=""></a>ordered_df <span class="op">=</span> df[[<span class="st">"col5"</span>, <span class="st">"col3"</span>, <span class="st">"col1"</span>, <span class="st">"col4"</span>, <span class="st">"col2"</span>, <span class="st">"col0"</span>, <span class="st">"col6"</span>]]</span>
@@ -2729,7 +2686,7 @@ Name: col0, dtype: float64</code></pre>
 </div>
 </div>
 </div>
-<div id="1d59839d" class="cell" data-execution_count="27">
+<div id="8ccd6a50" class="cell" data-execution_count="27">
 <details class="code-fold">
 <summary>show code</summary>
 <div class="sourceCode cell-code" id="cb31"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href=""></a>ordered_df.reindex(columns<span class="op">=</span><span class="bu">sorted</span>(ordered_df.columns)).head(<span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -2801,7 +2758,7 @@ Name: col0, dtype: float64</code></pre>
 </div>
 </div>
 <aside class="notes">
-<p>Por padrão, novas colunas são adicionadas ao final do DataFrame. No entanto, podemos reorganizá-las de acordo com as necessidades da análise.</p>
+<p>Oodemos reorganizá-las de acordo com as necessidades da análise.</p>
 <p>No primeiro exemplo, fornecemos uma lista com os nomes das colunas na ordem desejada. O DataFrame ordered_df mantém apenas essas colunas e respeita exatamente a sequência definida na lista.</p>
 <p>Essa abordagem oferece controle total, mas exige cuidado, pois qualquer coluna não incluída na lista será omitida do resultado.</p>
 <p>No segundo exemplo, usamos sorted() para ordenar alfabeticamente os nomes das colunas. Em seguida, reindex() reorganiza o DataFrame de acordo com essa ordem.</p>
@@ -2829,7 +2786,7 @@ Name: col0, dtype: float64</code></pre>
 </section>
 <section id="grouping-and-aggregating" class="slide level2">
 <h2>Grouping and aggregating</h2>
-<div id="1e5d451a" class="cell" data-execution_count="28">
+<div id="b89391be" class="cell" data-execution_count="28">
 <details class="code-fold">
 <summary>show code</summary>
 <div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href=""></a>(</span>
@@ -2914,7 +2871,7 @@ Name: col0, dtype: float64</code></pre>
 </section>
 <section id="multiple-aggregations" class="slide level2">
 <h2>Multiple aggregations</h2>
-<div id="db4d9224" class="cell" data-execution_count="29">
+<div id="82e01d0c" class="cell" data-execution_count="29">
 <details class="code-fold">
 <summary>show code</summary>
 <div class="sourceCode cell-code" id="cb33"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href=""></a>monthly_delay <span class="op">=</span> (</span>
@@ -2993,7 +2950,6 @@ Name: col0, dtype: float64</code></pre>
 <p>Primeiro, agrupamos os voos por mês. Em seguida, agg() calcula o atraso médio de partida e a quantidade de valores disponíveis em dep_delay para cada mês.</p>
 <p>A sintaxe segue o padrão: nome da nova coluna, coluna original e função de agregação. Assim, o resultado já apresenta nomes claros, como mean_delay e count_flights.</p>
 <p>É importante observar que count() conta apenas valores não ausentes. Portanto, count_flights representa o número de voos com informação disponível sobre o atraso de partida, e não necessariamente o número total de voos em cada mês.</p>
-<p>Médias e contagens são estatísticas simples, mas formam a base de muitas análises exploratórias e comparações entre grupos.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -3008,7 +2964,7 @@ Name: col0, dtype: float64</code></pre>
 </section>
 <section id="grouping-by-multiple-variables" class="slide level2">
 <h2>Grouping by multiple variables</h2>
-<div id="9dcc8232" class="cell" data-execution_count="30">
+<div id="76fe2464" class="cell" data-execution_count="30">
 <details class="code-fold">
 <summary>show code</summary>
 <div class="sourceCode cell-code" id="cb34"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href=""></a>month_year_delay <span class="op">=</span> (</span>
@@ -3109,10 +3065,10 @@ Name: col0, dtype: float64</code></pre>
 </section>
 <section id="returning-groups-to-columns" class="slide level2">
 <h2>Returning groups to columns</h2>
-<div id="e467d486" class="cell" data-execution_count="31">
+<div id="72848e5c" class="cell" data-execution_count="31">
 <details class="code-fold">
 <summary>show code</summary>
-<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href=""></a>month_year_delay.reset_index().head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href=""></a>month_year_delay.reset_index().head(<span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-display" data-execution_count="31">
 <div>
@@ -3162,19 +3118,66 @@ Name: col0, dtype: float64</code></pre>
 <td>13.227076</td>
 <td>27973</td>
 </tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">3</td>
-<td>4</td>
-<td>2013</td>
-<td>13.938038</td>
-<td>27662</td>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<div id="773477c4" class="cell" data-execution_count="32">
+<details class="code-fold">
+<summary>show code</summary>
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href=""></a>month_year_delay.reset_index(<span class="dv">1</span>).head(<span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="32">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+
+<table class="dataframe caption-top" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header" style="text-align: right;">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">year</th>
+<th data-quarto-table-cell-role="th">mean_delay</th>
+<th data-quarto-table-cell-role="th">count_flights</th>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">4</td>
-<td>5</td>
+<th data-quarto-table-cell-role="th">month</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">1</td>
 <td>2013</td>
-<td>12.986859</td>
-<td>28233</td>
+<td>10.036665</td>
+<td>26483</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">2</td>
+<td>2013</td>
+<td>10.816843</td>
+<td>23690</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">3</td>
+<td>2013</td>
+<td>13.227076</td>
+<td>27973</td>
 </tr>
 </tbody>
 </table>
@@ -3186,7 +3189,7 @@ Name: col0, dtype: float64</code></pre>
 <p>Depois de uma operação de agrupamento, as variáveis utilizadas para formar os grupos passam a fazer parte do índice do resultado.</p>
 <p>Neste exemplo, month e year formam um índice com dois níveis, conhecido como MultiIndex.</p>
 <p>O método reset_index() transforma todos esses níveis do índice novamente em colunas comuns e cria um novo índice numérico sequencial.</p>
-<p>Essa estrutura plana costuma ser mais conveniente para criar gráficos, exportar resultados, combinar tabelas ou continuar o pipeline de transformação.</p>
+<p>Essa estrutura costuma ser mais conveniente para criar gráficos, exportar resultados, combinar tabelas ou continuar o pipeline de transformação.</p>
 <p>Também podemos redefinir apenas um nível específico. Por exemplo, reset_index(1) transforma o segundo nível, que neste caso é year, em coluna, enquanto month permanece como índice.</p>
 <p>Portanto, reset_index() não altera as estatísticas calculadas. Ele apenas reorganiza a estrutura do resultado.</p>
 <style type="text/css">
@@ -3211,13 +3214,13 @@ Name: col0, dtype: float64</code></pre>
 
 <img data-src="reshaping_melt.png" class="r-stretch"><p>melt() can help you go from “wider” data to “longer” data.</p>
 <aside class="notes">
-<p>Agora vamos introduzir o conceito de transformação de dados do formato largo para o formato longo.</p>
-<p>No formato largo, uma mesma variável pode estar distribuída entre várias colunas. No formato longo, essas colunas são reorganizadas em linhas, normalmente formando uma coluna que identifica a variável e outra que armazena seus valores.</p>
+<p>Agora vamos introduzir o conceito de transformação de dados do formato wide para o formato long.</p>
+<p>No formato wide, uma mesma variável pode estar distribuída entre várias colunas. No formato long, essas colunas são reorganizadas em linhas, normalmente formando uma coluna que identifica a variável e outra que armazena seus valores.</p>
 <p>O método melt() realiza essa transformação sem alterar os valores originais. Ele apenas reorganiza a estrutura da tabela.</p>
 <p>Na imagem, algumas colunas da tabela original são mantidas como identificadores, enquanto as demais são combinadas em duas novas colunas: uma para os nomes das variáveis e outra para seus respectivos valores.</p>
 <p>Essa transformação é importante para produzir dados organizados, nos quais cada variável ocupa uma coluna, cada observação ocupa uma linha e cada célula contém um único valor.</p>
-<p>O formato longo costuma facilitar operações de agrupamento, análise e visualização, especialmente com bibliotecas como o seaborn.</p>
-<p>Em resumo, utilizamos melt() quando temos dados largos e queremos transformá-los em uma estrutura mais longa e adequada para análise.</p>
+<p>O formato long costuma facilitar operações de agrupamento, análise e visualização, especialmente com bibliotecas como o seaborn.</p>
+<p>Em resumo, utilizamos melt() quando temos dados wides e queremos transformá-los em uma estrutura mais longa e adequada para análise.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -3232,21 +3235,21 @@ Name: col0, dtype: float64</code></pre>
 </section>
 <section id="pivoting-data-from-wide-to-long-1" class="slide level2">
 <h2>Pivoting data from wide to long</h2>
-<div id="d096ef55" class="cell" data-execution_count="32">
+<div id="2f9e4c97" class="cell" data-execution_count="33">
 <details class="code-fold">
 <summary>show code</summary>
-<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href=""></a>df <span class="op">=</span> pd.DataFrame(</span>
-<span id="cb36-2"><a href=""></a>    {</span>
-<span id="cb36-3"><a href=""></a>        <span class="st">"first"</span>: [<span class="st">"John"</span>, <span class="st">"Mary"</span>],</span>
-<span id="cb36-4"><a href=""></a>        <span class="st">"last"</span>: [<span class="st">"Doe"</span>, <span class="st">"Bo"</span>],</span>
-<span id="cb36-5"><a href=""></a>        <span class="st">"job"</span>: [<span class="st">"Nurse"</span>, <span class="st">"Economist"</span>],</span>
-<span id="cb36-6"><a href=""></a>        <span class="st">"height"</span>: [<span class="fl">5.5</span>, <span class="fl">6.0</span>],</span>
-<span id="cb36-7"><a href=""></a>        <span class="st">"weight"</span>: [<span class="dv">130</span>, <span class="dv">150</span>],</span>
-<span id="cb36-8"><a href=""></a>    }</span>
-<span id="cb36-9"><a href=""></a>)</span>
-<span id="cb36-10"><a href=""></a>df.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href=""></a>df <span class="op">=</span> pd.DataFrame(</span>
+<span id="cb37-2"><a href=""></a>    {</span>
+<span id="cb37-3"><a href=""></a>        <span class="st">"first"</span>: [<span class="st">"John"</span>, <span class="st">"Mary"</span>],</span>
+<span id="cb37-4"><a href=""></a>        <span class="st">"last"</span>: [<span class="st">"Doe"</span>, <span class="st">"Bo"</span>],</span>
+<span id="cb37-5"><a href=""></a>        <span class="st">"job"</span>: [<span class="st">"Nurse"</span>, <span class="st">"Economist"</span>],</span>
+<span id="cb37-6"><a href=""></a>        <span class="st">"height"</span>: [<span class="fl">5.5</span>, <span class="fl">6.0</span>],</span>
+<span id="cb37-7"><a href=""></a>        <span class="st">"weight"</span>: [<span class="dv">130</span>, <span class="dv">150</span>],</span>
+<span id="cb37-8"><a href=""></a>    }</span>
+<span id="cb37-9"><a href=""></a>)</span>
+<span id="cb37-10"><a href=""></a>df.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="32">
+<div class="cell-output cell-output-display" data-execution_count="33">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -3296,12 +3299,12 @@ Name: col0, dtype: float64</code></pre>
 </div>
 </div>
 </div>
-<div id="843012f2" class="cell" data-execution_count="33">
+<div id="f3a13dab" class="cell" data-execution_count="34">
 <details class="code-fold">
 <summary>show code</summary>
-<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href=""></a>df.melt(id_vars<span class="op">=</span>[<span class="st">"first"</span>, <span class="st">"last"</span>,<span class="st">"job"</span>], var_name<span class="op">=</span><span class="st">"quantity"</span>, value_vars<span class="op">=</span>[<span class="st">"height"</span>, <span class="st">"weight"</span>]).head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href=""></a>df.melt(id_vars<span class="op">=</span>[<span class="st">"first"</span>, <span class="st">"last"</span>,<span class="st">"job"</span>], var_name<span class="op">=</span><span class="st">"quantity"</span>, value_vars<span class="op">=</span>[<span class="st">"height"</span>, <span class="st">"weight"</span>]).head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="33">
+<div class="cell-output cell-output-display" data-execution_count="34">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -3368,12 +3371,12 @@ Name: col0, dtype: float64</code></pre>
 </div>
 </div>
 <aside class="notes">
-<p>Neste exemplo, começamos com um DataFrame no formato largo, no qual cada linha representa uma pessoa.</p>
+<p>Neste exemplo, começamos com um DataFrame no formato wide, no qual cada linha representa uma pessoa.</p>
 <p>As colunas first, last e job identificam e descrevem cada pessoa. Por isso, elas são preservadas no argumento id_vars.</p>
 <p>As colunas height e weight contêm as medidas que queremos reorganizar. Elas são informadas no argumento value_vars.</p>
 <p>O método melt() transforma essas duas colunas em linhas. O argumento var_name=“quantity” cria uma coluna chamada quantity, que identifica se o valor corresponde à altura ou ao peso.</p>
 <p>Os valores de altura e peso são armazenados automaticamente em uma nova coluna chamada value.</p>
-<p>Como resultado, cada pessoa passa a ocupar duas linhas: uma para a altura e outra para o peso. Os valores não são modificados, apenas reorganizados do formato largo para o formato longo.</p>
+<p>Como resultado, cada pessoa passa a ocupar duas linhas: uma para a altura e outra para o peso. Os valores não são modificados, apenas reorganizados do formato wide para o formato long.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -3390,7 +3393,7 @@ Name: col0, dtype: float64</code></pre>
 <h2>Pivoting data from long to wide</h2>
 
 <img data-src="reshaping_pivot.png" class="r-stretch"><aside class="notes">
-<p>Agora vamos realizar a transformação inversa, passando do formato longo para o formato largo.</p>
+<p>Agora vamos realizar a transformação inversa, passando do formato long para o formato wide.</p>
 <p>Esse tipo de transformação é útil quando as informações de uma mesma observação estão distribuídas em várias linhas e queremos reorganizá-las em colunas.</p>
 <p>O método pivot() utiliza uma coluna para formar o índice, outra para definir os nomes das novas colunas e uma terceira para preencher os valores da tabela.</p>
 <p>Para que pivot() funcione, cada combinação entre índice e coluna deve ser única. Se existirem observações duplicadas e for necessário agregá-las, usamos pivot_table(), especificando uma função como média, soma ou contagem.</p>
@@ -3411,21 +3414,21 @@ Name: col0, dtype: float64</code></pre>
 <h2>Pivoting data from long to wide</h2>
 <div class="columns">
 <div class="column" style="width:50%;">
-<div id="d7bbd23c" class="cell" data-execution_count="34">
+<div id="c885ef8b" class="cell" data-execution_count="35">
 <details class="code-fold">
 <summary>show code</summary>
-<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href=""></a>data <span class="op">=</span> {</span>
-<span id="cb38-2"><a href=""></a>    <span class="st">"value"</span>: np.random.randn(<span class="dv">20</span>),</span>
-<span id="cb38-3"><a href=""></a>    <span class="st">"variable"</span>: [<span class="st">"A"</span>] <span class="op">*</span> <span class="dv">10</span> <span class="op">+</span> [<span class="st">"B"</span>] <span class="op">*</span> <span class="dv">10</span>,</span>
-<span id="cb38-4"><a href=""></a>    <span class="st">"date"</span>: (</span>
-<span id="cb38-5"><a href=""></a>        <span class="bu">list</span>(pd.date_range(<span class="st">"1/1/2000"</span>, periods<span class="op">=</span><span class="dv">10</span>, freq<span class="op">=</span><span class="st">"ME"</span>))</span>
-<span id="cb38-6"><a href=""></a>        <span class="op">+</span> <span class="bu">list</span>(pd.date_range(<span class="st">"1/1/2000"</span>, periods<span class="op">=</span><span class="dv">10</span>, freq<span class="op">=</span><span class="st">"ME"</span>))</span>
-<span id="cb38-7"><a href=""></a>    ),</span>
-<span id="cb38-8"><a href=""></a>}</span>
-<span id="cb38-9"><a href=""></a>df <span class="op">=</span> pd.DataFrame(data, columns<span class="op">=</span>[<span class="st">"date"</span>, <span class="st">"variable"</span>, <span class="st">"value"</span>])</span>
-<span id="cb38-10"><a href=""></a>df.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href=""></a>data <span class="op">=</span> {</span>
+<span id="cb39-2"><a href=""></a>    <span class="st">"value"</span>: np.random.randn(<span class="dv">20</span>),</span>
+<span id="cb39-3"><a href=""></a>    <span class="st">"variable"</span>: [<span class="st">"A"</span>] <span class="op">*</span> <span class="dv">10</span> <span class="op">+</span> [<span class="st">"B"</span>] <span class="op">*</span> <span class="dv">10</span>,</span>
+<span id="cb39-4"><a href=""></a>    <span class="st">"date"</span>: (</span>
+<span id="cb39-5"><a href=""></a>        <span class="bu">list</span>(pd.date_range(<span class="st">"1/1/2000"</span>, periods<span class="op">=</span><span class="dv">10</span>, freq<span class="op">=</span><span class="st">"ME"</span>))</span>
+<span id="cb39-6"><a href=""></a>        <span class="op">+</span> <span class="bu">list</span>(pd.date_range(<span class="st">"1/1/2000"</span>, periods<span class="op">=</span><span class="dv">10</span>, freq<span class="op">=</span><span class="st">"ME"</span>))</span>
+<span id="cb39-7"><a href=""></a>    ),</span>
+<span id="cb39-8"><a href=""></a>}</span>
+<span id="cb39-9"><a href=""></a>df <span class="op">=</span> pd.DataFrame(data, columns<span class="op">=</span>[<span class="st">"date"</span>, <span class="st">"variable"</span>, <span class="st">"value"</span>])</span>
+<span id="cb39-10"><a href=""></a>df.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="34">
+<div class="cell-output cell-output-display" data-execution_count="35">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -3455,31 +3458,31 @@ Name: col0, dtype: float64</code></pre>
 <td data-quarto-table-cell-role="th">0</td>
 <td>2000-01-31</td>
 <td>A</td>
-<td>-0.328494</td>
+<td>-0.654490</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">1</td>
 <td>2000-02-29</td>
 <td>A</td>
-<td>1.092418</td>
+<td>0.746069</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">2</td>
 <td>2000-03-31</td>
 <td>A</td>
-<td>0.685497</td>
+<td>-1.020157</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">3</td>
 <td>2000-04-30</td>
 <td>A</td>
-<td>-0.152087</td>
+<td>1.247091</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">4</td>
 <td>2000-05-31</td>
 <td>A</td>
-<td>-1.227225</td>
+<td>-0.650723</td>
 </tr>
 </tbody>
 </table>
@@ -3488,12 +3491,12 @@ Name: col0, dtype: float64</code></pre>
 </div>
 </div>
 </div><div class="column" style="width:50%;">
-<div id="4f3a0110" class="cell" data-execution_count="35">
+<div id="88e012ce" class="cell" data-execution_count="36">
 <details class="code-fold">
 <summary>show code</summary>
-<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href=""></a>df.pivot(index<span class="op">=</span><span class="st">"date"</span>, columns<span class="op">=</span><span class="st">"variable"</span>, values<span class="op">=</span><span class="st">"value"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href=""></a>df.pivot(index<span class="op">=</span><span class="st">"date"</span>, columns<span class="op">=</span><span class="st">"variable"</span>, values<span class="op">=</span><span class="st">"value"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="35">
+<div class="cell-output cell-output-display" data-execution_count="36">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -3525,53 +3528,53 @@ Name: col0, dtype: float64</code></pre>
 <tbody>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">2000-01-31</td>
-<td>-0.328494</td>
-<td>-0.272624</td>
+<td>-0.654490</td>
+<td>0.248653</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">2000-02-29</td>
-<td>1.092418</td>
-<td>0.695826</td>
+<td>0.746069</td>
+<td>-0.415679</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">2000-03-31</td>
-<td>0.685497</td>
-<td>0.106434</td>
+<td>-1.020157</td>
+<td>-0.397958</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">2000-04-30</td>
-<td>-0.152087</td>
-<td>1.127026</td>
+<td>1.247091</td>
+<td>1.946947</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">2000-05-31</td>
-<td>-1.227225</td>
-<td>0.150326</td>
+<td>-0.650723</td>
+<td>0.121012</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">2000-06-30</td>
-<td>0.377039</td>
-<td>-1.435466</td>
+<td>-1.993619</td>
+<td>1.769305</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">2000-07-31</td>
-<td>0.073863</td>
-<td>-1.663843</td>
+<td>-0.027919</td>
+<td>-0.026001</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">2000-08-31</td>
-<td>0.968660</td>
-<td>0.100953</td>
+<td>-0.183609</td>
+<td>1.243879</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">2000-09-30</td>
-<td>1.061170</td>
-<td>0.775414</td>
+<td>-0.551679</td>
+<td>0.586688</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">2000-10-31</td>
-<td>0.409497</td>
-<td>-0.393825</td>
+<td>-0.535960</td>
+<td>-1.829894</td>
 </tr>
 </tbody>
 </table>
@@ -3581,9 +3584,9 @@ Name: col0, dtype: float64</code></pre>
 </div>
 </div></div>
 <aside class="notes">
-<p>Neste exemplo, começamos com um DataFrame no formato longo.</p>
+<p>Neste exemplo, começamos com um DataFrame no formato long.</p>
 <p>Cada data aparece em duas linhas: uma associada à variável A e outra associada à variável B. A coluna value armazena o valor correspondente a cada combinação entre data e variável.</p>
-<p>O método pivot() reorganiza essa estrutura para o formato largo.</p>
+<p>O método pivot() reorganiza essa estrutura para o formato wide.</p>
 <p>O argumento index=“date” determina que cada data formará uma linha. O argumento columns=“variable” transforma os valores A e B em novas colunas. Por fim, values=“value” define quais dados preencherão essas colunas.</p>
 <p>Depois da transformação, cada data aparece uma única vez, com os valores de A e B apresentados em colunas separadas.</p>
 <p>Para que pivot() funcione, cada combinação de data e variável deve ser única. Se houver valores duplicados para uma mesma combinação, será necessário usar pivot_table() e definir uma função de agregação.</p>
@@ -3602,27 +3605,41 @@ Name: col0, dtype: float64</code></pre>
 <section id="reshaping-stack-data" class="slide level2">
 <h2>Reshaping: Stack Data</h2>
 
-<img data-src="reshaping_stack.png" class="r-stretch"></section>
+<img data-src="reshaping_stack.png" class="r-stretch"><aside class="notes">
+<p>O método stack() transforma dados do formato wide para uma estrutura mais longa, movendo as colunas para um novo nível do índice.</p>
+<p>Neste exemplo, o DataFrame original já possui um MultiIndex formado pelos níveis first e second, além das colunas A e B.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
 <section id="reshaping-stack-data-1" class="slide level2">
 <h2>Reshaping: Stack Data</h2>
 <div class="columns">
 <div class="column" style="width:50%;">
-<div id="c99835a7" class="cell" data-execution_count="36">
+<div id="da73edf0" class="cell" data-execution_count="37">
 <details class="code-fold">
 <summary>show code</summary>
-<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href=""></a>tuples <span class="op">=</span> <span class="bu">list</span>(</span>
-<span id="cb40-2"><a href=""></a>    <span class="bu">zip</span>(</span>
-<span id="cb40-3"><a href=""></a>        <span class="op">*</span>[</span>
-<span id="cb40-4"><a href=""></a>            [<span class="st">"bar"</span>, <span class="st">"bar"</span>, <span class="st">"baz"</span>, <span class="st">"baz"</span>, <span class="st">"foo"</span>, <span class="st">"foo"</span>, <span class="st">"qux"</span>, <span class="st">"qux"</span>],</span>
-<span id="cb40-5"><a href=""></a>            [<span class="st">"one"</span>, <span class="st">"two"</span>, <span class="st">"one"</span>, <span class="st">"two"</span>, <span class="st">"one"</span>, <span class="st">"two"</span>, <span class="st">"one"</span>, <span class="st">"two"</span>],</span>
-<span id="cb40-6"><a href=""></a>        ]</span>
-<span id="cb40-7"><a href=""></a>    )</span>
-<span id="cb40-8"><a href=""></a>)</span>
-<span id="cb40-9"><a href=""></a>index <span class="op">=</span> pd.MultiIndex.from_tuples(tuples, names<span class="op">=</span>[<span class="st">"first"</span>, <span class="st">"second"</span>])</span>
-<span id="cb40-10"><a href=""></a>df <span class="op">=</span> pd.DataFrame(np.random.randn(<span class="dv">8</span>, <span class="dv">2</span>), index<span class="op">=</span>index, columns<span class="op">=</span>[<span class="st">"A"</span>, <span class="st">"B"</span>])</span>
-<span id="cb40-11"><a href=""></a>df.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb41-1"><a href=""></a>tuples <span class="op">=</span> <span class="bu">list</span>(</span>
+<span id="cb41-2"><a href=""></a>    <span class="bu">zip</span>(</span>
+<span id="cb41-3"><a href=""></a>        <span class="op">*</span>[</span>
+<span id="cb41-4"><a href=""></a>            [<span class="st">"bar"</span>, <span class="st">"bar"</span>, <span class="st">"baz"</span>, <span class="st">"baz"</span>, <span class="st">"foo"</span>, <span class="st">"foo"</span>, <span class="st">"qux"</span>, <span class="st">"qux"</span>],</span>
+<span id="cb41-5"><a href=""></a>            [<span class="st">"one"</span>, <span class="st">"two"</span>, <span class="st">"one"</span>, <span class="st">"two"</span>, <span class="st">"one"</span>, <span class="st">"two"</span>, <span class="st">"one"</span>, <span class="st">"two"</span>],</span>
+<span id="cb41-6"><a href=""></a>        ]</span>
+<span id="cb41-7"><a href=""></a>    )</span>
+<span id="cb41-8"><a href=""></a>)</span>
+<span id="cb41-9"><a href=""></a>index <span class="op">=</span> pd.MultiIndex.from_tuples(tuples, names<span class="op">=</span>[<span class="st">"first"</span>, <span class="st">"second"</span>])</span>
+<span id="cb41-10"><a href=""></a>df <span class="op">=</span> pd.DataFrame(np.random.randn(<span class="dv">8</span>, <span class="dv">2</span>), index<span class="op">=</span>index, columns<span class="op">=</span>[<span class="st">"A"</span>, <span class="st">"B"</span>])</span>
+<span id="cb41-11"><a href=""></a>df.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="36">
+<div class="cell-output cell-output-display" data-execution_count="37">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -3657,30 +3674,30 @@ Name: col0, dtype: float64</code></pre>
 <tr class="odd">
 <td rowspan="2" data-quarto-table-cell-role="th" data-valign="top">bar</td>
 <td data-quarto-table-cell-role="th">one</td>
-<td>0.406735</td>
-<td>-0.214141</td>
+<td>2.023960</td>
+<td>0.705347</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">two</td>
-<td>0.259036</td>
-<td>-0.127834</td>
+<td>-1.217726</td>
+<td>-0.544522</td>
 </tr>
 <tr class="odd">
 <td rowspan="2" data-quarto-table-cell-role="th" data-valign="top">baz</td>
 <td data-quarto-table-cell-role="th">one</td>
-<td>-1.052787</td>
-<td>-1.457638</td>
+<td>1.625491</td>
+<td>1.320163</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">two</td>
-<td>0.718284</td>
-<td>1.257110</td>
+<td>-1.126143</td>
+<td>-0.712287</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">foo</td>
 <td data-quarto-table-cell-role="th">one</td>
-<td>0.696898</td>
-<td>-0.946694</td>
+<td>-0.682746</td>
+<td>1.245968</td>
 </tr>
 </tbody>
 </table>
@@ -3689,13 +3706,13 @@ Name: col0, dtype: float64</code></pre>
 </div>
 </div>
 </div><div class="column" style="width:50%;">
-<div id="d6c1b7a4" class="cell" data-execution_count="37">
+<div id="b9348d98" class="cell" data-execution_count="38">
 <details class="code-fold">
 <summary>show code</summary>
-<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb41-1"><a href=""></a>df <span class="op">=</span> pd.DataFrame(df.stack())</span>
-<span id="cb41-2"><a href=""></a>df.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href=""></a>df <span class="op">=</span> pd.DataFrame(df.stack())</span>
+<span id="cb42-2"><a href=""></a>df.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="37">
+<div class="cell-output cell-output-display" data-execution_count="38">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -3731,26 +3748,26 @@ Name: col0, dtype: float64</code></pre>
 <td rowspan="4" data-quarto-table-cell-role="th" data-valign="top">bar</td>
 <td rowspan="2" data-quarto-table-cell-role="th" data-valign="top">one</td>
 <td data-quarto-table-cell-role="th">A</td>
-<td>0.406735</td>
+<td>2.023960</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">B</td>
-<td>-0.214141</td>
+<td>0.705347</td>
 </tr>
 <tr class="odd">
 <td rowspan="2" data-quarto-table-cell-role="th" data-valign="top">two</td>
 <td data-quarto-table-cell-role="th">A</td>
-<td>0.259036</td>
+<td>-1.217726</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">B</td>
-<td>-0.127834</td>
+<td>-0.544522</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">baz</td>
 <td data-quarto-table-cell-role="th">one</td>
 <td data-quarto-table-cell-role="th">A</td>
-<td>-1.052787</td>
+<td>1.625491</td>
 </tr>
 </tbody>
 </table>
@@ -3760,8 +3777,6 @@ Name: col0, dtype: float64</code></pre>
 </div>
 </div></div>
 <aside class="notes">
-<p>O método stack() transforma dados do formato largo para uma estrutura mais longa, movendo as colunas para um novo nível do índice.</p>
-<p>Neste exemplo, o DataFrame original já possui um MultiIndex formado pelos níveis first e second, além das colunas A e B.</p>
 <p>Quando aplicamos stack(), as colunas A e B deixam de aparecer lado a lado e passam a formar um terceiro nível do índice.</p>
 <p>Como resultado, os valores anteriormente distribuídos entre duas colunas passam a ocupar uma única coluna, e o número de linhas aumenta.</p>
 <p>Aqui, convertemos a Series resultante novamente em um DataFrame. O stack() é semelhante ao melt(), mas trabalha diretamente com a estrutura do índice.</p>
@@ -3780,15 +3795,29 @@ Name: col0, dtype: float64</code></pre>
 <section id="reshaping-unstack-data" class="slide level2">
 <h2>Reshaping: Unstack data</h2>
 
-<img data-src="reshaping_unstack.png" class="r-stretch"></section>
+<img data-src="reshaping_unstack.png" class="r-stretch"><aside class="notes">
+<p>O método unstack() realiza a operação inversa ao stack().</p>
+<p>Enquanto stack() move colunas para o índice, unstack() move um nível do índice para as colunas, transformando os dados em uma estrutura mais larga.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
 <section id="reshaping-unstack-data-1" class="slide level2">
 <h2>Reshaping: Unstack data</h2>
-<div id="cf7c4d8b" class="cell" data-execution_count="38">
+<div id="6364aebb" class="cell" data-execution_count="39">
 <details class="code-fold">
 <summary>show code</summary>
-<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href=""></a>df.unstack(level<span class="op">=</span><span class="dv">0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a href=""></a>df.unstack(level<span class="op">=</span><span class="dv">0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="38">
+<div class="cell-output cell-output-display" data-execution_count="39">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -3836,32 +3865,32 @@ Name: col0, dtype: float64</code></pre>
 <tr class="odd">
 <td rowspan="2" data-quarto-table-cell-role="th" data-valign="top">one</td>
 <td data-quarto-table-cell-role="th">A</td>
-<td>0.406735</td>
-<td>-1.052787</td>
-<td>0.696898</td>
-<td>0.642006</td>
+<td>2.023960</td>
+<td>1.625491</td>
+<td>-0.682746</td>
+<td>0.069404</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">B</td>
-<td>-0.214141</td>
-<td>-1.457638</td>
-<td>-0.946694</td>
-<td>0.169557</td>
+<td>0.705347</td>
+<td>1.320163</td>
+<td>1.245968</td>
+<td>-1.834265</td>
 </tr>
 <tr class="odd">
 <td rowspan="2" data-quarto-table-cell-role="th" data-valign="top">two</td>
 <td data-quarto-table-cell-role="th">A</td>
-<td>0.259036</td>
-<td>0.718284</td>
-<td>0.061700</td>
-<td>1.161233</td>
+<td>-1.217726</td>
+<td>-1.126143</td>
+<td>-1.277303</td>
+<td>0.505864</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">B</td>
-<td>-0.127834</td>
-<td>1.257110</td>
-<td>0.358958</td>
-<td>1.228740</td>
+<td>-0.544522</td>
+<td>-0.712287</td>
+<td>-0.358281</td>
+<td>1.127772</td>
 </tr>
 </tbody>
 </table>
@@ -3870,8 +3899,6 @@ Name: col0, dtype: float64</code></pre>
 </div>
 </div>
 <aside class="notes">
-<p>O método unstack() realiza a operação inversa ao stack().</p>
-<p>Enquanto stack() move colunas para o índice, unstack() move um nível do índice para as colunas, transformando os dados em uma estrutura mais larga.</p>
 <p>Neste exemplo, level=0 indica que o primeiro nível do índice será reorganizado como colunas.</p>
 <p>Os demais níveis permanecem no índice, enquanto os valores associados ao nível selecionado passam a aparecer lado a lado.</p>
 <p>Essa operação é especialmente útil quando trabalhamos com um MultiIndex e queremos comparar categorias em colunas separadas.</p>
@@ -3891,12 +3918,13 @@ Name: col0, dtype: float64</code></pre>
 <section id="concatenate" class="slide level2">
 <h2>Concatenate</h2>
 
-<img data-src="concat_row.svg" class="r-stretch"><aside class="notes">
+<img data-src="concat_row.svg" class="r-stretch"><div class="sourceCode" id="cb44"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb44-1"><a href=""></a>pd.concat([df1,df2], axis <span class="op">=</span> <span class="dv">0</span>)</span>
+<span id="cb44-2"><a href=""></a>pd.concat([df1,df2], axis <span class="op">=</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<aside class="notes">
 <p>A função pd.concat() permite combinar dois ou mais DataFrames em uma única estrutura.</p>
 <p>Quando os DataFrames possuem as mesmas colunas, usamos axis=0 para empilhá-los verticalmente. Nesse caso, as linhas do segundo DataFrame são adicionadas abaixo das linhas do primeiro.</p>
 <p>Quando os DataFrames possuem o mesmo índice, podemos usar axis=1 para combiná-los horizontalmente, adicionando novas colunas.</p>
 <p>Normalmente, passamos para pd.concat() uma lista contendo os DataFrames que desejamos unir.</p>
-<p>O argumento keys permite identificar a origem de cada conjunto de dados no resultado final. Essas chaves passam a formar um novo nível do índice.</p>
 <p>É importante verificar se as estruturas são compatíveis antes da concatenação. Quando os nomes das colunas ou os índices não coincidem, o pandas realiza o alinhamento e pode criar valores ausentes.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
@@ -3912,31 +3940,114 @@ Name: col0, dtype: float64</code></pre>
 </section>
 <section id="concatenate-1" class="slide level2">
 <h2>Concatenate</h2>
-<div id="785db6ec" class="cell" data-execution_count="39">
+<div id="4e49cd9c" class="cell" data-execution_count="40">
 <details class="code-fold">
 <summary>show code</summary>
-<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a href=""></a>base_url <span class="op">=</span> (</span>
-<span id="cb43-2"><a href=""></a>    <span class="st">"https://github.com/aeturrell/coding-for-economists/raw/refs/heads/main/data/"</span></span>
-<span id="cb43-3"><a href=""></a>)</span>
-<span id="cb43-4"><a href=""></a>state_codes <span class="op">=</span> [<span class="st">"ca"</span>, <span class="st">"il"</span>]</span>
-<span id="cb43-5"><a href=""></a>end_url <span class="op">=</span> <span class="st">"pop.dta"</span></span>
-<span id="cb43-6"><a href=""></a></span>
-<span id="cb43-7"><a href=""></a><span class="co"># This grabs the two dataframes, one for each state</span></span>
-<span id="cb43-8"><a href=""></a>list_of_state_dfs <span class="op">=</span> [pd.read_stata(base_url <span class="op">+</span> state <span class="op">+</span> end_url) <span class="cf">for</span> state <span class="kw">in</span> state_codes]</span>
-<span id="cb43-9"><a href=""></a><span class="co"># Show example of first entry in list of dataframes</span></span>
-<span id="cb43-10"><a href=""></a><span class="bu">print</span>(list_of_state_dfs[<span class="dv">0</span>])</span>
-<span id="cb43-11"><a href=""></a></span>
-<span id="cb43-12"><a href=""></a><span class="co"># Concatenate the list of dataframes</span></span>
-<span id="cb43-13"><a href=""></a>df <span class="op">=</span> pd.concat(list_of_state_dfs, keys<span class="op">=</span>state_codes, axis<span class="op">=</span><span class="dv">0</span>)</span>
-<span id="cb43-14"><a href=""></a>df</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb45-1"><a href=""></a>base_url <span class="op">=</span> (</span>
+<span id="cb45-2"><a href=""></a>    <span class="st">"https://github.com/aeturrell/coding-for-economists/raw/refs/heads/main/data/"</span></span>
+<span id="cb45-3"><a href=""></a>)</span>
+<span id="cb45-4"><a href=""></a>state_codes <span class="op">=</span> [<span class="st">"ca"</span>, <span class="st">"il"</span>]</span>
+<span id="cb45-5"><a href=""></a>end_url <span class="op">=</span> <span class="st">"pop.dta"</span></span>
+<span id="cb45-6"><a href=""></a></span>
+<span id="cb45-7"><a href=""></a><span class="co"># This grabs the two dataframes, one for each state</span></span>
+<span id="cb45-8"><a href=""></a>list_of_state_dfs <span class="op">=</span> [pd.read_stata(base_url <span class="op">+</span> state <span class="op">+</span> end_url) <span class="cf">for</span> state <span class="kw">in</span> state_codes]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-stdout">
-<pre><code>        county      pop
-0  Los Angeles  9878554
-1       Orange  2997033
-2      Ventura   798364</code></pre>
 </div>
-<div class="cell-output cell-output-display" data-execution_count="39">
+<div class="columns">
+<div class="column" style="width:40%;">
+<h3 id="california">California</h3>
+<div id="d3e1e3ad" class="cell" data-execution_count="41">
+<details class="code-fold">
+<summary>show code</summary>
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb46-1"><a href=""></a>pd.DataFrame(list_of_state_dfs[<span class="dv">0</span>]).head(<span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="41">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+
+<table class="dataframe caption-top" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header" style="text-align: right;">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">county</th>
+<th data-quarto-table-cell-role="th">pop</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>Los Angeles</td>
+<td>9878554</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<h3 id="illinois">Illinois</h3>
+<div id="9f143675" class="cell" data-execution_count="42">
+<details class="code-fold">
+<summary>show code</summary>
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb47-1"><a href=""></a>pd.DataFrame(list_of_state_dfs[<span class="dv">1</span>]).head(<span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="42">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+
+<table class="dataframe caption-top" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header" style="text-align: right;">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">county</th>
+<th data-quarto-table-cell-role="th">pop</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>Cook</td>
+<td>5285107</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</div><div class="column" style="width:60%;">
+<h3 id="concatenate-the-list-of-dataframes">Concatenate the list of dataframes</h3>
+<div id="f2190972" class="cell" data-execution_count="43">
+<details class="code-fold">
+<summary>show code</summary>
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb48-1"><a href=""></a>df <span class="op">=</span> pd.concat(list_of_state_dfs, keys<span class="op">=</span>state_codes, axis<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb48-2"><a href=""></a>df</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="43">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -4000,6 +4111,7 @@ Name: col0, dtype: float64</code></pre>
 </div>
 </div>
 </div>
+</div></div>
 <aside class="notes">
 <p>Neste exemplo, combinamos dados populacionais de dois estados, Califórnia e Illinois, em um único DataFrame.</p>
 <p>Primeiro, definimos os códigos ca e il e usamos pd.read_stata() para carregar um arquivo para cada estado. Os dois DataFrames são armazenados em uma lista.</p>
@@ -4022,7 +4134,11 @@ Name: col0, dtype: float64</code></pre>
 <section id="merge" class="slide level2">
 <h2>Merge</h2>
 
-<img data-src="merge_left.svg" class="r-stretch"><aside class="notes">
+<img data-src="merge_left.svg" class="r-stretch"><div class="sourceCode" id="cb49"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb49-1"><a href=""></a>pd.merge(df1,df2, how <span class="op">=</span> <span class="st">"left"</span>)</span>
+<span id="cb49-2"><a href=""></a>pd.merge(df1,df2, how <span class="op">=</span> <span class="st">"right"</span>)</span>
+<span id="cb49-3"><a href=""></a>pd.merge(df1,df2, how <span class="op">=</span> <span class="st">"inner"</span>)</span>
+<span id="cb49-4"><a href=""></a>pd.merge(df1,df2, how <span class="op">=</span> <span class="st">"outer"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<aside class="notes">
 <p>A função pd.merge() combina dois DataFrames a partir de uma ou mais colunas em comum, chamadas de chaves.</p>
 <p>Os argumentos left e right representam os dois DataFrames que serão combinados. O argumento on define a coluna, ou o conjunto de colunas, utilizado para encontrar correspondências entre eles.</p>
 <p>O argumento how determina quais chaves serão mantidas no resultado.</p>
@@ -4044,29 +4160,29 @@ Name: col0, dtype: float64</code></pre>
 </section>
 <section id="merge-1" class="slide level2">
 <h2>Merge</h2>
-<div id="3c146ef8" class="cell" data-execution_count="40">
+<div id="ff9379f2" class="cell" data-execution_count="44">
 <details class="code-fold">
 <summary>show code</summary>
-<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb45-1"><a href=""></a>left <span class="op">=</span> pd.DataFrame(</span>
-<span id="cb45-2"><a href=""></a>    {</span>
-<span id="cb45-3"><a href=""></a>        <span class="st">"key1"</span>: [<span class="st">"K0"</span>, <span class="st">"K0"</span>, <span class="st">"K1"</span>, <span class="st">"K2"</span>],</span>
-<span id="cb45-4"><a href=""></a>        <span class="st">"key2"</span>: [<span class="st">"K0"</span>, <span class="st">"K1"</span>, <span class="st">"K0"</span>, <span class="st">"K1"</span>],</span>
-<span id="cb45-5"><a href=""></a>        <span class="st">"A"</span>: [<span class="st">"A0"</span>, <span class="st">"A1"</span>, <span class="st">"A2"</span>, <span class="st">"A3"</span>],</span>
-<span id="cb45-6"><a href=""></a>        <span class="st">"B"</span>: [<span class="st">"B0"</span>, <span class="st">"B1"</span>, <span class="st">"B2"</span>, <span class="st">"B3"</span>],</span>
-<span id="cb45-7"><a href=""></a>    }</span>
-<span id="cb45-8"><a href=""></a>)</span>
-<span id="cb45-9"><a href=""></a>right <span class="op">=</span> pd.DataFrame(</span>
-<span id="cb45-10"><a href=""></a>    {</span>
-<span id="cb45-11"><a href=""></a>        <span class="st">"key1"</span>: [<span class="st">"K0"</span>, <span class="st">"K1"</span>, <span class="st">"K1"</span>, <span class="st">"K2"</span>],</span>
-<span id="cb45-12"><a href=""></a>        <span class="st">"key2"</span>: [<span class="st">"K0"</span>, <span class="st">"K0"</span>, <span class="st">"K0"</span>, <span class="st">"K0"</span>],</span>
-<span id="cb45-13"><a href=""></a>        <span class="st">"C"</span>: [<span class="st">"C0"</span>, <span class="st">"C1"</span>, <span class="st">"C2"</span>, <span class="st">"C3"</span>],</span>
-<span id="cb45-14"><a href=""></a>        <span class="st">"D"</span>: [<span class="st">"D0"</span>, <span class="st">"D1"</span>, <span class="st">"D2"</span>, <span class="st">"D3"</span>],</span>
-<span id="cb45-15"><a href=""></a>    }</span>
-<span id="cb45-16"><a href=""></a>)</span>
-<span id="cb45-17"><a href=""></a><span class="co"># Right merge</span></span>
-<span id="cb45-18"><a href=""></a>pd.merge(left, right, on<span class="op">=</span>[<span class="st">"key1"</span>, <span class="st">"key2"</span>], how<span class="op">=</span><span class="st">"right"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb50-1"><a href=""></a>left <span class="op">=</span> pd.DataFrame(</span>
+<span id="cb50-2"><a href=""></a>    {</span>
+<span id="cb50-3"><a href=""></a>        <span class="st">"key1"</span>: [<span class="st">"K0"</span>, <span class="st">"K0"</span>, <span class="st">"K1"</span>, <span class="st">"K2"</span>],</span>
+<span id="cb50-4"><a href=""></a>        <span class="st">"key2"</span>: [<span class="st">"K0"</span>, <span class="st">"K1"</span>, <span class="st">"K0"</span>, <span class="st">"K1"</span>],</span>
+<span id="cb50-5"><a href=""></a>        <span class="st">"A"</span>: [<span class="st">"A0"</span>, <span class="st">"A1"</span>, <span class="st">"A2"</span>, <span class="st">"A3"</span>],</span>
+<span id="cb50-6"><a href=""></a>        <span class="st">"B"</span>: [<span class="st">"B0"</span>, <span class="st">"B1"</span>, <span class="st">"B2"</span>, <span class="st">"B3"</span>],</span>
+<span id="cb50-7"><a href=""></a>    }</span>
+<span id="cb50-8"><a href=""></a>)</span>
+<span id="cb50-9"><a href=""></a>right <span class="op">=</span> pd.DataFrame(</span>
+<span id="cb50-10"><a href=""></a>    {</span>
+<span id="cb50-11"><a href=""></a>        <span class="st">"key1"</span>: [<span class="st">"K0"</span>, <span class="st">"K1"</span>, <span class="st">"K1"</span>, <span class="st">"K2"</span>],</span>
+<span id="cb50-12"><a href=""></a>        <span class="st">"key2"</span>: [<span class="st">"K0"</span>, <span class="st">"K0"</span>, <span class="st">"K0"</span>, <span class="st">"K0"</span>],</span>
+<span id="cb50-13"><a href=""></a>        <span class="st">"C"</span>: [<span class="st">"C0"</span>, <span class="st">"C1"</span>, <span class="st">"C2"</span>, <span class="st">"C3"</span>],</span>
+<span id="cb50-14"><a href=""></a>        <span class="st">"D"</span>: [<span class="st">"D0"</span>, <span class="st">"D1"</span>, <span class="st">"D2"</span>, <span class="st">"D3"</span>],</span>
+<span id="cb50-15"><a href=""></a>    }</span>
+<span id="cb50-16"><a href=""></a>)</span>
+<span id="cb50-17"><a href=""></a><span class="co"># Right merge</span></span>
+<span id="cb50-18"><a href=""></a>pd.merge(left, right, on<span class="op">=</span>[<span class="st">"key1"</span>, <span class="st">"key2"</span>], how<span class="op">=</span><span class="st">"right"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="40">
+<div class="cell-output cell-output-display" data-execution_count="44">
 <div>
 <style scoped="">
     .dataframe tbody tr th:only-of-type {
@@ -4156,12 +4272,20 @@ Name: col0, dtype: float64</code></pre>
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</section></section>
+<section>
+<section id="exercises" class="title-slide slide level1 center">
+<h1>Exercises</h1>
+
 </section>
-<section id="exercises" class="slide level2 scrollable">
-<h2>Exercises</h2>
+<section id="class-exercises" class="slide level2 scrollable">
+<h2>Class Exercises</h2>
 <ol type="1">
 <li>Using <code>flights</code>, find all flights that:</li>
 </ol>
+<div class="sourceCode" id="cb51"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb51-1"><a href=""></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb51-2"><a href=""></a>url <span class="op">=</span> <span class="st">"https://raw.githubusercontent.com/byuidatascience/data4python4ds/master/data-raw/flights/flights.csv"</span></span>
+<span id="cb51-3"><a href=""></a>flights <span class="op">=</span> pd.read_csv(url)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <ul>
 <li><p>Had an arrival delay of two or more hours</p></li>
 <li><p>Flew to Houston (“IAH” or “HOU”)</p></li>
@@ -4174,24 +4298,56 @@ Name: col0, dtype: float64</code></pre>
 <li><p>Sort flights to find the flights with longest departure delays.</p></li>
 <li><p>Sort flights to find the fastest flights</p></li>
 <li><p>Which flights traveled the farthest?</p></li>
-<li><p>Does it matter what order you used query() and sort_values() in if you’re using both? Why/why not? Think about the results and how much work the functions would have to do.</p></li>
-<li><p>Compare air_time with arr_time - dep_time. What do you expect to see? What do you see What do you need to do to fix it?</p></li>
+</ol>
+</section>
+<section id="extra-class-exercises" class="slide level2 scrollable">
+<h2>Extra-class Exercises</h2>
+<p>Using <code>flights</code></p>
+<div class="sourceCode" id="cb52"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb52-1"><a href=""></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb52-2"><a href=""></a>url <span class="op">=</span> <span class="st">"https://raw.githubusercontent.com/byuidatascience/data4python4ds/master/data-raw/flights/flights.csv"</span></span>
+<span id="cb52-3"><a href=""></a>flights <span class="op">=</span> pd.read_csv(url)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ol start="5" type="1">
+<li><p>Does it matter what order you used <code>query()</code> and <code>sort_values()</code> in if you’re using both? Why/why not? Think about the results and how much work the functions would have to do.</p></li>
+<li><p>Compare <code>air_time</code> with <code>arr_time - dep_time</code>. What do you expect to see? What do you see What do you need to do to fix it?</p></li>
 <li><p>Compare dep_time, sched_dep_time, and dep_delay. How would you expect those three numbers to be related?</p></li>
 <li><p>Brainstorm as many ways as possible to select dep_time, dep_delay, arr_time, and arr_delay from flights.</p></li>
 <li><p>What happens if you include the name of a row or column multiple times when trying to select them?</p></li>
 <li><p>What does the .isin() function do in the following?</p></li>
 </ol>
-<div class="sourceCode" id="cb46"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb46-1"><a href=""></a>flights.columns.isin([<span class="st">"year"</span>, <span class="st">"month"</span>, <span class="st">"day"</span>, <span class="st">"dep_delay"</span>, <span class="st">"arr_delay"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb53"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb53-1"><a href=""></a>flights.columns.isin([<span class="st">"year"</span>, <span class="st">"month"</span>, <span class="st">"day"</span>, <span class="st">"dep_delay"</span>, <span class="st">"arr_delay"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <ol start="11" type="1">
 <li>Does the result of running the following code surprise you? How do functions like str.contains deal with case by default? How can you change that default?</li>
 </ol>
-<div class="sourceCode" id="cb47"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb47-1"><a href=""></a>flights.loc[:, flights.columns.<span class="bu">str</span>.contains(<span class="st">"TIME"</span>)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb54"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb54-1"><a href=""></a>flights.loc[:, flights.columns.<span class="bu">str</span>.contains(<span class="st">"TIME"</span>)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Hint: you can use help even on functions that apply to data frames, eg use help(flights.columns.str.contains)</p>
 <ol start="12" type="1">
 <li><p>Which carrier has the worst delays? Challenge: can you disentangle the effects of bad airports vs.&nbsp;bad carriers? Why/why not? (Hint: think about flights.groupby([“carrier”, “dest”]).count())</p></li>
 <li><p>Find the most delayed flight to each destination.</p></li>
 <li><p>How do delays vary over the course of the day?</p></li>
+<li><p>Concatenate the follow two data frames:</p></li>
 </ol>
+<div class="sourceCode" id="cb55"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb55-1"><a href=""></a>df1 <span class="op">=</span> pd.DataFrame([[<span class="st">'a'</span>, <span class="dv">1</span>], [<span class="st">'b'</span>, <span class="dv">2</span>]],</span>
+<span id="cb55-2"><a href=""></a>                   columns<span class="op">=</span>[<span class="st">'letter'</span>, <span class="st">'number'</span>])</span>
+<span id="cb55-3"><a href=""></a></span>
+<span id="cb55-4"><a href=""></a>df2 <span class="op">=</span> pd.DataFrame([[<span class="st">'c'</span>, <span class="dv">3</span>], [<span class="st">'d'</span>, <span class="dv">4</span>]],</span>
+<span id="cb55-5"><a href=""></a>                   columns<span class="op">=</span>[<span class="st">'letter'</span>, <span class="st">'number'</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ol start="16" type="1">
+<li>Merge the following two data frames using the left_on and right_on keyword arguments to specify a join on lkey and rkey respectively:</li>
+</ol>
+<div class="sourceCode" id="cb56"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb56-1"><a href=""></a>df1 <span class="op">=</span> pd.DataFrame({<span class="st">'lkey'</span>: [<span class="st">'foo'</span>, <span class="st">'bar'</span>, <span class="st">'baz'</span>, <span class="st">'foo'</span>],</span>
+<span id="cb56-2"><a href=""></a>                    <span class="st">'value'</span>: [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">5</span>]})</span>
+<span id="cb56-3"><a href=""></a>df2 <span class="op">=</span> pd.DataFrame({<span class="st">'rkey'</span>: [<span class="st">'foo'</span>, <span class="st">'bar'</span>, <span class="st">'baz'</span>, <span class="st">'foo'</span>],</span>
+<span id="cb56-4"><a href=""></a>                    <span class="st">'value'</span>: [<span class="dv">5</span>, <span class="dv">6</span>, <span class="dv">7</span>, <span class="dv">8</span>]})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ol start="17" type="1">
+<li>Merge the following two data frames on “a” using how=“left” as a keyword argument:</li>
+</ol>
+<div id="04c5af18" class="cell" data-execution_count="45">
+<details class="code-fold">
+<summary>show code</summary>
+<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb57-1"><a href=""></a>df1 <span class="op">=</span> pd.DataFrame({<span class="st">'a'</span>: [<span class="st">'foo'</span>, <span class="st">'bar'</span>], <span class="st">'b'</span>: [<span class="dv">1</span>, <span class="dv">2</span>]})</span>
+<span id="cb57-2"><a href=""></a>df2 <span class="op">=</span> pd.DataFrame({<span class="st">'a'</span>: [<span class="st">'foo'</span>, <span class="st">'baz'</span>], <span class="st">'c'</span>: [<span class="dv">3</span>, <span class="dv">4</span>]})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
 </section>
 <section id="reference" class="slide level2">
 <h2>Reference</h2>
